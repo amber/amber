@@ -2201,9 +2201,9 @@ d.Block = d.Class(d.Control, {
 		})) {
 			bb = this.element.getBoundingClientRect();
 			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()]).startDrag(app, e, bb);
+		} else if (this.parent.isStack) {
+			this.parent.dragStack(e, this);
 		}
-		// } else if (this.parent.isStack) {
-		// 	this.parent.dragStack(e, this);
 		// } else if (this.parent.isBlock) {
 		// 	app = this.app();
 		// 	bb = this.element.getBoundingClientRect();
