@@ -68,6 +68,7 @@
 	border-radius: 2px;
 	box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 1px 3px rgba(0, 0, 0, .3);
 	outline: 0;
+	position: relative;
 }
 .d-authentication-server {
 	width: 18.4em;
@@ -81,7 +82,6 @@
 	margin: 0 0 -17px 0;
 	height: 17px;
 	background: #ddd;
-	color: transparent;
 	border: 0;
 }
 .d-authentication-input:focus {
