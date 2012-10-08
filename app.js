@@ -819,10 +819,12 @@ d.Amber = d.Class(d.App, {
 		this.socket = new d.Socket(this, server, callback);
 	},
 	newScriptID: 0,
-	createScript: function (x, y, blocks, callback) {
-		var id = ++this.newScriptID;
-		this.socket.newScriptCallbacks[id] = callback;
+	createScript: function (x, y, blocks) {
+		var id = ++this.newScriptID,
+			script = this.socket.newScripts[id] = new d.BlockStack().fromSerial([-1, x, y, blocks]);
+		this.add(script);
 		this.socket.send('script.create', [id, x, y, blocks]);
+		return script;
 	},
 	t: function (id) {
 		return this.locale[id];
@@ -1182,7 +1184,7 @@ d.Socket = d.Class(d.Base, {
 		this.server = server;
 		this.sent = [];
 		this.received = [];
-		this.newScriptCallbacks = {};
+		this.newScripts = {};
 		this.socket = new WebSocket(server);
 		this.callback = callback;
 		this.listen();
@@ -1225,10 +1227,10 @@ d.Socket = d.Class(d.Base, {
 		}
 		switch (packet[0]) {
 		case 'script.create':
-			a = new d.BlockStack().fromSerial(packet.script);
 			if (packet.temp$id) {
-				this.newScriptCallbacks[packet.temp$id](a);
+				this.newScripts[packet.temp$id].setId(packet.script[0]);
 			} else {
+				a = new d.BlockStack().fromSerial(packet.script);
 				this.amber.add(a);
 			}
 			break;
@@ -1372,6 +1374,15 @@ d.BlockStack = d.Class(d.Control, {
 		}.bind(this), 300);
 		return this;
 	},
+	send: function (f) {
+		var socket = this.app().socket;
+		if (this.id === -1) {
+			(this.sendQueue || (this.sendQueue = [])).push(f);
+			return this;
+		}
+		socket.send.apply(socket, f.call(this));
+		return this;
+	},
 	x: function () {
 		return this.element.getBoundingClientRect().left;
 	},
@@ -1380,7 +1391,16 @@ d.BlockStack = d.Class(d.Control, {
 	},
 	'.id': {
 		apply: function (id) {
-			d.BlockStack.stacks[id] = this;
+			var socket;
+			if (id !== -1) {
+				d.BlockStack.stacks[id] = this;
+				if (this.sendQueue) {
+					socket = this.app().socket;
+					this.sendQueue.forEach(function (f) {
+						socket.send.apply(socket, f.call(this));
+					}, this);
+				}
+			}
 		}
 	},
 	toSerial: function () {
@@ -1630,7 +1650,9 @@ d.BlockStack = d.Class(d.Control, {
 				break;
 			}
 		} else {
-			this.app().socket.send('script.move', this.id(), this.x(), this.y());
+			this.send(function () {
+				return ['script.move', this.id(), this.x(), this.y()];
+			});
 		}
 	},
 	destroy: function () {
@@ -2149,9 +2171,7 @@ d.Block = d.Class(d.Control, {
 			return p.isPalette;
 		})) {
 			bb = this.element.getBoundingClientRect();
-			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()], function (script) {
-				script.startDrag(app, e, bb);
-			});
+			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()]).startDrag(app, e, bb);
 		} else if (this.parent.isStack) {
 			this.parent.dragStack(e, this);
 		} else if (this.parent.isBlock) {
