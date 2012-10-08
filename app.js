@@ -1212,8 +1212,12 @@ d.BlockStack = d.Class(d.Control, {
 		this.initElements('d-block-stack');
 	},
 	setPosition: function (x, y) {
+		this.element.style.WebkitTransition = 'top .3s ease, left .3s ease';
 		this.element.style.left = x + 'px';
 		this.element.style.top = y + 'px';
+		setTimeout(function () {
+			this.element.style.WebkitTransition = '';
+		}.bind(this), 300);
 		return this;
 	},
 	x: function () {
