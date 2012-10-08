@@ -1457,6 +1457,7 @@ d.BlockStack = d.Class(d.Control, {
 		while (i--) {
 			if (d.bbTouch(palettes[i].element, e)) {
 				this.destroy();
+				return;
 			}
 		}
 		if (this.dropTarget) {
