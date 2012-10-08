@@ -1076,6 +1076,8 @@ d.Socket = d.Class(d.Base, {
 			a = new d.BlockStack().fromSerial(packet.script);
 			if (packet.temp$id) {
 				this.newScriptCallbacks[packet.temp$id](a);
+			} else {
+				this.amber.add(a);
 			}
 			break;
 		case 'user.login':
