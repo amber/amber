@@ -808,12 +808,13 @@ d.Stage = d.Class(d.ServerData, {
 	}
 });
 d.Amber = d.Class(d.App, {
-	PROTOCOL_VERSION: '1.0.0',
+	PROTOCOL_VERSION: '1.0.1',
 
 	init: function () {
 		this.base(arguments);
 		this.locale = d.locale['en-US'];
 		this.usersByName = {};
+		this.blocks = {};
 	},
 	createSocket: function (server, callback) {
 		this.socket = new d.Socket(this, server, callback);
@@ -821,9 +822,11 @@ d.Amber = d.Class(d.App, {
 	newScriptID: 0,
 	createScript: function (x, y, blocks) {
 		var id = ++this.newScriptID,
-			script = this.socket.newScripts[id] = new d.BlockStack().fromSerial([-1, x, y, blocks]);
+			tracker = [],
+			script = new d.BlockStack().fromSerial([-1, x, y, blocks], tracker);
+		this.socket.newScripts[id] = tracker;
 		this.add(script);
-		this.socket.send('script.create', [id, x, y, blocks]);
+		this.socket.send('script.create', [x, y, blocks], id);
 		return script;
 	},
 	t: function (id) {
@@ -1214,9 +1217,29 @@ d.Socket = d.Class(d.Base, {
 	error: function (e) {
 		console.warn('Socket error:', e);
 	},
+	unpackIds: function (source, destination) {
+		var i = 0;
+		function unpack(block) {
+			var j = 2;
+			if (typeof block[0] === 'number') {
+				destination[i++].setId(block[0]);
+				while (j < block.length) {
+					if (block[j] instanceof Array) {
+						unpack(block[j]);
+					}
+					++j;
+				}
+			} else {
+				block.forEach(function (b) {
+					unpack(b);
+				});
+			}
+		}
+		unpack(source);
+	},
 	PACKETS: {
 		'script.create': ['script', 'user$id', 'temp$id'],
-		'script.move': ['user$id', 'script$id', 'x', 'y'],
+		'block.move': ['user$id', 'block$id', 'x', 'y'],
 		'block.attach': ['user$id', 'block$id', 'type', 'target$id', 'slot$index'],
 		'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
 		'slot.claim': ['user$id', 'block$id', 'slot$index'],
@@ -1234,15 +1257,15 @@ d.Socket = d.Class(d.Base, {
 		switch (packet[0]) {
 		case 'script.create':
 			if (packet.temp$id) {
-				this.newScripts[packet.temp$id].setId(packet.script[0]);
+				this.unpackIds(packet.script[2], this.newScripts[packet.temp$id]);
 			} else {
 				a = new d.BlockStack().fromSerial(packet.script);
 				this.amber.add(a);
 			}
 			break;
-		case 'script.move':
-			a = d.BlockStack.stacks[packet.script$id];
-			a.setPosition(packet.x, packet.y);
+		case 'block.move':
+			a = this.amber.blocks[packet.block$id];
+			a.detach().setPosition(packet.x, packet.y);
 			break;
 		case 'user.login':
 			if (packet.success) {
@@ -1382,46 +1405,22 @@ d.BlockStack = d.Class(d.Control, {
 		}.bind(this), 300);
 		return this;
 	},
-	send: function (f) {
-		var socket = this.app().socket;
-		if (this.id === -1) {
-			(this.sendQueue || (this.sendQueue = [])).push(f);
-			return this;
-		}
-		socket.send.apply(socket, f.call(this));
-		return this;
-	},
 	x: function () {
 		return this.element.getBoundingClientRect().left;
 	},
 	y: function () {
 		return this.element.getBoundingClientRect().top;
 	},
-	'.id': {
-		apply: function (id) {
-			var socket;
-			if (id !== -1) {
-				d.BlockStack.stacks[id] = this;
-				if (this.sendQueue) {
-					socket = this.app().socket;
-					this.sendQueue.forEach(function (f) {
-						socket.send.apply(socket, f.call(this));
-					}, this);
-				}
-			}
-		}
-	},
 	toSerial: function () {
-		return [0, this.x(), this.y(), this.children.map(function (block) {
+		return [this.x(), this.y(), this.children.map(function (block) {
 			return block.toSerial();
 		})];
 	},
-	fromSerial: function (a) {
-		this.setId(a[0]);
+	fromSerial: function (a, tracker) {
 		this.element.style.left = a[1] + 'px';
 		this.element.style.top = a[2] + 'px';
 		a[3].forEach(function (block) {
-			this.add(d.Block.fromSerial(block));
+			this.add(d.Block.fromSerial(block, tracker));
 		}, this);
 		return this;
 	},
@@ -1658,22 +1657,16 @@ d.BlockStack = d.Class(d.Control, {
 				break;
 			}
 		} else {
-			this.send(function () {
-				return ['script.move', this.id(), this.x(), this.y()];
+			this.top().send(function () {
+				return ['block.move', this.id(), this.x(), this.y()];
 			});
 		}
 	},
 	destroy: function () {
-		var i = this.children.length;
-		while (i--) {
-			this.children[i].destroy();
-		}
 		if (this.parent) {
 			this.parent.remove(this);
 		}
 	}
-}, {
-	stacks: []
 });
 d.CategorySelector = d.Class(d.Control, {
 	acceptsClick: true,
@@ -1760,7 +1753,6 @@ d.BlockList = d.Class(d.Control, {
 	},
 	add: function (child) {
 		this.list.appendChild(this.container = this.newElement('d-block-list-item'));
-		child.destroy();
 		return this.base(arguments, child);
 	},
 	addSpace: function () {
@@ -1921,7 +1913,6 @@ d.arg.TextField = d.Class(d.arg.Base, {
 d.arg.TextField.measure = document.createElement('div');
 d.arg.TextField.measure.className = 'd-block-field-measure';
 document.body.appendChild(d.arg.TextField.measure);
-
 d.arg.Enum = d.Class(d.arg.Base, {
 	acceptsClick: true,
 	acceptsReporter: function () {
@@ -2158,13 +2149,43 @@ d.Block = d.Class(d.Control, {
 		this.base(arguments);
 		this.fill = [];
 		this.onDragStart(this.dragStart);
-		this.onContextMenu(this.showContextMenu);
-		d.Block.blocks.push(this);
+		this.onContextMenu(this.showContextMenu)
 	},
 	toSerial: function () {
-		return [d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
+		return [this._id, d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
 			return a.toSerial();
 		}));
+	},
+	'.id': {
+		value: -1
+	},
+	amber: function (amber) {
+		var socket;
+		if (id !== -1) {
+			amber.blocks[id] = this;
+			if (this.sendQueue) {
+				socket = amber.socket;
+				this.sendQueue.forEach(function (f) {
+					socket.send.apply(socket, f.call(this));
+				}, this);
+				this.sendQueue = null;
+			}
+		}
+	},
+	detach: function () {
+		if (this.parent.isStack) {
+			return this.parent.top() === this ? this.parent : this.parent.splitStack(this);
+		}
+		return new d.BlockStack().add(this);
+	},
+	send: function (f) {
+		var socket = this.app().socket;
+		if (this._id === -1) {
+			(this.sendQueue || (this.sendQueue = [])).push(f);
+			return this;
+		}
+		socket.send.apply(socket, f.call(this));
+		return this;
 	},
 	x: function () {
 		return this.element.getBoundingClientRect().left;
@@ -2180,29 +2201,15 @@ d.Block = d.Class(d.Control, {
 		})) {
 			bb = this.element.getBoundingClientRect();
 			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()]).startDrag(app, e, bb);
-		} else if (this.parent.isStack) {
-			this.parent.dragStack(e, this);
-		} else if (this.parent.isBlock) {
-			app = this.app();
-			bb = this.element.getBoundingClientRect();
-			this.parent.restoreArg(this);
-			new d.BlockStack().add(this).startDrag(app, e, bb);
 		}
-		// var copy;
-		// if (this.parent.isPalette) {
-		// 	this.app().add(copy = this.copy());
-		// 	copy.startDrag(e, this.element.getBoundingClientRect());
-		// } else {
-		// 	// TODO
-		// 	this.startDrag(e, this.element.getBoundingClientRect());
+		// } else if (this.parent.isStack) {
+		// 	this.parent.dragStack(e, this);
+		// } else if (this.parent.isBlock) {
+		// 	app = this.app();
+		// 	bb = this.element.getBoundingClientRect();
+		// 	this.parent.restoreArg(this);
+		// 	new d.BlockStack().add(this).startDrag(app, e, bb);
 		// }
-	},
-	destroy: function () {
-		var i = this.arguments.length;
-		d.Block.blocks.splice(d.Block.blocks.indexOf(this), 1);
-		while (i--) {
-			if (this.arguments[i].isBlock) this.arguments[i].destroy();
-		}
 	},
 	showContextMenu: function (e) {
 		var me = this;
@@ -2221,20 +2228,6 @@ d.Block = d.Class(d.Control, {
 			}
 		}).show(this, e);
 	},
-	// startDrag: function (e, bb) {
-	// 	var app = this.app();
-	// 	this.element.style.position = 'fixed';
-	// 	this.element.style.left = bb.left + 'px';
-	// 	this.element.style.top = bb.top + 'px';
-	// 	app.mouseDownControl = this;
-	// 	app.add(this);
-	// 	this.dragStartEvent = e;
-	// 	this.dragStartBB = bb;
-	// },
-	// touchMove: function (e) {
-	// 	this.element.style.left = this.dragStartBB.left + e.x - this.dragStartEvent.x + 'px';
-	// 	this.element.style.top = this.dragStartBB.top + e.y - this.dragStartEvent.y + 'px';
-	// },
 	copy: function () {
 		var copy = new this.constructor().setCategory(this._category).setSelector(this._selector);
 		if (this._templateSpec) {
@@ -2584,12 +2577,25 @@ d.Block = d.Class(d.Control, {
 		}
 	}
 }, {
-	blocks: [],
-	fromSerial: function (a) {
-		var selector = d.Selectors[a[0]],
+	fromSerial: function (a, tracker) {
+		var selector = d.Selectors[a[1]],
 			spec = d.BlockSpecBySelector[selector],
 			block = d.Block.fromSpec(spec);
-		block.setArgs.apply(block, a.slice(1));
+		block.setId(a[0]);
+		if (tracker) {
+			tracker.push(block);
+		}
+		a.slice(2).forEach(function (arg, i) {
+			if (arg instanceof Array) {
+				if (typeof arg[0] === 'number') {
+					block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker));
+				} else {
+					// TODO command slot stack fromSerial
+				}
+			} else {
+				block.arguments[i].setValue(arg);
+			}
+		});
 		return block;
 	},
 	fromSpec: function (spec) {
