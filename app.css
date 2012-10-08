@@ -271,8 +271,8 @@
 	background: -webkit-linear-gradient(rgb(24%, 24%, 24%), rgb(26%, 26%, 26%));
 	box-shadow:
 		inset 0 0 3px rgba(0, 0, 0, .17),
-		1px 0 rgb(22%, 22%, 22%),
-		-1px 0 rgb(22%, 22%, 22%);
+		1px 0 rgb(21%, 21%, 21%),
+		-1px 0 rgb(21%, 21%, 21%);
 	position: relative;
 }
 
@@ -297,7 +297,7 @@
 	display: inline-block;
 }
 .d-block-list-space {
-	margin: 12px;
+	margin: 16px;
 }
 /*.d-block-list-separator {
 	margin: 12px 0;
