@@ -874,29 +874,181 @@ d.BlockSpecs = {
 		['c', 'motion', 'turnRight:', 'turn %icon:right %f degrees', 15],
 		['c', 'motion', 'turnLeft:', 'turn %icon:left %f degrees', 15],
 		'-',
-		// ['v', 'direction', 90],
+		['vs', 'direction', 90],
 		['c', 'motion', 'pointTowards:', 'point towards %sprite'],
 		'-',
 		['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0],
 		['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
 		['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
 		'-',
+		['vc', 'x position'],
+		['vs', 'x position'],
+		['vc', 'y position'],
+		['vs', 'y position'],
+		'-',
 		['c', 'motion', 'bounceOffEdge', 'if on edge, bounce'],
 		'-',
-		['r', 'variables', 'getVar:', '%var:inline', 'var']
+		['v', 'x position'],
+		['v', 'y position'],
+		['v', 'direction']
 	],
-	looks: [],
-	sound: [],
-	pen: [],
-	control: [],
-	sensing: [],
-	operators: [],
+	looks: [
+		['c', 'looks', 'lookLike:', 'switch to costume %costume'],
+		['c', 'looks', 'nextCostume', 'next costume'],
+		['v', 'costume #'],
+		'-',
+		['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2],
+		['c', 'looks', 'say:duration:', 'say %s', 'Hello!'],
+		['c', 'looks', 'think:duration:elapsed:from:', 'think %s for %f secs', 'Hmm\u2026', 2],
+		['c', 'looks', 'think:duration:', 'think %s', 'Hmm\u2026'],
+		'-',
+		['vc', 'color effect'],
+		['vs', 'color effect'],
+		['c', 'looks', 'filterReset', 'clear graphic effects'],
+		'-',
+		['vc', 'size'],
+		['vs', 'size', 100],
+		['v', 'size'],
+		'-',
+		['c', 'looks', 'show', 'show'],
+		['c', 'looks', 'hide', 'hide'],
+		'-',
+		['c', 'looks', 'comeToFront', 'go to front'],
+		['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
+	],
+	sound: [
+		['c', 'sound', 'playSound:', 'play sound %sound'],
+		['c', 'sound', 'doPlaySoundAndWait', 'play sound %sound until done'],
+		['c', 'sound', 'stopAllSounds', 'stop all sounds'],
+		'-',
+		['c', 'sound', 'drum:duration:elapsed:from:', 'play drum %drum for %f beats', 48, .2],
+		['c', 'sound', 'rest:elapsed:from:', 'rest for %f beats', .2],
+		'-',
+		['c', 'sound', 'noteOn:duration:elapsed:from:', 'play note %note for %f beats', 60, .5],
+		['vs', 'instrument'],
+		'-',
+		['vc', 'volume', -10],
+		['vs', 'volume', 100],
+		['v', 'volume'],
+		'-',
+		['vc', 'tempo', 20],
+		['vs', 'tempo', 60],
+		['v', 'tempo']
+	],
+	pen: [
+		['c', 'pen', 'clear', 'clear'],
+		'-',
+		['c', 'pen', 'putPenDown', 'pen down'],
+		['c', 'pen', 'putPenUp', 'pen up'],
+		'-',
+		['vs', 'pen color'],
+		['vc', 'pen hue'],
+		['vs', 'pen hue'],
+		'-',
+		['vc', 'pen shade'],
+		['vs', 'pen shade'],
+		'-',
+		['vc', 'pen size'],
+		['vs', 'pen size']
+	],
+	control: [
+		// ['h', 'control', 'whenStartClicked', 'When %icon:flag clicked'],
+		// ['h', 'control', 'whenKeyPressed:', 'When %key key pressed'],
+		// ['h', 'control', 'whenSpriteClicked', 'When %sprite clicked'],
+		// '-',
+		['r', 'system', 'closure', '%parameters %slot:command'],
+		['r', 'system', 'closure', '%parameters %slot:reporter'],
+		'-',
+		['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1],
+		'-',
+		['t', 'control', 'doForever', 'forever %c'],
+		['c', 'control', 'doRepeat', 'repeat %i %c', 10],
+		'-',
+		['c', 'control', 'broadcast:', 'broadcast %event'],
+		['c', 'control', 'doBroadcastAndWait', 'broadcast %event and wait'],
+		// ['h', 'control', 'whenMessageReceived:', 'When I receive %event'],
+		'-',
+		['t', 'control', 'doForeverIf', 'forever if %b %c'],
+		['c', 'control', 'doIf', 'if %b %c'],
+		['c', 'control', 'doIfElse', 'if %b %c else %c'],
+		['c', 'control', 'doWaitUntil', 'wait until %b'],
+		['c', 'control', 'doUntil', 'repeat until %b %c'],
+		'-',
+		['t', 'control', 'doReturn', 'stop script'],
+		['t', 'control', 'stopAll', 'stop all %icon:stop']
+	],
+	sensing: [
+		['b', 'sensing', 'touching:', 'touching %sprite?'],
+		['b', 'sensing', 'touchingColor:', 'touching color %color?'],
+		['b', 'sensing', 'color:sees:', 'color %color is touching %color?'],
+		'-',
+		['c', 'sensing', 'doAsk', 'ask %s and wait', "What's your name?"],
+		['v', 'answer'],
+		'-',
+		['v', 'mouse x'],
+		['v', 'mouse y'],
+		['v', 'mouse down?'],
+		'-',
+		['b', 'sensing', 'keyPressed:', 'key %key pressed?'],
+		'-',
+		['r', 'sensing', 'distanceTo:', 'distance to %sprite'],
+		'-',
+		['v', 'timer'],
+		['vs', 'timer'],
+		'-',
+		['r', 'sensing', 'attribute:of:', '%attribute of %object'],
+		'-',
+		['v', 'loudness'],
+		['v', 'loud?']
+	],
+	operators: [
+		['r', 'operators', '+', '%f + %f'],
+		['r', 'operators', '-', '%f - %f'],
+		['r', 'operators', '*', '%f * %f'],
+		['r', 'operators', '/', '%f \xd7 %f'],
+		'-',
+		['r', 'operators', 'randomFrom:to:', 'pick random %f to %f'],
+		'-',
+		['r', 'operators', '<', '%s < %s'],
+		['r', 'operators', '=', '%s = %s'],
+		['r', 'operators', '>', '%s > %s'],
+		'-',
+		['r', 'operators', '&', '%b and %b'],
+		['r', 'operators', '|', '%b or %b'],
+		['r', 'operators', 'not', 'not %b'],
+		'-',
+		['r', 'operators', 'concatenate:with:', 'join %s %s', 'hello ', 'world'],
+		['r', 'operators', 'letter:of:', 'letter %i of %s', 1, 'world'],
+		['r', 'operators', 'stringLength:', 'length of %s', 'world'],
+		'-',
+		['r', 'operators', '\\\\', '%f mod %f'],
+		['r', 'operators', 'rounded', 'round %f'],
+		'-',
+		['r', 'operators', 'computeFunction:of:', '%math of %f', 'sqrt', 10]
+	],
 	variables: [
-		['r', 'variables', 'getVar:', '%var:inline', 'var']
+		['v', 'var'],
+		'-',
+		['vs', ''],
+		['vc', ''],
+		['c', 'variables', 'showVariable:', 'show variable %var', ''],
+		['c', 'variables', 'hideVariable:', 'hide variable %var', ''],
+		'-',
+		['c', 'lists', 'append:toList', 'add %s to %list', 'thing', ''],
+		'-',
+		['c', 'lists', 'deleteLine:ofList:', 'delete %deletion-index of %list', 1, ''],
+		['c', 'lists', 'insert:at:ofList:', 'insert %s at %index of %list', 'thing', 1, ''],
+		['c', 'lists', 'setLine:ofList:to:', 'replace item %index of %list with %s', 1, '', 'thing'],
+		'-',
+		['r', 'lists', 'getLine:ofList:', 'item %index of %list', 1, ''],
+		['r', 'lists', 'lineCountOfList:', 'length of %list'],
+		['b', 'lists', 'list:contains:', '%list contains %s', '', 'thing']
 	]
 };
 d.BlockSpecBySelector = {
-	'setVar:': ['v', 'var', 0]
+	'setVar:to:': ['vs', 'var'],
+	'changeVar:by:': ['vc', 'var', 1],
+	'getVar:': ['v', 'var']
 };
 ~function () {
 	var name;
@@ -1795,6 +1947,18 @@ d.arg.Enum = d.Class(d.arg.Base, {
 		}.bind(this)).setItems(typeof this._items === 'function' ? this._items() : this._items).popUp(this, this.label, this.text());
 	}
 });
+d.arg.Var = d.Class(d.arg.Enum, {
+	init: function () {
+		this.base(arguments);
+	},
+	setText: function (value) {
+		this.base(arguments, value);
+		if (this.parent) {
+			this.parent.setCategory(d.VariableColors[value] || 'variables');
+		}
+		return this;
+	}
+});
 d.arg.Bool = d.Class(d.arg.Base, {
 	acceptsReporter: function (reporter) {
 		return true;
@@ -2130,7 +2294,7 @@ d.Block = d.Class(d.Control, {
 
 		// Open Enumerations (temporary)
 		case 'list': return new d.arg.List();
-		case 'var': return new d.arg.Enum().setItems(['x position', 'y position', 'direction', 'costume #', 'size', 'layer', 'instrument', 'volume', 'pen color', 'pen hue', 'pen saturation', 'pen lightness', d.Menu.separator, 'color effect', 'fisheye effect', 'whirl effect', 'pixelate effect', 'mosaic effect', 'brightness effect', 'ghost effect', d.Menu.separator, 'tempo', 'answer', 'timer', d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+		case 'var': return new d.arg.Var().setItems(['x position', 'y position', 'direction', 'costume #', 'size', 'layer', 'instrument', 'volume', 'pen down?', 'pen color', 'pen hue', 'pen shade', d.Menu.separator, 'color effect', 'fisheye effect', 'whirl effect', 'pixelate effect', 'mosaic effect', 'brightness effect', 'ghost effect', d.Menu.separator, 'tempo', 'answer', 'timer', d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
 		case 'var:inline': return this.argFromSpec('var').setInline(true);
 		case 'var:template': return new d.arg.Label();
 		case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
@@ -2403,15 +2567,28 @@ d.Block = d.Class(d.Control, {
 	fromSpec: function (spec) {
 		var block;
 		switch (spec[0]) {
-			case 'c':
-			case 'r':
-			case 'b':
-				block = new (spec[0] === 'c' ? d.CommandBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.ReporterBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
-				block.setArgs.apply(block, spec.slice(4));
-				return block;
-			case 'v':
-				return new d.SetterBlock().setVar(spec[1]).setValue(spec[2]);
+		case 'c':
+		case 't':
+		case 'r':
+		case 'b':
+			block = new (spec[0] === 'r' ? d.ReporterBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.CommandBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
+			if (spec[0] === 't') {
+				block.setTerminal(true);
 			}
+			block.setArgs.apply(block, spec.slice(4));
+			return block;
+		case 'v':
+			return new d.VariableBlock().setVar(spec[1]);
+		case 'vs':
+		case 'vc':
+			block = new d.SetterBlock().setIsChange(spec[0] === 'vc').setVar(spec[1]);
+			if (spec.length > 2) {
+				block.setValue(spec[2])
+			} else {
+				block.setValue(block.isChange() ? 10 : 0);
+			}
+			return block;
+		}
 	}
 });
 d.CommandBlock = d.Class(d.Block, {
@@ -2441,8 +2618,10 @@ d.ReporterBlock = d.Class(d.Block, {
 		this.element.appendChild(this.container = this.newElement('d-reporter-block-label'));
 	}
 });
-d.BooleanReporterBlock = d.Class(d.ReporterBlock, {
+d.BooleanReporterBlock = d.Class(d.Block, {
+	isReporter: true,
 	isBoolean: true,
+	acceptsReporter: d.ReporterBlock.prototype.isReporter,
 	init: function () {
 		this.base(arguments);
 		this.initElements('d-block d-boolean-reporter-block');
@@ -2452,5 +2631,79 @@ d.BooleanReporterBlock = d.Class(d.ReporterBlock, {
 		this.addFill(this.newElement('d-boolean-reporter-block-fill-lb'));
 		this.addFill(this.newElement('d-boolean-reporter-block-fill'));
 		this.element.appendChild(this.container = this.newElement('d-boolean-reporter-block-label'));
+	}
+});
+d.VariableColors = {
+	'x position': 'motion',
+	'y position': 'motion',
+	'direction': 'motion',
+	'costume #': 'looks',
+	'color effect': 'looks',
+	'fisheye effect': 'looks',
+	'whirl effect': 'looks',
+	'pixelate effect': 'looks',
+	'mosaic effect': 'looks',
+	'brightness effect': 'looks',
+	'ghost effect': 'looks',
+	'size': 'looks',
+	'layer': 'looks',
+	'instrument': 'sound',
+	'volume': 'sound',
+	'tempo': 'sound',
+	'pen down?': 'pen',
+	'pen color': 'pen',
+	'pen hue': 'pen',
+	'pen shade': 'pen',
+	'pen size': 'pen',
+	'answer': 'sensing',
+	'mouse x': 'sensing',
+	'mouse y': 'sensing',
+	'mouse down?': 'sensing',
+	'timer': 'sensing',
+	'loudness': 'sensing',
+	'loud?': 'sensing'
+};
+d.VariableBlock = d.Class(d.ReporterBlock, {
+	init: function () {
+		this.base(arguments);
+		this.setSpec('%var:inline').setSelector('getVar:');
+	},
+	'.var': {
+		get: function () {
+			return this.arguments[0].value();
+		},
+		set: function (name) {
+			this.arguments[0].setValue(name);
+		}
+	}
+});
+d.SetterBlock = d.Class(d.CommandBlock, {
+	init: function () {
+		this.base(arguments);
+	},
+	'.isChange': {
+		apply: function (isChange) {
+			if (isChange) {
+				this.setSpec('change %var by %f').setSelector('changeVar:by:');
+			} else {
+				this.setSpec('set %var to %s').setSelector('setVar:to:');
+			}
+		}
+	},
+	'.var': {
+		get: function () {
+			return this.arguments[0].value();
+		},
+		set: function (name) {
+			this.arguments[0].setValue(name);
+		}
+	},
+	'.value': {
+		get: function () {
+			return this.arguments[1].value();
+		},
+		set: function (value) {
+			this.arguments[1].setValue(value);
+		}
 	}
 });
