@@ -809,33 +809,6 @@ d.Stage = d.Class(d.ServerData, {
 });
 d.Amber = d.Class(d.App, {
 	PROTOCOL_VERSION: '1.0.0',
-	BLOCK_SPECS: {
-		motion: [
-			['c', 'motion', 'forward:', 'move %f steps', 10],
-			['c', 'motion', 'turnRight:', 'turn %icon:right %f degrees', 15],
-			['c', 'motion', 'turnLeft:', 'turn %icon:left %f degrees', 15],
-			'-',
-			// ['v', 'direction', 90],
-			['c', 'motion', 'pointTowards:', 'point towards %sprite'],
-			'-',
-			['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0],
-			['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
-			['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
-			'-',
-			['c', 'motion', 'bounceOfEdge', 'if on edge, bounce'],
-			'-',
-			['r', 'variables', 'getVar:', '%var:inline', 'var']
-		],
-		looks: [],
-		sound: [],
-		pen: [],
-		control: [],
-		sensing: [],
-		operators: [],
-		variables: [
-			['r', 'variables', 'getVar:', '%var:inline', 'var']
-		]
-	},
 
 	init: function () {
 		this.base(arguments);
@@ -874,24 +847,14 @@ d.Amber = d.Class(d.App, {
 			setLightboxEnabled(true);
 		this.authentication.layout();
 
-		for (name in this.BLOCK_SPECS) {
+		for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
 			category = new d.BlockList();
-			this.BLOCK_SPECS[name].forEach(function (spec) {
+			d.BlockSpecs[name].forEach(function (spec) {
 				var block;
 				if (spec === '-') {
 					category.addSpace();
 				} else {
-					switch (spec[0]) {
-					case 'c':
-					case 'r':
-					case 'b':
-						category.add(block = new (spec[0] === 'c' ? d.CommandBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.ReporterBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]));
-						block.setArgs.apply(block, spec.slice(4));
-						break;
-					case 'v':
-						category.add(block = new d.SetterBlock().setVar(spec[1]).setValue(spec[2]));
-						break;
-					}
+					category.add(d.Block.fromSpec(spec));
 				}
 			});
 			this.palette.addCategory(name, category);
@@ -905,105 +868,157 @@ d.Amber = d.Class(d.App, {
 		}
 	}
 });
-d.BlockSelector = {
+d.BlockSpecs = {
+	motion: [
+		['c', 'motion', 'forward:', 'move %f steps', 10],
+		['c', 'motion', 'turnRight:', 'turn %icon:right %f degrees', 15],
+		['c', 'motion', 'turnLeft:', 'turn %icon:left %f degrees', 15],
+		'-',
+		// ['v', 'direction', 90],
+		['c', 'motion', 'pointTowards:', 'point towards %sprite'],
+		'-',
+		['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0],
+		['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
+		['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
+		'-',
+		['c', 'motion', 'bounceOfEdge', 'if on edge, bounce'],
+		'-',
+		['r', 'variables', 'getVar:', '%var:inline', 'var']
+	],
+	looks: [],
+	sound: [],
+	pen: [],
+	control: [],
+	sensing: [],
+	operators: [],
+	variables: [
+		['r', 'variables', 'getVar:', '%var:inline', 'var']
+	]
+};
+d.BlockSpecBySelector = {
+	'setVar:': ['v', 'var', 0]
+};
+~function () {
+	var name;
+	for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
+			d.BlockSpecs[name].forEach(function (spec) {
+				if (spec === '-') return;
+				switch (spec[0]) {
+				case 'c':
+				case 'r':
+				case 'b':
+					d.BlockSpecBySelector[spec[2]] = spec;
+					break;
+				}
+			});
+		}
+	}
+}();
+d.Selectors = [
 	// Motion
-	'forward:': 10,
-	'turnLeft:': 11,
-	'turnRight:': 12,
-	'pointTowards:': 13,
-	'gotoX:y:': 14,
-	'gotoSpriteOrMouse:': 15,
-	'glideSecs:toX:y:elapsed:from:': 16,
-	'bounceOffEdge': 17,
+	'forward:',
+	'turnLeft:',
+	'turnRight:',
+	'pointTowards:',
+	'gotoX:y:',
+	'gotoSpriteOrMouse:',
+	'glideSecs:toX:y:elapsed:from:',
+	'bounceOffEdge',
 
 	// Looks
-	'lookLike:': 18,
-	'nextCostume': 19,
-	'nextBackground': 20,
-	'say:duration:elapsed:from:': 21,
-	'say:': 22,
-	'think:duration:elapsed:from:': 23,
-	'think:': 24,
-	'filterReset': 25,
-	'show': 26,
-	'hide': 27,
-	'comeToFront': 28,
-	'goBackByLayers:': 29,
+	'lookLike:',
+	'nextCostume',
+	'nextBackground',
+	'say:duration:elapsed:from:',
+	'say:',
+	'think:duration:elapsed:from:',
+	'think:',
+	'filterReset',
+	'show',
+	'hide',
+	'comeToFront',
+	'goBackByLayers:',
 
 	// Sound
-	'playSound:': 30,
-	'doPlaySoundAndWait:': 31,
-	'stopAllSounds': 32,
-	'drum:duration:elapsed:from:': 33,
-	'noteOn:duration:elapsed:from:': 34,
+	'playSound:',
+	'doPlaySoundAndWait:',
+	'stopAllSounds',
+	'drum:duration:elapsed:from:',
+	'noteOn:duration:elapsed:from:',
 
 	// Pen
-	'clear': 35,
-	'putPenDown': 36,
-	'putPenUp': 37,
-	'stampCostume': 38,
+	'clear',
+	'putPenDown',
+	'putPenUp',
+	'stampCostume',
 
 	// Control
-	'whenStartClicked': 39,
-	'whenKeyPressed:': 40,
-	'whenSpriteClicked': 41,
-	'wait:elapsed:from:': 42,
-	'doForever': 43,
-	'doRepeat': 44,
-	'broadcast:': 45,
-	'doBroadcastAndWait:': 46,
-	'whenMessageReceived:': 47,
-	'doForeverIf': 48,
-	'doIf': 49,
-	'doIfElse': 50,
-	'doWaitUntil': 51,
-	'doUntil': 52,
-	'doReturn': 53,
-	'stopAll': 54,
+	'whenStartClicked',
+	'whenKeyPressed:',
+	'whenSpriteClicked',
+	'wait:elapsed:from:',
+	'doForever',
+	'doRepeat',
+	'broadcast:',
+	'doBroadcastAndWait:',
+	'whenMessageReceived:',
+	'doForeverIf',
+	'doIf',
+	'doIfElse',
+	'doWaitUntil',
+	'doUntil',
+	'doReturn',
+	'stopAll',
 
 	// Sensing
-	'touching:': 55,
-	'touchingColor:': 56,
-	'color:sees:': 57,
-	'doAsk': 58,
-	'keyPressed:': 59,
-	'distanceTo:': 60,
-	'getAttribute:of:': 61,
-	'sensor:': 62,
-	'sensorPressed:': 63,
+	'touching:',
+	'touchingColor:',
+	'color:sees:',
+	'doAsk',
+	'keyPressed:',
+	'distanceTo:',
+	'getAttribute:of:',
+	'sensor:',
+	'sensorPressed:',
 
 	// Operators
-	'+': 64,
-	'-': 65,
-	'*': 66,
-	'/': 67,
-	'<': 68,
-	'=': 69,
-	'>': 70,
-	'&': 71,
-	'|': 72,
-	'not': 73,
-	'concatenate:with:': 74,
-	'letter:of:': 75,
-	'stringLength:': 76,
-	'\\\\': 77,
-	'rounded': 78,
-	'computeFunction:of:': 79,
+	'+',
+	'-',
+	'*',
+	'/',
+	'<',
+	'=',
+	'>',
+	'&',
+	'|',
+	'not',
+	'concatenate:with:',
+	'letter:of:',
+	'stringLength:',
+	'\\\\',
+	'rounded',
+	'computeFunction:of:',
 
 	// Variables
-	'getVar:': 1,
-	'setVar:to:': 2,
-	'changeVar:by:': 3,
-	'showVariable:': 80,
-	'hideVariable:': 81,
-	'append:toList:': 82,
-	'deleteLine:ofList:': 83,
-	'insert:at:ofList:': 84,
-	'setLine:ofList:to:': 85,
-	'getLine:ofList:': 86,
-	'lineCountOfList:': 87,
-	'list:contains:': 88
-};
+	'getVar:',
+	'setVar:to:',
+	'changeVar:by:',
+	'showVariable:',
+	'hideVariable:',
+	'append:toList:',
+	'deleteLine:ofList:',
+	'insert:at:ofList:',
+	'setLine:ofList:to:',
+	'getLine:ofList:',
+	'lineCountOfList:',
+	'list:contains:'
+];
+d.BlockSelector = { };
+~function () {
+	d.Selectors.forEach(function (sel, i) {
+		d.BlockSelector[sel] = i;
+	});
+}();
 d.BlockAttachType = {
 	'slot$command': 0,
 	'slot$replace': 1,
@@ -1105,7 +1120,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.serverField.oninput = this.serverInput.bind(this);
 		this.serverField.value = (savedServer = localStorage.getItem('d.authentication-panel.server')) ? savedServer : 'ws://mpblocks.cloudno.de/:9182';
 		this.serverSelect.onchange = this.serverChange.bind(this);
-		this.serverSelect.onclick = this.serverClick.bind(this);
+		this.serverSelect.onmousedown = this.serverClick.bind(this);
 		this.serverSelect.options[0] = new Option(this.serverField.value);
 		this.serverSelect.options[1] = new Option('ws://mpblocks.cloudno.de/:9182');
 		this.serverSelect.options[2] = new Option('ws://localhost:9182');
@@ -1159,6 +1174,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
 	},
 	serverClick: function () {
 		this.serverSelect.options[0] = new Option(this.serverField.value);
+		this.serverSelect.selectedIndex = 0;
 	},
 	passwordKeyDown: function (e) {
 		if (e.keyCode === 13) {
@@ -1190,13 +1206,20 @@ d.BlockStack = d.Class(d.Control, {
 		this.onTouchEnd(this.touchEnd);
 		this.initElements('d-block-stack');
 	},
+	'.id': {},
 	toSerial: function () {
 		return [0, this.x(), this.y(), this.children.map(function (block) {
 			return block.toSerial();
 		})];
 	},
 	fromSerial: function (a) {
-
+		this.setId(a[0]);
+		this.element.style.left = a[1] + 'px';
+		this.element.style.top = a[2] + 'px';
+		a[3].forEach(function (block) {
+			this.add(d.Block.fromSerial(block));
+		}, this);
+		return this;
 	},
 	copy: function () {
 		var copy = new this.constructor(), i = 0, child;
@@ -1934,8 +1957,9 @@ d.Block = d.Class(d.Control, {
 		if (this.anyParentSatisfies(function (p) {
 			return p.isPalette;
 		})) {
-			this.app().createScript(this.x(), this.y(), [this.copy().toSerial()], function (script) {
-				script.startDrag(this.app(), e, this.element.getBoundingClientRect());
+			bb = this.element.getBoundingClientRect();
+			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()], function (script) {
+				script.startDrag(app, e, bb);
 			});
 		} else if (this.parent.isStack) {
 			this.parent.dragStack(e, this);
@@ -2341,7 +2365,27 @@ d.Block = d.Class(d.Control, {
 		}
 	}
 }, {
-	blocks: []
+	blocks: [],
+	fromSerial: function (a) {
+		var selector = d.Selectors[a[0]],
+			spec = d.BlockSpecBySelector[selector],
+			block = d.fromSpec(spec);
+		block.setArgs.apply(block, a.slice(1));
+		return block;
+	},
+	fromSpec: function (spec) {
+		var block;
+		switch (spec[0]) {
+			case 'c':
+			case 'r':
+			case 'b':
+				block = new (spec[0] === 'c' ? d.CommandBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.ReporterBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
+				block.setArgs.apply(block, spec.slice(4));
+				return block;
+			case 'v':
+				return new d.SetterBlock().setVar(spec[1]).setValue(spec[2]);
+			}
+	}
 });
 d.CommandBlock = d.Class(d.Block, {
 	init: function () {
