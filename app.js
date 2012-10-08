@@ -809,6 +809,33 @@ d.Stage = d.Class(d.ServerData, {
 });
 d.Amber = d.Class(d.App, {
 	PROTOCOL_VERSION: '1.0.0',
+	BLOCK_SPECS: {
+		motion: [
+			['c', 'motion', 'forward:', 'move %f steps', 10],
+			['c', 'motion', 'turnRight:', 'turn %icon:right %f degrees', 15],
+			['c', 'motion', 'turnLeft:', 'turn %icon:left %f degrees', 15],
+			'-',
+			// ['v', 'direction', 90],
+			['c', 'motion', 'pointTowards:', 'point towards %sprite'],
+			'-',
+			['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0],
+			['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
+			['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
+			'-',
+			['c', 'motion', 'bounceOfEdge', 'if on edge, bounce'],
+			'-',
+			['r', 'variables', 'getVar:', '%var:inline', 'var']
+		],
+		looks: [],
+		sound: [],
+		pen: [],
+		control: [],
+		sensing: [],
+		operators: [],
+		variables: [
+			['r', 'variables', 'getVar:', '%var:inline', 'var']
+		]
+	},
 
 	init: function () {
 		this.base(arguments);
@@ -838,6 +865,7 @@ d.Amber = d.Class(d.App, {
 		xhr.send();
 	},
 	setElement: function (element) {
+		var name, category;
 		this.base(arguments, element);
 		this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
 		this.add(this.editor = new d.BlockEditor()).
@@ -845,6 +873,29 @@ d.Amber = d.Class(d.App, {
 			add(this.authentication = new d.AuthenticationPanel(this)).
 			setLightboxEnabled(true);
 		this.authentication.layout();
+
+		for (name in this.BLOCK_SPECS) {
+			category = new d.BlockList();
+			this.BLOCK_SPECS[name].forEach(function (spec) {
+				var block;
+				if (spec === '-') {
+					category.addSpace();
+				} else {
+					switch (spec[0]) {
+					case 'c':
+					case 'r':
+					case 'b':
+						category.add(block = new (spec[0] === 'c' ? d.CommandBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.ReporterBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]));
+						block.setArgs.apply(block, spec.slice(4));
+						break;
+					case 'v':
+						category.add(block = new d.SetterBlock().setVar(spec[1]).setValue(spec[2]));
+						break;
+					}
+				}
+			});
+			this.palette.addCategory(name, category);
+		}
 
 		return this;
 	},
@@ -854,6 +905,105 @@ d.Amber = d.Class(d.App, {
 		}
 	}
 });
+d.BlockSelector = {
+	// Motion
+	'forward:': 10,
+	'turnLeft:': 11,
+	'turnRight:': 12,
+	'pointTowards:': 13,
+	'gotoX:y:': 14,
+	'gotoSpriteOrMouse:': 15,
+	'glideSecs:toX:y:elapsed:from:': 16,
+	'bounceOffEdge': 17,
+
+	// Looks
+	'lookLike:': 18,
+	'nextCostume': 19,
+	'nextBackground': 20,
+	'say:duration:elapsed:from:': 21,
+	'say:': 22,
+	'think:duration:elapsed:from:': 23,
+	'think:': 24,
+	'filterReset': 25,
+	'show': 26,
+	'hide': 27,
+	'comeToFront': 28,
+	'goBackByLayers:': 29,
+
+	// Sound
+	'playSound:': 30,
+	'doPlaySoundAndWait:': 31,
+	'stopAllSounds': 32,
+	'drum:duration:elapsed:from:': 33,
+	'noteOn:duration:elapsed:from:': 34,
+
+	// Pen
+	'clear': 35,
+	'putPenDown': 36,
+	'putPenUp': 37,
+	'stampCostume': 38,
+
+	// Control
+	'whenStartClicked': 39,
+	'whenKeyPressed:': 40,
+	'whenSpriteClicked': 41,
+	'wait:elapsed:from:': 42,
+	'doForever': 43,
+	'doRepeat': 44,
+	'broadcast:': 45,
+	'doBroadcastAndWait:': 46,
+	'whenMessageReceived:': 47,
+	'doForeverIf': 48,
+	'doIf': 49,
+	'doIfElse': 50,
+	'doWaitUntil': 51,
+	'doUntil': 52,
+	'doReturn': 53,
+	'stopAll': 54,
+
+	// Sensing
+	'touching:': 55,
+	'touchingColor:': 56,
+	'color:sees:': 57,
+	'doAsk': 58,
+	'keyPressed:': 59,
+	'distanceTo:': 60,
+	'getAttribute:of:': 61,
+	'sensor:': 62,
+	'sensorPressed:': 63,
+
+	// Operators
+	'+': 64,
+	'-': 65,
+	'*': 66,
+	'/': 67,
+	'<': 68,
+	'=': 69,
+	'>': 70,
+	'&': 71,
+	'|': 72,
+	'not': 73,
+	'concatenate:with:': 74,
+	'letter:of:': 75,
+	'stringLength:': 76,
+	'\\\\': 77,
+	'rounded': 78,
+	'computeFunction:of:': 79,
+
+	// Variables
+	'getVar:': 1,
+	'setVar:to:': 2,
+	'changeVar:by:': 3,
+	'showVariable:': 80,
+	'hideVariable:': 81,
+	'append:toList:': 82,
+	'deleteLine:ofList:': 83,
+	'insert:at:ofList:': 84,
+	'setLine:ofList:to:': 85,
+	'getLine:ofList:': 86,
+	'lineCountOfList:': 87,
+	'list:contains:': 88
+};
 d.BlockAttachType = {
 	'slot$command': 0,
 	'slot$replace': 1,
@@ -909,7 +1059,7 @@ d.Socket = d.Class(d.Base, {
 		}
 		switch (packet[0]) {
 		case 'script.create':
-			a = new BlockStack().fromSerial(packet.script);
+			a = new d.BlockStack().fromSerial(packet.script);
 			if (packet.temp$id) {
 				this.newScriptCallbacks[packet.temp$id](a);
 			}
@@ -955,8 +1105,10 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.serverField.oninput = this.serverInput.bind(this);
 		this.serverField.value = (savedServer = localStorage.getItem('d.authentication-panel.server')) ? savedServer : 'ws://mpblocks.cloudno.de/:9182';
 		this.serverSelect.onchange = this.serverChange.bind(this);
-		this.serverSelect.options[0] = new Option('ws://mpblocks.cloudno.de/:9182');
-		this.serverSelect.options[1] = new Option('ws://localhost:9182');
+		this.serverSelect.onclick = this.serverClick.bind(this);
+		this.serverSelect.options[0] = new Option(this.serverField.value);
+		this.serverSelect.options[1] = new Option('ws://mpblocks.cloudno.de/:9182');
+		this.serverSelect.options[2] = new Option('ws://localhost:9182');
 
 		this.usernameField.placeholder = amber.t('authentication-panel.username');
 		this.usernameField.oninput = this.userInput.bind(this);
@@ -1005,6 +1157,9 @@ d.AuthenticationPanel = d.Class(d.Control, {
 	serverChange: function () {
 		localStorage.setItem('d.authentication-panel.server', this.serverField.value = this.serverSelect.value);
 	},
+	serverClick: function () {
+		this.serverSelect.options[0] = new Option(this.serverField.value);
+	},
 	passwordKeyDown: function (e) {
 		if (e.keyCode === 13) {
 			this.submit();
@@ -1039,6 +1194,9 @@ d.BlockStack = d.Class(d.Control, {
 		return [0, this.x(), this.y(), this.children.map(function (block) {
 			return block.toSerial();
 		})];
+	},
+	fromSerial: function (a) {
+
 	},
 	copy: function () {
 		var copy = new this.constructor(), i = 0, child;
@@ -1556,7 +1714,7 @@ d.arg.Enum = d.Class(d.arg.Base, {
 	},
 	'.text': {
 		set: function (v) {
-			this.label.textContent = v;
+			this.label.textContent = this.selectedItem = v;
 		},
 		get: function () {
 			return this.label.textContent;
@@ -1581,10 +1739,9 @@ d.arg.Enum = d.Class(d.arg.Base, {
 			return;
 		}
 		new d.Menu().setAction(function (item) {
-			this.selectedItem =
+			this.setText(this.selectedItem =
 				typeof item === 'string' ? item :
-				item.hasOwnProperty('value') ? item.value : item.action;
-			this.setText(item.action);
+				item.hasOwnProperty('value') ? item.value : item.action);
 		}.bind(this)).setItems(typeof this._items === 'function' ? this._items() : this._items).popUp(this, this.label, this.text());
 	}
 });
@@ -1761,7 +1918,7 @@ d.Block = d.Class(d.Control, {
 		d.Block.blocks.push(this);
 	},
 	toSerial: function () {
-		return [this.selector].concat(this.arguments.map(function (a) {
+		return [d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
 			return a.toSerial();
 		}));
 	},
@@ -1836,7 +1993,7 @@ d.Block = d.Class(d.Control, {
 	// 	this.element.style.top = this.dragStartBB.top + e.y - this.dragStartEvent.y + 'px';
 	// },
 	copy: function () {
-		var copy = new this.constructor().setCategory(this._category);
+		var copy = new this.constructor().setCategory(this._category).setSelector(this._selector);
 		if (this._templateSpec) {
 			copy.setSpec(this._templateSpec).setArgs(this._templateArgs);
 		} else {
@@ -1847,6 +2004,7 @@ d.Block = d.Class(d.Control, {
 		if (this._fillsLine) copy.setFillsLine(true);
 		return copy;
 	},
+	'.selector': {},
 	'.category': {
 		apply: function (category) {
 			var i = this.fill.length;
