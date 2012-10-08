@@ -1056,7 +1056,7 @@ d.Socket = d.Class(d.Base, {
 	},
 	PACKETS: {
 		'script.create': ['script', 'user$id', 'temp$id'],
-		'block.move': ['user$id', 'block$id', 'x', 'y'],
+		'script.move': ['user$id', 'script$id', 'x', 'y'],
 		'block.attach': ['user$id', 'block$id', 'type', 'target$id', 'slot$index'],
 		'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
 		'slot.claim': ['user$id', 'block$id', 'slot$index'],
@@ -1079,6 +1079,10 @@ d.Socket = d.Class(d.Base, {
 			} else {
 				this.amber.add(a);
 			}
+			break;
+		case 'script.move':
+			a = d.BlockStack.stacks[packet.script$id];
+			a.setPosition(packet.x, packet.y);
 			break;
 		case 'user.login':
 			if (packet.success) {
@@ -1207,7 +1211,22 @@ d.BlockStack = d.Class(d.Control, {
 		this.onTouchEnd(this.touchEnd);
 		this.initElements('d-block-stack');
 	},
-	'.id': {},
+	setPosition: function (x, y) {
+		this.element.style.left = x + 'px';
+		this.element.style.top = y + 'px';
+		return this;
+	},
+	x: function () {
+		return this.element.getBoundingClientRect().left;
+	},
+	y: function () {
+		return this.element.getBoundingClientRect().top;
+	},
+	'.id': {
+		apply: function (id) {
+			d.BlockStack.stacks[id] = this;
+		}
+	},
 	toSerial: function () {
 		return [0, this.x(), this.y(), this.children.map(function (block) {
 			return block.toSerial();
@@ -1453,6 +1472,8 @@ d.BlockStack = d.Class(d.Control, {
 				this.destroy();
 				break;
 			}
+		} else {
+			this.app().socket.send('script.move', this.id(), this.x(), this.y());
 		}
 	},
 	destroy: function () {
