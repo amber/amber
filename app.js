@@ -881,7 +881,7 @@ d.BlockSpecs = {
 		['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
 		['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
 		'-',
-		['c', 'motion', 'bounceOfEdge', 'if on edge, bounce'],
+		['c', 'motion', 'bounceOffEdge', 'if on edge, bounce'],
 		'-',
 		['r', 'variables', 'getVar:', '%var:inline', 'var']
 	],
@@ -901,17 +901,16 @@ d.BlockSpecBySelector = {
 ~function () {
 	var name;
 	for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
-			d.BlockSpecs[name].forEach(function (spec) {
-				if (spec === '-') return;
-				switch (spec[0]) {
-				case 'c':
-				case 'r':
-				case 'b':
-					d.BlockSpecBySelector[spec[2]] = spec;
-					break;
-				}
-			});
-		}
+		d.BlockSpecs[name].forEach(function (spec) {
+			if (spec === '-') return;
+			switch (spec[0]) {
+			case 'c':
+			case 'r':
+			case 'b':
+				d.BlockSpecBySelector[spec[2]] = spec;
+				break;
+			}
+		});
 	}
 }();
 d.Selectors = [
@@ -2369,7 +2368,7 @@ d.Block = d.Class(d.Control, {
 	fromSerial: function (a) {
 		var selector = d.Selectors[a[0]],
 			spec = d.BlockSpecBySelector[selector],
-			block = d.fromSpec(spec);
+			block = d.Block.fromSpec(spec);
 		block.setArgs.apply(block, a.slice(1));
 		return block;
 	},
