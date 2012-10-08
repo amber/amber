@@ -958,8 +958,8 @@ d.BlockSpecs = {
 		// ['h', 'control', 'whenKeyPressed:', 'When %key key pressed'],
 		// ['h', 'control', 'whenSpriteClicked', 'When %sprite clicked'],
 		// '-',
-		['r', 'system', 'closure', '%parameters %slot:command'],
-		['r', 'system', 'closure', '%parameters %slot:reporter'],
+		['r', 'system', 'commandClosure', '%parameters %slot:command'],
+		['r', 'system', 'reporterClosure', '%parameters %slot:reporter'],
 		'-',
 		['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1],
 		'-',
@@ -1036,7 +1036,7 @@ d.BlockSpecs = {
 		['c', 'variables', 'showVariable:', 'show variable %var', ''],
 		['c', 'variables', 'hideVariable:', 'hide variable %var', ''],
 		'-',
-		['c', 'lists', 'append:toList', 'add %s to %list', 'thing', ''],
+		['c', 'lists', 'append:toList:', 'add %s to %list', 'thing', ''],
 		'-',
 		['c', 'lists', 'deleteLine:ofList:', 'delete %deletion-index of %list', 1, ''],
 		['c', 'lists', 'insert:at:ofList:', 'insert %s at %index of %list', 'thing', 1, ''],
@@ -1059,6 +1059,7 @@ d.BlockSpecBySelector = {
 			if (spec === '-') return;
 			switch (spec[0]) {
 			case 'c':
+			case 't':
 			case 'r':
 			case 'b':
 				d.BlockSpecBySelector[spec[2]] = spec;
@@ -1113,7 +1114,7 @@ d.Selectors = [
 	'doForever',
 	'doRepeat',
 	'broadcast:',
-	'doBroadcastAndWait:',
+	'doBroadcastAndWait',
 	'whenMessageReceived:',
 	'doForeverIf',
 	'doIf',
@@ -1164,7 +1165,12 @@ d.Selectors = [
 	'setLine:ofList:to:',
 	'getLine:ofList:',
 	'lineCountOfList:',
-	'list:contains:'
+	'list:contains:',
+
+	// Amber
+	'commandClosure',
+	'reporterClosure',
+	'booleanClosure'
 ];
 d.BlockSelector = { };
 ~function () {
