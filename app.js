@@ -757,6 +757,7 @@ d.Project = d.Class(d.Base, {
 		this.amber = amber;
 	},
 	'.name': {},
+	'.notes': {},
 	fromSerial: function (o) {
 		return this.setName(o[0]).setNotes(o[1]);
 	}
@@ -1030,7 +1031,7 @@ d.Socket = d.Class(d.Base, {
 		switch (packet[0]) {
 		case 'user.login':
 			if (packet.success) {
-				this.amber.currentUser = new d.User().fromSerial(packet.result);
+				this.amber.currentUser = new d.User(this.amber).fromSerial(packet.result);
 				this.amber.setLightboxEnabled(false);
 				this.amber.remove(this.amber.authentication);
 				break;
@@ -1040,7 +1041,7 @@ d.Socket = d.Class(d.Base, {
 			this.amber.authentication.passwordField.select();
 			break;
 		case 'project.data':
-			this.amber.currentProject = new d.Project().fromSerial(packet.data);
+			this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
 			break;
 		}
 	},
