@@ -43,7 +43,8 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	/*background: -webkit-radial-gradient(ellipse farthest-corner, rgba(0, 0, 0, .5), rgba(0, 0, 0, .7));*/
+	/*background: -webkit-radial-gradient(ellipse farthest-corner, rgba(0, 0, 0, .5), rgba(0, 0, 0, .7));
+	background: -moz-radial-gradient(ellipse farthest-corner, rgba(0, 0, 0, .5), rgba(0, 0, 0, .7));*/
 	background: rgba(0, 0, 0, .6);
 	z-index: 3;
 }
@@ -54,6 +55,7 @@
 	left: 50%;
 	padding: 12px;
 	background: -webkit-linear-gradient(#777, #555);
+	background: -moz-linear-gradient(#777, #555);
 	box-shadow: 0 3px 20px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .1);
 	border-radius: 4px;
 	z-index: 4;
@@ -78,6 +80,7 @@
 	width: 21em;
 	padding: 2px 6px;
 	outline: none;
+	-moz-box-sizing: content-box;
 	box-sizing: content-box;
 	margin: 0 0 -17px 0;
 	height: 17px;
@@ -98,6 +101,7 @@
 	border-radius: 2px;
 	padding: 2px 6px 4px;
 	background: -webkit-linear-gradient(#eee, #ccc);
+	background: -moz-linear-gradient(#eee, #ccc);
 	box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
 	outline: 0;
 }
@@ -108,6 +112,7 @@
 }
 .d-authentication-button:active {
 	background: -webkit-linear-gradient(#aaa, #bbb);
+	background: -moz-linear-gradient(#aaa, #bbb);
 }
 .d-authentication-message {
 	margin: 6px 0 0;
@@ -236,6 +241,7 @@
 	height: 28px;
 	padding: 0 6px;
 	background: -webkit-linear-gradient(rgb(31%, 31%, 31%), rgb(27%, 27%, 27%));
+	background: -moz-linear-gradient(rgb(31%, 31%, 31%), rgb(27%, 27%, 27%));
 	border-top: 1px solid rgba(0, 0, 0, .24);
 }
 .d-category-selector-shadow {
@@ -245,6 +251,7 @@
 	bottom: 100%;
 	height: 8px;
 	background: -webkit-radial-gradient(center 25px, ellipse farthest-corner, rgba(0, 0, 0, .1), transparent);
+	background: -moz-radial-gradient(center 25px, ellipse farthest-corner, rgba(0, 0, 0, .1), transparent);
 }
 .d-category-button {
 	-moz-box-sizing: border-box;
@@ -261,6 +268,7 @@
 	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 1px rgba(0, 0, 0, .2);
 	border: 1px solid rgba(0, 0, 0, .1);
 	background: -webkit-linear-gradient(transparent, rgba(0, 0, 0, .2));
+	background: -moz-linear-gradient(transparent, rgba(0, 0, 0, .2));
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
@@ -269,6 +277,7 @@
 }
 .d-category-button.active {
 	background: -webkit-linear-gradient(rgb(24%, 24%, 24%), rgb(26%, 26%, 26%));
+	background: -moz-linear-gradient(rgb(24%, 24%, 24%), rgb(26%, 26%, 26%));
 	box-shadow:
 		inset 0 0 3px rgba(0, 0, 0, .17),
 		1px 0 rgb(21%, 21%, 21%),
@@ -318,6 +327,7 @@
 	bottom: 0;
 	border-left: 1px solid rgb(18%, 18%, 18%);
 	background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
+	background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background-size: 4px 4px;
 	overflow: auto;
 }
@@ -385,6 +395,7 @@
 	background: rgba(255, 255, 255, .3);
 	border: 2px solid #fff;
 	border-radius: 3px;
+	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
@@ -779,6 +790,7 @@
 		1px 0 rgba(255, 255, 255, .27);
 	background: rgba(0, 0, 0, .1);
 	border-radius: 3px;
+	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 .d-block-c-puzzle {
