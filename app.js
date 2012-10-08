@@ -739,11 +739,16 @@ d.MenuSeparator = d.Class(d.Control, {
 // == Amber ==
 
 d.locale = {};
-d.User = d.Class(d.Base, {
+d.ServerData = d.Class(d.Base, {
 	init: function (amber) {
 		this.base(arguments);
 		this.amber = amber;
 	},
+	fromSerial: function () {
+		throw new Error('Unimplemented fromSerial');
+	}
+});
+d.User = d.Class(d.ServerData, {
 	'.username': {},
 	'.id': {},
 	'.rank': {},
@@ -751,15 +756,55 @@ d.User = d.Class(d.Base, {
 		return this.setId(o[0]).setUsername(o[1]).setRank(o[2] || 'default');
 	}
 });
-d.Project = d.Class(d.Base, {
-	init: function (amber) {
-		this.base(arguments);
-		this.amber = amber;
-	},
+d.Project = d.Class(d.ServerData, {
 	'.name': {},
 	'.notes': {},
+	'.stage': {},
+	'.sprites': {},
 	fromSerial: function (o) {
-		return this.setName(o[0]).setNotes(o[1]);
+		var amber = this.amber;
+		return this.setName(o[0]).setNotes(o[1]).setStage(new d.Stage(this.amber).fromSerial(o[2])).setSprites(o[3] ? o[3].map(function (a) {
+			return new d.Sprite(amber).fromSerial(a);
+		}) : []);
+	}
+});
+d.SoundMedia = d.Class(d.ServerData, {
+	'.name': {},
+	'.sound': {},
+	fromSerial: function (o) {
+		throw new Error('Unimplemented');
+	}
+});
+d.ImageMedia = d.Class(d.ServerData, {
+	'.name': {},
+	'.image': {},
+	'.text': {},
+	fromSerial: function (o) {
+		var img = new Image();
+		img.src = o[1];
+		return this.setName(o[0]).setImage(img).setText(o[2] ? {
+			text: o[2],
+			font: o[3],
+			x: [4],
+			y: [5]
+		} : null);
+	}
+});
+d.Stage = d.Class(d.ServerData, {
+	'.scripts': {},
+	'.backgrounds': {},
+	'.backgroundIndex': {},
+	'.sounds': {},
+	'.tempo': {},
+	fromSerial: function (o) {
+		var amber = this.amber;
+		return this.setScripts(o[0] ? o[0].map(function (a) {
+			return new d.BlockStack().fromSerial(a);
+		}) : []).setBackgrounds(o[1] ? o[1].map(function (a) {
+			return new d.ImageMedia(amber).fromSerial(a);
+		}) : []).setBackgroundIndex(o[2]).setSounds(o[3] ? o[3].map(function (a) {
+			return new d.SoundMedia(amber).fromSerial(a);
+		}) : []).setTempo(o[4]);
 	}
 });
 d.Amber = d.Class(d.App, {
@@ -772,6 +817,12 @@ d.Amber = d.Class(d.App, {
 	},
 	createSocket: function (server, callback) {
 		this.socket = new d.Socket(this, server, callback);
+	},
+	newScriptID: 0,
+	createScript: function (x, y, blocks, callback) {
+		var id = ++this.newScriptID;
+		this.socket.newScriptCallbacks[id] = callback;
+		this.socket.send('script.create', [id, x, y, blocks]);
 	},
 	t: function (id) {
 		return this.locale[id];
@@ -795,180 +846,6 @@ d.Amber = d.Class(d.App, {
 			setLightboxEnabled(true);
 		this.authentication.layout();
 
-		this.palette.
-			addCategory('motion', new d.BlockList().
-				add(new d.CommandBlock().setCategory('motion').setSpec('move %f steps').setArgs(10)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('turn %icon:right %f degrees').setArgs(15)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('turn %icon:left %f degrees').setArgs(15)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('motion').setSpec('point in direction %direction')).
-				add(new d.CommandBlock().setCategory('motion').setSpec('point towards %sprite')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('motion').setSpec('go to x: %f y: %f').setArgs(0, 0)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('go to %sprite')).
-				add(new d.CommandBlock().setCategory('motion').setSpec('glide %f secs to x: %f y: %f').setArgs(1, 0, 0)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('motion').setSpec('change x by %f').setArgs(10)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('set x to %f').setArgs(0)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('change y by %f').setArgs(10)).
-				add(new d.CommandBlock().setCategory('motion').setSpec('set y to %f').setArgs(0)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('motion').setSpec('if on edge, bounce')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('motion').setSpec('x position')).
-				add(new d.ReporterBlock().setCategory('motion').setSpec('y position')).
-				add(new d.ReporterBlock().setCategory('motion').setSpec('direction'))).
-			addCategory('looks', new d.BlockList().
-				add(new d.CommandBlock().setCategory('looks').setSpec('switch to costume %costume')).
-				add(new d.CommandBlock().setCategory('looks').setSpec('next costume')).
-				add(new d.ReporterBlock().setCategory('looks').setSpec('costume #')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('looks').setSpec('say %s for %f secs').setArgs('Hello!', 2)).
-				add(new d.CommandBlock().setCategory('looks').setSpec('say %s').setArgs('Hello!')).
-				add(new d.CommandBlock().setCategory('looks').setSpec('think %s for %f secs').setArgs('Hmm\u2026', 2)).
-				add(new d.CommandBlock().setCategory('looks').setSpec('think %s').setArgs('Hmm\u2026')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('looks').setSpec('change %gfx effect by %f').setArgs('color', 10)).
-				add(new d.CommandBlock().setCategory('looks').setSpec('set %gfx effect to %f').setArgs('color', 0)).
-				add(new d.CommandBlock().setCategory('looks').setSpec('clear graphic effects')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('looks').setSpec('change size by %f').setArgs(10)).
-				add(new d.CommandBlock().setCategory('looks').setSpec('set size to %f%').setArgs(100)).
-				add(new d.ReporterBlock().setCategory('looks').setSpec('size')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('looks').setSpec('show')).
-				add(new d.CommandBlock().setCategory('looks').setSpec('hide')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('looks').setSpec('go to front')).
-				add(new d.CommandBlock().setCategory('looks').setSpec('go back %i layers').setArgs(1))).
-			addCategory('sound', new d.BlockList().
-				add(new d.CommandBlock().setCategory('sound').setSpec('play sound %sound')).
-				add(new d.CommandBlock().setCategory('sound').setSpec('play sound %sound until done')).
-				add(new d.CommandBlock().setCategory('sound').setSpec('stop all sounds')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sound').setSpec('play drum %drum for %f beats').setArgs(48, .2)).
-				add(new d.CommandBlock().setCategory('sound').setSpec('rest for %f beats').setArgs(.2)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sound').setSpec('play note %note for %f beats').setArgs(60, .5)).
-				add(new d.CommandBlock().setCategory('sound').setSpec('set instrument to %instrument')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sound').setSpec('change volume by %f').setArgs(-10)).
-				add(new d.CommandBlock().setCategory('sound').setSpec('set volume to %f%').setArgs(100)).
-				add(new d.ReporterBlock().setCategory('sound').setSpec('volume')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sound').setSpec('change tempo by %f').setArgs(20)).
-				add(new d.CommandBlock().setCategory('sound').setSpec('set tempo to %f bpm').setArgs(60)).
-				add(new d.ReporterBlock().setCategory('sound').setSpec('tempo'))).
-			addCategory('pen', new d.BlockList().
-				add(new d.CommandBlock().setCategory('pen').setSpec('clear')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('pen').setSpec('pen down')).
-				add(new d.CommandBlock().setCategory('pen').setSpec('pen up')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('pen').setSpec('set pen color to %color')).
-				add(new d.CommandBlock().setCategory('pen').setSpec('change pen color by %f').setArgs(10)).
-				add(new d.CommandBlock().setCategory('pen').setSpec('set pen color to %f').setArgs(0)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('pen').setSpec('change pen shade by %f').setArgs(10)).
-				add(new d.CommandBlock().setCategory('pen').setSpec('set pen shade to %f').setArgs(50)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('pen').setSpec('change pen size by %f').setArgs(1)).
-				add(new d.CommandBlock().setCategory('pen').setSpec('set pen size to %f').setArgs(1)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('pen').setSpec('stamp'))).
-			addCategory('control', new d.BlockList().
-				// When flag clicked
-				// When %key key pressed
-				// When %sprite clicked
-				// addSpace().
-				add(new d.ReporterBlock().setCategory('system').setSpec('%parameters %slot:command')).
-				add(new d.ReporterBlock().setCategory('system').setSpec('%parameters %slot:reporter')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('control').setSpec('wait %f secs').setArgs(1)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('control').setSpec('forever %c').setTerminal(true)).
-				add(new d.CommandBlock().setCategory('control').setSpec('repeat %i %c').setArgs(10)).
-				addSpace().
-				add(new d.CommandBlock().setCategory('control').setSpec('broadcast %event')).
-				add(new d.CommandBlock().setCategory('control').setSpec('broadcast %event and wait')).
-				// When I receive %event
-				addSpace().
-				add(new d.CommandBlock().setCategory('control').setSpec('forever if %b %c').setTerminal(true)).
-				add(new d.CommandBlock().setCategory('control').setSpec('if %b %c')).
-				add(new d.CommandBlock().setCategory('control').setSpec('if %b %c else %c')).
-				add(new d.CommandBlock().setCategory('control').setSpec('wait until %b')).
-				add(new d.CommandBlock().setCategory('control').setSpec('repeat until %b %c')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('control').setSpec('stop script').setTerminal(true)).
-				add(new d.CommandBlock().setCategory('control').setSpec('stop all %icon:stop').setTerminal(true))).
-			addCategory('sensing', new d.BlockList().
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('touching %sprite?')).
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('touching color %color?')).
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('color %color is touching %color?')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sensing').setSpec('ask %s and wait').setArgs("What's your name?")).
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('answer')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('mouse x')).
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('mouse y')).
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('mouse down?')).
-				addSpace().
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('key %key pressed?')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('distance to %sprite')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('sensing').setSpec('reset timer')).
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('timer')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('%attribute of %object')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('sensing').setSpec('loudness')).
-				add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('loud?'))).
-				// addSeparator().
-				// add(new d.ReporterBlock().setCategory('sensing').setSpec('%sensor sensor value')).
-				// add(new d.BooleanReporterBlock().setCategory('sensing').setSpec('sensor %sensor:bool?'))).
-			addCategory('operators', new d.BlockList().
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%f + %f')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%f - %f')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%f \xd7 %f')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%f / %f')). // '%f \xf7 %f'
-				addSpace().
-				add(new d.ReporterBlock().setCategory('operators').setSpec('pick random %f to %f').setArgs(1, 10)).
-				addSpace().
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('%s < %s')).
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('%s = %s')).
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('%s > %s')).
-				addSpace().
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('%b and %b')).
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('%b or %b')).
-				add(new d.BooleanReporterBlock().setCategory('operators').setSpec('not %b')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('operators').setSpec('join %s %s').setArgs('hello ', 'world')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('letter %i of %s').setArgs(1, 'world')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('length of %s').setArgs('world')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%f mod %f')).
-				add(new d.ReporterBlock().setCategory('operators').setSpec('round %f')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('operators').setSpec('%math of %f').setArgs('sqrt', 10))).
-			addCategory('variables', new d.BlockList().
-				add(new d.ReporterBlock().setCategory('variables').setSpec('%var:inline')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('variables').setSpec('set %var to %s').setArgs('var', '0')).
-				add(new d.CommandBlock().setCategory('variables').setSpec('change %var by %f').setArgs('var', 1)).
-				add(new d.CommandBlock().setCategory('variables').setSpec('show variable %var').setArgs('var')).
-				add(new d.CommandBlock().setCategory('variables').setSpec('hide variable %var').setArgs('var')).
-				// addSeparator().
-				addSpace().
-				add(new d.CommandBlock().setCategory('lists').setSpec('add %s to %list').setArgs('thing', 'var')).
-				addSpace().
-				add(new d.CommandBlock().setCategory('lists').setSpec('delete %deletion-index of %list').setArgs(1, 'var')).
-				add(new d.CommandBlock().setCategory('lists').setSpec('insert %s at %index of %list').setArgs('thing', 1, 'var')).
-				add(new d.CommandBlock().setCategory('lists').setSpec('replace item %index of %list with %s').setArgs(1, 'var', 'thing')).
-				addSpace().
-				add(new d.ReporterBlock().setCategory('lists').setSpec('item %index of %list').setArgs(1, 'var')).
-				add(new d.ReporterBlock().setCategory('lists').setSpec('length of %list').setArgs('var')).
-				add(new d.BooleanReporterBlock().setCategory('lists').setSpec('%list contains %s').setArgs('var', 'thing')));
 		return this;
 	},
 	'.lightboxEnabled': {
@@ -989,6 +866,7 @@ d.Socket = d.Class(d.Base, {
 		this.server = server;
 		this.sent = [];
 		this.received = [];
+		this.newScriptCallbacks = {};
 		this.socket = new WebSocket(server);
 		this.callback = callback;
 		this.listen();
@@ -1013,7 +891,7 @@ d.Socket = d.Class(d.Base, {
 		console.warn('Socket error:', e);
 	},
 	PACKETS: {
-		'script.create': ['script', 'user$id'],
+		'script.create': ['script', 'user$id', 'temp$id'],
 		'block.move': ['user$id', 'block$id', 'x', 'y'],
 		'block.attach': ['user$id', 'block$id', 'type', 'target$id', 'slot$index'],
 		'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
@@ -1024,11 +902,18 @@ d.Socket = d.Class(d.Base, {
 	},
 	receive: function (packet) {
 		var info = this.PACKETS[packet[0]],
-			i = info && info.length;
+			i = info && info.length,
+			a;
 		while (i--) {
 			packet[info[i]] = packet[i + 1];
 		}
 		switch (packet[0]) {
+		case 'script.create':
+			a = new BlockStack().fromSerial(packet.script);
+			if (packet.temp$id) {
+				this.newScriptCallbacks[packet.temp$id](a);
+			}
+			break;
 		case 'user.login':
 			if (packet.success) {
 				this.amber.currentUser = new d.User(this.amber).fromSerial(packet.result);
@@ -1149,6 +1034,11 @@ d.BlockStack = d.Class(d.Control, {
 		this.onTouchMove(this.touchMove);
 		this.onTouchEnd(this.touchEnd);
 		this.initElements('d-block-stack');
+	},
+	toSerial: function () {
+		return [0, this.x(), this.y(), this.children.map(function (block) {
+			return block.toSerial();
+		})];
 	},
 	copy: function () {
 		var copy = new this.constructor(), i = 0, child;
@@ -1492,6 +1382,14 @@ d.arg = {};
 d.arg.Base = d.Class(d.Control, {
 	acceptsReporter: function (reporter) {
 		return false;
+	},
+	toSerial: function () {
+		return this.value();
+	},
+	'.value': {
+		get: function () {
+			return null;
+		}
 	}
 });
 d.arg.Label = d.Class(d.arg.Base, {
@@ -1562,7 +1460,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 			this.setText(v);
 		},
 		get: function () {
-			var v = this.getText();
+			var v = this.text();
 			if (this._numeric) {
 				v = +v;
 				if (v !== v) throw new TypeError('Not a number.');
@@ -1862,13 +1760,26 @@ d.Block = d.Class(d.Control, {
 		this.onContextMenu(this.showContextMenu);
 		d.Block.blocks.push(this);
 	},
+	toSerial: function () {
+		return [this.selector].concat(this.arguments.map(function (a) {
+			return a.toSerial();
+		}));
+	},
+	x: function () {
+		return this.element.getBoundingClientRect().left;
+	},
+	y: function () {
+		return this.element.getBoundingClientRect().top;
+	},
 	dragStart: function (e) {
 		var app, bb;
 		if (this._embedded) return;
 		if (this.anyParentSatisfies(function (p) {
-			return p.isPalette
+			return p.isPalette;
 		})) {
-			new d.BlockStack().add(this.copy()).startDrag(this.app(), e, this.element.getBoundingClientRect());
+			this.app().createScript(this.x(), this.y(), [this.copy().toSerial()], function (script) {
+				script.startDrag(this.app(), e, this.element.getBoundingClientRect());
+			});
 		} else if (this.parent.isStack) {
 			this.parent.dragStack(e, this);
 		} else if (this.parent.isBlock) {
