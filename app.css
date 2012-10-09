@@ -321,13 +321,31 @@
 	position: absolute;
 	top: 0;
 	left: 200px;
-	right: 0;
+	right: 200px;
 	bottom: 0;
-	border-left: 1px solid rgb(18%, 18%, 18%);
+	border: 1px solid rgb(18%, 18%, 18%);
+	border-style: none solid;
 	background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background-size: 4px 4px;
 	overflow: auto;
+}
+
+.d-user-list {
+	display: block;
+	background: rgb(22%, 22%, 22%);
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 200px;
+	box-shadow: inset 16px 0 24px -16px rgba(0, 0, 0, .1);
+}
+.d-user-list-title {
+	color: #aaa;
+	text-shadow: 0 -1px rgb(12%, 12%, 12%);
+	font: 13px sans-serif;
+	margin: 6px 12px;
 }
 
 .d-block-stack {
