@@ -823,7 +823,7 @@ d.Amber = d.Class(d.App, {
 	createScript: function (x, y, blocks) {
 		var id = ++this.newScriptID,
 			tracker = [],
-			script = new d.BlockStack().fromSerial([-1, x, y, blocks], tracker);
+			script = new d.BlockStack().fromSerial([x, y, blocks], tracker);
 		this.socket.newScripts[id] = tracker;
 		this.add(script);
 		this.socket.send('script.create', [x, y, blocks], id);
@@ -1417,9 +1417,9 @@ d.BlockStack = d.Class(d.Control, {
 		})];
 	},
 	fromSerial: function (a, tracker) {
-		this.element.style.left = a[1] + 'px';
-		this.element.style.top = a[2] + 'px';
-		a[3].forEach(function (block) {
+		this.element.style.left = a[0] + 'px';
+		this.element.style.top = a[1] + 'px';
+		a[2].forEach(function (block) {
 			this.add(d.Block.fromSerial(block, tracker));
 		}, this);
 		return this;
