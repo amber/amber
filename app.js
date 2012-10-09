@@ -1218,11 +1218,12 @@ d.Socket = d.Class(d.Base, {
 		console.warn('Socket error:', e);
 	},
 	unpackIds: function (source, destination) {
-		var i = 0;
+		var i = 0,
+			amber = this.amber;
 		function unpack(block) {
 			var j = 0;
 			if (typeof block[0] === 'number') {
-				destination[i++].setId(block[0]);
+				destination[i++].setId(block[0]).amber(amber);
 				while (j < block[2].length) {
 					if (block[2][j] instanceof Array) {
 						unpack(block[2][j]);
@@ -1250,7 +1251,7 @@ d.Socket = d.Class(d.Base, {
 	receive: function (packet) {
 		var info = this.PACKETS[packet[0]],
 			i = info && info.length,
-			a;
+			a, tracker;
 		while (i--) {
 			packet[info[i]] = packet[i + 1];
 		}
@@ -1259,7 +1260,11 @@ d.Socket = d.Class(d.Base, {
 			if (packet.temp$id) {
 				this.unpackIds(packet.script[2], this.newScripts[packet.temp$id]);
 			} else {
-				a = new d.BlockStack().fromSerial(packet.script);
+				tracker = [];
+				a = new d.BlockStack().fromSerial(packet.script, tracker);
+				tracker.forEach(function (a) {
+					a.amber(this);
+				}, this.amber);
 				this.amber.add(a);
 			}
 			break;
@@ -2161,8 +2166,8 @@ d.Block = d.Class(d.Control, {
 	},
 	amber: function (amber) {
 		var socket;
-		if (id !== -1) {
-			amber.blocks[id] = this;
+		if (this._id !== -1) {
+			amber.blocks[this._id] = this;
 			if (this.sendQueue) {
 				socket = amber.socket;
 				this.sendQueue.forEach(function (f) {
