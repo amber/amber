@@ -808,7 +808,7 @@ d.Stage = d.Class(d.ServerData, {
 	}
 });
 d.Amber = d.Class(d.App, {
-	PROTOCOL_VERSION: '1.0.1.1',
+	PROTOCOL_VERSION: '1.0.1.2',
 
 	init: function () {
 		this.base(arguments);
@@ -834,7 +834,7 @@ d.Amber = d.Class(d.App, {
 	},
 	getUser: function (username, callback) {
 		var xhr, me = this;
-		if (this.usersByName[username]) callback(this.usersByName[username]);
+		if (this.usersByName[username]) return callback(this.usersByName[username]);
 		xhr = new XMLHttpRequest();
 		xhr.open('GET', 'http://scratch.mit.edu/api/getinfobyusername/' + encodeURIComponent(username), true);
 		xhr.onload = function () {
@@ -1185,7 +1185,7 @@ d.BlockAttachType = {
 	'slot$command': 0,
 	'slot$replace': 1,
 	'stack$insert': 2,
-	'stack$prepend': 3
+	'stack$append': 3
 };
 d.Socket = d.Class(d.Base, {
 	init: function (amber, server, callback) {
@@ -1273,6 +1273,17 @@ d.Socket = d.Class(d.Base, {
 			a = this.amber.blocks[packet.block$id];
 			a.detach().setPosition(packet.x, packet.y);
 			break;
+		case 'block.attach':
+			switch (packet.type) {
+			case d.BlockAttachType.stack$append:
+				this.amber.blocks[packet.target$id].parent.appendStack(this.amber.blocks[packet.block$id].parent);
+				break;
+			case d.BlockAttachType.stack$insert:
+				a = this.amber.blocks[packet.target$id];
+				a.parent.insertStack(this.amber.blocks[packet.block$id].parent, a);
+				break;
+			}
+			break;
 		case 'slot.claim':
 			if (packet.block$id === -1) {
 				this.slotClaims[packet.user$id].unclaimed();
@@ -1298,6 +1309,9 @@ d.Socket = d.Class(d.Base, {
 			break;
 		case 'project.data':
 			this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
+			break;
+		default:
+			console.warn('Missed packet', packet);
 			break;
 		}
 	},
@@ -1648,7 +1662,7 @@ d.BlockStack = d.Class(d.Control, {
 	touchEnd: function (e) {
 		var palettes = d.BlockPalette.palettes,
 			i = palettes.length,
-			block;
+			block, slot;
 		d.removeClass(this.element, 'd-block-stack-dragging');
 		this.app().element.removeChild(this.feedback);
 		while (i--) {
@@ -1661,16 +1675,33 @@ d.BlockStack = d.Class(d.Control, {
 			switch (this.dropTarget.type) {
 			case 'above':
 				block = this.dropTarget.block;
+				this.top().send(function () {
+					return ['block.attach', this.id(), d.BlockAttachType.stack$insert, block.id()];
+				});
 				block.parent.insertStack(this, block);
 				break;
 			case 'below':
-				this.dropTarget.block.parent.appendStack(this);
+				block = this.dropTarget.block;
+				this.top().send(function () {
+					return ['block.attach', this.id(), d.BlockAttachType.stack$append, block.id()];
+				});
+				block.parent.appendStack(this);
 				break;
 			case 'stack-slot':
-				this.dropTarget.slot.setValue(this);
+				slot = this.dropTarget.slot;
+				block = slot.parent;
+				this.top().send(function () {
+					return ['block.attach', this.id(), d.BlockAttachType.slot$command, block.id(), block.slotIndex(slot)];
+				});
+				slot.setValue(this);
 				break;
 			case 'argument':
-				this.dropTarget.block.replaceArg(this.dropTarget.argument, this.children[0]);
+				slot = this.dropTarget.argument;
+				block = this.dropTarget.block;
+				this.top().send(function () {
+					return ['block.attach', this.id(), d.BlockAttachType.slot$replace, block.id(), block.slotIndex(slot)];
+				});
+				block.replaceArg(slot, this.children[0]);
 				this.destroy();
 				break;
 			}
@@ -1794,8 +1825,11 @@ d.arg.Base = d.Class(d.Control, {
 	unclaim: function () {
 		this.app().socket.send('slot.claim', -1);
 	},
+	sendEdit: function (value) {
+		this.app().socket.send('slot.set', this.parent.id(), this.parent.slotIndex(this), value);
+	},
 	edited: function () {
-		this.app().socket.send('slot.set', this.parent.id(), this.parent.slotIndex(this), this.value());
+		this.sendEdit(this.value());
 	},
 	claimedBy: function (user) {
 		d.addClass(this.element, 'd-arg-claimed');
@@ -1859,6 +1893,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 		this.menuButton = this.newElement('d-block-field-menu');
 		this.onTouchStart(this.touchStart);
 		this.input.addEventListener('input', this.autosize.bind(this));
+		this.input.addEventListener('input', this.edited.bind(this));
 		this.input.addEventListener('keypress', this.key.bind(this));
 		this.input.addEventListener('focus', this.focus.bind(this));
 		this.input.addEventListener('blur', this.blur.bind(this));
@@ -1871,6 +1906,9 @@ d.arg.TextField = d.Class(d.arg.Base, {
 		if (this._inline) copy.setInline(true);
 		if (this._items) copy.setItems(this._items);
 		return copy;
+	},
+	edited: function () {
+		this.sendEdit(this.text());
 	},
 	'.text': {
 		set: function (v) {
@@ -1936,7 +1974,6 @@ d.arg.TextField = d.Class(d.arg.Base, {
 	},
 	autosize: function (e) {
 		var measure = d.arg.TextField.measure;
-		if (this.app()) this.edited();
 		// (document.activeElement === this.input ? /[^0-9\.+-]/.test(this.input.value) :
 		if (e && this._numeric && (this._integral ? isNaN(this.input.value) || +this.input.value % 1 : isNaN(this.input.value))) {
 			this.input.value = (this._integral ? parseInt : parseFloat)(this.input.value) || 0;
