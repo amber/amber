@@ -621,6 +621,10 @@
 		0 1px rgba(255, 255, 255, .3),
 		1px 0 rgba(255, 255, 255, .3);
 }
+.d-block-string.d-arg-claimed > input,
+.d-block-number.d-arg-claimed > input {
+	color: #aaa;
+}
 .d-block-field-inline {
 	box-shadow: none;
 	background: transparent;

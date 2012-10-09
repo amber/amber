@@ -833,12 +833,12 @@ d.Amber = d.Class(d.App, {
 		return this.locale[id];
 	},
 	getUser: function (username, callback) {
-		var xhr;
+		var xhr, me = this;
 		if (this.usersByName[username]) callback(this.usersByName[username]);
 		xhr = new XMLHttpRequest();
 		xhr.open('GET', 'http://scratch.mit.edu/api/getinfobyusername/' + encodeURIComponent(username), true);
 		xhr.onload = function () {
-			callback(this.usersByName[username] = new d.User(this).setUsername(username).setId(xhr.responseText.split(':')[1]));
+			callback(me.usersByName[username] = new d.User(me).setUsername(username).setId(xhr.responseText.split(':')[1]));
 		};
 		xhr.send();
 	},
@@ -1194,6 +1194,7 @@ d.Socket = d.Class(d.Base, {
 		this.sent = [];
 		this.received = [];
 		this.newScripts = {};
+		this.slotClaims = {};
 		this.socket = new WebSocket(server);
 		this.callback = callback;
 		this.listen();
@@ -1271,6 +1272,18 @@ d.Socket = d.Class(d.Base, {
 		case 'block.move':
 			a = this.amber.blocks[packet.block$id];
 			a.detach().setPosition(packet.x, packet.y);
+			break;
+		case 'slot.claim':
+			if (packet.block$id === -1) {
+				this.slotClaims[packet.user$id].unclaimed();
+			} else {
+				this.amber.getUser(packet.user$id, function (user) {
+					(this.slotClaims[packet.user$id] = this.amber.blocks[packet.block$id].arguments[packet.slot$index]).claimedBy(user);
+				}.bind(this));
+			}
+			break;
+		case 'slot.set':
+			this.amber.blocks[packet.block$id].arguments[packet.slot$index].setValue(packet.value);
 			break;
 		case 'user.login':
 			if (packet.success) {
@@ -1773,6 +1786,31 @@ d.arg.Base = d.Class(d.Control, {
 	toSerial: function () {
 		return this.value();
 	},
+	claimEdits: function () {},
+	unclaimEdits: function () {},
+	claim: function () {
+		this.app().socket.send('slot.claim', this.parent.id(), this.parent.slotIndex(this));
+	},
+	unclaim: function () {
+		this.app().socket.send('slot.claim', -1);
+	},
+	edited: function () {
+		this.app().socket.send('slot.set', this.parent.id(), this.parent.slotIndex(this), this.value());
+	},
+	claimedBy: function (user) {
+		d.addClass(this.element, 'd-arg-claimed');
+		this.claimEdits();
+		this.claimedUser = user;
+		this._isClaimed = true;
+	},
+	unclaimed: function () {
+		d.removeClass(this.element, 'd-arg-claimed');
+		this.unclaimEdits();
+		this._isClaimed = false;
+	},
+	isClaimed: function () {
+		return this._isClaimed;
+	},
 	'.value': {
 		get: function () {
 			return null;
@@ -1823,6 +1861,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 		this.input.addEventListener('input', this.autosize.bind(this));
 		this.input.addEventListener('keypress', this.key.bind(this));
 		this.input.addEventListener('focus', this.focus.bind(this));
+		this.input.addEventListener('blur', this.blur.bind(this));
 		this.input.style.width = '1px';
 	},
 	copy: function () {
@@ -1875,8 +1914,18 @@ d.arg.TextField = d.Class(d.arg.Base, {
 			}
 		}
 	},
+	claimEdits: function () {
+		this.input.disabled = true;
+	},
+	unclaimEdits: function () {
+		this.input.disabled = false;
+	},
 	focus: function () {
 		if (this._numeric && /[^0-9\.+-]/.test(this.input.value)) this.setText('');
+		this.claim();
+	},
+	blur: function () {
+		this.unclaim();
 	},
 	touchStart: function (e) {
 		if (d.bbTouch(this.menuButton, e) && this._items) {
@@ -1887,6 +1936,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 	},
 	autosize: function (e) {
 		var measure = d.arg.TextField.measure;
+		if (this.app()) this.edited();
 		// (document.activeElement === this.input ? /[^0-9\.+-]/.test(this.input.value) :
 		if (e && this._numeric && (this._integral ? isNaN(this.input.value) || +this.input.value % 1 : isNaN(this.input.value))) {
 			this.input.value = (this._integral ? parseInt : parseFloat)(this.input.value) || 0;
@@ -1912,6 +1962,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 					v[0] !== '-' && v[0] !== '+' &&
 					this.input.selectionStart === 0) return;
 			e.preventDefault();
+			return;
 		}
 	}
 });
@@ -2163,6 +2214,9 @@ d.Block = d.Class(d.Control, {
 	},
 	'.id': {
 		value: -1
+	},
+	slotIndex: function (arg) {
+		return this.arguments.indexOf(arg);
 	},
 	amber: function (amber) {
 		var socket;
