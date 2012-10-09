@@ -808,7 +808,7 @@ d.Stage = d.Class(d.ServerData, {
 	}
 });
 d.Amber = d.Class(d.App, {
-	PROTOCOL_VERSION: '1.0.1',
+	PROTOCOL_VERSION: '1.0.1.1',
 
 	init: function () {
 		this.base(arguments);
@@ -1220,12 +1220,12 @@ d.Socket = d.Class(d.Base, {
 	unpackIds: function (source, destination) {
 		var i = 0;
 		function unpack(block) {
-			var j = 2;
+			var j = 0;
 			if (typeof block[0] === 'number') {
 				destination[i++].setId(block[0]);
-				while (j < block.length) {
-					if (block[j] instanceof Array) {
-						unpack(block[j]);
+				while (j < block[2].length) {
+					if (block[2][j] instanceof Array) {
+						unpack(block[2][j]);
 					}
 					++j;
 				}
@@ -2152,9 +2152,9 @@ d.Block = d.Class(d.Control, {
 		this.onContextMenu(this.showContextMenu)
 	},
 	toSerial: function () {
-		return [this._id, d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
+		return [this._id, d.BlockSelector[this.selector()], this.arguments.map(function (a) {
 			return a.toSerial();
-		}));
+		})];
 	},
 	'.id': {
 		value: -1
@@ -2585,7 +2585,7 @@ d.Block = d.Class(d.Control, {
 		if (tracker) {
 			tracker.push(block);
 		}
-		a.slice(2).forEach(function (arg, i) {
+		a[2].forEach(function (arg, i) {
 			if (arg instanceof Array) {
 				if (typeof arg[0] === 'number') {
 					block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker));
