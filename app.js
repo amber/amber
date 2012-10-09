@@ -2269,10 +2269,17 @@ d.Block = d.Class(d.Control, {
 		}
 	},
 	detach: function () {
+		var stack, app;
 		if (this.parent.isStack) {
-			return this.parent.top() === this ? this.parent : this.parent.splitStack(this);
+			if (this.parent.top() === this) return this.parent;
+			app = this.app();
+			stack = this.parent.splitStack(this);
+			app.add(stack);
+			return stack;
 		}
-		return new d.BlockStack().add(this);
+		stack = new d.BlockStack();
+		this.app().add(stack);
+		return stack.add(this);
 	},
 	send: function (f) {
 		var socket = this.app().socket;
