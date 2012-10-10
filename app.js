@@ -848,6 +848,7 @@ d.Amber = d.Class(d.App, {
 		this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
 		this.add(this.editor = new d.BlockEditor()).
 			add(this.palette = new d.BlockPalette()).
+			add(this.userList = new d.UserList(this)).
 			add(this.authentication = new d.AuthenticationPanel(this)).
 			setLightboxEnabled(true);
 		this.authentication.layout();
@@ -1252,7 +1253,7 @@ d.Socket = d.Class(d.Base, {
 	receive: function (packet) {
 		var info = this.PACKETS[packet[0]],
 			i = info && info.length,
-			a, tracker;
+			a, bb, tracker;
 		while (i--) {
 			packet[info[i]] = packet[i + 1];
 		}
@@ -1276,11 +1277,17 @@ d.Socket = d.Class(d.Base, {
 		case 'block.attach':
 			switch (packet.type) {
 			case d.BlockAttachType.stack$append:
-				this.amber.blocks[packet.target$id].parent.appendStack(this.amber.blocks[packet.block$id].parent);
+				bb = this.amber.blocks[packet.target$id].parent.element.getBoundingClientRect();
+				this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.bottom, function () {
+					this.amber.blocks[packet.target$id].parent.appendStack(this.amber.blocks[packet.block$id].parent);
+				}.bind(this));
 				break;
 			case d.BlockAttachType.stack$insert:
-				a = this.amber.blocks[packet.target$id];
-				a.parent.insertStack(this.amber.blocks[packet.block$id].parent, a);
+				bb = this.amber.blocks[packet.target$id].element.getBoundingClientRect();
+				this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.top, function () {
+					a = this.amber.blocks[packet.target$id];
+					a.parent.insertStack(this.amber.blocks[packet.block$id].parent, a);
+				}.bind(this));
 				break;
 			}
 			break;
@@ -1412,6 +1419,14 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		}
 	}
 });
+d.UserList = d.Class(d.Control, {
+	init: function (amber) {
+		this.base(arguments);
+		this.initElements('d-user-list');
+		this.element.appendChild(this.title = this.newElement('d-user-list-title'));
+		this.title.textContent = amber.t('user-list.title');
+	}
+});
 d.BlockEditor = d.Class(d.Control, {
 	init: function () {
 		this.base(arguments);
@@ -1426,15 +1441,23 @@ d.BlockStack = d.Class(d.Control, {
 		this.onTouchEnd(this.touchEnd);
 		this.initElements('d-block-stack');
 	},
-	setPosition: function (x, y) {
-		this.element.style.WebkitTransition =
-			this.element.style.MozTransition = 'top .3s ease, left .3s ease';
+	setPosition: function (x, y, callback) {
+		setTimeout(function () {
+			this.element.style.WebkitTransition =
+				this.element.style.MozTransition = 'top .3s ease, left .3s ease';
+			this.element.style.left = x + 'px';
+			this.element.style.top = y + 'px';
+			setTimeout(function () {
+				this.element.style.WebkitTransition = 
+					this.element.style.MozTransition = '';
+				if (callback) callback();
+			}.bind(this), 300);
+		}.bind(this), 16);
+		return this;
+	},
+	initPosition: function (x, y) {
 		this.element.style.left = x + 'px';
 		this.element.style.top = y + 'px';
-		setTimeout(function () {
-			this.element.style.WebkitTransition = 
-				this.element.style.MozTransition = '';
-		}.bind(this), 300);
 		return this;
 	},
 	x: function () {
@@ -2269,15 +2292,19 @@ d.Block = d.Class(d.Control, {
 		}
 	},
 	detach: function () {
-		var stack, app;
+		var stack, app, bb;
 		if (this.parent.isStack) {
 			if (this.parent.top() === this) return this.parent;
 			app = this.app();
+			bb = this.element.getBoundingClientRect();
 			stack = this.parent.splitStack(this);
+			stack.initPosition(bb.left, bb.top);
 			app.add(stack);
 			return stack;
 		}
+		bb = this.element.getBoundingClientRect();
 		stack = new d.BlockStack();
+		stack.initPosition(bb.left, bb.top);
 		this.app().add(stack);
 		return stack.add(this);
 	},
