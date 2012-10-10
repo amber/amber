@@ -4,5 +4,6 @@ d.locale['en-US'] = {
 	'authentication-panel.username': 'Scratch Username',
 	'authentication-panel.password': 'Password',
 	'authentication-panel.signIn': 'Sign In',
-	'authentication-panel.register': 'Register'
+	'authentication-panel.register': 'Register',
+	'user-list.title': 'Users'
 }
