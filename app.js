@@ -823,7 +823,7 @@ d.Stage = d.Class(d.ServerData, {
 	}
 });
 d.Amber = d.Class(d.App, {
-	PROTOCOL_VERSION: '1.0.1.3',
+	PROTOCOL_VERSION: '1.0.1.4',
 
 	init: function () {
 		this.base(arguments);
@@ -1339,7 +1339,7 @@ d.Socket = d.Class(d.Base, {
 			break;
 		case 'user.login':
 			if (packet.success) {
-				this.amber.currentUser = new d.User(this.amber).fromSerial(packet.result);
+				this.amber.userList.addUser(this.amber.currentUser = new d.User(this.amber).fromSerial(packet.result));
 				this.amber.setLightboxEnabled(false);
 				this.amber.remove(this.amber.authentication);
 				break;
@@ -1477,8 +1477,10 @@ d.UserList = d.Class(d.Control, {
 		this.element.removeChild(this.users[user.id()]);
 	},
 	createUserItem: function (user) {
-		var d = this.newElement('d-user-list-item'),
+		var d = this.newElement('d-user-list-item', 'a'),
 			icon = document.createElement('img');
+		d.href = 'http://scratch.mit.edu/users/' + encodeURIComponent(user.name());
+		d.target = '_blank';
 		icon.src = 'http://scratch.mit.edu/static/icons/buddy/' + user.id() + '_sm.png';
 		d.appendChild(icon);
 		d.appendChild(document.createTextNode(user.name()));

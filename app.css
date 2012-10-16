@@ -350,7 +350,12 @@
 }
 .d-user-list-item {
 	padding: 6px 12px;
+	display: block;
 	color: rgb(80%, 80%, 80%);
+	text-decoration: none;
+}
+.d-user-list-item:hover {
+	text-decoration: underline;
 }
 .d-user-list-item img {
 	width: 28px;
@@ -360,7 +365,7 @@
 	margin-right: 12px;
 }
 .d-user-list-item:nth-child(2n) {
-	background-color: rgb(23%, 23%, 23%);
+	background-color: rgb(24%, 24%, 24%);
 }
 
 .d-block-stack {
