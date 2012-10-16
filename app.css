@@ -340,12 +340,27 @@
 	bottom: 0;
 	width: 200px;
 	box-shadow: inset 16px 0 24px -16px rgba(0, 0, 0, .1);
+	font: 11px sans-serif;
 }
 .d-user-list-title {
 	color: #aaa;
 	text-shadow: 0 -1px rgb(12%, 12%, 12%);
-	font: 13px sans-serif;
 	margin: 6px 12px;
+	font: 13px sans-serif;
+}
+.d-user-list-item {
+	padding: 6px 12px;
+	color: rgb(80%, 80%, 80%);
+}
+.d-user-list-item img {
+	width: 28px;
+	height: 28px;
+	border: 1px solid rgb(12%, 12%, 12%);
+	vertical-align: middle;
+	margin-right: 12px;
+}
+.d-user-list-item:nth-child(2n) {
+	background-color: rgb(23%, 23%, 23%);
 }
 
 .d-block-stack {

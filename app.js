@@ -749,11 +749,23 @@ d.ServerData = d.Class(d.Base, {
 	}
 });
 d.User = d.Class(d.ServerData, {
-	'.username': {},
-	'.id': {},
+	init: function (amber) {
+		this.base(arguments);
+		this.amber = amber;
+	},
+	'.name': {
+		apply: function (name) {
+			this.amber.usersByName[name] = this;
+		}
+	},
+	'.id': {
+		apply: function (id) {
+			this.amber.usersById[id] = this;
+		}
+	},
 	'.rank': {},
 	fromSerial: function (o) {
-		return this.setId(o[0]).setUsername(o[1]).setRank(o[2] || 'default');
+		return this.setId(o[0]).setName(o[1]).setRank(o[2] || 'default');
 	}
 });
 d.Project = d.Class(d.ServerData, {
@@ -817,6 +829,7 @@ d.Amber = d.Class(d.App, {
 		this.base(arguments);
 		this.locale = d.locale['en-US'];
 		this.usersByName = {};
+		this.usersById = {};
 		this.blocks = {};
 	},
 	createSocket: function (server, callback) {
@@ -841,7 +854,17 @@ d.Amber = d.Class(d.App, {
 		xhr = new XMLHttpRequest();
 		xhr.open('GET', 'http://scratch.mit.edu/api/getinfobyusername/' + encodeURIComponent(username), true);
 		xhr.onload = function () {
-			callback(me.usersByName[username] = new d.User(me).setUsername(username).setId(xhr.responseText.split(':')[1]));
+			callback(new d.User(me).setName(username).setId(xhr.responseText.split(':')[1]));
+		};
+		xhr.send();
+	},
+	getUserById: function (id, callback) {
+		var xhr, me = this;
+		if (this.usersById[id]) return callback(this.usersById[id]);
+		xhr = new XMLHttpRequest();
+		xhr.open('GET', 'http://scratch.mit.edu/api/getusernamebyid/' + encodeURIComponent(id), true);
+		xhr.onload = function () {
+			callback(new d.User(me).setName(xhr.responseText.replace(/^\s+|\s+$/g, '')).setId(id));
 		};
 		xhr.send();
 	},
@@ -1252,7 +1275,7 @@ d.Socket = d.Class(d.Base, {
 		'slot.claim': ['user$id', 'block$id', 'slot$index'],
 		'user.login': ['success', 'result'],
 		'user.join': ['user'],
-		'user.leave': ['user'],
+		'user.leave': ['user$id'],
 		'project.data': ['data']
 	},
 	receive: function (packet) {
@@ -1324,6 +1347,14 @@ d.Socket = d.Class(d.Base, {
 			this.amber.authentication.setMessage(packet.result);
 			this.amber.authentication.setEnabled(true);
 			this.amber.authentication.passwordField.select();
+			break;
+		case 'user.join':
+			this.amber.userList.addUser(new d.User(this.amber).fromSerial(packet.user));
+			break;
+		case 'user.leave':
+			this.amber.getUserById(packet.user$id, function (user) {
+				this.amber.userList.removeUser(user);
+			});
 			break;
 		case 'project.data':
 			this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
@@ -1436,6 +1467,22 @@ d.UserList = d.Class(d.Control, {
 		this.initElements('d-user-list');
 		this.element.appendChild(this.title = this.newElement('d-user-list-title'));
 		this.title.textContent = amber.t('user-list.title');
+		this.users = {};
+	},
+	addUser: function (user) {
+		if (this.users[user.id()]) return;
+		this.element.appendChild(this.users[user.id()] = this.createUserItem(user));
+	},
+	removeUser: function (user) {
+		this.element.removeChild(this.users[user.id()]);
+	},
+	createUserItem: function (user) {
+		var d = this.newElement('d-user-list-item'),
+			icon = document.createElement('img');
+		icon.src = 'http://scratch.mit.edu/static/icons/buddy/' + user.id() + '_sm.png';
+		d.appendChild(icon);
+		d.appendChild(document.createTextNode(user.name()));
+		return d;
 	}
 });
 d.BlockEditor = d.Class(d.Control, {
@@ -2095,6 +2142,7 @@ d.arg.Enum = d.Class(d.arg.Base, {
 			this.setText(this.selectedItem =
 				typeof item === 'string' ? item :
 				item.hasOwnProperty('value') ? item.value : item.action);
+			this.sendEdit(this.text());
 		}.bind(this)).setItems(typeof this._items === 'function' ? this._items() : this._items).popUp(this, this.label, this.text());
 	}
 });
