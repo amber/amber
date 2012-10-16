@@ -1312,10 +1312,15 @@ d.Socket = d.Class(d.Base, {
 				}.bind(this));
 				break;
 			case d.BlockAttachType.stack$insert:
-				bb = this.amber.blocks[packet.target$id].element.getBoundingClientRect();
+				bb = (a = this.amber.blocks[packet.target$id]).element.getBoundingClientRect();
 				this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.top, function () {
-					a = this.amber.blocks[packet.target$id];
 					a.parent.insertStack(this.amber.blocks[packet.block$id].parent, a);
+				}.bind(this));
+				break;
+			case d.BlockAttachType.slot$command:
+				bb = (a = this.amber.blocks[packet.target$id].arguments[packet.slot$index]).element.getBoundingClientRect();
+				this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.top, function () {
+					a.setValue(this.amber.blocks[packet.block$id].parent);
 				}.bind(this));
 				break;
 			}
@@ -1784,7 +1789,7 @@ d.BlockStack = d.Class(d.Control, {
 				slot = this.dropTarget.slot;
 				block = slot.parent;
 				this.top().send(function () {
-					return ['block.attach', this.id(), d.BlockAttachType.slot$command, block.id(), block.slotIndex(slot)];
+					return ['block.attach', this.id(), d.BlockAttachType.slot$command, block.parent.id(), block.parent.slotIndex(block)];
 				});
 				slot.setValue(this);
 				break;
@@ -2163,6 +2168,7 @@ d.arg.Var = d.Class(d.arg.Enum, {
 		this.base(arguments, value);
 		if (this.parent) {
 			this.parent.setCategory(d.VariableColors[value] || 'variables');
+			if (this.parent.varChanged) this.parent.varChanged();
 		}
 		return this;
 	}
@@ -2227,6 +2233,9 @@ d.arg.CommandSlot = d.Class(d.arg.Base, {
 	},
 	acceptsReporter: function (reporter) {
 		return false;
+	},
+	toSerial: function () {
+		return this.children.length ? this.children[0].toSerial()[2] : null;
 	},
 	init: function () {
 		this.base(arguments);
@@ -2339,6 +2348,9 @@ d.Block = d.Class(d.Control, {
 		this.onContextMenu(this.showContextMenu)
 	},
 	toSerial: function () {
+		if (this.selector() === 'cClosure') {
+			return this.arguments[0].toSerial();
+		}
 		return [this._id, d.BlockSelector[this.selector()], this.arguments.map(function (a) {
 			return a.toSerial();
 		})];
@@ -2365,8 +2377,14 @@ d.Block = d.Class(d.Control, {
 	detach: function () {
 		var stack, app, bb;
 		if (this.parent.isStack) {
-			if (this.parent.top() === this) return this.parent;
 			app = this.app();
+			if (this.parent.top() === this) {
+				if (this.parent.parent && this.parent.parent.isStackSlot) {
+					this.parent.parent.setValue(null);
+					app.add(this.parent);
+				}
+				return this.parent;
+			}
 			bb = this.element.getBoundingClientRect();
 			stack = this.parent.splitStack(this);
 			stack.initPosition(bb.left, bb.top);
@@ -2493,7 +2511,7 @@ d.Block = d.Class(d.Control, {
 		case 'i': return new d.arg.TextField().setNumeric(true).setIntegral(true);
 		case 'f': return new d.arg.TextField().setNumeric(true);
 		case 'b': return new d.arg.Bool();
-		case 'c': return new d.ReporterBlock().setEmbedded(true).setFillsLine(true).setCategory('system').setSpec('%slot:command');
+		case 'c': return new d.arg.CClosure();
 
 		// Closures
 		case 'command': return new d.ReporterBlock().setEmbedded(true).setCategory('system').setSpec('%parameters %slot:command');
@@ -2807,9 +2825,15 @@ d.Block = d.Class(d.Control, {
 		case 't':
 		case 'r':
 		case 'b':
-			block = new (spec[0] === 'r' ? d.ReporterBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.CommandBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
-			if (spec[0] === 't') {
+		case 'e':
+			block = new (spec[0] === 'r' || spec[0] === 'e' ? d.ReporterBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.CommandBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
+			switch (spec[0]) {
+			case 't':
 				block.setTerminal(true);
+				break;
+			case 'e':
+				block.setEmbedded(true).setFillsLine(true);
+				break;
 			}
 			block.setArgs.apply(block, spec.slice(4));
 			return block;
@@ -2924,6 +2948,7 @@ d.SetterBlock = d.Class(d.CommandBlock, {
 			} else {
 				this.setSpec('set %var to %s').setSelector('setVar:to:');
 			}
+			this.add(new d.arg.Label());
 		}
 	},
 	'.var': {
@@ -2941,5 +2966,89 @@ d.SetterBlock = d.Class(d.CommandBlock, {
 		set: function (value) {
 			this.arguments[1].setValue(value);
 		}
+	},
+	varChanged: function () {
+		var arg;
+		this.unit = '';
+		arg = this.getDefaultArg(this.arguments[0].value());
+		if (this.unit) {
+			this.children[4].element.style.display = '';
+			this.children[4].setValue(this.unit);
+		} else {
+			this.children[4].element.style.display = 'none';
+		}
+		if (this.arguments[1] === this.defaultArguments[1]) {
+			this.replaceArg(this.arguments[1], arg);
+		}
+		this.defaultArguments[1] = arg;
+	},
+	getDefaultArg: function (variable) {
+		if (this._isChange) {
+			switch (variable) {
+			case 'costume #':
+			case 'layer':
+			case 'instrument':
+				return this.argFromSpec('i').setValue(1);
+			case 'direction':
+				return this.argFromSpec('f').setValue(15);
+			case 'tempo':
+				return this.argFromSpec('f').setValue(20);
+			case 'volume':
+				return this.argFromSpec('f').setValue(-10);
+			case 'pen size':
+			case 'answer':
+			case 'timer':
+				return this.argFromSpec('f').setValue(1);
+			}
+			return this.argFromSpec('f').setValue(d.VariableColors[variable] ? 10 : 1);
+		}
+		switch (variable) {
+		case 'x position':
+		case 'y position':
+		case 'pen hue':
+		case 'timer':
+			return this.argFromSpec('f').setValue(0);
+		case 'direction':
+			return this.argFromSpec('direction');
+		case 'costume #':
+			return this.argFromSpec('i').setValue(1);
+		case 'layer':
+			return this.argFromSpec('layer');
+		case 'instrument':
+			return this.argFromSpec('instrument');
+		case 'size':
+		case 'volume':
+			this.unit = '%';
+			return this.argFromSpec('f').setValue(100);
+		case 'tempo':
+			this.unit = 'bpm';
+			return this.argFromSpec('f').setValue(60);
+		case 'pen down?':
+			return this.argFromSpec('b');
+		case 'pen color':
+			return this.argFromSpec('color');
+		case 'pen shade':
+			return this.argFromSpec('f').setValue(50);
+		case 'pen size':
+			return this.argFromSpec('f').setValue(1);
+		case 'answer':
+			return this.argFromSpec('s');
+		}
+		if (variable.substr(variable.length - 7) === ' effect') {
+			return this.argFromSpec('f').setValue(0);
+		}
+		return this.argFromSpec('s').setValue(0);
+	}
+});
+d.arg.CClosure = d.Class(d.ReporterBlock, {
+	init: function () {
+		this.base(arguments);
+		this.setEmbedded(true).setFillsLine(true).setCategory('system').setSelector('cClosure').setSpec('%slot:command');
+	},
+	setValue: function (value) {
+		this.arguments[0].setValue(value);
+	},
+	slotIndex: function () {
+		return this.parent.slotIndex(this);
 	}
 });
