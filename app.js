@@ -1274,6 +1274,7 @@ d.Socket = d.Class(d.Base, {
 		'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
 		'slot.claim': ['user$id', 'block$id', 'slot$index'],
 		'user.login': ['success', 'result'],
+		'user.list': ['users'],
 		'user.join': ['user'],
 		'user.leave': ['user$id'],
 		'project.data': ['data']
@@ -1348,13 +1349,18 @@ d.Socket = d.Class(d.Base, {
 			this.amber.authentication.setEnabled(true);
 			this.amber.authentication.passwordField.select();
 			break;
+		case 'user.list':
+			packet.users.forEach(function (user) {
+				this.userList.addUser(new d.User(this).fromSerial(user));
+			}.bind(this.amber));
+			break;
 		case 'user.join':
 			this.amber.userList.addUser(new d.User(this.amber).fromSerial(packet.user));
 			break;
 		case 'user.leave':
 			this.amber.getUserById(packet.user$id, function (user) {
 				this.amber.userList.removeUser(user);
-			});
+			}.bind(this));
 			break;
 		case 'project.data':
 			this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
@@ -1475,6 +1481,7 @@ d.UserList = d.Class(d.Control, {
 	},
 	removeUser: function (user) {
 		this.element.removeChild(this.users[user.id()]);
+		delete this.users[user.id()];
 	},
 	createUserItem: function (user) {
 		var d = this.newElement('d-user-list-item', 'a'),
