@@ -760,12 +760,9 @@ d.Project = d.Class(d.ServerData, {
 	'.name': {},
 	'.notes': {},
 	'.stage': {},
-	'.sprites': {},
 	fromSerial: function (o) {
 		var amber = this.amber;
-		return this.setName(o[0]).setNotes(o[1]).setStage(new d.Stage(this.amber).fromSerial(o[2])).setSprites(o[3] ? o[3].map(function (a) {
-			return new d.Sprite(amber).fromSerial(a);
-		}) : []);
+		return this.setName(o[0]).setNotes(o[1]).setStage(new d.Stage(this.amber).fromSerial(o[2]));
 	}
 });
 d.SoundMedia = d.Class(d.ServerData, {
@@ -791,6 +788,8 @@ d.ImageMedia = d.Class(d.ServerData, {
 	}
 });
 d.Stage = d.Class(d.ServerData, {
+	'.sprites': {},
+	'.watchers': {},
 	'.scripts': {},
 	'.backgrounds': {},
 	'.backgroundIndex': {},
@@ -798,17 +797,21 @@ d.Stage = d.Class(d.ServerData, {
 	'.tempo': {},
 	fromSerial: function (o) {
 		var amber = this.amber;
-		return this.setScripts(o[0] ? o[0].map(function (a) {
-			return new d.BlockStack().fromSerial(a);
-		}) : []).setBackgrounds(o[1] ? o[1].map(function (a) {
+		return this.setSprites(o[0] ? o[0].map(function (a) {
+			return new d.Sprite(amber).fromSerial(a);
+		}) : []).setScripts(o[2] ? o[2].map(function (a) {
+			var stack = new d.BlockStack().fromSerial(a, null, amber);
+			amber.add(stack);
+			return stack;
+		}) : []).setBackgrounds(o[3] ? o[3].map(function (a) {
 			return new d.ImageMedia(amber).fromSerial(a);
-		}) : []).setBackgroundIndex(o[2]).setSounds(o[3] ? o[3].map(function (a) {
+		}) : []).setBackgroundIndex(o[4]).setSounds(o[5] ? o[5].map(function (a) {
 			return new d.SoundMedia(amber).fromSerial(a);
-		}) : []).setTempo(o[4]);
+		}) : []).setTempo(o[6]);
 	}
 });
 d.Amber = d.Class(d.App, {
-	PROTOCOL_VERSION: '1.0.1.2',
+	PROTOCOL_VERSION: '1.0.1.3',
 
 	init: function () {
 		this.base(arguments);
@@ -1244,10 +1247,12 @@ d.Socket = d.Class(d.Base, {
 		'script.create': ['script', 'user$id', 'temp$id'],
 		'block.move': ['user$id', 'block$id', 'x', 'y'],
 		'block.attach': ['user$id', 'block$id', 'type', 'target$id', 'slot$index'],
+		'block.delete': ['user$id', 'block$id'],
 		'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
 		'slot.claim': ['user$id', 'block$id', 'slot$index'],
 		'user.login': ['success', 'result'],
 		'user.join': ['user'],
+		'user.leave': ['user'],
 		'project.data': ['data']
 	},
 	receive: function (packet) {
@@ -1290,6 +1295,12 @@ d.Socket = d.Class(d.Base, {
 				}.bind(this));
 				break;
 			}
+			break;
+		case 'block.delete':
+			bb = d.BlockPalette.palettes[0].element.getBoundingClientRect();
+			(a = this.amber.blocks[packet.block$id]).detach().setPosition(bb.left + 10, bb.top + 10 + (bb.bottom - bb.top - 20) * Math.random(), function () {
+				a.parent.destroy();
+			}.bind(this));
 			break;
 		case 'slot.claim':
 			if (packet.block$id === -1) {
@@ -1471,11 +1482,11 @@ d.BlockStack = d.Class(d.Control, {
 			return block.toSerial();
 		})];
 	},
-	fromSerial: function (a, tracker) {
+	fromSerial: function (a, tracker, amber) {
 		this.element.style.left = a[0] + 'px';
 		this.element.style.top = a[1] + 'px';
 		a[2].forEach(function (block) {
-			this.add(d.Block.fromSerial(block, tracker));
+			this.add(d.Block.fromSerial(block, tracker, amber));
 		}, this);
 		return this;
 	},
@@ -1690,6 +1701,9 @@ d.BlockStack = d.Class(d.Control, {
 		this.app().element.removeChild(this.feedback);
 		while (i--) {
 			if (d.bbTouch(palettes[i].element, e)) {
+				this.top().send(function () {
+					return ['block.delete', this.id()];
+				});
 				this.destroy();
 				return;
 			}
@@ -2707,18 +2721,19 @@ d.Block = d.Class(d.Control, {
 		}
 	}
 }, {
-	fromSerial: function (a, tracker) {
+	fromSerial: function (a, tracker, amber) {
 		var selector = d.Selectors[a[1]],
 			spec = d.BlockSpecBySelector[selector],
 			block = d.Block.fromSpec(spec);
 		block.setId(a[0]);
+		if (amber) block.amber(amber);
 		if (tracker) {
 			tracker.push(block);
 		}
 		a[2].forEach(function (arg, i) {
 			if (arg instanceof Array) {
 				if (typeof arg[0] === 'number') {
-					block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker));
+					block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker, amber));
 				} else {
 					// TODO command slot stack fromSerial
 				}

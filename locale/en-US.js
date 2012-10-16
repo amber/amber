@@ -6,4 +6,4 @@ d.locale['en-US'] = {
 	'authentication-panel.signIn': 'Sign In',
 	'authentication-panel.register': 'Register',
 	'user-list.title': 'Users'
-}
+};
