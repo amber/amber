@@ -6,5 +6,6 @@ d.locale['en-US'] = {
 	'authentication-panel.signIn': 'Sign In',
 	'authentication-panel.register': 'Register',
 	'authentication-panel.offline': 'Offline',
+    'authentication-panel.connectionFailed': 'Connection failed!',
 	'user-list.title': 'Users'
 };

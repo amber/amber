@@ -369,6 +369,8 @@ d.App = d.Class(d.Control, {
 		}, true);
 		element.addEventListener('mousedown', function (e) {
 			var dx, dy, c;
+			document.addEventListener('mousemove', mousemove, true);
+			document.addEventListener('mouseup', mouseup, true);
 			if (app._menu && !app._menu.hasChild(e.target.control)) app._menu.close();
 			if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return true;
 			c = e.target.control;
@@ -391,7 +393,7 @@ d.App = d.Class(d.Control, {
 			document.activeElement.blur();
 			e.preventDefault();
 		}, true);
-		element.addEventListener('mousemove', function (e) {
+		function mousemove(e) {
 			if (!mouseDown || !app.mouseDownControl) return true;
 			if (shouldStartDrag) {
 				app.mouseDownControl.dispatch('DragStart', new d.TouchEvent().setMouseEvent(e));
@@ -399,8 +401,8 @@ d.App = d.Class(d.Control, {
 			}
 			app.mouseDownControl.dispatch('TouchMove', new d.TouchEvent().setMouseEvent(e));
 			// e.preventDefault();
-		}, true);
-		element.addEventListener('mouseup', function (e) {
+		}
+		function mouseup(e) {
 			if (!mouseDown || !app.mouseDownControl) return true;
 			mouseDown = false;
 			if (app._menu && app._menu.hasChild(e.target.control)) {
@@ -413,7 +415,7 @@ d.App = d.Class(d.Control, {
 			}
 			app.mouseDownControl.dispatch('TouchEnd', new d.TouchEvent().setMouseEvent(e));
 			// e.preventDefault();
-		}, true);
+		}
 		function mousewheel(f) {
 			return function (e) {
 				var t = e.target;
@@ -1248,6 +1250,10 @@ d.Socket = d.Class(d.Base, {
 		if (this.callback) this.callback();
 	},
 	close: function (e) {
+		if (this.amber.authentication.shown()) {
+			this.amber.authentication.setMessage(this.amber.t('authentication-panel.connectionFailed'));
+			this.amber.authentication.setEnabled(true);
+		}
 		console.warn('Socket closed:', e);
 	},
 	message: function (e) {
@@ -1434,7 +1440,7 @@ d.OfflineSocket = d.Class(d.Socket, {
 });
 d.AuthenticationPanel = d.Class(d.Control, {
 	init: function (amber) {
-		var savedServer, savedUsername, option;
+		var savedServer, savedUsername;
 		this.amber = amber;
 		this.base(arguments);
 
@@ -1453,9 +1459,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.serverField.value = (savedServer = localStorage.getItem('d.authentication-panel.server')) ? savedServer : 'ws://mpblocks.cloudno.de/:9182';
 		this.serverSelect.onchange = this.serverChange.bind(this);
 		this.serverSelect.onmousedown = this.serverClick.bind(this);
-		this.serverSelect.options[0] = new Option(this.serverField.value);
-		this.serverSelect.options[1] = new Option('ws://mpblocks.cloudno.de/:9182');
-		this.serverSelect.options[2] = new Option('ws://localhost:9182');
+		this.updateServerSelect();
 
 		this.usernameField.placeholder = amber.t('authentication-panel.username');
 		this.usernameField.oninput = this.userInput.bind(this);
@@ -1488,6 +1492,8 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.send();
 	},
 	submit: function () {
+		this.savedServers[this.serverField.value] = 1;
+		localStorage.setItem('d.authentication-panel.servers', JSON.stringify(this.savedServers));
 		this.setEnabled(false);
 		this.amber.createSocket(this.serverField.value, this.send.bind(this));
 	},
@@ -1504,13 +1510,34 @@ d.AuthenticationPanel = d.Class(d.Control, {
 				this.signInButton.disabled = !enabled;
 		}
 	},
+	shown: function () {
+		return !!this.parent;
+	},
 	userInput: function () {
 		localStorage.setItem('d.authentication-panel.username', this.usernameField.value);
 	},
 	serverInput: function () {
 		localStorage.setItem('d.authentication-panel.server', this.serverField.value);
 	},
+	updateServerSelect: function () {
+		var i, servers, server;
+		this.serverSelect.innerHTML = '';
+		this.serverSelect.options[0] = new Option(this.serverField.value);
+		this.serverSelect.options[1] = new Option('ws://mpblocks.cloudno.de/:9182');
+		this.serverSelect.options[2] = new Option('ws://localhost:9182');
+		servers = this.savedServers = JSON.parse(localStorage.getItem('d.authentication-panel.servers') || '{}');
+		i = 3;
+		for (server in servers) if (servers.hasOwnProperty(server)) {
+			this.serverSelect.options[i++] = new Option(server);
+		}
+		this.serverSelect.options[i++] = new Option('Clear Server List\u2026', '__clear__');
+	},
 	serverChange: function () {
+		if (this.serverSelect.value === '__clear__') {
+			localStorage.setItem('d.authentication-panel.servers', '{}');
+			this.updateServerSelect();
+			return;
+		}
 		localStorage.setItem('d.authentication-panel.server', this.serverField.value = this.serverSelect.value);
 	},
 	serverClick: function () {
