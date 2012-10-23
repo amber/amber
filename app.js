@@ -1529,7 +1529,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		for (server in servers) if (servers.hasOwnProperty(server)) {
 			this.serverSelect.options[i++] = new Option(server);
 		}
-		this.serverSelect.options[i++] = new Option('Clear Server List\u2026', '__clear__');
+		this.serverSelect.options[i++] = new Option(this.amber.t('authentication-panel.clearServers'), '__clear__');
 	},
 	serverChange: function () {
 		if (this.serverSelect.value === '__clear__') {
