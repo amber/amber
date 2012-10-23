@@ -1439,6 +1439,7 @@ d.OfflineSocket = d.Class(d.Socket, {
 	}
 });
 d.AuthenticationPanel = d.Class(d.Control, {
+	defaultServers: '{"ws://mpblocks.cloudno.de/:9182":1,"ws://localhost:9182":1}',
 	init: function (amber) {
 		var savedServer, savedUsername;
 		this.amber = amber;
@@ -1523,10 +1524,8 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		var i, servers, server;
 		this.serverSelect.innerHTML = '';
 		this.serverSelect.options[0] = new Option(this.serverField.value);
-		this.serverSelect.options[1] = new Option('ws://mpblocks.cloudno.de/:9182');
-		this.serverSelect.options[2] = new Option('ws://localhost:9182');
-		servers = this.savedServers = JSON.parse(localStorage.getItem('d.authentication-panel.servers') || '{}');
-		i = 3;
+		servers = this.savedServers = JSON.parse(localStorage.getItem('d.authentication-panel.servers') || this.defaultServers);
+		i = 1;
 		for (server in servers) if (servers.hasOwnProperty(server)) {
 			this.serverSelect.options[i++] = new Option(server);
 		}
@@ -1534,11 +1533,12 @@ d.AuthenticationPanel = d.Class(d.Control, {
 	},
 	serverChange: function () {
 		if (this.serverSelect.value === '__clear__') {
-			localStorage.setItem('d.authentication-panel.servers', '{}');
+			localStorage.setItem('d.authentication-panel.servers', this.defaultServers);
 			this.updateServerSelect();
 			return;
 		}
 		localStorage.setItem('d.authentication-panel.server', this.serverField.value = this.serverSelect.value);
+		this.serverField.focus();
 	},
 	serverClick: function () {
 		this.serverSelect.options[0] = new Option(this.serverField.value);
