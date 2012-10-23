@@ -6,7 +6,9 @@ d.locale['en-US'] = {
 	'authentication-panel.signIn': 'Sign In',
 	'authentication-panel.register': 'Register',
 	'authentication-panel.offline': 'Offline',
-    'authentication-panel.connectionFailed': 'Connection failed!',
     'authentication-panel.clearServers': 'Clear Server List',
+    'authentication.message.connectionFailed': 'Connection failed!',
+    'authentication.message.invalidCredentials': 'Invalid username/password!',
+    'authentication.message.generic': 'Sign in failed!',
 	'user-list.title': 'Users'
 };

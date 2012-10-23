@@ -1251,7 +1251,7 @@ d.Socket = d.Class(d.Base, {
 	},
 	close: function (e) {
 		if (this.amber.authentication.shown()) {
-			this.amber.authentication.setMessage(this.amber.t('authentication-panel.connectionFailed'));
+			this.amber.authentication.setMessage(this.amber.t('authentication.message.connectionFailed'));
 			this.amber.authentication.setEnabled(true);
 		}
 		console.warn('Socket closed:', e);
@@ -1319,7 +1319,9 @@ d.Socket = d.Class(d.Base, {
 			break;
 		case 'block.move':
 			a = this.amber.blocks[packet.block$id];
-			a.detach().setPosition(packet.x, packet.y);
+			a.detach().setPosition(packet.x, packet.y, function () {
+				a.parent.embed();
+			});
 			break;
 		case 'block.attach':
 			switch (packet.type) {
@@ -1368,7 +1370,7 @@ d.Socket = d.Class(d.Base, {
 				this.amber.remove(this.amber.authentication);
 				break;
 			}
-			this.amber.authentication.setMessage(packet.result);
+			this.amber.authentication.setMessage(this.amber.t(packet.result || 'authentication.message.generic'));
 			this.amber.authentication.setEnabled(true);
 			this.amber.authentication.passwordField.select();
 			break;
@@ -1401,6 +1403,7 @@ d.Socket = d.Class(d.Base, {
 });
 d.OfflineSocket = d.Class(d.Socket, {
 	server: '<offline>',
+	blockId: 0,
 	init: function (amber) {
 		this.amber = amber;
 		this.sent = [];
@@ -1412,11 +1415,29 @@ d.OfflineSocket = d.Class(d.Socket, {
 		this.received.push(p);
 		this.receive(p);
 	},
+	assignScriptIds: function (s) {
+		s.forEach(function (block) {
+			this.assignBlockIds(block);
+		}, this);
+	},
+	assignBlockIds: function (b) {
+		b[0] = ++this.blockId;
+		b[2].forEach(function (block) {
+			if (block && block.pop) {
+				if (block[0] === -1) {
+					this.assignBlockIds(block);
+				} else {
+					this.assignScriptIds(block, true);
+				}
+			}
+		});
+	},
 	send: function (type /*, args... */) {
 		var p = [].slice.call(arguments);
 		this.sent.push(p);
 		switch (type) {
 		case 'script.create':
+			this.assignScriptIds(p[1][2]);
 			this.serve('script.create', p[1], 0, p[2]);
 			break;
 		case 'block.move':
@@ -1620,7 +1641,7 @@ d.BlockEditor = d.Class(d.Control, {
 		if (x < 0 || y < 0) {
 			i = c.length;
 			while (i--) {
-				c[i].initPosition(c[i].x() - x - bb.left, c[i].y() - y - bb.top);
+				c[i].initPosition(c[i].x() - x - bb.left, c[i].y() - y - bb.top, true);
 			}
 			x = 0;
 			y = 0;
@@ -1640,11 +1661,13 @@ d.BlockStack = d.Class(d.Control, {
 		this.initElements('d-block-stack');
 	},
 	setPosition: function (x, y, callback) {
+		var editor = this.app().editor.element;
 		setTimeout(function () {
 			this.element.style.WebkitTransition =
 				this.element.style.MozTransition = 'top .3s ease, left .3s ease';
-			this.element.style.left = x + 'px';
-			this.element.style.top = y + 'px';
+			this.element.style.position = 'fixed';
+			this.element.style.left = x - editor.scrollLeft + 'px';
+			this.element.style.top = y - editor.scrollTop + 'px';
 			setTimeout(function () {
 				this.element.style.WebkitTransition = 
 					this.element.style.MozTransition = '';
@@ -1653,7 +1676,8 @@ d.BlockStack = d.Class(d.Control, {
 		}.bind(this), 16);
 		return this;
 	},
-	initPosition: function (x, y) {
+	initPosition: function (x, y, relative) {
+		if (!relative) this.element.style.position = 'fixed';
 		this.element.style.left = x + 'px';
 		this.element.style.top = y + 'px';
 		return this;
@@ -1773,7 +1797,10 @@ d.BlockStack = d.Class(d.Control, {
 		this.element.style.left = (e.x = this.dragStartBB.left + e.x - this.dragStartEvent.x) + 'px';
 		this.element.style.top = (e.y = this.dragStartBB.top + e.y - this.dragStartEvent.y) + 'px';
 		if (this.reporter()) {
-			blocks = d.Block.blocks;
+			blocks = this.app().blocks;
+			blocks = Object.keys(blocks).map(function (k) {
+				return blocks[k];
+			});
 			i = blocks.length;
 			while (i--) {
 				block = blocks[i];
@@ -1945,6 +1972,15 @@ d.BlockStack = d.Class(d.Control, {
 		this.element.style.left = bbb.left + editor.element.scrollLeft - bbe.left + 'px';
 		this.element.style.top = bbb.top + editor.element.scrollTop - bbe.top + 'px';
 		editor.fit();
+		return this;
+	},
+	unembed: function () {
+		var bb = this.element.getBoundingClientRect();
+		this.element.style.position = 'fixed';
+		this.element.style.left = bb.left + 'px';
+		this.element.style.top = bb.top + 'px';
+		this.app().add(this);
+		return this;
 	},
 	destroy: function () {
 		if (this.parent) {
@@ -2336,12 +2372,25 @@ d.arg.Bool = d.Class(d.arg.Base, {
 d.arg.Color = d.Class(d.arg.Base, {
 	acceptsClick: true,
 	init: function () {
+		function h() { return '0123456789abcdef'[Math.random() * 16 | 0]; }
 		this.base(arguments);
 		this.initElements('d-block-color');
-		console.warn('Color pickers are not implemented');
+		this.element.appendChild(this.picker = this.newElement('d-block-color-input', 'input'));
+		this.picker.type = 'color';
+		this.picker.addEventListener('input', this.colorSelected.bind(this));
+		this.setValue('#' + h() + h() + h() + h() + h() + h());
+	},
+	colorSelected: function () {
+		this.setValue(this.picker.value);
+		this.edited();
 	},
 	copy: function () {
 		return new this.constructor();
+	},
+	'.value': {
+		apply: function (color) {
+			this.element.style.backgroundColor = this.picker.value = color;
+		}
 	}
 });
 d.arg.List = d.Class(d.arg.Enum, {
@@ -2520,7 +2569,7 @@ d.Block = d.Class(d.Control, {
 					this.parent.parent.setValue(null);
 					app.add(this.parent);
 				}
-				return this.parent;
+				return this.parent.unembed();
 			}
 			bb = this.element.getBoundingClientRect();
 			stack = this.parent.splitStack(this);
@@ -2544,10 +2593,10 @@ d.Block = d.Class(d.Control, {
 		return this;
 	},
 	x: function () {
-		return this.element.getBoundingClientRect().left;
+		return this.element.getBoundingClientRect().left + this.app().editor.element.scrollLeft;
 	},
 	y: function () {
-		return this.element.getBoundingClientRect().top;
+		return this.element.getBoundingClientRect().top + this.app().editor.element.scrollTop;
 	},
 	dragStart: function (e) {
 		var app, bb;
@@ -2666,6 +2715,8 @@ d.Block = d.Class(d.Control, {
 				{ title: 'up', action: '0' },
 				{ title: 'down', action: '180' }
 			]);
+		case 'layer':
+			return new d.arg.TextField().setNumeric(true).setText('1').setItems(['1', 'last', 'any']);
 		case 'deletion-index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems(['1', 'last', d.Menu.separator, 'all']);
 		case 'index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems(['1', 'last', 'any']);
 
