@@ -1561,9 +1561,47 @@ d.UserList = d.Class(d.Control, {
 	}
 });
 d.BlockEditor = d.Class(d.Control, {
+	padding: 10,
 	init: function () {
 		this.base(arguments);
 		this.initElements('d-block-editor');
+		this.fill = this.newElement('d-block-editor-fill');
+		this.element.appendChild(this.fill);
+	},
+	fit: function () {
+		var bb = this.fill.getBoundingClientRect(),
+			p = this.padding,
+			c = this.children,
+			i = c.length,
+			w = 0,
+			h = 0,
+			x = 0,
+			y = 0,
+			v;
+		while (i--) {
+			if ((v = c[i].x() - bb.left - p) < x) {
+				w += x - v;
+				x = v;
+			}
+			w = Math.max(w, v + c[i].element.offsetWidth - x);
+			if ((v = c[i].y() - bb.top - p) < y) {
+				h += y - v;
+				y = v;
+			}
+			h = Math.max(h, v + c[i].element.offsetHeight - y);
+		}
+		if (x < 0 || y < 0) {
+			i = c.length;
+			while (i--) {
+				c[i].initPosition(c[i].x() - x - bb.left, c[i].y() - y - bb.top);
+			}
+			x = 0;
+			y = 0;
+		}
+		this.fill.style.width = w + p * 2 + 'px';
+		this.fill.style.height = h + p * 2 + 'px';
+		this.fill.style.left = x + 'px';
+		this.fill.style.top = y + 'px';
 	}
 });
 d.BlockStack = d.Class(d.Control, {
@@ -1868,7 +1906,18 @@ d.BlockStack = d.Class(d.Control, {
 			this.top().send(function () {
 				return ['block.move', this.id(), this.x(), this.y()];
 			});
+			this.embed();
 		}
+	},
+	embed: function () {
+		var editor = this.app().editor,
+			bbe = editor.element.getBoundingClientRect(),
+			bbb = this.element.getBoundingClientRect();
+		editor.add(this);
+		this.element.style.position = 'absolute';
+		this.element.style.left = bbb.left + editor.element.scrollLeft - bbe.left + 'px';
+		this.element.style.top = bbb.top + editor.element.scrollTop - bbe.top + 'px';
+		editor.fit();
 	},
 	destroy: function () {
 		if (this.parent) {

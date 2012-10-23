@@ -320,15 +320,20 @@
 .d-block-editor {
 	position: absolute;
 	top: 0;
-	left: 200px;
-	right: 200px;
+	left: 201px;
+	right: 201px;
 	bottom: 0;
-	border: 1px solid rgb(18%, 18%, 18%);
-	border-style: none solid;
+	box-shadow:
+		1px 0 rgb(18%, 18%, 18%),
+		-1px 0 rgb(18%, 18%, 18%);
+	/*border-style: none solid;*/
 	background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background-size: 4px 4px;
 	overflow: auto;
+}
+.d-block-editor-fill {
+	position: absolute;
 }
 
 .d-user-list {
@@ -370,7 +375,10 @@
 
 .d-block-stack {
 	position: absolute;
-	width: 0;
+	pointer-events: none;
+}
+.d-block-stack > .d-block {
+	pointer-events: auto;
 }
 .d-block-stack > .d-reporter-block {
 	float: left;
