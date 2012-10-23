@@ -753,6 +753,9 @@ d.User = d.Class(d.ServerData, {
 		this.base(arguments);
 		this.amber = amber;
 	},
+	toJSON: function () {
+		return [this._id, this._name, this._rank];
+	},
 	'.name': {
 		apply: function (name) {
 			this.amber.usersByName[name] = this;
@@ -763,7 +766,9 @@ d.User = d.Class(d.ServerData, {
 			this.amber.usersById[id] = this;
 		}
 	},
-	'.rank': {},
+	'.rank': {
+		value: 'default'
+	},
 	fromSerial: function (o) {
 		return this.setId(o[0]).setName(o[1]).setRank(o[2] || 'default');
 	}
@@ -897,6 +902,13 @@ d.Amber = d.Class(d.App, {
 	'.lightboxEnabled': {
 		apply: function (lightboxEnabled) {
 			this.lightbox.style.display = lightboxEnabled ? 'block' : 'none';
+		}
+	},
+	'.offline': {
+		apply: function (offline) {
+			if (offline) {
+				this.socket = new d.OfflineSocket(this);
+			}
 		}
 	}
 });
@@ -1381,6 +1393,45 @@ d.Socket = d.Class(d.Base, {
 		this.socket.send(packet);
 	}
 });
+d.OfflineSocket = d.Class(d.Socket, {
+	server: '<offline>',
+	init: function (amber) {
+		this.amber = amber;
+		this.sent = [];
+		this.received = [];
+		this.newScripts = {};
+	},
+	serve: function () {
+		var p = [].slice.call(arguments);
+		this.received.push(p);
+		this.receive(p);
+	},
+	send: function (type /*, args... */) {
+		var p = [].slice.call(arguments);
+		this.sent.push(p);
+		switch (type) {
+		case 'script.create':
+			this.serve('script.create', p[1], 0, p[2]);
+			break;
+		case 'block.move':
+			break;
+		case 'block.attach':
+			break;
+		case 'block.delete':
+			break;
+		case 'slot.set':
+			break;
+		case 'slot.claim':
+			break;
+		case 'user.login':
+			this.serve('user.login', true, [0, p[2]]);
+			// TODO offline project default background
+			this.serve('project.data', ['Untitled', '', [[], [], [], [['background1', '']], 0, [], 120]]);
+			this.serve('user.list', [this.amber.currentUser.toJSON()]);
+			break;
+		}
+	}
+});
 d.AuthenticationPanel = d.Class(d.Control, {
 	init: function (amber) {
 		var savedServer, savedUsername, option;
@@ -1394,6 +1445,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.element.appendChild(this.passwordField = this.newElement('d-authentication-input', 'input'));
 		this.element.appendChild(this.signInButton = this.newElement('d-authentication-button', 'input'));
 		this.element.appendChild(this.registerButton = this.newElement('d-authentication-button', 'input'));
+		this.element.appendChild(this.offlineButton = this.newElement('d-authentication-button', 'input'));
 		this.element.appendChild(this.messageField = this.newElement('d-authentication-message'));
 
 		this.serverField.placeholder = amber.t('authentication-panel.server');
@@ -1423,15 +1475,24 @@ d.AuthenticationPanel = d.Class(d.Control, {
 		this.registerButton.onclick = this.register.bind(this);
 		this.registerButton.value = amber.t('authentication-panel.register');
 		this.registerButton.type = 'button';
+
+		this.offlineButton.onclick = this.offlineMode.bind(this);
+		this.offlineButton.value = amber.t('authentication-panel.offline');
+		this.offlineButton.type = 'button';
 	},
 	register: function () {
 		window.open('http://scratch.mit.edu/signup');
 	},
+	offlineMode: function () {
+		this.amber.setOffline(true);
+		this.send();
+	},
 	submit: function () {
 		this.setEnabled(false);
-		this.amber.createSocket(this.serverField.value, function () {
-			this.amber.socket.send('user.login', this.amber.PROTOCOL_VERSION, this.usernameField.value, this.passwordField.value);
-		}.bind(this));
+		this.amber.createSocket(this.serverField.value, this.send.bind(this));
+	},
+	send: function () {
+		this.amber.socket.send('user.login', this.amber.PROTOCOL_VERSION, this.usernameField.value, this.passwordField.value);
 	},
 	'.enabled': {
 		value: true,
