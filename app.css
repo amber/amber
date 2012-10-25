@@ -762,8 +762,8 @@
 }
 .d-block-bool {
 	position: relative;
-	width: 25px;
-	height: 9px;
+	width: 29px;
+	height: 13px;
 }
 .d-block-bool-fill,
 .d-block-bool-fill-rt,
@@ -771,12 +771,12 @@
 .d-block-bool-fill-lt,
 .d-block-bool-fill-lb {
 	position: absolute;
-	width: 6px;
+	width: 8px;
 }
 .d-block-bool-fill {
 	top: 0;
-	left: 6px;
-	right: 6px;
+	left: 8px;
+	right: 8px;
 	bottom: 0;
 	width: auto;
 	background: rgba(0, 0, 0, .1);
