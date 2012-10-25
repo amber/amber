@@ -1781,13 +1781,13 @@ d.BlockStack = d.Class(d.Control, {
 					dy = y - e.y;
 				return dx * dx + dy * dy;
 			}
-			// distance = Math.min(
-			// 	d(test.left, test.top),
-			// 	d(test.left, test.bottom),
-			// 	d(test.right, test.top),
-			// 	d(test.right, test.bottom),
-			// 	d((test.left + test.right) / 2, (test.top + test.bottom) / 2));
-			distance = d((test.left + test.right) / 2, (test.top + test.bottom) / 2);
+			distance = Math.min(
+				d(test.left, test.top),
+				d(test.left, test.bottom),
+				d(test.right, test.top),
+				d(test.right, test.bottom),
+				d((test.left + test.right) / 2, (test.top + test.bottom) / 2));
+			// distance = d((test.left + test.right) / 2, (test.top + test.bottom) / 2);
 			if (!target || distance < targetDistance || newTarget.argument && target.argument.hasChild(newTarget.argument)) {
 				target = newTarget;
 				targetDistance = distance;
@@ -3071,7 +3071,7 @@ d.ReporterBlock = d.Class(d.Block, {
 d.BooleanReporterBlock = d.Class(d.Block, {
 	isReporter: true,
 	isBoolean: true,
-	acceptsReporter: d.ReporterBlock.prototype.isReporter,
+	acceptsReporter: d.ReporterBlock.prototype.acceptsReporter,
 	init: function () {
 		this.base(arguments);
 		this.initElements('d-block d-boolean-reporter-block');
