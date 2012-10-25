@@ -559,6 +559,7 @@
 .d-boolean-reporter-block-fill-lb {
 	background-color: transparent !important;
 	background-repeat: no-repeat;
+	background-size: 10px 10px, auto auto, auto auto;
 	height: 50%;
 	width: 10px;
 }
@@ -567,7 +568,8 @@
 	left: 0;
 	background-image:
 		-webkit-linear-gradient(left top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
-		-webkit-linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
+		-webkit-linear-gradient(left, rgba(255, 255, 255, .27) 1px, rgba(255, 255, 255, 0) 1px),
+		-webkit-linear-gradient(currentColor, currentColor);
 	background-image:
 		-moz-linear-gradient(left top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
 		-moz-linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
@@ -580,15 +582,15 @@
 	background-image:
 		linear-gradient(left top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
 		linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
-	background-position: left top, left 10px;
-	background-size: 10px 10px, auto auto;
+	background-position: left top, left 10px, left 10px;
 }
 .d-boolean-reporter-block-fill-rb {
 	bottom: 0;
 	left: 0;
 	background-image:
 		-webkit-linear-gradient(left bottom, transparent 48%, currentColor 51%),
-		-webkit-linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
+		-webkit-linear-gradient(left, rgba(255, 255, 255, .27) 1px, rgba(255, 255, 255, 0) 1px),
+		-webkit-linear-gradient(currentColor, currentColor);
 	background-image:
 		-moz-linear-gradient(left bottom, transparent 48%, currentColor 51%),
 		-moz-linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
@@ -601,16 +603,16 @@
 	background-image:
 		linear-gradient(left bottom, transparent 48%, currentColor 51%),
 		linear-gradient(left, rgba(255, 255, 255, 0), currentColor 1px);
-	background-position: left bottom, left -10px;
-	background-size: 10px 10px, auto auto;
+	background-position: left bottom, left -10px, left -10px;
 }
 .d-boolean-reporter-block-fill-lt {
 	top: 0;
 	right: 0;
 	background-image:
 		-webkit-linear-gradient(right top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
-		-webkit-linear-gradient(right, transparent, currentColor 1px);
-	background-image:
+		-webkit-linear-gradient(right, rgba(0, 0, 0, .3) 1px, transparent 1px),
+		-webkit-linear-gradient(currentColor, currentColor);
+	/*background-image:
 		-moz-linear-gradient(right top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
 		-moz-linear-gradient(right, transparent, currentColor 1px);
 	background-image:
@@ -621,16 +623,16 @@
 		-o-linear-gradient(right, transparent, currentColor 1px);
 	background-image:
 		linear-gradient(right top, rgba(255, 255, 255, 0) 48%, currentColor 51%),
-		linear-gradient(right, transparent, currentColor 1px);
-	background-position: left top, left 10px;
-	background-size: 10px 10px, auto auto;
+		linear-gradient(right, transparent, currentColor 1px);*/
+	background-position: left top, left 10px, left 10px;
 }
 .d-boolean-reporter-block-fill-lb {
 	bottom: 0;
 	right: 0;
 	background-image:
 		-webkit-linear-gradient(right bottom, transparent 48%, currentColor 51%),
-		-webkit-linear-gradient(right, transparent, currentColor 1px);
+		-webkit-linear-gradient(right, rgba(0, 0, 0, .3) 1px, transparent 1px),
+		-webkit-linear-gradient(currentColor, currentColor);
 	background-image:
 		-moz-linear-gradient(right bottom, transparent 48%, currentColor 51%),
 		-moz-linear-gradient(right, transparent, currentColor 1px);
@@ -643,8 +645,7 @@
 	background-image:
 		linear-gradient(right bottom, transparent 48%, currentColor 51%),
 		linear-gradient(right, transparent, currentColor 1px);
-	background-position: left bottom, left -10px;
-	background-size: 10px 10px, auto auto;
+	background-position: left bottom, left -10px, left -10px;
 }
 
 .d-block-text,
