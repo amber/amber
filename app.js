@@ -1625,14 +1625,15 @@ d.BlockEditor = d.Class(d.Control, {
 			h = 0,
 			x = 0,
 			y = 0,
-			v;
+			b, v;
 		while (i--) {
-			if ((v = c[i].x() - bb.left - p) < x) {
+			b = c[i].element.getBoundingClientRect();
+			if ((v = b.left - bb.left - p) < x) {
 				w += x - v;
 				x = v;
 			}
 			w = Math.max(w, v + c[i].element.offsetWidth - x);
-			if ((v = c[i].y() - bb.top - p) < y) {
+			if ((v = b.top - bb.top - p) < y) {
 				h += y - v;
 				y = v;
 			}
@@ -1641,7 +1642,8 @@ d.BlockEditor = d.Class(d.Control, {
 		if (x < 0 || y < 0) {
 			i = c.length;
 			while (i--) {
-				c[i].initPosition(c[i].x() - x - bb.left, c[i].y() - y - bb.top, true);
+				b = c[i].element.getBoundingClientRect();
+				c[i].initPosition(b.left - x - bb.left, b.top - y - bb.top, true);
 			}
 			x = 0;
 			y = 0;
@@ -1683,10 +1685,10 @@ d.BlockStack = d.Class(d.Control, {
 		return this;
 	},
 	x: function () {
-		return this.element.getBoundingClientRect().left;
+		return this.element.getBoundingClientRect().left + this.app().editor.element.scrollLeft;
 	},
 	y: function () {
-		return this.element.getBoundingClientRect().top;
+		return this.element.getBoundingClientRect().top + this.app().editor.element.scrollTop;
 	},
 	toSerial: function () {
 		return [this.x(), this.y(), this.children.map(function (block) {
