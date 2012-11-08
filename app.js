@@ -816,17 +816,19 @@ d.Stage = d.Class(d.ServerData, {
 	'.tempo': {},
 	fromSerial: function (o) {
 		var amber = this.amber;
-		return this.setSprites(o[0] ? o[0].map(function (a) {
+		this.setSprites(o[0] ? o[0].map(function (a) {
 			return new d.Sprite(amber).fromSerial(a);
 		}) : []).setScripts(o[2] ? o[2].map(function (a) {
 			var stack = new d.BlockStack().fromSerial(a, null, amber);
-			amber.add(stack);
+			amber.editor.add(stack);
 			return stack;
 		}) : []).setBackgrounds(o[3] ? o[3].map(function (a) {
 			return new d.ImageMedia(amber).fromSerial(a);
 		}) : []).setBackgroundIndex(o[4]).setSounds(o[5] ? o[5].map(function (a) {
 			return new d.SoundMedia(amber).fromSerial(a);
 		}) : []).setTempo(o[6]);
+        amber.editor.fit();
+        return this;
 	}
 });
 d.Amber = d.Class(d.App, {
@@ -1771,23 +1773,13 @@ d.BlockStack = d.Class(d.Control, {
 	touchMove: function (e) {
 		var tolerance = 12,
 			stackTolerance = 20,
+            t = this,
 			isTerminal, stacks, blocks, i,
-			stack, j, block, arg, bb, test, last,
-			target, targetDistance;
+			stack, last, target, targetDistance;
 		function closer(test, newTarget) {
-			var distance;
-			function d(x, y) {
-				var dx = x - e.x,
-					dy = y - e.y;
-				return dx * dx + dy * dy;
-			}
-			distance = Math.min(
-				d(test.left, test.top),
-				d(test.left, test.bottom),
-				d(test.right, test.top),
-				d(test.right, test.bottom),
-				d((test.left + test.right) / 2, (test.top + test.bottom) / 2));
-			// distance = d((test.left + test.right) / 2, (test.top + test.bottom) / 2);
+			var dx = (test.left + test.right) / 2 - e.x,
+				dy = (test.top + test.bottom) / 2 - e.y;
+				distance = dx * dx + dy * dy;
 			if (!target || distance < targetDistance || newTarget.argument && target.argument.hasChild(newTarget.argument)) {
 				target = newTarget;
 				targetDistance = distance;
@@ -1799,31 +1791,36 @@ d.BlockStack = d.Class(d.Control, {
 		this.element.style.left = (e.x = this.dragStartBB.left + e.x - this.dragStartEvent.x) + 'px';
 		this.element.style.top = (e.y = this.dragStartBB.top + e.y - this.dragStartEvent.y) + 'px';
 		if (this.reporter()) {
-			blocks = this.app().blocks;
-			blocks = Object.keys(blocks).map(function (k) {
-				return blocks[k];
-			});
+            function add(block) {
+                var j, arg, bb, test;
+                if (!(t.hasChild(block))) {
+                    j = block.arguments.length;
+                    while (j--) {
+                        arg = block.arguments[j];
+                        bb = arg.element.getBoundingClientRect();
+                        if (d.inBB(e, test = {
+                            left: bb.left - tolerance,
+                            right: bb.right + tolerance,
+                            top: bb.top - tolerance,
+                            bottom: bb.bottom + tolerance
+                        }) && arg.acceptsReporter(t.children[0])) closer(test, {
+                            type: 'argument',
+                            block: block,
+                            argument: arg,
+                            bb: bb
+                        });
+                        if (arg.isBlock) {
+                            add(arg);
+                        }
+                    }
+                }
+            }
+			blocks = this.app().editor.children;
 			i = blocks.length;
 			while (i--) {
-				block = blocks[i];
-				if (!(this.hasChild(block))) {
-					j = block.arguments.length;
-					while (j--) {
-						arg = block.arguments[j];
-						bb = arg.element.getBoundingClientRect();
-						if (d.inBB(e, test = {
-							left: bb.left - tolerance,
-							right: bb.right + tolerance,
-							top: bb.top - tolerance,
-							bottom: bb.bottom + tolerance
-						}) && arg.acceptsReporter(this.children[0])) closer(test, {
-							type: 'argument',
-							block: block,
-							argument: arg,
-							bb: bb
-						});
-					}
-				}
+				blocks[i].children.forEach(function (block) {
+                    add(block);
+                });
 			}
 		} else {
 			isTerminal = this.terminal();
@@ -2610,13 +2607,12 @@ d.Block = d.Class(d.Control, {
 			(app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()]).startDrag(app, e, bb);
 		} else if (this.parent.isStack) {
 			this.parent.dragStack(e, this);
+		} else if (this.parent.isBlock) {
+			app = this.app();
+			bb = this.element.getBoundingClientRect();
+			this.parent.restoreArg(this);
+			new d.BlockStack().add(this).startDrag(app, e, bb);
 		}
-		// } else if (this.parent.isBlock) {
-		// 	app = this.app();
-		// 	bb = this.element.getBoundingClientRect();
-		// 	this.parent.restoreArg(this);
-		// 	new d.BlockStack().add(this).startDrag(app, e, bb);
-		// }
 	},
 	showContextMenu: function (e) {
 		var me = this;
