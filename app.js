@@ -1697,10 +1697,12 @@ d.BlockStack = d.Class(d.Control, {
 			return block.toSerial();
 		})];
 	},
-	fromSerial: function (a, tracker, amber) {
-		this.element.style.left = a[0] + 'px';
-		this.element.style.top = a[1] + 'px';
-		a[2].forEach(function (block) {
+	fromSerial: function (a, tracker, amber, inline) {
+		if (!inline) {
+            this.element.style.left = a[0] + 'px';
+		  this.element.style.top = a[1] + 'px';
+        }
+		(inline ? a : a[2]).forEach(function (block) {
 			this.add(d.Block.fromSerial(block, tracker, amber));
 		}, this);
 		return this;
@@ -2996,7 +2998,7 @@ d.Block = d.Class(d.Control, {
 				if (typeof arg[0] === 'number') {
 					block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker, amber));
 				} else {
-					// TODO command slot stack fromSerial
+					block.arguments[i].setValue(new d.BlockStack().fromSerial(arg, tracker, amber, true));
 				}
 			} else {
 				block.arguments[i].setValue(arg);
