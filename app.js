@@ -1302,7 +1302,7 @@ d.Socket = d.Class(d.Base, {
 	receive: function (packet) {
 		var info = this.PACKETS[packet[0]],
 			i = info && info.length,
-			a, bb, tracker;
+			a, b, bb, tracker;
 		while (i--) {
 			packet[info[i]] = packet[i + 1];
 		}
@@ -1345,6 +1345,11 @@ d.Socket = d.Class(d.Base, {
 					a.setValue(this.amber.blocks[packet.block$id].parent);
 				}.bind(this));
 				break;
+            case d.BlockAttachType.slot$replace:
+                bb = (a = (tracker = this.amber.blocks[packet.target$id]).arguments[packet.slot$index]).element.getBoundingClientRect();
+                (b = this.amber.blocks[packet.block$id]).detach().setPosition(bb.left, bb.top, function () {
+                    tracker.replaceArg(a, b);
+                }.bind(this));
 			}
 			break;
 		case 'block.delete':
