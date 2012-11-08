@@ -335,8 +335,8 @@
 	bottom: 0;
 	box-shadow:
 		1px 0 rgb(18%, 18%, 18%),
-		-1px 0 rgb(18%, 18%, 18%);
-	/*border-style: none solid;*/
+		-1px 0 rgb(18%, 18%, 18%),
+        inset -1px 0 rgb(30%, 30%, 30%);
 	background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background-size: 4px 4px;
