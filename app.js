@@ -1052,8 +1052,8 @@ d.BlockSpecs = {
 	operators: [
 		['r', 'operators', '+', '%f + %f'],
 		['r', 'operators', '-', '%f - %f'],
-		['r', 'operators', '*', '%f * %f'],
-		['r', 'operators', '/', '%f \xd7 %f'],
+		['r', 'operators', '*', '%f \xd7 %f'],
+		['r', 'operators', '/', '%f / %f'],
 		'-',
 		['r', 'operators', 'randomFrom:to:', 'pick random %f to %f'],
 		'-',
