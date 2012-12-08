@@ -333,7 +333,7 @@ d.App = d.Class(d.Control, {
 			shouldStartDrag = false;
 		this.element = this.container = element;
 		element.control = this;
-		d.addClass(element, 'd-app');
+		d.addClass(element, 'd-app d-collapse-user-list');
 		element.addEventListener('touchstart', function (e) {
 			var t = e.target;
 			if (t.nodeType === 3) t = t.parentNode;
@@ -1592,10 +1592,16 @@ d.UserList = d.Class(d.Control, {
 	init: function (amber) {
 		this.base(arguments);
 		this.initElements('d-user-list');
+        this.element.appendChild(this.toggleButton = this.newElement('d-user-list-toggle'));
+        this.toggleButton.addEventListener('click', this.toggle.bind(this));
 		this.element.appendChild(this.title = this.newElement('d-user-list-title'));
 		this.title.textContent = amber.t('user-list.title');
 		this.users = {};
 	},
+    collapsed: true,
+    toggle: function () {
+        d.toggleClass(this.app().element, 'd-collapse-user-list', this.collapsed = !this.collapsed);
+    },
 	addUser: function (user) {
 		if (this.users[user.id()]) return;
 		this.element.appendChild(this.users[user.id()] = this.createUserItem(user));
@@ -1606,12 +1612,16 @@ d.UserList = d.Class(d.Control, {
 	},
 	createUserItem: function (user) {
 		var d = this.newElement('d-user-list-item', 'a'),
-			icon = document.createElement('img');
+			icon = document.createElement('img'),
+            label = document.createElement('div');
 		d.href = 'http://scratch.mit.edu/users/' + encodeURIComponent(user.name());
 		d.target = '_blank';
+        icon.className = 'd-user-list-icon';
 		icon.src = 'http://scratch.mit.edu/static/icons/buddy/' + user.id() + '_sm.png';
-		d.appendChild(icon);
-		d.appendChild(document.createTextNode(user.name()));
+        label.className = 'd-user-list-label';
+		label.textContent = user.name();
+        d.appendChild(icon);
+        d.appendChild(label);
 		return d;
 	}
 });

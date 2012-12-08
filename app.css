@@ -341,9 +341,13 @@
 	background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
 	background-size: 4px 4px;
 	overflow: auto;
+    -webkit-transition: right .3s ease;
 }
 .d-block-editor-fill {
 	position: absolute;
+}
+.d-collapse-user-list .d-block-editor {
+    right: 43px;
 }
 
 .d-user-list {
@@ -356,30 +360,86 @@
 	width: 200px;
 	box-shadow: inset 16px 0 24px -16px rgba(0, 0, 0, .1);
 	font: 11px sans-serif;
+    -webkit-transition: width .3s;
+}
+.d-collapse-user-list .d-user-list {
+    width: 42px;
 }
 .d-user-list-title {
 	color: #aaa;
 	text-shadow: 0 -1px rgb(12%, 12%, 12%);
 	margin: 6px 12px;
 	font: 13px sans-serif;
+    max-width: 100%;
+    overflow: hidden;
+    -webkit-transition: .3s;
+}
+.d-collapse-user-list .d-user-list-title {
+    max-width: 0;
+    margin: 6px 0;
+}
+.d-user-list-toggle {
+    float: right;
+    padding: 6px;
+    color: #aaa;
+    cursor: pointer;
+}
+.d-user-list-toggle::before {
+    content: '\25ba';
+}
+.d-collapse-user-list .d-user-list-toggle::before {
+    content: '\25c0';
 }
 .d-user-list-item {
 	padding: 6px 12px;
 	display: block;
 	color: rgb(80%, 80%, 80%);
+    position: relative;
 	text-decoration: none;
+    -webkit-transition: .3s;
 }
-.d-user-list-item:hover {
-	text-decoration: underline;
+.d-collapse-user-list .d-user-list-item {
+    padding: 3px 6px;
+    background: transparent !important;
 }
-.d-user-list-item img {
+.d-user-list-icon {
 	width: 28px;
 	height: 28px;
 	border: 1px solid rgb(12%, 12%, 12%);
 	vertical-align: middle;
 	margin-right: 12px;
+    -webkit-transition: margin-right .3s;
 }
-.d-user-list-item:nth-child(2n) {
+.d-collapse-user-list .d-user-list-icon {
+    margin-right: 0;
+}
+.d-user-list-label {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 100%;
+    -webkit-transition: max-width .3s;
+}
+.d-user-list-item:hover .d-user-list-label {
+    text-decoration: underline;
+}
+.d-collapse-user-list .d-user-list-label {
+    max-width: 0;
+}
+.d-collapse-user-list .d-user-list-item:hover .d-user-list-label {
+    text-decoration: none;
+    max-width: none;
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-right: 6px;
+    background: rgba(40, 40, 40, .8);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-top: -7px;
+}
+.d-user-list-item:nth-child(2n + 1) {
 	background-color: rgb(24%, 24%, 24%);
 }
 
