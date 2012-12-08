@@ -946,9 +946,9 @@ d.BlockSpecs = {
 		['v', 'costume #'],
 		'-',
 		['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2],
-		['c', 'looks', 'say:duration:', 'say %s', 'Hello!'],
+		['c', 'looks', 'say:', 'say %s', 'Hello!'],
 		['c', 'looks', 'think:duration:elapsed:from:', 'think %s for %f secs', 'Hmm\u2026', 2],
-		['c', 'looks', 'think:duration:', 'think %s', 'Hmm\u2026'],
+		['c', 'looks', 'think:', 'think %s', 'Hmm\u2026'],
 		'-',
 		['vc', 'color effect'],
 		['vs', 'color effect'],
@@ -1044,7 +1044,7 @@ d.BlockSpecs = {
 		['v', 'timer'],
 		['vs', 'timer'],
 		'-',
-		['r', 'sensing', 'attribute:of:', '%attribute of %object'],
+		['r', 'sensing', 'getAttribute:of:', '%attribute of %object'],
 		'-',
 		['v', 'loudness'],
 		['v', 'loud?']
@@ -1065,6 +1065,9 @@ d.BlockSpecs = {
 		['b', 'operators', '|', '%b or %b'],
 		['b', 'operators', 'not', 'not %b'],
 		'-',
+        ['b', 'operators', 'true', 'true'],
+        ['b', 'operators', 'false', 'false'],
+        '-',
 		['r', 'operators', 'concatenate:with:', 'join %s %s', 'hello ', 'world'],
 		['r', 'operators', 'letter:of:', 'letter %i of %s', 1, 'world'],
 		['r', 'operators', 'stringLength:', 'length of %s', 'world'],
@@ -1186,6 +1189,7 @@ d.Selectors = [
 	'-',
 	'*',
 	'/',
+    'randomFrom:to:',
 	'<',
 	'=',
 	'>',
@@ -1216,7 +1220,9 @@ d.Selectors = [
 	// Amber
 	'commandClosure',
 	'reporterClosure',
-	'booleanClosure'
+	'booleanClosure',
+    'true',
+    'false'
 ];
 d.BlockSelector = { };
 ~function () {
