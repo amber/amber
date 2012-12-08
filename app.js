@@ -3023,7 +3023,11 @@ d.Block = d.Class(d.Control, {
                     block.arguments[i].setValue(new d.BlockStack().fromSerial(arg, tracker, amber, true));
                 }
             } else {
-                block.arguments[i].setValue(arg);
+                if (i > block.arguments.length) {
+                    console.warn('Bad block serial form.');
+                } else {
+                    block.arguments[i].setValue(arg);
+                }
             }
         });
         return block;
