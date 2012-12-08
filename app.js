@@ -2603,6 +2603,7 @@ d.Block = d.Class(d.Control, {
         stack = new d.BlockStack();
         stack.initPosition(bb.left, bb.top);
         this.app().add(stack);
+        this.parent.restoreArg(this);
         return stack.add(this);
     },
     send: function (f) {
