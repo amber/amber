@@ -333,7 +333,8 @@ d.App = d.Class(d.Control, {
             shouldStartDrag = false;
         this.element = this.container = element;
         element.control = this;
-        d.addClass(element, 'd-app d-collapse-user-list');
+        d.addClass(element, 'd-app');
+        d.addClass(element, 'd-collapse-user-list');
         element.addEventListener('touchstart', function (e) {
             var t = e.target;
             if (t.nodeType === 3) t = t.parentNode;
