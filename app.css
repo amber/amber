@@ -298,13 +298,14 @@
     position: relative;
 }
 
-.d-block-list {
+.d-block-list,
+.d-user-list-contents {
     display: block;
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
     bottom: 29px;
-    width: 200px;
     overflow: auto;
 }
 .d-block-list-contents {
@@ -365,10 +366,16 @@
     width: 200px;
     box-shadow: inset 16px 0 24px -16px rgba(0, 0, 0, .1);
     font: 11px sans-serif;
-    -webkit-transition: width .3s;
+    -webkit-transition: .3s;
 }
 .d-collapse-user-list .d-user-list {
     width: 42px;
+}
+.d-user-list-contents {
+    -webkit-transition: .3s;
+}
+.d-collapse-user-list .d-user-list-contents {
+    padding: 3px 0;
 }
 .d-user-list-title {
     color: #aaa;

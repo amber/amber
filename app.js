@@ -14,7 +14,7 @@ d.addClass = function (element, className) {
 };
 d.removeClass = function (element, className) {
     var i = (' ' + element.className + ' ').indexOf(' ' + className + ' ');
-    if (i !== -1) element.className = element.className.substr(0, i - 1) + element.className.substr(i + className.length + 1);
+    if (i !== -1) element.className = element.className.substr(0, i) + element.className.substr(i + className.length + 1);
 };
 d.toggleClass = function (element, className, on) {
     if (on) {
@@ -1600,6 +1600,7 @@ d.UserList = d.Class(d.Control, {
         this.base(arguments);
         this.initElements('d-user-list');
         this.element.appendChild(this.title = this.newElement('d-user-list-title'));
+        this.element.appendChild(this.contents = this.newElement('d-user-list-contents'));
         this.title.appendChild(this.newElement('d-category-selector-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-user-list-title-label'));
         this.title.appendChild(this.toggleButton = this.newElement('d-user-list-toggle'));
@@ -1613,10 +1614,10 @@ d.UserList = d.Class(d.Control, {
     },
     addUser: function (user) {
         if (this.users[user.id()]) return;
-        this.element.appendChild(this.users[user.id()] = this.createUserItem(user));
+        this.contents.appendChild(this.users[user.id()] = this.createUserItem(user));
     },
     removeUser: function (user) {
-        this.element.removeChild(this.users[user.id()]);
+        this.contents.removeChild(this.users[user.id()]);
         delete this.users[user.id()];
     },
     createUserItem: function (user) {
