@@ -1598,10 +1598,12 @@ d.UserList = d.Class(d.Control, {
     init: function (amber) {
         this.base(arguments);
         this.initElements('d-user-list');
-        this.element.appendChild(this.toggleButton = this.newElement('d-user-list-toggle'));
-        this.toggleButton.addEventListener('click', this.toggle.bind(this));
         this.element.appendChild(this.title = this.newElement('d-user-list-title'));
-        this.title.textContent = amber.t('user-list.title');
+        this.title.appendChild(this.newElement('d-category-selector-shadow'));
+        this.title.appendChild(this.titleLabel = this.newElement('d-user-list-title-label'));
+        this.title.appendChild(this.toggleButton = this.newElement('d-user-list-toggle'));
+        this.toggleButton.addEventListener('click', this.toggle.bind(this));
+        this.titleLabel.textContent = amber.t('user-list.title');
         this.users = {};
     },
     collapsed: true,
