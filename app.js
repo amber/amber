@@ -1003,7 +1003,7 @@ d.BlockSpecs = {
         ['v', 'tempo']
     ],
     pen: [
-        ['c', 'pen', 'clear', 'clear'],
+        ['c', 'pen', 'clearPenTrails', 'clear'],
         '-',
         ['c', 'pen', 'stampCostume', 'stamp'],
         '-',
