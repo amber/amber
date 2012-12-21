@@ -9,8 +9,8 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-    -moz-transform: translateZ(0);
     overflow: hidden;
+    -webkit-transform: translateZ(0);
 }
 .d-fullscreen {
     position: absolute;
