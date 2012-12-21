@@ -3340,5 +3340,11 @@ d.HatBlock = d.Class(d.Block, {
         this.addFill(this.newElement('d-hat-block-fill-p'));
         this.addFill(this.newElement('d-hat-block-fill-t'));
         this.element.appendChild(this.container = this.newElement('d-hat-block-label'));
+    },
+    '.terminal': {
+        readonly: true,
+        get: function () {
+            return false;
+        }
     }
 });
