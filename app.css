@@ -505,6 +505,7 @@
     text-decoration: none;
     max-width: none;
     position: absolute;
+    opacity: 1;
     top: 50%;
     right: 100%;
     margin-right: 6px;
