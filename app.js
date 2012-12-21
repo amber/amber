@@ -2627,9 +2627,9 @@ d.Block = d.Class(d.Control, {
         if (this.selector() === 'cClosure') {
             return this.arguments[0].toSerial();
         }
-        return [this._id, d.BlockSelector[this.selector()], this.arguments.map(function (a) {
+        return [this._id, d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
             return a.toSerial();
-        })];
+        }));
     },
     '.id': {
         value: -1
@@ -3083,7 +3083,7 @@ d.Block = d.Class(d.Control, {
         if (tracker) {
             tracker.push(block);
         }
-        a[2].forEach(function (arg, i) {
+        a.slice(2).forEach(function (arg, i) {
             if (arg instanceof Array) {
                 if (typeof arg[0] === 'number') {
                     block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker, amber));
