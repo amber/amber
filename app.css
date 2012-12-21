@@ -522,6 +522,7 @@
 }
 .d-chat .d-panel-contents {
     padding-bottom: 6px;
+    cursor: text;
     -webkit-user-select: text;
 }
 .d-chat-line {
@@ -532,7 +533,8 @@
 }
 .d-chat-line-hidden {
     display: inline-block;
-    width: 0;
+    width: 1px;
+    margin-right: -1px;
     overflow: hidden;
 }
 .d-chat-username {

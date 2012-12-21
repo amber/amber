@@ -392,7 +392,6 @@ d.App = d.Class(d.Control, {
                 c.dispatch('TouchStart', new d.TouchEvent().setMouseEvent(e));
             }
             document.activeElement.blur();
-            e.preventDefault();
         }, true);
         function mousemove(e) {
             if (!mouseDown || !app.mouseDownControl) return true;
@@ -1690,10 +1689,13 @@ d.Chat = d.Class(d.Control, {
     showMessage: function (user, chat) {
         var line = this.newElement('d-chat-line'),
             username = this.newElement('d-chat-username'),
+            hidden = this.newElement('d-chat-line-hidden'),
             message = this.newElement('d-chat-message');
         username.textContent = user.name();
+        hidden.textContent = ': ';
         message.textContent = chat;
         line.appendChild(username);
+        line.appendChild(hidden);
         line.appendChild(message);
         this.contents.appendChild(line);
         this.autoscroll();
