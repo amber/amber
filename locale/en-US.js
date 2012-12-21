@@ -9,7 +9,9 @@ d.locale['en-US'] = {
     'authentication-panel.clearServers': 'Clear Server List',
     'authentication.message.connectionFailed': 'Connection failed',
     'authentication.message.invalidCredentials': 'Invalid username/password',
+    'authentication.message.wrongProtocolVersion': 'Wrong protocol version. Expected %.',
     'authentication.message.generic': 'Sign in failed!',
 	'user-list.title': 'Users',
-    'chat.title': 'Chat'
+    'chat.title': 'Chat',
+    'sprite-list.title': 'Sprites'
 };

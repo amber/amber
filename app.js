@@ -895,6 +895,7 @@ d.Amber = d.Class(d.App, {
         this.add(this.editor = new d.BlockEditor()).
             add(this.palette = new d.BlockPalette()).
             add(this.userPanel = new d.UserPanel(this)).
+            add(this.spritePanel = new d.SpritePanel(this)).
             add(this.authentication = new d.AuthenticationPanel(this)).
             setLightboxEnabled(true);
         this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
@@ -1550,7 +1551,7 @@ d.UserList = d.Class(d.Control, {
         this.initElements('d-user-list');
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
         this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
-        this.title.appendChild(this.newElement('d-panel-title-shadow'));
+        // this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
         this.titleLabel.textContent = amber.t('chat.title');
         this.users = {};
@@ -1585,7 +1586,7 @@ d.Chat = d.Class(d.Control, {
         this.initElements('d-chat');
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
         this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
-        this.title.appendChild(this.newElement('d-panel-title-shadow'));
+        // this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.input = this.newElement('d-chat-input', 'input'));
         this.input.addEventListener('keydown', this.keyDown.bind(this));
     },
@@ -1616,6 +1617,45 @@ d.Chat = d.Class(d.Control, {
         line.appendChild(message);
         this.contents.appendChild(line);
         this.autoscroll();
+    }
+});
+d.SpritePanel = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-sprite-panel');
+        this.add(amber.stageView = new d.StageView(amber))
+            .add(amber.spriteList = new d.SpriteList(amber));
+        this.element.appendChild(this.toggleButton = this.newElement('d-sprite-panel-toggle'));
+        this.toggleButton.addEventListener('click', this.toggle.bind(this));
+    },
+    collapsed: false,
+    toggle: function () {
+        d.toggleClass(this.app().element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
+        localStorage.setItem('d.sprite-panel.collapsed', this.collapsed);
+    },
+    setCollapsed: function (collapsed) {
+        if (this.collapsed !== collapsed) {
+            this.toggle();
+        }
+    }
+})
+d.StageView = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-stage');
+    }
+});
+d.SpriteList = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-sprite-list');
+        this.element.appendChild(this.title = this.newElement('d-panel-title'));
+        // this.title.appendChild(this.titleShadow = this.newElement('d-panel-title-shadow'));
+        this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
+        this.titleLabel.textContent = amber.t('sprite-list.title');
     }
 });
 d.BlockEditor = d.Class(d.Control, {
@@ -2003,7 +2043,7 @@ d.CategorySelector = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
         this.initElements('d-panel-title');
-        this.element.appendChild(this.shadow = this.newElement('d-panel-title-shadow'));
+        // this.element.appendChild(this.shadow = this.newElement('d-panel-title-shadow'));
         this.buttons = [];
         this.categories = [];
         this.byCategory = {};
