@@ -1362,7 +1362,7 @@ d.OfflineSocket = d.Class(d.Socket, {
     },
     assignBlockIds: function (b) {
         b[0] = ++this.blockId;
-        b[2].forEach(function (block) {
+        b.slice(2).forEach(function (block) {
             if (block && block.pop) {
                 if (block[0] === -1) {
                     this.assignBlockIds(block);
