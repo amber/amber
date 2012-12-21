@@ -436,6 +436,7 @@ d.App = d.Class(d.Control, {
     '.fullscreen': {
         apply: function (fullscreen) {
             d.toggleClass(this.element, 'd-fullscreen', fullscreen);
+            document.body.style.overflow = fullscreen ? 'hidden' : '';
         }
     }
 });
