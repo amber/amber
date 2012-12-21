@@ -3016,7 +3016,11 @@ d.Block = d.Class(d.Control, {
     fromSerial: function (a, tracker, amber) {
         var selector = a[1],
             spec = d.BlockSpecBySelector[selector],
-            block = d.Block.fromSpec(spec);
+            block;
+        if (!spec) {
+            throw new TypeError('Missing block spec mapping for selector #' + selector);
+        }
+        block = d.Block.fromSpec(spec);
         block.setId(a[0]);
         if (amber) block.amber(amber);
         if (tracker) {
