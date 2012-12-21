@@ -2571,8 +2571,8 @@ d.categoryColors = {
     // operators: 'rgb(38%, 76%, 7%)',
     // variables: 'rgb(95%, 46%, 11%)',
     // lists: 'rgb(85%, 30%, 7%)',
-    // system: 'rgb(50%, 50%, 50%)',
     // other: 'rgb(62%, 62%, 62%)'
+    system: 'rgb(50%, 50%, 50%)',
 
     // Object.keys(d.categoryColors).reduce(function (o,k) { var c = d.categoryColors[k].toString(16); o[k] = '#' + '000000'.substr(c.length) + c; return o }, {});
     // 'undefined': 13903912,
