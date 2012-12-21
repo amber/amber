@@ -1522,7 +1522,7 @@ d.UserList = d.Class(d.Control, {
         this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
         this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
-        this.titleLabel.textContent = amber.t('user-list.title');
+        this.titleLabel.textContent = amber.t('chat.title');
         this.users = {};
     },
     addUser: function (user) {
@@ -1557,7 +1557,6 @@ d.Chat = d.Class(d.Control, {
         this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
         this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.input = this.newElement('d-chat-input', 'input'));
-        this.input.placeholder = 'Chat';
         this.input.addEventListener('keydown', this.keyDown.bind(this));
     },
     keyDown: function (e) {
