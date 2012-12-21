@@ -833,7 +833,7 @@ d.Stage = d.Class(d.ServerData, {
     }
 });
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.0.1.4',
+    PROTOCOL_VERSION: '1.0.3',
 
     init: function () {
         this.base(arguments);
@@ -856,6 +856,9 @@ d.Amber = d.Class(d.App, {
         return script;
     },
     t: function (id) {
+        if (!this.locale.hasOwnProperty(id)) {
+            console.warn('missing translation key ' + id);
+        }
         return this.locale[id];
     },
     getUser: function (username, callback) {
