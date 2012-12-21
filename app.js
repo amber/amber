@@ -1164,12 +1164,12 @@ d.Socket = d.Class(d.Base, {
         var i = 0,
             amber = this.amber;
         function unpack(block) {
-            var j = 0;
+            var j = 2;
             if (typeof block[0] === 'number') {
                 destination[i++].setId(block[0]).amber(amber);
-                while (j < block[2].length) {
-                    if (block[2][j] instanceof Array) {
-                        unpack(block[2][j]);
+                while (j < block.length) {
+                    if (block[j] instanceof Array) {
+                        unpack(block[j]);
                     }
                     ++j;
                 }
