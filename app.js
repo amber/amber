@@ -811,8 +811,8 @@ d.Stage = d.Class(d.ServerData, {
     '.sprites': {},
     '.watchers': {},
     '.scripts': {},
-    '.backgrounds': {},
-    '.backgroundIndex': {},
+    '.backdrops': {},
+    '.backdropIndex': {},
     '.sounds': {},
     '.tempo': {},
     fromSerial: function (o) {
@@ -823,9 +823,9 @@ d.Stage = d.Class(d.ServerData, {
             var stack = new d.BlockStack().fromSerial(a, null, amber);
             amber.editor.add(stack);
             return stack;
-        }) : []).setBackgrounds(o[3] ? o[3].map(function (a) {
+        }) : []).setBackdrops(o[3] ? o[3].map(function (a) {
             return new d.ImageMedia(amber).fromSerial(a);
-        }) : []).setBackgroundIndex(o[4]).setSounds(o[5] ? o[5].map(function (a) {
+        }) : []).setBackdropIndex(o[4]).setSounds(o[5] ? o[5].map(function (a) {
             return new d.SoundMedia(amber).fromSerial(a);
         }) : []).setTempo(o[6]);
         amber.editor.fit();
@@ -938,19 +938,24 @@ d.BlockSpecs = {
         '-',
         ['c', 'motion', 'bounceOffEdge', 'if on edge, bounce'],
         '-',
+        ['c', 'motion', 'setRotationStyle', 'set rotation style to %rotationStyle'],
+        '-',
         ['v', 'x position'],
         ['v', 'y position'],
         ['v', 'direction']
     ],
     looks: [
-        ['c', 'looks', 'lookLike:', 'switch to costume %costume'],
-        ['c', 'looks', 'nextCostume', 'next costume'],
-        ['v', 'costume #'],
-        '-',
         ['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2],
         ['c', 'looks', 'say:', 'say %s', 'Hello!'],
         ['c', 'looks', 'think:duration:elapsed:from:', 'think %s for %f secs', 'Hmm\u2026', 2],
         ['c', 'looks', 'think:', 'think %s', 'Hmm\u2026'],
+        '-',
+        ['c', 'looks', 'show', 'show'],
+        ['c', 'looks', 'hide', 'hide'],
+        '-',
+        ['c', 'looks', 'lookLike:', 'switch costume to %costume'],
+        ['c', 'looks', 'nextCostume', 'next costume'],
+        ['c', 'looks', 'lookLike:', 'switch backdrop to %backdrop'],
         '-',
         ['vc', 'color effect'],
         ['vs', 'color effect'],
@@ -958,13 +963,13 @@ d.BlockSpecs = {
         '-',
         ['vc', 'size'],
         ['vs', 'size', 100],
-        ['v', 'size'],
-        '-',
-        ['c', 'looks', 'show', 'show'],
-        ['c', 'looks', 'hide', 'hide'],
         '-',
         ['c', 'looks', 'comeToFront', 'go to front'],
-        ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
+        ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1],
+        '-',
+        ['v', 'costume #'],
+        ['v', 'backdrop name'],
+        ['v', 'size']
     ],
     sound: [
         ['c', 'sound', 'playSound:', 'play sound %sound'],
@@ -988,6 +993,8 @@ d.BlockSpecs = {
     pen: [
         ['c', 'pen', 'clear', 'clear'],
         '-',
+        ['c', 'pen', 'stampCostume', 'stamp'],
+        '-',
         ['c', 'pen', 'putPenDown', 'pen down'],
         ['c', 'pen', 'putPenUp', 'pen up'],
         '-',
@@ -995,61 +1002,91 @@ d.BlockSpecs = {
         ['vc', 'pen hue'],
         ['vs', 'pen hue'],
         '-',
-        ['vc', 'pen shade'],
-        ['vs', 'pen shade'],
+        ['vc', 'pen lightness'],
+        ['vs', 'pen lightness'],
         '-',
         ['vc', 'pen size'],
         ['vs', 'pen size']
     ],
-    control: [
-        // ['h', 'control', 'whenStartClicked', 'When %icon:flag clicked'],
-        // ['h', 'control', 'whenKeyPressed:', 'When %key key pressed'],
-        // ['h', 'control', 'whenSpriteClicked', 'When %sprite clicked'],
+    data: [
+        ['v', 'var'],
+        '-',
+        ['vs', ''],
+        ['vc', ''],
+        ['c', 'data', 'showVariable:', 'show variable %var', ''],
+        ['c', 'data', 'hideVariable:', 'hide variable %var', ''],
+        '-',
+        ['c', 'lists', 'append:toList:', 'add %s to %list', 'thing', ''],
+        '-',
+        ['c', 'lists', 'deleteLine:ofList:', 'delete %deletion-index of %list', 1, ''],
+        ['c', 'lists', 'insert:at:ofList:', 'insert %s at %index of %list', 'thing', 1, ''],
+        ['c', 'lists', 'setLine:ofList:to:', 'replace item %index of %list with %s', 1, '', 'thing'],
+        '-',
+        ['r', 'lists', 'getLine:ofList:', 'item %index of %list', 1, ''],
+        ['r', 'lists', 'lineCountOfList:', 'length of %list'],
+        ['b', 'lists', 'list:contains:', '%list contains %s', '', 'thing'],
+        '-',
+        ['c', 'lists', 'showList:', 'show list %list', ''],
+        ['c', 'lists', 'hideList:', 'hide list %list', '']
+    ],
+    events: [
+        ['h', 'events', 'whenGreenFlag', 'when %icon:flag clicked'],
+        ['h', 'events', 'whenKeyPressed', 'when %key key pressed'],
+        ['h', 'events', 'whenSpriteClicked', 'when this sprite clicked'],
+        ['h', 'events', 'whenSceneStarts', 'when backdrop switches to %backdrop'],
         // '-',
+        // ['h', 'events', 'whenSensorGreaterThan', 'when %triggerSensor > %f'],
+        '-',
+        ['h', 'events', 'whenIReceive', 'when I receive %event'],
+        ['c', 'events', 'broadcast:', 'broadcast %event'],
+        ['c', 'events', 'doBroadcastAndWait', 'broadcast %event and wait'],
+    ],
+    control: [
         ['r', 'system', 'commandClosure', '%parameters %slot:command'],
         ['r', 'system', 'reporterClosure', '%parameters %slot:reporter'],
         '-',
         ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1],
         '-',
-        ['t', 'control', 'doForever', 'forever %c'],
         ['c', 'control', 'doRepeat', 'repeat %i %c', 10],
+        ['t', 'control', 'doForever', 'forever %c'],
         '-',
-        ['c', 'control', 'broadcast:', 'broadcast %event'],
-        ['c', 'control', 'doBroadcastAndWait', 'broadcast %event and wait'],
-        // ['h', 'control', 'whenMessageReceived:', 'When I receive %event'],
-        '-',
-        ['t', 'control', 'doForeverIf', 'forever if %b %c'],
+        // ['t', 'control', 'doForeverIf', 'forever if %b %c'],
         ['c', 'control', 'doIf', 'if %b %c'],
         ['c', 'control', 'doIfElse', 'if %b %c else %c'],
         ['c', 'control', 'doWaitUntil', 'wait until %b'],
         ['c', 'control', 'doUntil', 'repeat until %b %c'],
         '-',
-        ['t', 'control', 'doReturn', 'stop script'],
-        ['t', 'control', 'stopAll', 'stop all %icon:stop']
+        ['t', 'control', 'stopScripts', 'stop %stop'],
+        '-',
+        ['h', 'control', 'whenCloned', 'clone startup'],
+        ['c', 'control', 'createCloneOf', 'create clone of %clonable'],
+        ['t', 'control', 'deleteClone', 'delete this clone']
     ],
     sensing: [
         ['b', 'sensing', 'touching:', 'touching %sprite?'],
         ['b', 'sensing', 'touchingColor:', 'touching color %color?'],
         ['b', 'sensing', 'color:sees:', 'color %color is touching %color?'],
+        ['r', 'sensing', 'distanceTo:', 'distance to %sprite'],
         '-',
         ['c', 'sensing', 'doAsk', 'ask %s and wait', "What's your name?"],
         ['v', 'answer'],
         '-',
+        ['b', 'sensing', 'keyPressed:', 'key %key pressed?'],
+        ['v', 'mouse down?'],
         ['v', 'mouse x'],
         ['v', 'mouse y'],
-        ['v', 'mouse down?'],
         '-',
-        ['b', 'sensing', 'keyPressed:', 'key %key pressed?'],
-        '-',
-        ['r', 'sensing', 'distanceTo:', 'distance to %sprite'],
+        ['v', 'loudness'],
+        ['v', 'sensing', 'senseVideoMotion', 'video %videoMotion on %stageOrThis'],
         '-',
         ['v', 'timer'],
         ['vs', 'timer'],
         '-',
         ['r', 'sensing', 'getAttribute:of:', '%attribute of %object'],
         '-',
-        ['v', 'loudness'],
-        ['v', 'loud?']
+        ['r', 'sensing', 'timeAndDate', 'current %time', 'minute'],
+        ['r', 'sensing', 'timestamp', 'Scratch days'],
+        ['r', 'sensing', 'getUserId', 'user id']
     ],
     operators: [
         ['r', 'operators', '+', '%f + %f'],
@@ -1078,24 +1115,6 @@ d.BlockSpecs = {
         ['r', 'operators', 'rounded', 'round %f'],
         '-',
         ['r', 'operators', 'computeFunction:of:', '%math of %f', 'sqrt', 10]
-    ],
-    variables: [
-        ['v', 'var'],
-        '-',
-        ['vs', ''],
-        ['vc', ''],
-        ['c', 'variables', 'showVariable:', 'show variable %var', ''],
-        ['c', 'variables', 'hideVariable:', 'hide variable %var', ''],
-        '-',
-        ['c', 'lists', 'append:toList:', 'add %s to %list', 'thing', ''],
-        '-',
-        ['c', 'lists', 'deleteLine:ofList:', 'delete %deletion-index of %list', 1, ''],
-        ['c', 'lists', 'insert:at:ofList:', 'insert %s at %index of %list', 'thing', 1, ''],
-        ['c', 'lists', 'setLine:ofList:to:', 'replace item %index of %list with %s', 1, '', 'thing'],
-        '-',
-        ['r', 'lists', 'getLine:ofList:', 'item %index of %list', 1, ''],
-        ['r', 'lists', 'lineCountOfList:', 'length of %list'],
-        ['b', 'lists', 'list:contains:', '%list contains %s', '', 'thing']
     ]
 };
 d.BlockSpecBySelector = {
@@ -1113,6 +1132,7 @@ d.BlockSpecBySelector = {
             case 't':
             case 'r':
             case 'b':
+            case 'h':
                 d.BlockSpecBySelector[spec[2]] = spec;
                 break;
             }
@@ -1360,8 +1380,8 @@ d.OfflineSocket = d.Class(d.Socket, {
             break;
         case 'user.login':
             this.serve('user.login', true, [0, p[2]]);
-            // TODO offline project default background
-            this.serve('project.data', ['Untitled', '', [[], [], [], [['background1', '']], 0, [], 120]]);
+            // TODO offline project default backdrop
+            this.serve('project.data', ['Untitled', '', [[], [], [], [['backdrop1', '']], 0, [], 120]]);
             this.serve('user.list', [this.amber.currentUser.toJSON()]);
             break;
         }
@@ -2319,7 +2339,7 @@ d.arg.Var = d.Class(d.arg.Enum, {
     setText: function (value) {
         this.base(arguments, value);
         if (this.parent) {
-            this.parent.setCategory(d.VariableColors[value] || 'variables');
+            this.parent.setCategory(d.VariableColors[value] || 'data');
             if (this.parent.varChanged) this.parent.varChanged();
         }
         return this;
@@ -2476,7 +2496,7 @@ d.arg.Parameters = d.Class(d.arg.Base, {
             d.addClass(this.element, 'd-block-parameters-enabled');
         }
         this.parameters.push(name);
-        this.add(new d.ReporterBlock().setSpec('%var:template').setArgs(name).setTemplateSpec('%var:inline').setTemplateArgs(name).setCategory('variables'));
+        this.add(new d.ReporterBlock().setSpec('%var:template').setArgs(name).setTemplateSpec('%var:inline').setTemplateArgs(name).setCategory('parameter'));
     },
     removeParameter: function (i) {
         if (i == null) i = this.children.length - 1;
@@ -2490,18 +2510,48 @@ d.arg.Parameters = d.Class(d.arg.Base, {
     }
 });
 d.categoryColors = {
-    motion: 'rgb(29%, 42%, 83%)',
-    motor: 'rgb(11%, 31%, 73%)',
-    looks: 'rgb(56%, 34%, 89%)',
-    sound: 'rgb(81%, 29%, 85%)',
-    pen: 'rgb(0%, 63%, 47%)',
-    control: 'rgb(90%, 66%, 13%)',
-    sensing: 'rgb(2%, 58%, 86%)',
-    operators: 'rgb(38%, 76%, 7%)',
-    variables: 'rgb(95%, 46%, 11%)',
-    lists: 'rgb(85%, 30%, 7%)',
-    system: 'rgb(50%, 50%, 50%)',
-    other: 'rgb(62%, 62%, 62%)'
+    // motion: 'rgb(29%, 42%, 83%)',
+    // motor: 'rgb(11%, 31%, 73%)',
+    // looks: 'rgb(56%, 34%, 89%)',
+    // sound: 'rgb(81%, 29%, 85%)',
+    // pen: 'rgb(0%, 63%, 47%)',
+    // control: 'rgb(90%, 66%, 13%)',
+    // sensing: 'rgb(2%, 58%, 86%)',
+    // operators: 'rgb(38%, 76%, 7%)',
+    // variables: 'rgb(95%, 46%, 11%)',
+    // lists: 'rgb(85%, 30%, 7%)',
+    // system: 'rgb(50%, 50%, 50%)',
+    // other: 'rgb(62%, 62%, 62%)'
+
+    // Object.keys(d.categoryColors).reduce(function (o,k) { var c = d.categoryColors[k].toString(16); o[k] = '#' + '000000'.substr(c.length) + c; return o }, {});
+    // 'undefined': 13903912,
+    // motion: 4877524,
+    // looks: 9065943,
+    // sound: 12272323,
+    // pen: 957036,
+    // events: 13140784,
+    // control: 14788890,
+    // sensing: 2926050,
+    // operators: 6076178,
+    // data: 15629590,
+    // custom: 5447321,
+    // parameter: 5851057,
+    // lists: 13392674,
+    // extensions: 6761849
+    control: '#e1a91a',
+    custom: '#531e99',
+    data: '#ee7d16',
+    events: '#c88330',
+    extensions: '#672d79',
+    lists: '#cc5b22',
+    looks: '#8a55d7',
+    motion: '#4a6cd4',
+    operators: '#5cb712',
+    parameter: '#5947b1',
+    pen: '#0e9a6c',
+    sensing: '#2ca5e2',
+    sound: '#bb42c3',
+    undefined: '#d42828'
 };
 d.Block = d.Class(d.Control, {
     isBlock: true,
@@ -2701,20 +2751,20 @@ d.Block = d.Class(d.Control, {
 
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
-        case 'var': return new d.arg.Var().setItems(['x position', 'y position', 'direction', 'costume #', 'size', 'layer', 'instrument', 'volume', 'pen down?', 'pen color', 'pen hue', 'pen shade', 'pen size', d.Menu.separator, 'color effect', 'fisheye effect', 'whirl effect', 'pixelate effect', 'mosaic effect', 'brightness effect', 'ghost effect', d.Menu.separator, 'tempo', 'answer', 'timer', d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+        case 'var': return new d.arg.Var().setItems(['x position', 'y position', 'direction', 'costume #', 'size', 'layer', 'instrument', 'volume', 'pen down?', 'pen color', 'pen hue', 'pen shade', 'pen size', d.Menu.separator, 'color effect', 'fisheye effect', 'whirl effect', 'pixelate effect', 'mosaic effect', 'brightness effect', 'ghost effect', d.Menu.separator, 'tempo', 'answer', 'timer', 'backdrop name', d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
         case 'sprite': return new d.arg.Enum().setItems(['mouse', d.Menu.separator, 'Sprite1', 'Sprite2']);
         case 'object': return new d.arg.Enum().setItems(['Stage', d.Menu.separator, 'Sprite1', 'Sprite2']).setText('Sprite1');
         case 'attribute': return (arg = new d.arg.Enum()).setItems(function () {
-            return arg.parent.arguments[1].text() === 'Stage' ? ['background #', 'volume', d.Menu.separator, 'a'] : ['x position', 'y position', 'direction', 'costume #', 'size', 'volume', d.Menu.separator, 'var', 'a', 'b', 'c'];
+            return arg.parent.arguments[1].text() === 'Stage' ? ['backdrop #', 'volume', d.Menu.separator, 'a'] : ['x position', 'y position', 'direction', 'costume #', 'size', 'volume', d.Menu.separator, 'var', 'a', 'b', 'c'];
         }).setText('x position');
         case 'costume': return new d.arg.Enum().setItems(['costume1', 'costume2']);
         case 'sound': return new d.arg.Enum().setItems(['meow']);
 
         // Closed Enumerations
-        case 'math': return new d.arg.Enum().setItems(['abs', 'sqrt', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'ln', 'log', 'e ^ ', '10 ^ ']).setText('sqrt');
+        case 'math': return new d.arg.Enum().setItems(['abs', 'floor', 'ceiling', 'sqrt', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'ln', 'log', 'e ^ ', '10 ^ ']).setText('sqrt');
         case 'sensor': return new d.arg.Enum().setItems(['slider', 'light', 'sound', 'resistance-A', 'resistance-B', 'resistance-C', 'resistance-D', d.Menu.separator, 'tilt', 'distance']);
         case 'gfx': return new d.arg.Enum().setItems(['color', 'fisheye', 'whirl', 'pixelate', 'mosaic', 'brightness', 'ghost']);
         case 'sensor:bool': return new d.arg.Enum().setItems(['button pressed', 'A connected', 'B connected', 'C connected', 'D connected']);
@@ -2997,7 +3047,8 @@ d.Block = d.Class(d.Control, {
         case 'r':
         case 'b':
         case 'e':
-            block = new (spec[0] === 'r' || spec[0] === 'e' ? d.ReporterBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.CommandBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
+        case 'h':
+            block = new (spec[0] == 'h' ? d.HatBlock : spec[0] === 'r' || spec[0] === 'e' ? d.ReporterBlock : spec[0] === 'b' ? d.BooleanReporterBlock : d.CommandBlock)().setCategory(spec[1]).setSelector(spec[2]).setSpec(spec[3]);
             switch (spec[0]) {
             case 't':
                 block.setTerminal(true);
@@ -3092,7 +3143,8 @@ d.VariableColors = {
     'mouse down?': 'sensing',
     'timer': 'sensing',
     'loudness': 'sensing',
-    'loud?': 'sensing'
+    'loud?': 'sensing',
+    'backdrop name': 'looks',
 };
 d.VariableBlock = d.Class(d.ReporterBlock, {
     init: function () {
@@ -3221,5 +3273,15 @@ d.arg.CClosure = d.Class(d.ReporterBlock, {
     },
     slotIndex: function () {
         return this.parent.slotIndex(this);
+    }
+});
+d.HatBlock = d.Class(d.Block, {
+    init: function () {
+        this.base(arguments);
+        this.initElements('d-block d-hat-block');
+        this.addFill(this.newElement('d-hat-block-fill-l'));
+        this.addFill(this.newElement('d-hat-block-fill-r'));
+        this.addFill(this.newElement('d-hat-block-fill-p'));
+        this.element.appendChild(this.container = this.newElement('d-hat-block-label'));
     }
 });
