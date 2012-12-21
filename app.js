@@ -950,11 +950,12 @@ d.BlockSpecs = {
         '-',
         ['c', 'motion', 'bounceOffEdge', 'if on edge, bounce'],
         '-',
-        ['c', 'motion', 'setRotationStyle', 'set rotation style to %rotationStyle'],
+        ['vs', 'rotation style'],
         '-',
         ['v', 'x position'],
         ['v', 'y position'],
-        ['v', 'direction']
+        ['v', 'direction'],
+        ['v', 'rotation style'],
     ],
     looks: [
         ['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2],
@@ -1089,7 +1090,7 @@ d.BlockSpecs = {
         ['v', 'mouse y'],
         '-',
         ['v', 'loudness'],
-        ['v', 'sensing', 'senseVideoMotion', 'video %videoMotion on %stageOrThis'],
+        ['r', 'sensing', 'senseVideoMotion', 'video %videoMotion on %stageOrThis'],
         '-',
         ['v', 'timer'],
         ['vs', 'timer'],
@@ -2808,16 +2809,23 @@ d.Block = d.Class(d.Control, {
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
         case 'sprite': return new d.arg.Enum().setItems(['mouse', d.Menu.separator, 'Sprite1', 'Sprite2']);
         case 'object': return new d.arg.Enum().setItems(['Stage', d.Menu.separator, 'Sprite1', 'Sprite2']).setText('Sprite1');
+        case 'clonable': return new d.arg.Enum().setItems(['myself', d.Menu.separator, 'Sprite1', 'Sprite2']);
         case 'attribute': return (arg = new d.arg.Enum()).setItems(function () {
-            return arg.parent.arguments[1].text() === 'Stage' ? ['backdrop #', 'volume', d.Menu.separator, 'a'] : ['x position', 'y position', 'direction', 'costume #', 'size', 'volume', d.Menu.separator, 'var', 'a', 'b', 'c'];
+            return arg.parent.arguments[1].text() === 'Stage' ? ['backdrop #', 'volume', d.Menu.separator, 'global', 'counter'] : ['x position', 'y position', 'direction', 'rotation style', 'costume #', 'size', 'volume', d.Menu.separator, 'var', 'a', 'b', 'c'];
         }).setText('x position');
-        case 'costume': return new d.arg.Enum().setItems(['costume1', 'costume2']);
+        case 'costume': return new d.arg.Enum().setItems(['costume1', 'costume2', 'costume3']);
+        case 'backdrop': return new d.arg.Enum().setItems(['backdrop1', 'backdrop2', 'backdrop']);
         case 'sound': return new d.arg.Enum().setItems(['meow']);
 
         // Closed Enumerations
         case 'math': return new d.arg.Enum().setItems(['abs', 'floor', 'ceiling', 'sqrt', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'ln', 'log', 'e ^ ', '10 ^ ']).setText('sqrt');
         case 'sensor': return new d.arg.Enum().setItems(['slider', 'light', 'sound', 'resistance-A', 'resistance-B', 'resistance-C', 'resistance-D', d.Menu.separator, 'tilt', 'distance']);
         case 'gfx': return new d.arg.Enum().setItems(['color', 'fisheye', 'whirl', 'pixelate', 'mosaic', 'brightness', 'ghost']);
+        case 'stop': return new d.arg.Enum().setItems(['all', 'this script', 'other scripts in sprite']);
+        case 'time': return new d.arg.Enum().setItems(['year', 'month', 'day of year', 'date', 'day of week', d.Menu.separator, 'hour', 'minute', 'second']);
+        case 'videoMotion': return new d.arg.Enum().setItems(['motion', 'direction']);
+        case 'rotationStyle': return new d.arg.Enum().setItems(['all around', 'left to right', 'don\'t rotate']);
+        case 'stageOrThis': return new d.arg.Enum().setItems(['Stage', 'this sprite']).setText('this sprite');
         case 'sensor:bool': return new d.arg.Enum().setItems(['button pressed', 'A connected', 'B connected', 'C connected', 'D connected']);
         case 'instrument':
             return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems([
@@ -3175,6 +3183,7 @@ d.VariableColors = {
     'x position': 'motion',
     'y position': 'motion',
     'direction': 'motion',
+    'rotation style': 'motion',
     'costume #': 'looks',
     'color effect': 'looks',
     'fisheye effect': 'looks',
@@ -3312,6 +3321,8 @@ d.SetterBlock = d.Class(d.CommandBlock, {
             return this.argFromSpec('f').setValue(1);
         case 'answer':
             return this.argFromSpec('s');
+        case 'rotation style':
+            return this.argFromSpec('rotationStyle');
         }
         if (variable.substr(variable.length - 7) === ' effect') {
             return this.argFromSpec('f').setValue(0);
