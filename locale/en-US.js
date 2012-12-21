@@ -1,3 +1,1 @@
-d.locale['en-US'] = {
-	'language.name': 'English'
-};
+d.locale['en-US'] = {};
