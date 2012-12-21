@@ -847,7 +847,7 @@ d.t = function (id) {
         result;
     if (!locale.hasOwnProperty(id)) {
         if (d.currentLocale !== 'en-US') {
-            console.warn('missing translation key ' + id);
+            console.warn('missing translation key "' + id + '"');
         }
         result = id;
     } else {
@@ -2757,6 +2757,7 @@ d.Block = d.Class(d.Control, {
             var start = 0,
                 args = this.arguments = [],
                 i, label, ex;
+            spec = d.t(spec);
             this.container.innerHTML = '';
             while ((i = spec.indexOf('%', start)) !== -1) {
                 if (!/^\s*$/.test(label = spec.substring(start, i))) {
