@@ -1898,10 +1898,10 @@ d.BlockStack = d.Class(d.Control, {
         return copy;
     },
     reporter: function () {
-        return this.children[0].isReporter;
+        return this.children.length && this.children[0].isReporter;
     },
     terminal: function () {
-        return this.children[this.children.length - 1].terminal();
+        return this.children.length && this.children[this.children.length - 1].terminal();
     },
     top: function () {
         return this.children[0];
@@ -1977,11 +1977,18 @@ d.BlockStack = d.Class(d.Control, {
         this.element.style.top = (e.y = this.dragStartBB.top + e.y - this.dragStartEvent.y) + 'px';
         if (this.reporter()) {
             function add(block) {
-                var j, arg, bb, test;
+                var j, stack, k, arg, bb, test;
                 if (!(t.hasChild(block))) {
                     j = block.arguments.length;
                     while (j--) {
                         arg = block.arguments[j];
+                        if (arg.isStackSlot && (stack = arg.value())) {
+                            stack = stack.children;
+                            k = stack.length;
+                            while (k--) {
+                                add(stack[k]);
+                            }
+                        }
                         bb = arg.element.getBoundingClientRect();
                         if (d.inBB(e, test = {
                             left: bb.left - tolerance,
