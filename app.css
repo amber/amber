@@ -319,6 +319,9 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
+.d-block-palette .d-panel-contents {
+    overflow: auto;
+}
 .d-block-list-contents {
     padding: 0 6px;
     display: inline-block;

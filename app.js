@@ -516,8 +516,7 @@ d.Menu = d.Class(d.Control, {
         } else if (typeof selectedItem === 'string' || typeof selectedItem === 'object') {
             i = 0;
             while (target = this.menuItems[i++]) {
-                if (target.action() === selectedItem ||
-                    target.action().$ === selectedItem.$) break;
+                if (target.action() === selectedItem || selectedItem.$ && target.action().$ === selectedItem.$) break;
             }
         } else {
             throw new TypeError;
@@ -2819,7 +2818,7 @@ d.Block = d.Class(d.Control, {
 
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
-        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen shade'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen shade'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
