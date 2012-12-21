@@ -899,6 +899,7 @@ d.Amber = d.Class(d.App, {
             add(this.authentication = new d.AuthenticationPanel(this)).
             setLightboxEnabled(true);
         this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
+        this.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
         this.authentication.layout();
 
         for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
@@ -3333,9 +3334,10 @@ d.HatBlock = d.Class(d.Block, {
     init: function () {
         this.base(arguments);
         this.initElements('d-block d-hat-block');
-        this.addFill(this.newElement('d-hat-block-fill-l'));
-        this.addFill(this.newElement('d-hat-block-fill-r'));
-        this.addFill(this.newElement('d-hat-block-fill-p'));
+        this.addFill(this.newElement('d-hat-command-fill-l'));
+        this.addFill(this.newElement('d-hat-command-fill-r'));
+        this.addFill(this.newElement('d-hat-command-fill-p'));
+        this.addFill(this.newElement('d-hat-block-fill-t'));
         this.element.appendChild(this.container = this.newElement('d-hat-block-label'));
     }
 });
