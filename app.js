@@ -1580,7 +1580,7 @@ d.Chat = d.Class(d.Control, {
         this.input.addEventListener('keydown', this.keyDown.bind(this));
     },
     keyDown: function (e) {
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && this.input.value !== '') {
             this.amber.socket.send('chat.message', this.input.value);
             this.showMessage(this.amber.currentUser, this.input.value);
             this.input.value = '';
