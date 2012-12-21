@@ -841,7 +841,7 @@ d.Stage = d.Class(d.ServerData, {
     }
 });
 
-d.currentLocale = 'en-PT';
+d.currentLocale = 'en-US';
 d.t = function (id) {
     var locale = d.locale[d.currentLocale],
         result;
