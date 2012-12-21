@@ -10,5 +10,6 @@ d.locale['en-US'] = {
     'authentication.message.connectionFailed': 'Connection failed',
     'authentication.message.invalidCredentials': 'Invalid username/password',
     'authentication.message.generic': 'Sign in failed!',
-	'user-list.title': 'Users'
+	'user-list.title': 'Users',
+    'chat.title': 'Chat'
 };

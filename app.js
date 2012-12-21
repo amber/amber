@@ -334,7 +334,7 @@ d.App = d.Class(d.Control, {
         this.element = this.container = element;
         element.control = this;
         d.addClass(element, 'd-app');
-        d.addClass(element, 'd-collapse-user-list');
+        d.addClass(element, 'd-collapse-user-panel');
         element.addEventListener('touchstart', function (e) {
             var t = e.target;
             if (t.nodeType === 3) t = t.parentNode;
@@ -884,9 +884,10 @@ d.Amber = d.Class(d.App, {
         this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
         this.add(this.editor = new d.BlockEditor()).
             add(this.palette = new d.BlockPalette()).
-            add(this.userList = new d.UserList(this)).
+            add(this.userPanel = new d.UserPanel(this)).
             add(this.authentication = new d.AuthenticationPanel(this)).
             setLightboxEnabled(true);
+        this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
         this.authentication.layout();
 
         for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
@@ -1304,6 +1305,7 @@ d.Socket = d.Class(d.Base, {
         'user.list': ['users'],
         'user.join': ['user'],
         'user.leave': ['user$id'],
+        'chat.message': ['message', 'user$id'],
         'project.data': ['data']
     },
     receive: function (packet) {
@@ -1403,6 +1405,11 @@ d.Socket = d.Class(d.Base, {
             break;
         case 'project.data':
             this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
+            break;
+        case 'chat.message':
+            this.amber.getUserById(packet.user$id, function (user) {
+                this.chat.showMessage(user, packet.message);
+            }.bind(this.amber));
             break;
         default:
             console.warn('Missed packet', packet);
@@ -1595,22 +1602,41 @@ d.AuthenticationPanel = d.Class(d.Control, {
         }
     }
 });
-d.UserList = d.Class(d.Control, {
+d.UserPanel = d.Class(d.Control, {
     init: function (amber) {
+        this.amber = amber;
         this.base(arguments);
-        this.initElements('d-user-list');
-        this.element.appendChild(this.title = this.newElement('d-user-list-title'));
-        this.element.appendChild(this.contents = this.newElement('d-user-list-contents'));
-        this.title.appendChild(this.newElement('d-category-selector-shadow'));
-        this.title.appendChild(this.titleLabel = this.newElement('d-user-list-title-label'));
-        this.title.appendChild(this.toggleButton = this.newElement('d-user-list-toggle'));
+        this.initElements('d-user-panel');
+        this.add(amber.userList = new d.UserList(amber));
+        this.add(amber.chat = new d.Chat(amber));
+        this.element.appendChild(this.toggleButton = this.newElement('d-user-panel-toggle'));
         this.toggleButton.addEventListener('click', this.toggle.bind(this));
-        this.titleLabel.textContent = amber.t('user-list.title');
-        this.users = {};
     },
     collapsed: true,
     toggle: function () {
-        d.toggleClass(this.app().element, 'd-collapse-user-list', this.collapsed = !this.collapsed);
+        d.toggleClass(this.app().element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
+        localStorage.setItem('d.chat.collapsed', this.collapsed);
+        if (!this.collapsed) {
+            this.amber.chat.focus();
+        }
+    },
+    setCollapsed: function (collapsed) {
+        if (this.collapsed !== collapsed) {
+            this.toggle();
+        }
+    }
+});
+d.UserList = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-user-list');
+        this.element.appendChild(this.title = this.newElement('d-panel-title'));
+        this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
+        this.title.appendChild(this.newElement('d-panel-title-shadow'));
+        this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
+        this.titleLabel.textContent = amber.t('user-list.title');
+        this.users = {};
     },
     addUser: function (user) {
         if (this.users[user.id()]) return;
@@ -1633,6 +1659,44 @@ d.UserList = d.Class(d.Control, {
         d.appendChild(icon);
         d.appendChild(label);
         return d;
+    }
+});
+d.Chat = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-chat');
+        this.element.appendChild(this.title = this.newElement('d-panel-title'));
+        this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
+        this.title.appendChild(this.newElement('d-panel-title-shadow'));
+        this.title.appendChild(this.input = this.newElement('d-chat-input', 'input'));
+        this.input.placeholder = 'Chat';
+        this.input.addEventListener('keydown', this.keyDown.bind(this));
+    },
+    keyDown: function (e) {
+        if (e.keyCode === 13) {
+            this.amber.socket.send('chat.message', this.input.value);
+            this.showMessage(this.amber.currentUser, this.input.value);
+            this.input.value = '';
+        }
+    },
+    focus: function () {
+        this.input.focus();
+        this.autoscroll();
+    },
+    autoscroll: function () {
+        this.contents.scrollTop = this.contents.scrollHeight;
+    },
+    showMessage: function (user, chat) {
+        var line = this.newElement('d-chat-line'),
+            username = this.newElement('d-chat-username'),
+            message = this.newElement('d-chat-message');
+        username.textContent = user.name();
+        message.textContent = chat;
+        line.appendChild(username);
+        line.appendChild(message);
+        this.contents.appendChild(line);
+        this.autoscroll();
     }
 });
 d.BlockEditor = d.Class(d.Control, {
@@ -2019,8 +2083,8 @@ d.CategorySelector = d.Class(d.Control, {
 
     init: function () {
         this.base(arguments);
-        this.initElements('d-category-selector');
-        this.element.appendChild(this.shadow = this.newElement('d-category-selector-shadow'));
+        this.initElements('d-panel-title');
+        this.element.appendChild(this.shadow = this.newElement('d-panel-title-shadow'));
         this.buttons = [];
         this.categories = [];
         this.byCategory = {};
@@ -2094,7 +2158,7 @@ d.BlockPalette = d.Class(d.Control, {
 d.BlockList = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
-        this.initElements('d-block-list', 'd-block-list-contents');
+        this.initElements('d-panel-contents', 'd-block-list-contents');
         this.list = this.container;
     },
     add: function (child) {
