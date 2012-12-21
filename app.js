@@ -755,18 +755,14 @@ d.ServerData = d.Class(d.Base, {
         this.base(arguments);
         this.amber = amber;
     },
-    fromSerial: function () {
-        throw new Error('Unimplemented fromSerial');
+    toJSON: function () {
+        throw new Error('Unimplemented toJSON');
+    },
+    fromJSON: function () {
+        throw new Error('Unimplemented fromJSON');
     }
 });
 d.User = d.Class(d.ServerData, {
-    init: function (amber) {
-        this.base(arguments);
-        this.amber = amber;
-    },
-    toJSON: function () {
-        return [this._id, this._name, this._rank];
-    },
     '.name': {
         apply: function (name) {
             this.amber.usersByName[name] = this;
@@ -780,64 +776,159 @@ d.User = d.Class(d.ServerData, {
     '.rank': {
         value: 'default'
     },
-    fromSerial: function (o) {
-        return this.setId(o[0]).setName(o[1]).setRank(o[2] || 'default');
+    '.iconURL': {
+        get: function () {
+            return 'http://scratch.mit.edu/static/icons/buddy/' + this._id + '_sm.png';
+        }
+    },
+    '.profileURL': {
+        get: function () {
+            return 'http://scratch.mit.edu/users/' + encodeURIComponent(this._name);
+        }
+    },
+    toJSON: function () {
+        var rank = this._rank,
+            result = {
+                id: this._id,
+                name: this._name
+            };
+        if (rank !== 'default') result.rank = rank;
+        return result;
+    },
+    fromJSON: function (o) {
+        return this.setId(o.id).setName(o.name).setRank(o.rank || 'default');
     }
 });
 d.Project = d.Class(d.ServerData, {
     '.name': {},
     '.notes': {},
     '.stage': {},
-    fromSerial: function (o) {
+    toJSON: function () {
+        return {
+            name: this._name,
+            notes: this._notes,
+            stage: this._stage
+        }
+    },
+    fromJSON: function (o) {
         var amber = this.amber;
-        return this.setName(o[0]).setNotes(o[1]).setStage(new d.Stage(this.amber).fromSerial(o[2]));
+        return this.setName(o.name).setNotes(o.notes).setStage(new d.Stage(this.amber).fromJSON(o.stage));
     }
 });
 d.SoundMedia = d.Class(d.ServerData, {
+    '.id': {},
     '.name': {},
-    '.sound': {},
-    fromSerial: function (o) {
-        throw new Error('Unimplemented');
-    }
+    '.sound': {}
 });
 d.ImageMedia = d.Class(d.ServerData, {
+    '.id': {},
     '.name': {},
     '.image': {},
     '.text': {},
-    fromSerial: function (o) {
-        var img = new Image();
-        img.src = o[1];
-        return this.setName(o[0]).setImage(img).setText(o[2] ? {
-            text: o[2],
-            font: o[3],
-            x: [4],
-            y: [5]
+    toJSON: function (o) {
+        var result = {
+                id: this._id,
+                name: this._name,
+                base64: this.img.toDataURL()
+            };
+        if (this._text) {
+            result.text = this._text.text;
+            result.text$font = this._text.font;
+            result.text$x = this._text.x;
+            result.text$y = this._text.y;
+        }
+        return result;
+    },
+    fromJSON: function (o) {
+        var canvas = document.createElement('canvas'),
+            img = new Image();
+        img.onload = function () {
+            canvas.getContext('2d').drawImage(img);
+        };
+        img.src = o.base64;
+        return this.setId(o.id).setName(o.name).setImage(canvas).setText(o.text ? {
+            text: o.text,
+            font: o.text$font,
+            x: o.text$x,
+            y: o.text$y
         } : null);
     }
 });
 d.Stage = d.Class(d.ServerData, {
-    '.sprites': {},
-    '.watchers': {},
+    '.id': {},
+    '.children': {},
     '.scripts': {},
-    '.backdrops': {},
-    '.backdropIndex': {},
+    '.costumes': {},
+    '.costumeIndex': {},
     '.sounds': {},
     '.tempo': {},
-    fromSerial: function (o) {
+    toJSON: function () {
+        return {
+            id: this._id,
+            children: this._children,
+            scripts: this._scripts,
+            costumes: this._costumes,
+            currentCostumeIndex: this._costumeIndex,
+            sounds: this._sounds,
+            tempo: this._tempo
+        };
+    },
+    fromJSON: function (o) {
         var amber = this.amber;
-        this.setSprites(o[0] ? o[0].map(function (a) {
-            return new d.Sprite(amber).fromSerial(a);
-        }) : []).setScripts(o[2] ? o[2].map(function (a) {
-            var stack = new d.BlockStack().fromSerial(a, null, amber);
+        this.setChildren(o.children ? o.children.map(function (a) {
+            return new d.Sprite(amber).fromJSON(a);
+        }) : []).setScripts(o.scripts ? o.scripts.map(function (a) {
+            var stack = new d.BlockStack().fromJSON(a, null, amber);
             amber.editor.add(stack);
             return stack;
-        }) : []).setBackdrops(o[3] ? o[3].map(function (a) {
-            return new d.ImageMedia(amber).fromSerial(a);
-        }) : []).setBackdropIndex(o[4]).setSounds(o[5] ? o[5].map(function (a) {
-            return new d.SoundMedia(amber).fromSerial(a);
-        }) : []).setTempo(o[6]);
+        }) : []).setCostumes(o.costumes ? o.costumes.map(function (a) {
+            return new d.ImageMedia(amber).fromJSON(a);
+        }) : []).setCostumeIndex(o.currentCostumeIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
+            return new d.SoundMedia(amber).fromJSON(a);
+        }) : []).setTempo(o.tempo);
         amber.editor.fit();
         return this;
+    }
+});
+d.Sprite = d.Class(d.ServerData, {
+    '.id': {},
+    '.name': {},
+    '.scripts': {},
+    '.costumes': {},
+    '.costumeIndex': {},
+    '.sounds': {},
+    '.x': {},
+    '.y': {},
+    '.direction': {},
+    '.rotationStyle': {},
+    '.volume': {},
+    '.size': {},
+    '.visible': {},
+    toJSON: function () {
+        return {
+            id: this._id,
+            name: this._name,
+            scripts: this._scripts,
+            costumes: this._costumes,
+            costumeIndex: this._costumeIndex,
+            sounds: this._sounds,
+            scratchX: this._x,
+            scratchY: this._y,
+            direction: this._direction,
+            rotationStyle: this._rotationStyle,
+            volume: this._volume
+        };
+    },
+    fromJSON: function (o) {
+        return this.setId(o.id).setName(o.objName).setScripts(o.scripts ? o.scripts.map(function (a) {
+            var stack = new d.BlockStack().fromJSON(a, null, amber);
+            amber.editor.add(stack);
+            return stack;
+        }) : []).setCostumes(o.costumes ? o.costumes.map(function (a) {
+            return new d.ImageMedia(amber).fromJSON(a);
+        }) : []).setCostumeIndex(o.backdropIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
+            return new d.SoundMedia(amber).fromJSON(a);
+        }) : []).setX(o.scratchX).setY(o.scratchY).setDirection(o.direction).setRotationStyle(o.rotationStyle).setVolume(o.volume).setSize(o.scale).setVisible(o.visible);
     }
 });
 
@@ -856,7 +947,7 @@ d.t = function (id) {
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
 };
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.0.3',
+    PROTOCOL_VERSION: '1.1',
 
     init: function () {
         this.base(arguments);
@@ -871,10 +962,14 @@ d.Amber = d.Class(d.App, {
     createScript: function (x, y, blocks) {
         var id = ++this.newScriptID,
             tracker = [],
-            script = new d.BlockStack().fromSerial([x, y, blocks], tracker);
+            script = new d.BlockStack().fromJSON([x, y, blocks], tracker);
         this.socket.newScripts[id] = tracker;
         this.add(script);
-        this.socket.send('script.create', [x, y, blocks], id);
+        this.socket.send({
+            $: 'script.create',
+            script: [x, y, blocks],
+            request$id: id
+        });
         return script;
     },
     getUser: function (username, callback) {
@@ -885,6 +980,9 @@ d.Amber = d.Class(d.App, {
         xhr.onload = function () {
             callback(new d.User(me).setName(username).setId(xhr.responseText.split(':')[1]));
         };
+        xhr.onerror = function () {
+            callback(new d.User(me).setName(username).setId(-1));
+        };
         xhr.send();
     },
     getUserById: function (id, callback) {
@@ -894,6 +992,9 @@ d.Amber = d.Class(d.App, {
         xhr.open('GET', 'http://scratch.mit.edu/api/getusernamebyid/' + encodeURIComponent(id), true);
         xhr.onload = function () {
             callback(new d.User(me).setName(xhr.responseText.replace(/^\s+|\s+$/g, '')).setId(id));
+        };
+        xhr.onerror = function () {
+            callback(new d.User(me).setName('Unknown User').setId(id));
         };
         xhr.send();
     },
@@ -1195,8 +1296,9 @@ d.Socket = d.Class(d.Base, {
         console.warn('Socket closed:', e);
     },
     message: function (e) {
-        this.received.push(e.data);
-        this.receive(JSON.parse(e.data));
+        var packet = JSON.parse(e.data);
+        this.received.push(packet);
+        this.receive(packet);
     },
     error: function (e) {
         console.warn('Socket error:', e);
@@ -1222,34 +1324,15 @@ d.Socket = d.Class(d.Base, {
         }
         unpack(source);
     },
-    PACKETS: {
-        'script.create': ['script', 'user$id', 'temp$id'],
-        'block.move': ['user$id', 'block$id', 'x', 'y'],
-        'block.attach': ['user$id', 'block$id', 'type', 'target$id', 'slot$index'],
-        'block.delete': ['user$id', 'block$id'],
-        'slot.set': ['user$id', 'block$id', 'slot$index', 'value'],
-        'slot.claim': ['user$id', 'block$id', 'slot$index'],
-        'user.login': ['success', 'result'],
-        'user.list': ['users'],
-        'user.join': ['user'],
-        'user.leave': ['user$id'],
-        'chat.message': ['message', 'user$id'],
-        'project.data': ['data']
-    },
     receive: function (packet) {
-        var info = this.PACKETS[packet[0]],
-            i = info && info.length,
-            a, b, bb, tracker;
-        while (i--) {
-            packet[info[i]] = packet[i + 1];
-        }
-        switch (packet[0]) {
+        var a, b, bb, tracker;
+        switch (packet.$) {
         case 'script.create':
-            if (packet.temp$id) {
-                this.unpackIds(packet.script[2], this.newScripts[packet.temp$id]);
+            if (packet.request$id) {
+                this.unpackIds(packet.script[2], this.newScripts[packet.request$id]);
             } else {
                 tracker = [];
-                a = new d.BlockStack().fromSerial(packet.script, tracker);
+                a = new d.BlockStack().fromJSON(packet.script, tracker);
                 tracker.forEach(function (a) {
                     a.amber(this);
                 }, this.amber);
@@ -1309,7 +1392,7 @@ d.Socket = d.Class(d.Base, {
             break;
         case 'user.login':
             if (packet.success) {
-                this.amber.userList.addUser(this.amber.currentUser = new d.User(this.amber).fromSerial(packet.result));
+                this.amber.userList.addUser(this.amber.currentUser = new d.User(this.amber).fromJSON(packet.result));
                 this.amber.setLightboxEnabled(false);
                 this.amber.remove(this.amber.authentication);
                 break;
@@ -1320,11 +1403,11 @@ d.Socket = d.Class(d.Base, {
             break;
         case 'user.list':
             packet.users.forEach(function (user) {
-                this.userList.addUser(new d.User(this).fromSerial(user));
+                this.userList.addUser(new d.User(this).fromJSON(user));
             }.bind(this.amber));
             break;
         case 'user.join':
-            this.amber.userList.addUser(new d.User(this.amber).fromSerial(packet.user));
+            this.amber.userList.addUser(new d.User(this.amber).fromJSON(packet.user));
             break;
         case 'user.leave':
             this.amber.getUserById(packet.user$id, function (user) {
@@ -1332,7 +1415,7 @@ d.Socket = d.Class(d.Base, {
             }.bind(this));
             break;
         case 'project.data':
-            this.amber.currentProject = new d.Project(this.amber).fromSerial(packet.data);
+            this.amber.currentProject = new d.Project(this.amber).fromJSON(packet.data);
             break;
         case 'chat.message':
             this.amber.getUserById(packet.user$id, function (user) {
@@ -1340,13 +1423,13 @@ d.Socket = d.Class(d.Base, {
             }.bind(this.amber));
             break;
         default:
-            console.warn('Missed packet', packet);
+            console.warn('missed packet', packet);
             break;
         }
     },
-    send: function (type /*, args... */) {
-        var packet = JSON.stringify([].slice.call(arguments));
+    send: function (packet) {
         this.sent.push(packet);
+        packet = JSON.stringify(packet);
         this.socket.send(packet);
     }
 });
@@ -1359,8 +1442,8 @@ d.OfflineSocket = d.Class(d.Socket, {
         this.received = [];
         this.newScripts = {};
     },
-    serve: function () {
-        var p = [].slice.call(arguments);
+    serve: function (p) {
+        var p = JSON.parse(JSON.stringify(p));
         this.received.push(p);
         this.receive(p);
     },
@@ -1381,13 +1464,17 @@ d.OfflineSocket = d.Class(d.Socket, {
             }
         });
     },
-    send: function (type /*, args... */) {
-        var p = [].slice.call(arguments);
+    send: function (p) {
         this.sent.push(p);
-        switch (type) {
+        switch (p.$) {
         case 'script.create':
-            this.assignScriptIds(p[1][2]);
-            this.serve('script.create', p[1], 0, p[2]);
+            this.assignScriptIds(p.script[2]);
+            this.serve({
+                $: 'script.create',
+                script: p.script,
+                user$id: this.amber.currentUser.id(),
+                request$id: p.request$id
+            });
             break;
         case 'block.move':
             break;
@@ -1400,10 +1487,38 @@ d.OfflineSocket = d.Class(d.Socket, {
         case 'slot.claim':
             break;
         case 'user.login':
-            this.serve('user.login', true, [0, p[2]]);
-            // TODO offline project default backdrop
-            this.serve('project.data', ['Untitled', '', [[], [], [], [['backdrop1', '']], 0, [], 120]]);
-            this.serve('user.list', [this.amber.currentUser.toJSON()]);
+            this.amber.getUser(p.username, function (user) {
+                this.amber.currentUser = user;
+                this.serve({
+                    $: 'user.login',
+                    success: true,
+                    result: user
+                });
+                // TODO offline project default backdrop
+                this.serve({
+                    $: 'project.data',
+                    data: {
+                        name: 'Untitled',
+                        notes: '',
+                        stage: {
+                            id: 1,
+                            children: [],
+                            scripts: [],
+                            costumes: [{
+                                name: 'backdrop1',
+                                base64: ''
+                            }],
+                            currentCostumeIndex: 0,
+                            sounds: [],
+                            tempo: 120
+                        }
+                    }
+                });
+                this.serve({
+                    $: 'user.list',
+                    users: [this.amber.currentUser]
+                });
+            }.bind(this));
             break;
         }
     }
@@ -1469,7 +1584,12 @@ d.AuthenticationPanel = d.Class(d.Control, {
         this.amber.createSocket(this.serverField.value, this.send.bind(this));
     },
     send: function () {
-        this.amber.socket.send('user.login', this.amber.PROTOCOL_VERSION, this.usernameField.value, this.passwordField.value);
+        this.amber.socket.send({
+            $: 'user.login',
+            version: this.amber.PROTOCOL_VERSION,
+            username: this.usernameField.value,
+            password: this.passwordField.value
+        });
     },
     '.enabled': {
         value: true,
@@ -1578,10 +1698,10 @@ d.UserList = d.Class(d.Control, {
         var d = this.newElement('d-user-list-item', 'a'),
             icon = document.createElement('img'),
             label = document.createElement('div');
-        d.href = 'http://scratch.mit.edu/users/' + encodeURIComponent(user.name());
+        d.href = user.profileURL();
         d.target = '_blank';
         icon.className = 'd-user-list-icon';
-        icon.src = 'http://scratch.mit.edu/static/icons/buddy/' + user.id() + '_sm.png';
+        icon.src = user.iconURL();
         label.className = 'd-user-list-label';
         label.textContent = user.name();
         d.appendChild(icon);
@@ -1602,7 +1722,10 @@ d.Chat = d.Class(d.Control, {
     },
     keyDown: function (e) {
         if (e.keyCode === 13 && this.input.value !== '') {
-            this.amber.socket.send('chat.message', this.input.value);
+            this.amber.socket.send({
+                $: 'chat.message',
+                message: this.input.value
+            });
             this.showMessage(this.amber.currentUser, this.input.value);
             this.input.value = '';
         }
@@ -1755,13 +1878,13 @@ d.BlockStack = d.Class(d.Control, {
             return block.toSerial();
         })];
     },
-    fromSerial: function (a, tracker, amber, inline) {
+    fromJSON: function (a, tracker, amber, inline) {
         if (!inline) {
             this.element.style.left = a[0] + 'px';
           this.element.style.top = a[1] + 'px';
         }
         (inline ? a : a[2]).forEach(function (block) {
-            this.add(d.Block.fromSerial(block, tracker, amber));
+            this.add(d.Block.fromJSON(block, tracker, amber));
         }, this);
         return this;
     },
@@ -1975,7 +2098,10 @@ d.BlockStack = d.Class(d.Control, {
         while (i--) {
             if (d.bbTouch(palettes[i].element, e)) {
                 this.top().send(function () {
-                    return ['block.delete', this.id()];
+                    return {
+                        $: 'block.delete',
+                        block$id: this.id()
+                    };
                 });
                 this.destroy();
                 return;
@@ -1986,14 +2112,24 @@ d.BlockStack = d.Class(d.Control, {
             case 'above':
                 block = this.dropTarget.block;
                 this.top().send(function () {
-                    return ['block.attach', this.id(), d.BlockAttachType.stack$insert, block.id()];
+                    return {
+                        $: 'block.attach',
+                        block$id: this.id(),
+                        type: d.BlockAttachType.stack$insert,
+                        target$id: block.id()
+                    };
                 });
                 block.parent.insertStack(this, block);
                 break;
             case 'below':
                 block = this.dropTarget.block;
                 this.top().send(function () {
-                    return ['block.attach', this.id(), d.BlockAttachType.stack$append, block.id()];
+                    return {
+                        $: 'block.attach',
+                        block$id: this.id(),
+                        type: d.BlockAttachType.stack$append,
+                        target$id: block.id()
+                    };
                 });
                 block.parent.appendStack(this);
                 break;
@@ -2001,7 +2137,13 @@ d.BlockStack = d.Class(d.Control, {
                 slot = this.dropTarget.slot;
                 block = slot.parent;
                 this.top().send(function () {
-                    return ['block.attach', this.id(), d.BlockAttachType.slot$command, block.parent.id(), block.parent.slotIndex(block)];
+                    return {
+                        $: 'block.attach',
+                        block$id: this.id(),
+                        type: d.BlockAttachType.slot$command,
+                        target$id: block.parent.id(),
+                        slot$index: block.parent.slotIndex(block)
+                    };
                 });
                 slot.setValue(this);
                 break;
@@ -2009,7 +2151,13 @@ d.BlockStack = d.Class(d.Control, {
                 slot = this.dropTarget.argument;
                 block = this.dropTarget.block;
                 this.top().send(function () {
-                    return ['block.attach', this.id(), d.BlockAttachType.slot$replace, block.id(), block.slotIndex(slot)];
+                    return {
+                        $: 'block.attach',
+                        block$id: this.id(),
+                        type: d.BlockAttachType.slot$replace,
+                        target$id: block.id(),
+                        slot$index: block.slotIndex(slot)
+                    };
                 });
                 block.replaceArg(slot, this.children[0]);
                 this.destroy();
@@ -2017,7 +2165,12 @@ d.BlockStack = d.Class(d.Control, {
             }
         } else {
             this.top().send(function () {
-                return ['block.move', this.id(), this.x(), this.y()];
+                return {
+                    $: 'block.move',
+                    block$id: this.id(),
+                    x: this.x(),
+                    y: this.y()
+                };
             });
             this.embed();
         }
@@ -2150,13 +2303,25 @@ d.arg.Base = d.Class(d.Control, {
     claimEdits: function () {},
     unclaimEdits: function () {},
     claim: function () {
-        this.app().socket.send('slot.claim', this.parent.id(), this.parent.slotIndex(this));
+        this.app().socket.send({
+            $: 'slot.claim',
+            block$id: this.parent.id(),
+            slot$index: this.parent.slotIndex(this)
+        });
     },
     unclaim: function () {
-        this.app().socket.send('slot.claim', -1);
+        this.app().socket.send({
+            $: 'slot.claim',
+            block$id: -1
+        });
     },
     sendEdit: function (value) {
-        this.app().socket.send('slot.set', this.parent.id(), this.parent.slotIndex(this), value);
+        this.app().socket.send({
+            $: 'slot.set',
+            block$id: this.parent.id(),
+            slot$index: this.parent.slotIndex(this),
+            value: value
+        });
     },
     edited: function () {
         this.sendEdit(this.value());
@@ -2650,7 +2815,7 @@ d.Block = d.Class(d.Control, {
             if (this.sendQueue) {
                 socket = amber.socket;
                 this.sendQueue.forEach(function (f) {
-                    socket.send.apply(socket, f.call(this));
+                    socket.send(f.call(this));
                 }, this);
                 this.sendQueue = null;
             }
@@ -2686,7 +2851,7 @@ d.Block = d.Class(d.Control, {
             (this.sendQueue || (this.sendQueue = [])).push(f);
             return this;
         }
-        socket.send.apply(socket, f.call(this));
+        socket.send(f.call(this));
         return this;
     },
     x: function () {
@@ -3092,7 +3257,7 @@ d.Block = d.Class(d.Control, {
         }
     }
 }, {
-    fromSerial: function (a, tracker, amber) {
+    fromJSON: function (a, tracker, amber) {
         var selector = a[1],
             spec = d.BlockSpecBySelector[selector],
             block;
@@ -3108,9 +3273,9 @@ d.Block = d.Class(d.Control, {
         a.slice(2).forEach(function (arg, i) {
             if (arg instanceof Array) {
                 if (typeof arg[0] === 'number') {
-                    block.replaceArg(block.arguments[i], d.Block.fromSerial(arg, tracker, amber));
+                    block.replaceArg(block.arguments[i], d.Block.fromJSON(arg, tracker, amber));
                 } else {
-                    block.arguments[i].setValue(new d.BlockStack().fromSerial(arg, tracker, amber, true));
+                    block.arguments[i].setValue(new d.BlockStack().fromJSON(arg, tracker, amber, true));
                 }
             } else {
                 if (i > block.arguments.length) {
