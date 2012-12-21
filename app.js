@@ -513,10 +513,11 @@ d.Menu = d.Class(d.Control, {
         var target, i, targetBB, elementBB;
         if (typeof selectedItem === 'number') {
             target = this.menuItems[selectedItem];
-        } else if (typeof selectedItem === 'string') {
+        } else if (typeof selectedItem === 'string' || typeof selectedItem === 'object') {
             i = 0;
             while (target = this.menuItems[i++]) {
-                if (target.action() === selectedItem) break;
+                if (target.action() === selectedItem ||
+                    target.action().$ === selectedItem.$) break;
             }
         } else {
             throw new TypeError;
@@ -731,7 +732,8 @@ d.MenuItem = d.Class(d.Control, {
         }
     },
     accept: function () {
-        if (typeof this._action === 'string') {
+        if (typeof this._action === 'string' ||
+            typeof this._action === 'object') {
             this.menu.action()(this.model);
         } else {
             this._action();
@@ -944,26 +946,25 @@ d.BlockSpecs = {
         ['c', 'motion', 'turnRight:', 'turn %icon:right %f degrees', 15],
         ['c', 'motion', 'turnLeft:', 'turn %icon:left %f degrees', 15],
         '-',
-        ['vs', 'direction', 90],
+        ['vs', {$:'direction'}, 90],
         ['c', 'motion', 'pointTowards:', 'point towards %sprite'],
         '-',
         ['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0],
         ['c', 'motion', 'gotoSpriteOrMouse:', 'go to %sprite'],
         ['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0],
         '-',
-        ['vc', 'x position'],
-        ['vs', 'x position'],
-        ['vc', 'y position'],
-        ['vs', 'y position'],
+        ['vc', {$:'x position'}],
+        ['vs', {$:'x position'}],
+        ['vc', {$:'y position'}],
+        ['vs', {$:'y position'}],
         '-',
         ['c', 'motion', 'bounceOffEdge', 'if on edge, bounce'],
         '-',
-        ['vs', 'rotation style'],
+        ['vs', {$:'rotation style'}],
         '-',
-        ['v', 'x position'],
-        ['v', 'y position'],
-        ['v', 'direction'],
-        ['v', 'rotation style'],
+        ['v', {$:'x position'}],
+        ['v', {$:'y position'}],
+        ['v', {$:'direction'}]
     ],
     looks: [
         ['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2],
@@ -978,19 +979,19 @@ d.BlockSpecs = {
         ['c', 'looks', 'nextCostume', 'next costume'],
         ['c', 'looks', 'lookLike:', 'switch backdrop to %backdrop'],
         '-',
-        ['vc', 'color effect'],
-        ['vs', 'color effect'],
+        ['vc', {$:'color effect'}],
+        ['vs', {$:'color effect'}],
         ['c', 'looks', 'filterReset', 'clear graphic effects'],
         '-',
-        ['vc', 'size'],
-        ['vs', 'size', 100],
+        ['vc', {$:'size'}],
+        ['vs', {$:'size'}, 100],
         '-',
         ['c', 'looks', 'comeToFront', 'go to front'],
         ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1],
         '-',
-        ['v', 'costume #'],
-        ['v', 'backdrop name'],
-        ['v', 'size']
+        ['v', {$:'costume #'}],
+        ['v', {$:'backdrop name'}],
+        ['v', {$:'size'}]
     ],
     sound: [
         ['c', 'sound', 'playSound:', 'play sound %sound'],
@@ -1001,15 +1002,15 @@ d.BlockSpecs = {
         ['c', 'sound', 'rest:elapsed:from:', 'rest for %f beats', .2],
         '-',
         ['c', 'sound', 'noteOn:duration:elapsed:from:', 'play note %note for %f beats', 60, .5],
-        ['vs', 'instrument'],
+        ['vs', {$:'instrument'}],
         '-',
-        ['vc', 'volume', -10],
-        ['vs', 'volume', 100],
-        ['v', 'volume'],
+        ['vc', {$:'volume'}, -10],
+        ['vs', {$:'volume'}, 100],
+        ['v', {$:'volume'}],
         '-',
-        ['vc', 'tempo', 20],
-        ['vs', 'tempo', 60],
-        ['v', 'tempo']
+        ['vc', {$:'tempo'}, 20],
+        ['vs', {$:'tempo'}, 60],
+        ['v', {$:'tempo'}]
     ],
     pen: [
         ['c', 'pen', 'clearPenTrails', 'clear'],
@@ -1019,15 +1020,15 @@ d.BlockSpecs = {
         ['c', 'pen', 'putPenDown', 'pen down'],
         ['c', 'pen', 'putPenUp', 'pen up'],
         '-',
-        ['vs', 'pen color'],
-        ['vc', 'pen hue'],
-        ['vs', 'pen hue'],
+        ['vs', {$:'pen color'}],
+        ['vc', {$:'pen hue'}],
+        ['vs', {$:'pen hue'}],
         '-',
-        ['vc', 'pen lightness'],
-        ['vs', 'pen lightness'],
+        ['vc', {$:'pen lightness'}],
+        ['vs', {$:'pen lightness'}],
         '-',
-        ['vc', 'pen size'],
-        ['vs', 'pen size']
+        ['vc', {$:'pen size'}],
+        ['vs', {$:'pen size'}]
     ],
     data: [
         ['v', 'var'],
@@ -1090,18 +1091,18 @@ d.BlockSpecs = {
         ['r', 'sensing', 'distanceTo:', 'distance to %sprite'],
         '-',
         ['c', 'sensing', 'doAsk', 'ask %s and wait', "What's your name?"],
-        ['v', 'answer'],
+        ['v', {$:'answer'}],
         '-',
         ['b', 'sensing', 'keyPressed:', 'key %key pressed?'],
-        ['v', 'mouse down?'],
-        ['v', 'mouse x'],
-        ['v', 'mouse y'],
+        ['v', {$:'mouse down?'}],
+        ['v', {$:'mouse x'}],
+        ['v', {$:'mouse y'}],
         '-',
-        ['v', 'loudness'],
+        ['v', {$:'loudness'}],
         ['r', 'sensing', 'senseVideoMotion', 'video %videoMotion on %stageOrThis'],
         '-',
-        ['v', 'timer'],
-        ['vs', 'timer'],
+        ['v', {$:'timer'}],
+        ['vs', {$:'timer'}],
         '-',
         ['r', 'sensing', 'getAttribute:of:', '%attribute of %object'],
         '-',
@@ -2349,7 +2350,7 @@ d.arg.Enum = d.Class(d.arg.Base, {
         this.onTouchStart(this.touchStart);
     },
     copy: function () {
-        var copy = new this.constructor().setItems(this._items).setText(this.text());
+        var copy = new this.constructor().setItems(this._items).setValue(this.value());
         if (this._inline) copy.setInline(true);
         return copy;
     },
@@ -2360,7 +2361,7 @@ d.arg.Enum = d.Class(d.arg.Base, {
     },
     '.text': {
         set: function (v) {
-            this.label.textContent = this.selectedItem = v;
+            this.label.textContent = v;
         },
         get: function () {
             return this.label.textContent;
@@ -2368,15 +2369,15 @@ d.arg.Enum = d.Class(d.arg.Base, {
     },
     '.value': {
         set: function (v) {
+            this._value = v;
             if (typeof v == 'object') {
-                this.selectedItem = v;
                 this.setText(d.t(v.$));
             } else {
                 this.setText(v);
             }
         },
         get: function () {
-            return this.selectedItem;
+            return this._value;
         }
     },
     '.inline': {
@@ -2390,23 +2391,23 @@ d.arg.Enum = d.Class(d.arg.Base, {
             return;
         }
         new d.Menu().setAction(function (item) {
-            this.setValue(this.selectedItem =
+            this.setValue(
                 typeof item === 'string' ? item :
                 item.hasOwnProperty('value') ? item.value : item.action);
-            this.sendEdit(this.text());
+            this.sendEdit(this.value());
         }.bind(this)).setItems((typeof this._items === 'function' ? this._items() : this._items).map(function (item) {
-            return item.$ ? d.t(item.$) : item;
-        })).popUp(this, this.label, this.text());
+            return item.$ ? { title: d.t(item.$), action: item } : item;
+        })).popUp(this, this.label, this.value());
     }
 });
 d.arg.Var = d.Class(d.arg.Enum, {
     init: function () {
         this.base(arguments);
     },
-    setText: function (value) {
+    setValue: function (value) {
         this.base(arguments, value);
         if (this.parent) {
-            this.parent.setCategory(d.VariableColors[value] || 'data');
+            this.parent.setCategory(value.$ ? d.VariableColors[value.$] : 'data');
             if (this.parent.varChanged) this.parent.varChanged();
         }
         return this;
@@ -2805,44 +2806,44 @@ d.Block = d.Class(d.Control, {
 
         // Field + Menu
         case 'direction':
-            return new d.arg.TextField().setNumeric(true).setText('90').setItems([
+            return new d.arg.TextField().setNumeric(true).setValue('90').setItems([
                 { title: 'right', action: '90' },
                 { title: 'left', action: '-90' },
                 { title: 'up', action: '0' },
                 { title: 'down', action: '180' }
             ]);
         case 'layer':
-            return new d.arg.TextField().setNumeric(true).setText('1').setItems(['1', 'last', 'any']);
-        case 'deletion-index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems(['1', 'last', d.Menu.separator, 'all']);
-        case 'index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems(['1', 'last', 'any']);
+            return new d.arg.TextField().setNumeric(true).setValue('1').setItems(['1', 'last', 'any']);
+        case 'deletion-index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setValue('1').setItems(['1', 'last', d.Menu.separator, 'all']);
+        case 'index': return new d.arg.TextField().setNumeric(true).setIntegral(true).setValue('1').setItems(['1', {$:'last'}, {$:'any'}]);
 
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
-        case 'var': return new d.arg.Var().setItems(['x position', 'y position', 'direction', 'costume #', 'size', 'layer', 'instrument', 'volume', 'pen down?', 'pen color', 'pen hue', 'pen shade', 'pen size', d.Menu.separator, 'color effect', 'fisheye effect', 'whirl effect', 'pixelate effect', 'mosaic effect', 'brightness effect', 'ghost effect', d.Menu.separator, 'tempo', 'answer', 'timer', 'backdrop name', d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen shade'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
-        case 'sprite': return new d.arg.Enum().setItems(['mouse', d.Menu.separator, 'Sprite1', 'Sprite2']);
-        case 'object': return new d.arg.Enum().setItems(['Stage', d.Menu.separator, 'Sprite1', 'Sprite2']).setText('Sprite1');
-        case 'clonable': return new d.arg.Enum().setItems(['myself', d.Menu.separator, 'Sprite1', 'Sprite2']);
+        case 'sprite': return new d.arg.Enum().setItems([{$:'mouse'}, d.Menu.separator, 'Sprite1', 'Sprite2']);
+        case 'object': return new d.arg.Enum().setItems(['Stage', d.Menu.separator, 'Sprite1', 'Sprite2']).setValue('Sprite1');
+        case 'clonable': return new d.arg.Enum().setItems([{$:'myself'}, d.Menu.separator, 'Sprite1', 'Sprite2']);
         case 'attribute': return (arg = new d.arg.Enum()).setItems(function () {
-            return arg.parent.arguments[1].text() === 'Stage' ? ['backdrop #', 'volume', d.Menu.separator, 'global', 'counter'] : ['x position', 'y position', 'direction', 'rotation style', 'costume #', 'size', 'volume', d.Menu.separator, 'var', 'a', 'b', 'c'];
-        }).setText('x position');
+            return arg.parent.arguments[1].text() === 'Stage' ? [{$:'backdrop #'}, {$:'volume'}, d.Menu.separator, 'global', 'counter'] : [{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'volume'}, d.Menu.separator, 'var', 'a', 'b', 'c'];
+        }).setValue({$: 'x position'});
         case 'costume': return new d.arg.Enum().setItems(['costume1', 'costume2', 'costume3']);
         case 'backdrop': return new d.arg.Enum().setItems(['backdrop1', 'backdrop2', 'backdrop']);
         case 'sound': return new d.arg.Enum().setItems(['meow']);
 
         // Closed Enumerations
-        case 'math': return new d.arg.Enum().setItems([{$:'abs'}, {$:'floor'}, {$:'ceiling'}, {$:'sqrt'}, {$:'sin'}, {$:'cos'}, {$:'tan'}, {$:'asin'}, {$:'acos'}, {$:'atan'}, {$:'ln'}, {$:'log'}, {$:'e ^ '}, {$:'10 ^ '}]).setText({$:'sqrt'});
+        case 'math': return new d.arg.Enum().setItems([{$:'abs'}, {$:'floor'}, {$:'ceiling'}, {$:'sqrt'}, {$:'sin'}, {$:'cos'}, {$:'tan'}, {$:'asin'}, {$:'acos'}, {$:'atan'}, {$:'ln'}, {$:'log'}, {$:'e ^ '}, {$:'10 ^ '}]).setValue({$:'sqrt'});
         case 'sensor': return new d.arg.Enum().setItems([{$:'slider'}, {$:'light'}, {$:'sound'}, {$:'resistance-A'}, {$:'resistance-B'}, {$:'resistance-C'}, {$:'resistance-D'}, d.Menu.separator, {$:'tilt'}, {$:'distance'}]);
         case 'stop': return new d.arg.Enum().setItems([{$:'all'}, {$:'this script'}, {$:'other scripts in sprite'}]);
         case 'time': return new d.arg.Enum().setItems([{$:'year'}, {$:'month'}, {$:'day of year'}, {$:'date'}, {$:'day of week'}, d.Menu.separator, {$:'hour'}, {$:'minute'}, {$:'second'}]);
         case 'videoMotion': return new d.arg.Enum().setItems([{$:'motion'}, {$:'direction'}]);
-        case 'rotationStyle': return new d.arg.Enum().setItems([{$:'all around'}, {$:'left to right'}, {$:'dont rotate'}]);
-        case 'stageOrThis': return new d.arg.Enum().setItems([{$:'Stage'}, {$:'this sprite'}]).setText({$:'this sprite'});
+        case 'rotationStyle': return new d.arg.Enum().setItems([{$:'all around'}, {$:'left to right'}, {$:'don\'t rotate'}]);
+        case 'stageOrThis': return new d.arg.Enum().setItems([{$:'Stage'}, {$:'this sprite'}]).setValue({$:'this sprite'});
         case 'sensor:bool': return new d.arg.Enum().setItems([{$:'button pressed'}, {$:'A connected'}, {$:'B connected'}, {$:'C connected'}, {$:'D connected'}]);
         case 'instrument':
-            return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems([
+            return new d.arg.TextField().setNumeric(true).setIntegral(true).setValue('1').setItems([
                 { title: 'Acoustic Grand', action: '1' },
                 { title: 'Bright Acoustic', action: '2' },
                 { title: 'Electric Grand', action: '3' },
@@ -2973,7 +2974,7 @@ d.Block = d.Class(d.Control, {
                 { title: 'Gunshot', action: '128' }
             ]);
         case 'drum':
-            return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('48').setItems([
+            return new d.arg.TextField().setNumeric(true).setIntegral(true).setValue('48').setItems([
                 { title: 'Acoustic Bass Drum', action: '35' },
                 { title: 'Bass Drum 1', action: '36' },
                 { title: 'Side Stick', action: '37' },
@@ -3023,7 +3024,7 @@ d.Block = d.Class(d.Control, {
                 { title: 'Open Triangle', action: '81' }
             ]);
         case 'key':
-            return new d.arg.Enum().setItems([{$:'up arrow'}, {$:'down arrow'}, {$:'right arrow'}, {$:'left arrow'}, {$:'space'}, {$:'a'}, {$:'b'}, {$:'c'}, {$:'d'}, {$:'e'}, {$:'f'}, {$:'g'}, {$:'h'}, {$:'i'}, {$:'j'}, {$:'k'}, {$:'l'}, {$:'m'}, {$:'n'}, {$:'o'}, {$:'p'}, {$:'q'}, {$:'r'}, {$:'s'}, {$:'t'}, {$:'u'}, {$:'v'}, {$:'w'}, {$:'x'}, {$:'y'}, {$:'z'}, {$:'0'}, {$:'1'}, {$:'2'}, {$:'3'}, {$:'4'}, {$:'5'}, {$:'6'}, {$:'7'}, {$:'8'}, {$:'9'}]).setText({$:'space'});
+            return new d.arg.Enum().setItems([{$:'up arrow'}, {$:'down arrow'}, {$:'right arrow'}, {$:'left arrow'}, {$:'space'}, {$:'a'}, {$:'b'}, {$:'c'}, {$:'d'}, {$:'e'}, {$:'f'}, {$:'g'}, {$:'h'}, {$:'i'}, {$:'j'}, {$:'k'}, {$:'l'}, {$:'m'}, {$:'n'}, {$:'o'}, {$:'p'}, {$:'q'}, {$:'r'}, {$:'s'}, {$:'t'}, {$:'u'}, {$:'v'}, {$:'w'}, {$:'x'}, {$:'y'}, {$:'z'}, {$:'0'}, {$:'1'}, {$:'2'}, {$:'3'}, {$:'4'}, {$:'5'}, {$:'6'}, {$:'7'}, {$:'8'}, {$:'9'}]).setValue({$:'space'});
 
         // Icons
         case 'icon:right': return new d.arg.Label().setText('\u27f3');
@@ -3144,8 +3145,6 @@ d.Block = d.Class(d.Control, {
             block = new d.SetterBlock().setIsChange(spec[0] === 'vc').setVar(spec[1]);
             if (spec.length > 2) {
                 block.setValue(spec[2])
-            } else {
-                block.setValue(block.isChange() ? 10 : 0);
             }
             return block;
         }
@@ -3285,61 +3284,63 @@ d.SetterBlock = d.Class(d.CommandBlock, {
         this.defaultArguments[1] = arg;
     },
     getDefaultArg: function (variable) {
-        if (this._isChange) {
-            switch (variable) {
-            case 'costume #':
-            case 'layer':
-            case 'instrument':
-                return this.argFromSpec('i').setValue(1);
-            case 'direction':
-                return this.argFromSpec('f').setValue(15);
-            case 'tempo':
-                return this.argFromSpec('f').setValue(20);
-            case 'volume':
-                return this.argFromSpec('f').setValue(-10);
-            case 'pen size':
-            case 'answer':
-            case 'timer':
-                return this.argFromSpec('f').setValue(1);
+        if (variable.$) {
+            if (this._isChange) {
+                switch (variable.$) {
+                case 'costume #':
+                case 'layer':
+                case 'instrument':
+                    return this.argFromSpec('i').setValue(1);
+                case 'direction':
+                    return this.argFromSpec('f').setValue(15);
+                case 'tempo':
+                    return this.argFromSpec('f').setValue(20);
+                case 'volume':
+                    return this.argFromSpec('f').setValue(-10);
+                case 'pen size':
+                case 'answer':
+                case 'timer':
+                    return this.argFromSpec('f').setValue(1);
+                }
+                return this.argFromSpec('f').setValue(d.VariableColors[variable] ? 10 : 1);
             }
-            return this.argFromSpec('f').setValue(d.VariableColors[variable] ? 10 : 1);
-        }
-        switch (variable) {
-        case 'x position':
-        case 'y position':
-        case 'pen hue':
-        case 'timer':
-            return this.argFromSpec('f').setValue(0);
-        case 'direction':
-            return this.argFromSpec('direction');
-        case 'costume #':
-            return this.argFromSpec('i').setValue(1);
-        case 'layer':
-            return this.argFromSpec('layer');
-        case 'instrument':
-            return this.argFromSpec('instrument');
-        case 'size':
-        case 'volume':
-            this.unit = '%';
-            return this.argFromSpec('f').setValue(100);
-        case 'tempo':
-            this.unit = 'bpm';
-            return this.argFromSpec('f').setValue(60);
-        case 'pen down?':
-            return this.argFromSpec('b');
-        case 'pen color':
-            return this.argFromSpec('color');
-        case 'pen shade':
-            return this.argFromSpec('f').setValue(50);
-        case 'pen size':
-            return this.argFromSpec('f').setValue(1);
-        case 'answer':
-            return this.argFromSpec('s');
-        case 'rotation style':
-            return this.argFromSpec('rotationStyle');
-        }
-        if (variable.substr(variable.length - 7) === ' effect') {
-            return this.argFromSpec('f').setValue(0);
+            switch (variable.$) {
+            case 'x position':
+            case 'y position':
+            case 'pen hue':
+            case 'timer':
+                return this.argFromSpec('f').setValue(0);
+            case 'direction':
+                return this.argFromSpec('direction');
+            case 'costume #':
+                return this.argFromSpec('i').setValue(1);
+            case 'layer':
+                return this.argFromSpec('layer');
+            case 'instrument':
+                return this.argFromSpec('instrument');
+            case 'size':
+            case 'volume':
+                this.unit = '%';
+                return this.argFromSpec('f').setValue(100);
+            case 'tempo':
+                this.unit = 'bpm';
+                return this.argFromSpec('f').setValue(60);
+            case 'pen down?':
+                return this.argFromSpec('b');
+            case 'pen color':
+                return this.argFromSpec('color');
+            case 'pen shade':
+                return this.argFromSpec('f').setValue(50);
+            case 'pen size':
+                return this.argFromSpec('f').setValue(1);
+            case 'answer':
+                return this.argFromSpec('s');
+            case 'rotation style':
+                return this.argFromSpec('rotationStyle');
+            }
+            if (variable.$.substr(variable.length - 7) === ' effect') {
+                return this.argFromSpec('f').setValue(0);
+            }
         }
         return this.argFromSpec('s').setValue(0);
     }
