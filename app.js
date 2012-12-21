@@ -3008,6 +3008,7 @@ d.Block = d.Class(d.Control, {
         case 'icon:left': return new d.arg.Label().setText('\u27f2');
         case 'icon:repeat': return new d.arg.Label().setText('\u2b0f');
         case 'icon:stop': return new d.arg.Label().setText('\u2b23').setColor('#a00');
+        case 'icon:flag': return new d.arg.Label().setText('\u2691').setColor('#080');
         }
         console.warn('unknown arg spec %' + spec);
         return new d.arg.TextField();
@@ -3333,10 +3334,10 @@ d.arg.CClosure = d.Class(d.ReporterBlock, {
 d.HatBlock = d.Class(d.Block, {
     init: function () {
         this.base(arguments);
-        this.initElements('d-block d-hat-block');
-        this.addFill(this.newElement('d-hat-command-fill-l'));
-        this.addFill(this.newElement('d-hat-command-fill-r'));
-        this.addFill(this.newElement('d-hat-command-fill-p'));
+        this.initElements('d-block d-command-block d-hat-block');
+        this.addFill(this.newElement('d-hat-block-fill-l'));
+        this.addFill(this.newElement('d-hat-block-fill-r'));
+        this.addFill(this.newElement('d-hat-block-fill-p'));
         this.addFill(this.newElement('d-hat-block-fill-t'));
         this.element.appendChild(this.container = this.newElement('d-hat-block-label'));
     }

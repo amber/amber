@@ -706,6 +706,10 @@
 .d-command-block-fill-l,
 .d-command-block-fill-p,
 .d-command-block-fill-r,
+.d-hat-block-fill-l,
+.d-hat-block-fill-p,
+.d-hat-block-fill-r,
+.d-hat-block-fill-t,
 .d-reporter-block-fill,
 .d-boolean-reporter-block-fill,
 .d-boolean-reporter-block-fill-rt,
@@ -714,11 +718,12 @@
 .d-boolean-reporter-block-fill-lb {
     position: absolute;
 }
-.d-command-block-fill-l {
+.d-command-block-fill-l,
+.d-hat-block-fill-l {
     top: 0;
     left: 0;
     width: 12px;
-    height: 100%;
+    bottom: 0;
     box-shadow:
         inset 1px 1px rgba(255, 255, 255, .27),
         inset -1px 0 rgba(255, 255, 255, .27),
@@ -726,11 +731,12 @@
         inset 0 -1px rgba(0, 0, 0, .3);
     border-radius: 3px 2px 0 3px / 3px 3px 0 3px;
 }
-.d-command-block-fill-p {
+.d-command-block-fill-p,
+.d-hat-block-fill-p {
     top: 3px;
     left: 11px;
     width: 13px;
-    height: 100%;
+    bottom: -3px;
     box-shadow:
         inset 0 -1px rgba(0, 0, 0, .3),
         inset 1px 0 currentColor,
@@ -744,16 +750,42 @@
     bottom: 0;
     border-radius: 0;
 }
-.d-command-block-fill-r {
+.d-command-block-fill-r,
+.d-hat-block-fill-r {
     top: 0;
     left: 23px;
     right: 0;
-    height: 100%;
+    bottom: 0;
     box-shadow:
         inset 0 1px rgba(255, 255, 255, .27),
         inset 0 2px rgba(255, 255, 255, .07),
         inset -1px -1px rgba(0, 0, 0, .3);
     border-radius: 2px 3px 3px 0 / 3px 3px 3px 0;
+}
+.d-hat-block-fill-l {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.d-hat-block-fill-p {
+    top: 12px;
+}
+.d-hat-block-fill-r {
+    border-top-left-radius: 0;
+}
+.d-hat-block-fill-l,
+.d-hat-block-fill-r {
+    top: 12px;
+}
+.d-hat-block-fill-t {
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: 100px;
+    height: 14px;
+    border-radius: 50px 50px 0 0 / 14px 14px 0 0;
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, .27),
+        inset 0 2px rgba(255, 255, 255, .07);
 }
 .d-reporter-block-fill {
     top: 0;
@@ -777,6 +809,7 @@
         inset 0 -1px rgba(0, 0, 0, .3);
 }
 .d-command-block-label,
+.d-hat-block-label,
 .d-reporter-block-label,
 .d-boolean-reporter-block-label {
     position: relative;
@@ -784,6 +817,9 @@
 }
 .d-boolean-reporter-block-label {
     padding: 3px 6px 3px;
+}
+.d-hat-block-label {
+    padding: 15px 6px 3px;
 }
 .d-boolean-reporter-block-fill-rt,
 .d-boolean-reporter-block-fill-rb,
