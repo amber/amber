@@ -839,12 +839,26 @@ d.Stage = d.Class(d.ServerData, {
         return this;
     }
 });
+
+d.currentLocale = 'en-US';
+d.t = function (id) {
+    var locale = d.locale[d.currentLocale],
+        result;
+    if (!locale.hasOwnProperty(id)) {
+        if (d.currentLocale !== 'en-US') {
+            console.warn('missing translation key ' + id);
+        }
+        result = id;
+    } else {
+        result = locale[id];
+    }
+    return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
+};
 d.Amber = d.Class(d.App, {
     PROTOCOL_VERSION: '1.0.3',
 
     init: function () {
         this.base(arguments);
-        this.locale = d.locale['en-US'];
         this.usersByName = {};
         this.usersById = {};
         this.blocks = {};
@@ -861,12 +875,6 @@ d.Amber = d.Class(d.App, {
         this.add(script);
         this.socket.send('script.create', [x, y, blocks], id);
         return script;
-    },
-    t: function (id) {
-        if (!this.locale.hasOwnProperty(id)) {
-            console.warn('missing translation key ' + id);
-        }
-        return arguments.length === 1 ? this.locale[id] : d.format.apply(null, [this.locale[id]].concat([].slice.call(arguments, 1)));
     },
     getUser: function (username, callback) {
         var xhr, me = this;
@@ -1181,7 +1189,7 @@ d.Socket = d.Class(d.Base, {
     },
     close: function (e) {
         if (this.amber.authentication.shown()) {
-            this.amber.authentication.setMessage(this.amber.t('authentication.message.connectionFailed'));
+            this.amber.authentication.setMessage(d.t('Connection failed.'));
             this.amber.authentication.setEnabled(true);
         }
         console.warn('Socket closed:', e);
@@ -1306,7 +1314,7 @@ d.Socket = d.Class(d.Base, {
                 this.amber.remove(this.amber.authentication);
                 break;
             }
-            this.amber.authentication.setMessage(packet.result.pop ? this.amber.t.apply(this.amber, packet.result) : this.amber.t(packet.result || 'authentication.message.generic'));
+            this.amber.authentication.setMessage(packet.result.pop ? d.t.apply(this.amber, packet.result) : d.t(packet.result || 'Sign in failed.'));
             this.amber.authentication.setEnabled(true);
             this.amber.authentication.passwordField.select();
             break;
@@ -1417,14 +1425,14 @@ d.AuthenticationPanel = d.Class(d.Control, {
         this.element.appendChild(this.offlineButton = this.newElement('d-authentication-button', 'input'));
         this.element.appendChild(this.messageField = this.newElement('d-authentication-message'));
 
-        this.serverField.placeholder = amber.t('authentication-panel.server');
+        this.serverField.placeholder = d.t('Server');
         this.serverField.oninput = this.serverInput.bind(this);
         this.serverField.value = (savedServer = localStorage.getItem('d.authentication-panel.server')) ? savedServer : 'ws://mpblocks.cloudno.de/:9182';
         this.serverSelect.onchange = this.serverChange.bind(this);
         this.serverSelect.onmousedown = this.serverClick.bind(this);
         this.updateServerSelect();
 
-        this.usernameField.placeholder = amber.t('authentication-panel.username');
+        this.usernameField.placeholder = d.t('Scratch Username');
         this.usernameField.oninput = this.userInput.bind(this);
         if (savedUsername = localStorage.getItem('d.authentication-panel.username')) {
             this.usernameField.value = savedUsername;
@@ -1433,18 +1441,18 @@ d.AuthenticationPanel = d.Class(d.Control, {
 
         this.passwordField.type = 'password';
         this.passwordField.onkeydown = this.passwordKeyDown.bind(this);
-        this.passwordField.placeholder = amber.t('authentication-panel.password');
+        this.passwordField.placeholder = d.t('Password');
 
         this.signInButton.onclick = this.submit.bind(this);
-        this.signInButton.value = amber.t('authentication-panel.signIn');
+        this.signInButton.value = d.t('Sign In');
         this.signInButton.type = 'button';
 
         this.registerButton.onclick = this.register.bind(this);
-        this.registerButton.value = amber.t('authentication-panel.register');
+        this.registerButton.value = d.t('Register');
         this.registerButton.type = 'button';
 
         this.offlineButton.onclick = this.offlineMode.bind(this);
-        this.offlineButton.value = amber.t('authentication-panel.offline');
+        this.offlineButton.value = d.t('Offline');
         this.offlineButton.type = 'button';
     },
     register: function () {
@@ -1491,7 +1499,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
         for (server in servers) if (servers.hasOwnProperty(server)) {
             this.serverSelect.options[i++] = new Option(server);
         }
-        this.serverSelect.options[i++] = new Option(this.amber.t('authentication-panel.clearServers'), '__clear__');
+        this.serverSelect.options[i++] = new Option(d.t('Clear Server List'), '__clear__');
     },
     serverChange: function () {
         if (this.serverSelect.value === '__clear__') {
@@ -1555,7 +1563,7 @@ d.UserList = d.Class(d.Control, {
         this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
         // this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
-        this.titleLabel.textContent = amber.t('chat.title');
+        this.titleLabel.textContent = d.t('Chat');
         this.users = {};
     },
     addUser: function (user) {
@@ -1657,7 +1665,7 @@ d.SpriteList = d.Class(d.Control, {
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
         // this.title.appendChild(this.titleShadow = this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
-        this.titleLabel.textContent = amber.t('sprite-list.title');
+        this.titleLabel.textContent = d.t('Sprites');
     }
 });
 d.BlockEditor = d.Class(d.Control, {
@@ -2347,7 +2355,7 @@ d.arg.Enum = d.Class(d.arg.Base, {
     },
     '.items': {
         apply: function (items) {
-            if (items[0]) this.setText(items[0]);
+            if (items[0]) this.setValue(items[0]);
         }
     },
     '.text': {
@@ -2360,7 +2368,12 @@ d.arg.Enum = d.Class(d.arg.Base, {
     },
     '.value': {
         set: function (v) {
-            this.setText(v);
+            if (typeof v == 'object') {
+                this.selectedItem = v;
+                this.setText(d.t(v.$));
+            } else {
+                this.setText(v);
+            }
         },
         get: function () {
             return this.selectedItem;
@@ -2377,11 +2390,13 @@ d.arg.Enum = d.Class(d.arg.Base, {
             return;
         }
         new d.Menu().setAction(function (item) {
-            this.setText(this.selectedItem =
+            this.setValue(this.selectedItem =
                 typeof item === 'string' ? item :
                 item.hasOwnProperty('value') ? item.value : item.action);
             this.sendEdit(this.text());
-        }.bind(this)).setItems(typeof this._items === 'function' ? this._items() : this._items).popUp(this, this.label, this.text());
+        }.bind(this)).setItems((typeof this._items === 'function' ? this._items() : this._items).map(function (item) {
+            return item.$ ? d.t(item.$) : item;
+        })).popUp(this, this.label, this.text());
     }
 });
 d.arg.Var = d.Class(d.arg.Enum, {
@@ -2818,15 +2833,14 @@ d.Block = d.Class(d.Control, {
         case 'sound': return new d.arg.Enum().setItems(['meow']);
 
         // Closed Enumerations
-        case 'math': return new d.arg.Enum().setItems(['abs', 'floor', 'ceiling', 'sqrt', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'ln', 'log', 'e ^ ', '10 ^ ']).setText('sqrt');
-        case 'sensor': return new d.arg.Enum().setItems(['slider', 'light', 'sound', 'resistance-A', 'resistance-B', 'resistance-C', 'resistance-D', d.Menu.separator, 'tilt', 'distance']);
-        case 'gfx': return new d.arg.Enum().setItems(['color', 'fisheye', 'whirl', 'pixelate', 'mosaic', 'brightness', 'ghost']);
-        case 'stop': return new d.arg.Enum().setItems(['all', 'this script', 'other scripts in sprite']);
-        case 'time': return new d.arg.Enum().setItems(['year', 'month', 'day of year', 'date', 'day of week', d.Menu.separator, 'hour', 'minute', 'second']);
-        case 'videoMotion': return new d.arg.Enum().setItems(['motion', 'direction']);
-        case 'rotationStyle': return new d.arg.Enum().setItems(['all around', 'left to right', 'don\'t rotate']);
-        case 'stageOrThis': return new d.arg.Enum().setItems(['Stage', 'this sprite']).setText('this sprite');
-        case 'sensor:bool': return new d.arg.Enum().setItems(['button pressed', 'A connected', 'B connected', 'C connected', 'D connected']);
+        case 'math': return new d.arg.Enum().setItems([{$:'abs'}, {$:'floor'}, {$:'ceiling'}, {$:'sqrt'}, {$:'sin'}, {$:'cos'}, {$:'tan'}, {$:'asin'}, {$:'acos'}, {$:'atan'}, {$:'ln'}, {$:'log'}, {$:'e ^ '}, {$:'10 ^ '}]).setText({$:'sqrt'});
+        case 'sensor': return new d.arg.Enum().setItems([{$:'slider'}, {$:'light'}, {$:'sound'}, {$:'resistance-A'}, {$:'resistance-B'}, {$:'resistance-C'}, {$:'resistance-D'}, d.Menu.separator, {$:'tilt'}, {$:'distance'}]);
+        case 'stop': return new d.arg.Enum().setItems([{$:'all'}, {$:'this script'}, {$:'other scripts in sprite'}]);
+        case 'time': return new d.arg.Enum().setItems([{$:'year'}, {$:'month'}, {$:'day of year'}, {$:'date'}, {$:'day of week'}, d.Menu.separator, {$:'hour'}, {$:'minute'}, {$:'second'}]);
+        case 'videoMotion': return new d.arg.Enum().setItems([{$:'motion'}, {$:'direction'}]);
+        case 'rotationStyle': return new d.arg.Enum().setItems([{$:'all around'}, {$:'left to right'}, {$:'dont rotate'}]);
+        case 'stageOrThis': return new d.arg.Enum().setItems([{$:'Stage'}, {$:'this sprite'}]).setText({$:'this sprite'});
+        case 'sensor:bool': return new d.arg.Enum().setItems([{$:'button pressed'}, {$:'A connected'}, {$:'B connected'}, {$:'C connected'}, {$:'D connected'}]);
         case 'instrument':
             return new d.arg.TextField().setNumeric(true).setIntegral(true).setText('1').setItems([
                 { title: 'Acoustic Grand', action: '1' },
@@ -3009,7 +3023,7 @@ d.Block = d.Class(d.Control, {
                 { title: 'Open Triangle', action: '81' }
             ]);
         case 'key':
-            return new d.arg.Enum().setItems(['up arrow', 'down arrow', 'right arrow', 'left arrow', 'space', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']).setText('space');
+            return new d.arg.Enum().setItems([{$:'up arrow'}, {$:'down arrow'}, {$:'right arrow'}, {$:'left arrow'}, {$:'space'}, {$:'a'}, {$:'b'}, {$:'c'}, {$:'d'}, {$:'e'}, {$:'f'}, {$:'g'}, {$:'h'}, {$:'i'}, {$:'j'}, {$:'k'}, {$:'l'}, {$:'m'}, {$:'n'}, {$:'o'}, {$:'p'}, {$:'q'}, {$:'r'}, {$:'s'}, {$:'t'}, {$:'u'}, {$:'v'}, {$:'w'}, {$:'x'}, {$:'y'}, {$:'z'}, {$:'0'}, {$:'1'}, {$:'2'}, {$:'3'}, {$:'4'}, {$:'5'}, {$:'6'}, {$:'7'}, {$:'8'}, {$:'9'}]).setText({$:'space'});
 
         // Icons
         case 'icon:right': return new d.arg.Label().setText('\u27f3');
