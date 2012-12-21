@@ -1792,7 +1792,8 @@ d.SpriteList = d.Class(d.Control, {
     }
 });
 d.BlockEditor = d.Class(d.Control, {
-    padding: 10,
+    startPadding: 10,
+    endPadding: 300,
     init: function () {
         this.base(arguments);
         this.initElements('d-block-editor');
@@ -1801,7 +1802,8 @@ d.BlockEditor = d.Class(d.Control, {
     },
     fit: function () {
         var bb = this.fill.getBoundingClientRect(),
-            p = this.padding,
+            p = this.startPadding,
+            bp = this.endPadding,
             c = this.children,
             i = c.length,
             w = 0,
@@ -1831,8 +1833,8 @@ d.BlockEditor = d.Class(d.Control, {
             x = 0;
             y = 0;
         }
-        this.fill.style.width = w + p * 2 + 'px';
-        this.fill.style.height = h + p * 2 + 'px';
+        this.fill.style.width = w + p + bp + 'px';
+        this.fill.style.height = h + p + bp + 'px';
         this.fill.style.left = x + 'px';
         this.fill.style.top = y + 'px';
     }
