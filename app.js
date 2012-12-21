@@ -1045,7 +1045,7 @@ d.BlockSpecs = {
         '-',
         ['r', 'lists', 'getLine:ofList:', 'item %index of %list', 1, ''],
         ['r', 'lists', 'lineCountOfList:', 'length of %list'],
-        ['b', 'lists', 'list:contains:', '%list contains %s', '', 'thing'],
+        ['b', 'lists', 'list:contains:', '%list contains %s?', '', 'thing'],
         '-',
         ['c', 'lists', 'showList:', 'show list %list', ''],
         ['c', 'lists', 'hideList:', 'hide list %list', '']
@@ -2763,10 +2763,14 @@ d.Block = d.Class(d.Control, {
                 if (!/^\s*$/.test(label = spec.substring(start, i))) {
                     this.add(new d.arg.Label().setText(label));
                 }
-                if (ex = /\%([\w\-:]+)/.exec(spec.substr(i))) {
-                    this.add(label = this.argFromSpec(ex[1]));
-                    if (ex[1].substr(0, 5) !== 'icon:') {
-                        args.push(label);
+                if (ex = /\%(\d+\$)?([\w\-:]+)/.exec(spec.substr(i))) {
+                    this.add(label = this.argFromSpec(ex[2]));
+                    if (ex[2].substr(0, 5) !== 'icon:') {
+                        if (ex[1]) {
+                            args.splice(ex[1] - 1, 0, label);
+                        } else {
+                            args.push(label);
+                        }
                     }
                     start = i + ex[0].length;
                 } else {
@@ -3024,7 +3028,7 @@ d.Block = d.Class(d.Control, {
                 { title: 'Open Triangle', action: '81' }
             ]);
         case 'key':
-            return new d.arg.Enum().setItems([{$:'up arrow'}, {$:'down arrow'}, {$:'right arrow'}, {$:'left arrow'}, {$:'space'}, {$:'a'}, {$:'b'}, {$:'c'}, {$:'d'}, {$:'e'}, {$:'f'}, {$:'g'}, {$:'h'}, {$:'i'}, {$:'j'}, {$:'k'}, {$:'l'}, {$:'m'}, {$:'n'}, {$:'o'}, {$:'p'}, {$:'q'}, {$:'r'}, {$:'s'}, {$:'t'}, {$:'u'}, {$:'v'}, {$:'w'}, {$:'x'}, {$:'y'}, {$:'z'}, {$:'0'}, {$:'1'}, {$:'2'}, {$:'3'}, {$:'4'}, {$:'5'}, {$:'6'}, {$:'7'}, {$:'8'}, {$:'9'}]).setValue({$:'space'});
+            return new d.arg.Enum().setItems([{$:'up arrow'}, {$:'down arrow'}, {$:'right arrow'}, {$:'left arrow'}, {$:'space'}, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']).setValue({$:'space'});
 
         // Icons
         case 'icon:right': return new d.arg.Label().setText('\u27f3');
@@ -3249,7 +3253,7 @@ d.SetterBlock = d.Class(d.CommandBlock, {
             } else {
                 this.setSpec('set %var to %s').setSelector('setVar:to:');
             }
-            this.add(new d.arg.Label());
+            this.add(this.unitLabel = new d.arg.Label());
         }
     },
     '.var': {
@@ -3273,10 +3277,10 @@ d.SetterBlock = d.Class(d.CommandBlock, {
         this.unit = '';
         arg = this.getDefaultArg(this.arguments[0].value());
         if (this.unit) {
-            this.children[4].element.style.display = '';
-            this.children[4].setValue(this.unit);
+            this.unitLabel.element.style.display = '';
+            this.unitLabel.setValue(this.unit);
         } else {
-            this.children[4].element.style.display = 'none';
+            this.unitLabel.element.style.display = 'none';
         }
         if (this.arguments[1] === this.defaultArguments[1]) {
             this.replaceArg(this.arguments[1], arg);
@@ -3302,7 +3306,7 @@ d.SetterBlock = d.Class(d.CommandBlock, {
                 case 'timer':
                     return this.argFromSpec('f').setValue(1);
                 }
-                return this.argFromSpec('f').setValue(d.VariableColors[variable] ? 10 : 1);
+                return this.argFromSpec('f').setValue(d.VariableColors[variable.$] ? 10 : 1);
             }
             switch (variable.$) {
             case 'x position':
