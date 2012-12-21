@@ -58,8 +58,9 @@ d.property = function (object, name, options) {
         object[_name] = options.value;
     
     object[setName] = function (value) {
+        var old = this[_name];
         setter.call(this, value);
-        if (apply) apply.call(this, value);
+        if (apply) apply.call(this, value, old);
         return this;
     };
     object[name] = getter;
@@ -856,13 +857,28 @@ d.ImageMedia = d.Class(d.ServerData, {
         } : null);
     }
 });
-d.Stage = d.Class(d.ServerData, {
+d.Scriptable = d.Class(d.ServerData, {
     '.id': {},
-    '.children': {},
-    '.scripts': {},
+    '.scripts': {
+        get: function () {
+            var editor = this._editor,
+                amber = this.amber;
+            if (editor) return editor;
+            this._editor = editor = new d.BlockEditor;
+            if (this._scripts) this._scripts.forEach(function (a) {
+                var stack = new d.BlockStack().fromJSON(a, null, amber);
+                editor.add(stack);
+            });
+            editor.fit();
+            return editor;
+        }
+    },
     '.costumes': {},
     '.costumeIndex': {},
-    '.sounds': {},
+    '.sounds': {}
+});
+d.Stage = d.Class(d.Scriptable, {
+    '.children': {},
     '.tempo': {},
     toJSON: function () {
         return {
@@ -877,28 +893,19 @@ d.Stage = d.Class(d.ServerData, {
     },
     fromJSON: function (o) {
         var amber = this.amber;
+        this._scripts = o.scripts;
         this.setChildren(o.children ? o.children.map(function (a) {
             return new d.Sprite(amber).fromJSON(a);
-        }) : []).setScripts(o.scripts ? o.scripts.map(function (a) {
-            var stack = new d.BlockStack().fromJSON(a, null, amber);
-            amber.editor.add(stack);
-            return stack;
         }) : []).setCostumes(o.costumes ? o.costumes.map(function (a) {
             return new d.ImageMedia(amber).fromJSON(a);
         }) : []).setCostumeIndex(o.currentCostumeIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
-        amber.editor.fit();
         return this;
     }
 });
-d.Sprite = d.Class(d.ServerData, {
-    '.id': {},
+d.Sprite = d.Class(d.Scriptable, {
     '.name': {},
-    '.scripts': {},
-    '.costumes': {},
-    '.costumeIndex': {},
-    '.sounds': {},
     '.x': {},
     '.y': {},
     '.direction': {},
@@ -922,11 +929,9 @@ d.Sprite = d.Class(d.ServerData, {
         };
     },
     fromJSON: function (o) {
-        return this.setId(o.id).setName(o.objName).setScripts(o.scripts ? o.scripts.map(function (a) {
-            var stack = new d.BlockStack().fromJSON(a, null, amber);
-            amber.editor.add(stack);
-            return stack;
-        }) : []).setCostumes(o.costumes ? o.costumes.map(function (a) {
+        var amber = this.amber;
+        this._scripts = o.scripts;
+        return this.setId(o.id).setName(o.objName).setCostumes(o.costumes ? o.costumes.map(function (a) {
             return new d.ImageMedia(amber).fromJSON(a);
         }) : []).setCostumeIndex(o.backdropIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
@@ -1004,7 +1009,7 @@ d.Amber = d.Class(d.App, {
         var name, category;
         this.base(arguments, element);
         this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
-        this.add(this.editor = new d.BlockEditor()).
+        this.add(this._editor = new d.BlockEditor()).
             add(this.palette = new d.BlockPalette()).
             add(this.userPanel = new d.UserPanel(this)).
             add(this.spritePanel = new d.SpritePanel(this)).
@@ -1039,6 +1044,17 @@ d.Amber = d.Class(d.App, {
             if (offline) {
                 this.socket = new d.OfflineSocket(this);
             }
+        }
+    },
+    '.editor': {
+        apply: function (editor, old) {
+            this.remove(old);
+            this.add(editor);
+        }
+    },
+    '.project': {
+        apply: function (project) {
+            this.setEditor(project.stage().scripts());
         }
     }
 });
@@ -1417,7 +1433,7 @@ d.Socket = d.Class(d.Base, {
             }.bind(this));
             break;
         case 'project.data':
-            this.amber.currentProject = new d.Project(this.amber).fromJSON(packet.data);
+            this.amber.setProject(new d.Project(this.amber).fromJSON(packet.data));
             break;
         case 'chat.message':
             this.amber.getUserById(packet.user$id, function (user) {
@@ -1851,7 +1867,7 @@ d.BlockStack = d.Class(d.Control, {
         this.initElements('d-block-stack');
     },
     setPosition: function (x, y, callback) {
-        var editor = this.app().editor.element;
+        var editor = this.app().editor().element;
         setTimeout(function () {
             this.element.style.WebkitTransition =
                 this.element.style.MozTransition = 'top .3s ease, left .3s ease';
@@ -1873,10 +1889,10 @@ d.BlockStack = d.Class(d.Control, {
         return this;
     },
     x: function () {
-        return this.element.getBoundingClientRect().left + this.app().editor.element.scrollLeft;
+        return this.element.getBoundingClientRect().left + this.app().editor().element.scrollLeft;
     },
     y: function () {
-        return this.element.getBoundingClientRect().top + this.app().editor.element.scrollTop;
+        return this.element.getBoundingClientRect().top + this.app().editor().element.scrollTop;
     },
     toSerial: function () {
         return [this.x(), this.y(), this.children.map(function (block) {
@@ -1915,7 +1931,7 @@ d.BlockStack = d.Class(d.Control, {
             this.insert(child, next);
         }
         stack.destroy();
-        this.app().editor.fit();
+        this.app().editor().fit();
         return this;
     },
     appendStack: function (stack) {
@@ -1924,7 +1940,7 @@ d.BlockStack = d.Class(d.Control, {
             this.add(child);
         }
         stack.destroy();
-        this.app().editor.fit();
+        this.app().editor().fit();
         return this;
     },
     splitStack: function (top) {
@@ -2012,7 +2028,7 @@ d.BlockStack = d.Class(d.Control, {
                     }
                 }
             }
-            blocks = this.app().editor.children;
+            blocks = this.app().editor().children;
             i = blocks.length;
             while (i--) {
                 blocks[i].children.forEach(function (block) {
@@ -2190,7 +2206,7 @@ d.BlockStack = d.Class(d.Control, {
         }
     },
     embed: function () {
-        var editor = this.app().editor,
+        var editor = this.app().editor(),
             bbe = editor.element.getBoundingClientRect(),
             bbb = this.element.getBoundingClientRect();
         editor.add(this);
@@ -2869,10 +2885,10 @@ d.Block = d.Class(d.Control, {
         return this;
     },
     x: function () {
-        return this.element.getBoundingClientRect().left + this.app().editor.element.scrollLeft;
+        return this.element.getBoundingClientRect().left + this.app().editor().element.scrollLeft;
     },
     y: function () {
-        return this.element.getBoundingClientRect().top + this.app().editor.element.scrollTop;
+        return this.element.getBoundingClientRect().top + this.app().editor().element.scrollTop;
     },
     dragStart: function (e) {
         var app, bb;
@@ -3238,7 +3254,7 @@ d.Block = d.Class(d.Control, {
             stack.element.style.left = bb.left + 20 + 'px';
             stack.element.style.top = bb.top - 20 + 'px';
         }
-        if (amber) amber.editor.fit();
+        if (amber) amber.editor().fit();
     },
     getArgs: function () {
         var values = [],
