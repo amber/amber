@@ -383,6 +383,7 @@ d.App = d.Class(d.Control, {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return true;
             c = e.target.control;
             while (c && !c.acceptsClick) {
+                if (c.selectable) return;
                 c = c.parent;
             }
             if (!c) return;
@@ -399,6 +400,7 @@ d.App = d.Class(d.Control, {
                 c.dispatch('TouchStart', new d.TouchEvent().setMouseEvent(e));
             }
             document.activeElement.blur();
+            e.preventDefault();
         }, true);
         function mousemove(e) {
             if (!mouseDown || !app.mouseDownControl) return true;
@@ -1710,6 +1712,7 @@ d.UserList = d.Class(d.Control, {
     }
 });
 d.Chat = d.Class(d.Control, {
+    selectable: true,
     init: function (amber) {
         this.amber = amber;
         this.base(arguments);
