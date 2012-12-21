@@ -23,6 +23,13 @@ d.toggleClass = function (element, className, on) {
         d.removeClass(element, className);
     }
 };
+d.format = function (format) {
+    var args = arguments,
+        i = 1;
+    return format.replace(/%([1-9]\d*)?/g, function (_, n) {
+        return n ? args[n] : args[i++];
+    });
+};
 d.bbTouch = function (element, e) {
     var bb = element.getBoundingClientRect();
     return e.x + e.radiusX >= bb.left && e.x - e.radiusX <= bb.right &&
@@ -859,7 +866,7 @@ d.Amber = d.Class(d.App, {
         if (!this.locale.hasOwnProperty(id)) {
             console.warn('missing translation key ' + id);
         }
-        return this.locale[id];
+        return arguments.length === 1 ? this.locale[id] : d.format.apply(null, [this.locale[id]].concat([].slice.call(arguments, 1)));
     },
     getUser: function (username, callback) {
         var xhr, me = this;
@@ -1296,7 +1303,7 @@ d.Socket = d.Class(d.Base, {
                 this.amber.remove(this.amber.authentication);
                 break;
             }
-            this.amber.authentication.setMessage(this.amber.t(packet.result || 'authentication.message.generic'));
+            this.amber.authentication.setMessage(packet.result.pop ? this.amber.t.apply(this.amber, packet.result) : this.amber.t(packet.result || 'authentication.message.generic'));
             this.amber.authentication.setEnabled(true);
             this.amber.authentication.passwordField.select();
             break;
