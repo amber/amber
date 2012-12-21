@@ -1915,6 +1915,7 @@ d.BlockStack = d.Class(d.Control, {
             this.insert(child, next);
         }
         stack.destroy();
+        this.app().editor.fit();
         return this;
     },
     appendStack: function (stack) {
@@ -1923,6 +1924,7 @@ d.BlockStack = d.Class(d.Control, {
             this.add(child);
         }
         stack.destroy();
+        this.app().editor.fit();
         return this;
     },
     splitStack: function (top) {
@@ -3228,6 +3230,7 @@ d.Block = d.Class(d.Control, {
     replaceArg: function (oldArg, newArg) {
         var i = this.arguments.indexOf(oldArg),
             bb = oldArg.isBlock && oldArg.element.getBoundingClientRect(),
+            amber = this.app(),
             stack;
         this.replace(oldArg, this.arguments[i] = newArg);
         if (oldArg.isBlock && !oldArg._embedded) {
@@ -3235,6 +3238,7 @@ d.Block = d.Class(d.Control, {
             stack.element.style.left = bb.left + 20 + 'px';
             stack.element.style.top = bb.top - 20 + 'px';
         }
+        if (amber) amber.editor.fit();
     },
     getArgs: function () {
         var values = [],
