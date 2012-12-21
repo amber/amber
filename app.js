@@ -1133,7 +1133,7 @@ d.BlockSpecs = {
 d.BlockSpecBySelector = {
     'setVar:to:': ['vs', 'var'],
     'changeVar:by:': ['vc', 'var', 1],
-    'getVar:': ['v', 'var']
+    'readVariable': ['v', 'var']
 };
 ~function () {
     var name;
@@ -3214,7 +3214,7 @@ d.VariableColors = {
 d.VariableBlock = d.Class(d.ReporterBlock, {
     init: function () {
         this.base(arguments);
-        this.setSpec('%var:inline').setSelector('getVar:');
+        this.setSpec('%var:inline').setSelector('readVariable');
     },
     '.var': {
         get: function () {
