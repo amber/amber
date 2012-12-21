@@ -1119,119 +1119,6 @@ d.BlockSpecBySelector = {
         });
     }
 }();
-d.Selectors = [
-    // Motion
-    'forward:',
-    'turnLeft:',
-    'turnRight:',
-    'pointTowards:',
-    'gotoX:y:',
-    'gotoSpriteOrMouse:',
-    'glideSecs:toX:y:elapsed:from:',
-    'bounceOffEdge',
-
-    // Looks
-    'lookLike:',
-    'nextCostume',
-    'nextBackground',
-    'say:duration:elapsed:from:',
-    'say:',
-    'think:duration:elapsed:from:',
-    'think:',
-    'filterReset',
-    'show',
-    'hide',
-    'comeToFront',
-    'goBackByLayers:',
-
-    // Sound
-    'playSound:',
-    'doPlaySoundAndWait:',
-    'stopAllSounds',
-    'drum:duration:elapsed:from:',
-    'noteOn:duration:elapsed:from:',
-
-    // Pen
-    'clear',
-    'putPenDown',
-    'putPenUp',
-    'stampCostume',
-
-    // Control
-    'whenStartClicked',
-    'whenKeyPressed:',
-    'whenSpriteClicked',
-    'wait:elapsed:from:',
-    'doForever',
-    'doRepeat',
-    'broadcast:',
-    'doBroadcastAndWait',
-    'whenMessageReceived:',
-    'doForeverIf',
-    'doIf',
-    'doIfElse',
-    'doWaitUntil',
-    'doUntil',
-    'doReturn',
-    'stopAll',
-
-    // Sensing
-    'touching:',
-    'touchingColor:',
-    'color:sees:',
-    'doAsk',
-    'keyPressed:',
-    'distanceTo:',
-    'getAttribute:of:',
-    'sensor:',
-    'sensorPressed:',
-
-    // Operators
-    '+',
-    '-',
-    '*',
-    '/',
-    'randomFrom:to:',
-    '<',
-    '=',
-    '>',
-    '&',
-    '|',
-    'not',
-    'concatenate:with:',
-    'letter:of:',
-    'stringLength:',
-    '\\\\',
-    'rounded',
-    'computeFunction:of:',
-
-    // Variables
-    'getVar:',
-    'setVar:to:',
-    'changeVar:by:',
-    'showVariable:',
-    'hideVariable:',
-    'append:toList:',
-    'deleteLine:ofList:',
-    'insert:at:ofList:',
-    'setLine:ofList:to:',
-    'getLine:ofList:',
-    'lineCountOfList:',
-    'list:contains:',
-
-    // Amber
-    'commandClosure',
-    'reporterClosure',
-    'booleanClosure',
-    'true',
-    'false'
-];
-d.BlockSelector = { };
-~function () {
-    d.Selectors.forEach(function (sel, i) {
-        d.BlockSelector[sel] = i;
-    });
-}();
 d.BlockAttachType = {
     'slot$command': 0,
     'slot$replace': 1,
@@ -2630,7 +2517,7 @@ d.Block = d.Class(d.Control, {
         if (this.selector() === 'cClosure') {
             return this.arguments[0].toSerial();
         }
-        return [this._id, d.BlockSelector[this.selector()]].concat(this.arguments.map(function (a) {
+        return [this._id, this.selector()].concat(this.arguments.map(function (a) {
             return a.toSerial();
         }));
     },
@@ -3078,7 +2965,7 @@ d.Block = d.Class(d.Control, {
     }
 }, {
     fromSerial: function (a, tracker, amber) {
-        var selector = d.Selectors[a[1]],
+        var selector = a[1],
             spec = d.BlockSpecBySelector[selector],
             block = d.Block.fromSpec(spec);
         block.setId(a[0]);
