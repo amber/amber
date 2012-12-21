@@ -841,7 +841,7 @@ d.Stage = d.Class(d.ServerData, {
     }
 });
 
-d.currentLocale = 'en-US';
+d.currentLocale = 'en-PT';
 d.t = function (id) {
     var locale = d.locale[d.currentLocale],
         result;
@@ -2818,7 +2818,7 @@ d.Block = d.Class(d.Control, {
 
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
-        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen shade'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen lightness'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
@@ -3212,7 +3212,7 @@ d.VariableColors = {
     'pen down?': 'pen',
     'pen color': 'pen',
     'pen hue': 'pen',
-    'pen shade': 'pen',
+    'pen lightness': 'pen',
     'pen size': 'pen',
     'answer': 'sensing',
     'mouse x': 'sensing',
@@ -3328,7 +3328,7 @@ d.SetterBlock = d.Class(d.CommandBlock, {
                 return this.argFromSpec('b');
             case 'pen color':
                 return this.argFromSpec('color');
-            case 'pen shade':
+            case 'pen lightness':
                 return this.argFromSpec('f').setValue(50);
             case 'pen size':
                 return this.argFromSpec('f').setValue(1);
