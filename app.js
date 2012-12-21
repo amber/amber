@@ -1729,6 +1729,7 @@ d.UserList = d.Class(d.Control, {
 });
 d.Chat = d.Class(d.Control, {
     selectable: true,
+    notificationCount: 0,
     init: function (amber) {
         this.amber = amber;
         this.base(arguments);
@@ -1750,11 +1751,26 @@ d.Chat = d.Class(d.Control, {
         }
     },
     focus: function () {
+        this.removeNotification();
         this.input.focus();
         this.autoscroll();
     },
     autoscroll: function () {
         this.contents.scrollTop = this.contents.scrollHeight;
+    },
+    notify: function () {
+        if (!this.notification) {
+            this.notification = this.newElement('d-chat-notification');
+            this.amber.userPanel.element.appendChild(this.notification);
+        }
+        this.notification.textContent = ++this.notificationCount;
+    },
+    removeNotification: function () {
+        if (this.notification) {
+            this.amber.userPanel.element.removeChild(this.notification);
+            this.notification = undefined;
+            this.notificationCount = 0;
+        }
     },
     showMessage: function (user, chat) {
         var line = this.newElement('d-chat-line'),
@@ -1769,6 +1785,9 @@ d.Chat = d.Class(d.Control, {
         line.appendChild(message);
         this.contents.appendChild(line);
         this.autoscroll();
+        if (this.amber.userPanel.collapsed) {
+            this.notify();
+        }
     }
 });
 d.SpritePanel = d.Class(d.Control, {
