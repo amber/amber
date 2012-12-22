@@ -616,6 +616,14 @@
     box-shadow: 0 1px rgb(18%, 18%, 18%);
     -webkit-transition: height .3s;
 }
+.d-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    -webkit-transform-origin: center center;
+}
 .d-stage,
 .d-sprite-list {
     position: absolute;
