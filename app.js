@@ -968,6 +968,30 @@ d.Scriptable = d.Class(d.ServerData, {
             return this._costumes[this._costumeIndex];
         }
     },
+    variable: function (name) {
+        return this._variables[name];
+    },
+    variables: function () {
+        var array = [], name;
+        for (name in this._variables) if (this._variables.hasOwnProperty(name)) {
+            array.push(this._variables[name]);
+        }
+        return array;
+    },
+    variableNames: function () {
+        var array = [], name;
+        for (name in this._variables) if (this._variables.hasOwnProperty(name)) {
+            array.push(name);
+        }
+        return array;
+    },
+    loadVariables: function (variables) {
+        var o = this._variables = {};
+        if (variables) variables.forEach(function (variable) {
+            o[variable.name] = new d.Variable().fromJSON(variable);
+        });
+        return this;
+    },
     loadCostumes: function (costumes) {
         if (costumes) this.setCostumes(costumes.map(function (a, i) {
             var image = new d.ImageMedia(this.amber).fromJSON(a);
@@ -981,7 +1005,21 @@ d.Scriptable = d.Class(d.ServerData, {
         return this;
     }
 });
+d.Variable = d.Class(d.ServerData, {
+    '.name': {},
+    '.value': {},
+    toJSON: function () {
+        return {
+            name: this._name,
+            value: this._value
+        };
+    },
+    fromJSON: function (o) {
+        return this.setName(o.name).setValue(o.value);
+    }
+});
 d.Stage = d.Class(d.Scriptable, {
+    isStage: true,
     '.children': {},
     '.tempo': {},
     toJSON: function () {
@@ -992,15 +1030,17 @@ d.Stage = d.Class(d.Scriptable, {
             costumes: this._costumes,
             currentCostumeIndex: this._costumeIndex,
             sounds: this._sounds,
-            tempo: this._tempo
+            tempo: this._tempo,
+            variables: this.variables()
         };
     },
     fromJSON: function (o) {
-        var amber = this.amber;
+        var t = this,
+            amber = this.amber;
         this._scripts = o.scripts;
-        this.setCostumeIndex(o.currentCostumeIndex).setChildren(o.children ? o.children.map(function (a) {
-            return new d.Sprite(amber).fromJSON(a);
-        }) : []).loadCostumes(o.costumes).setSounds(o.sounds ? o.sounds.map(function (a) {
+        this.loadCostumes(o.costumes).loadVariables(o.variables).setCostumeIndex(o.currentCostumeIndex).setChildren(o.children ? o.children.map(function (a) {
+            return new d.Sprite(amber).setStage(t).fromJSON(a);
+        }) : []).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
         amber.spriteList.addIcon(this);
@@ -1016,6 +1056,7 @@ d.Sprite = d.Class(d.Scriptable, {
     '.volume': {},
     '.size': {},
     '.visible': {},
+    '.stage': {},
     toJSON: function () {
         return {
             id: this._id,
@@ -1028,13 +1069,14 @@ d.Sprite = d.Class(d.Scriptable, {
             scratchY: this._y,
             direction: this._direction,
             rotationStyle: this._rotationStyle,
-            volume: this._volume
+            volume: this._volume,
+            variables: this.variables()
         };
     },
     fromJSON: function (o) {
         var amber = this.amber;
         this._scripts = o.scripts;
-        this.setId(o.id).setName(o.objName).setCostumeIndex(o.currentCostumeIndex).loadCostumes(o.costumes).setSounds(o.sounds ? o.sounds.map(function (a) {
+        this.setId(o.id).setName(o.objName).setCostumeIndex(o.currentCostumeIndex).loadCostumes(o.costumes).loadVariables(o.variables).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setX(o.scratchX).setY(o.scratchY).setDirection(o.direction).setRotationStyle(o.rotationStyle).setVolume(o.volume).setSize(o.scale).setVisible(o.visible);
         amber.spriteList.addIcon(this);
@@ -1057,7 +1099,7 @@ d.t = function (id) {
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
 };
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.1.1',
+    PROTOCOL_VERSION: '1.1.2',
 
     init: function () {
         this.base(arguments);
@@ -1175,6 +1217,7 @@ d.Amber = d.Class(d.App, {
         }
     },
     selectSprite: function (object) {
+        this.selectedSprite = object;
         this.spriteList.select(object);
     },
     '.project': {
@@ -2011,7 +2054,7 @@ d.SpriteIcon = d.Class(d.Control, {
         this.element.appendChild(this.image = this.newElement('d-sprite-icon-image', 'canvas'));
         this.element.appendChild(this.label = this.newElement('d-sprite-icon-label'));
         this.onTouchStart(function () {
-            amber.spriteList.select(this.object);
+            amber.selectSprite(this.object);
         });
         this.updateLabel();
         object.onCostumeChange(this.updateImage, this);
@@ -3251,7 +3294,28 @@ d.Block = d.Class(d.Control, {
 
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
-        case 'var': return new d.arg.Var().setItems([{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen lightness'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator, {$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'}, d.Menu.separator, 'var', 'a', 'b', 'c', d.Menu.separator, 'global', 'counter']);
+        case 'var': return new d.arg.Var().setItems(function () {
+                var object = this.app().selectedSprite,
+                    result = [],
+                    vars;
+                if (!object.isStage) {
+                    result.push({$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'layer'}, {$:'instrument'}, {$:'volume'}, {$:'pen down?'}, {$:'pen color'}, {$:'pen hue'}, {$:'pen lightness'}, {$:'pen size'}, d.Menu.separator, {$:'color effect'}, {$:'fisheye effect'}, {$:'whirl effect'}, {$:'pixelate effect'}, {$:'mosaic effect'}, {$:'brightness effect'}, {$:'ghost effect'}, d.Menu.separator);
+                }
+                result.push({$:'tempo'}, {$:'answer'}, {$:'timer'}, {$:'backdrop name'});
+                vars = object.variableNames();
+                if (vars.length) {
+                    result.push(d.Menu.separator);
+                    result.push.apply(result, vars);
+                }
+                if (!object.isStage) {
+                    vars = object.stage().variableNames();
+                    if (vars.length) {
+                        result.push(d.Menu.separator);
+                        result.push.apply(result, vars);
+                    }
+                }
+                return result
+            });
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
