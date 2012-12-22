@@ -24,9 +24,10 @@
 }
 
 .d-app ::-webkit-scrollbar {
-    background: transparent;
+    background: #555;
     width: 5px;
     height: 5px;
+    border-radius: 7px;
 }
 .d-app ::-webkit-scrollbar-thumb {
     border-radius: 7px;
@@ -402,14 +403,15 @@
 .d-chat {
     top: 50%;
     bottom: 0;
-    box-shadow: inset 0 1px rgba(0, 0, 0, .16);
+    margin-top: 1px;
+    box-shadow: 0 -1px rgba(0, 0, 0, .16);
 }
 .d-user-list .d-panel-contents {
     overflow: visible;
 }
 .d-collapse-user-panel .d-chat {
     top: 100%;
-    box-shadow: inset 0 1px transparent;
+    box-shadow: 0 -1px transparent;
 }
 .d-collapse-user-panel .d-user-list {
     bottom: 0;
