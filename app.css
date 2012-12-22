@@ -113,7 +113,7 @@
         0 0 0 3px rgba(20%, 80%, 100%, .8);
 }
 .d-authentication-button:active,
-.d-authentication-button:disabled {
+.d-authentication-sign-in-button:disabled {
     color: #000;
     background: -webkit-linear-gradient(#aaa, #bbb);
     background: -moz-linear-gradient(#aaa, #bbb);

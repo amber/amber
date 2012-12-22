@@ -360,7 +360,7 @@ d.App = d.Class(d.Control, {
             var t = e.target;
             if (t.nodeType === 3) t = t.parentNode;
             if (shouldStartDrag) {
-                t.control.dispatch('DragStart', new d.TouchEvent().setMouseEvent(e));
+                t.control.dispatchTouchEvents('DragStart', e);
                 shouldStartDrag = false;
             }
             t.control.dispatchTouchEvents('TouchMove', e);
@@ -747,6 +747,88 @@ d.MenuSeparator = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
         this.initElements('d-menu-separator');
+    }
+});
+
+d.FormControl = d.Class(d.Control, {
+    focus: function () {
+        this.element.focus();
+        return this;
+    },
+    blur: function () {
+        this.element.blur();
+        return this;
+    },
+    '.enabled': {
+        get: function () {
+            return !this.element.disabled;
+        },
+        set: function (enabled) {
+            this.element.disabled = !enabled;
+        }
+    }
+});
+d.TextField = d.Class(d.FormControl, {
+    '@Input': {},
+    '@KeyDown': {},
+    init: function (className) {
+        this.base(arguments);
+        this.element = this.newElement(className, 'input');
+        this.element.addEventListener('input', function (e) {
+            this.dispatch('Input', new d.ControlEvent().setControl(this));
+        }.bind(this));
+        this.element.addEventListener('keydown', function (e) {
+            this.dispatch('KeyDown', new d.ControlEvent().setControl(this).withProperties({
+                keyCode: e.keyCode
+            }));
+        }.bind(this));
+    },
+    select: function () {
+        this.element.select();
+        return this;
+    },
+    '.text': {
+        get: function () {
+            return this.element.value;
+        },
+        set: function (text) {
+            this.element.value = text;
+        }
+    },
+    '.placeholder': {
+        get: function () {
+            return this.element.placeholder;
+        },
+        set: function (placeholder) {
+            this.element.placeholder = placeholder;
+        }
+    }
+});
+d.TextField.Password = d.Class(d.TextField, {
+    init: function (className) {
+        this.base(arguments, className);
+        this.element.type = 'password';
+    }
+});
+d.Button = d.Class(d.FormControl, {
+    acceptsClick: true,
+    '@Execute': {},
+    init: function (className) {
+        this.base(arguments);
+        this.element = this.newElement(className, 'button');
+        this.onTouchEnd(function (e) {
+            if (d.inBB(e, this.element.getBoundingClientRect())) {
+                this.dispatch('Execute', new d.ControlEvent().setControl(this));
+            }
+        });
+    },
+    '.text': {
+        get: function () {
+            return this.element.textContent;
+        },
+        set: function (text) {
+            this.element.textContent = text;
+        }
     }
 });
 
@@ -1601,43 +1683,37 @@ d.AuthenticationPanel = d.Class(d.Control, {
 
         this.initElements('d-authentication-panel');
         this.element.appendChild(this.serverSelect = this.newElement('d-authentication-server-select', 'select'));
-        this.element.appendChild(this.serverField = this.newElement('d-authentication-input d-authentication-server', 'input'));
-        this.element.appendChild(this.usernameField = this.newElement('d-authentication-input', 'input'));
-        this.element.appendChild(this.passwordField = this.newElement('d-authentication-input', 'input'));
-        this.element.appendChild(this.signInButton = this.newElement('d-authentication-button', 'input'));
-        this.element.appendChild(this.registerButton = this.newElement('d-authentication-button', 'input'));
-        this.element.appendChild(this.offlineButton = this.newElement('d-authentication-button', 'input'));
+        this.add(this.serverField = new d.TextField('d-authentication-input d-authentication-server')
+            .setPlaceholder(d.t('Server'))
+            .onInput(this.serverInput, this)
+            .setText((savedServer =
+                localStorage.getItem('d.authentication-panel.server')) ? savedServer :
+                'ws://mpblocks.cloudno.de/:9182'));
+        this.add(this.usernameField = new d.TextField('d-authentication-input')
+            .setPlaceholder(d.t('Scratch Username'))
+            .onInput(this.userInput, this));
+        this.add(this.passwordField = new d.TextField.Password('d-authentication-input')
+            .setPlaceholder(d.t('Password'))
+            .onKeyDown(this.passwordKeyDown, this));
+        this.add(this.signInButton = new d.Button('d-authentication-button d-authentication-sign-in-button')
+            .setText(d.t('Sign In'))
+            .onExecute(this.submit, this));
+        this.add(this.registerButton = new d.Button('d-authentication-button')
+            .setText(d.t('Register'))
+            .onExecute(this.register, this));
+        this.add(this.offlineButton = new d.Button('d-authentication-button')
+            .setText(d.t('Offline'))
+            .onExecute(this.offlineMode, this));
         this.element.appendChild(this.messageField = this.newElement('d-authentication-message'));
 
-        this.serverField.placeholder = d.t('Server');
-        this.serverField.oninput = this.serverInput.bind(this);
-        this.serverField.value = (savedServer = localStorage.getItem('d.authentication-panel.server')) ? savedServer : 'ws://mpblocks.cloudno.de/:9182';
         this.serverSelect.onchange = this.serverChange.bind(this);
         this.serverSelect.onmousedown = this.serverClick.bind(this);
         this.updateServerSelect();
 
-        this.usernameField.placeholder = d.t('Scratch Username');
-        this.usernameField.oninput = this.userInput.bind(this);
         if (savedUsername = localStorage.getItem('d.authentication-panel.username')) {
-            this.usernameField.value = savedUsername;
+            this.usernameField.setText(savedUsername);
             this.hasSavedUsername = true;
         }
-
-        this.passwordField.type = 'password';
-        this.passwordField.onkeydown = this.passwordKeyDown.bind(this);
-        this.passwordField.placeholder = d.t('Password');
-
-        this.signInButton.onclick = this.submit.bind(this);
-        this.signInButton.value = d.t('Sign In');
-        this.signInButton.type = 'button';
-
-        this.registerButton.onclick = this.register.bind(this);
-        this.registerButton.value = d.t('Register');
-        this.registerButton.type = 'button';
-
-        this.offlineButton.onclick = this.offlineMode.bind(this);
-        this.offlineButton.value = d.t('Offline');
-        this.offlineButton.type = 'button';
     },
     register: function () {
         window.open('http://scratch.mit.edu/signup');
@@ -1647,37 +1723,38 @@ d.AuthenticationPanel = d.Class(d.Control, {
         this.send();
     },
     submit: function () {
-        this.savedServers[this.serverField.value] = 1;
+        this.savedServers[this.serverField.text()] = 1;
         localStorage.setItem('d.authentication-panel.servers', JSON.stringify(this.savedServers));
         this.setEnabled(false);
-        this.amber.createSocket(this.serverField.value, this.send.bind(this));
+        this.amber.createSocket(this.serverField.text(), this.send.bind(this));
     },
     send: function () {
         this.amber.socket.send({
             $: 'user.login',
             version: this.amber.PROTOCOL_VERSION,
-            username: this.usernameField.value,
-            password: this.passwordField.value
+            username: this.usernameField.text(),
+            password: this.passwordField.text()
         });
     },
     '.enabled': {
         value: true,
         apply: function (enabled) {
-            this.serverSelect.disabled =
-                this.serverField.disabled =
-                this.usernameField.disabled = 
-                this.passwordField.disabled =
-                this.signInButton.disabled = !enabled;
+            this.serverSelect.disabled = !enabled;
+            this.serverField.setEnabled(enabled);
+            this.usernameField.setEnabled(enabled);
+            this.passwordField.setEnabled(enabled);
+            this.signInButton.setEnabled(enabled);
+            this.offlineButton.setEnabled(enabled);
         }
     },
     shown: function () {
         return !!this.parent;
     },
     userInput: function () {
-        localStorage.setItem('d.authentication-panel.username', this.usernameField.value);
+        localStorage.setItem('d.authentication-panel.username', this.usernameField.text());
     },
     serverInput: function () {
-        localStorage.setItem('d.authentication-panel.server', this.serverField.value);
+        localStorage.setItem('d.authentication-panel.server', this.serverField.text());
     },
     updateServerSelect: function () {
         var i, servers, server;
