@@ -636,6 +636,64 @@
 .d-collapse-sprite-panel .d-sprite-list .d-panel-title-label {
     opacity: 0;
 }
+.d-sprite-list .d-panel-contents {
+    padding: 6px 0 0 6px;
+    -webkit-transition: padding .3s;
+}
+.d-sprite-icon {
+    padding: 6px;
+    margin: 0 6px 6px 0;
+    width: 59px;
+    height: 79px;
+    display: inline-block;
+    -webkit-transition: border-radius .3s, margin .3s, height .3s, width .3s;
+    cursor: pointer;
+    border-radius: 3px;
+    vertical-align: top;
+}
+.d-sprite-icon:hover {
+    background: rgb(27%, 27%, 27%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+}
+.d-sprite-icon-selected,
+.d-sprite-icon-selected:hover {
+    background: rgb(31%, 31%, 31%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+}
+.d-sprite-icon-image {
+    width: 59px;
+    height: 59px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+    -webkit-transition: height .3s, width .3s;
+}
+.d-sprite-icon-label {
+    font: 11px/12px sans-serif;
+    height: 12px;
+    padding: 8px 0 0;
+    color: #eee;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    -webkit-transition: opacity .3s, height .3s, padding .3s;
+}
+.d-collapse-sprite-panel .d-sprite-list .d-panel-contents {
+    padding: 0;
+}
+.d-collapse-sprite-panel .d-sprite-icon {
+    border-radius: 0;
+    margin: 0;
+}
+.d-collapse-sprite-panel .d-sprite-icon,
+.d-collapse-sprite-panel .d-sprite-icon-image {
+    width: 30px;
+    height: 30px;
+}
+.d-collapse-sprite-panel .d-sprite-icon-label {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+}
 
 .d-block-stack {
     position: absolute;

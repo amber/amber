@@ -915,7 +915,7 @@ d.Sprite = d.Class(d.Scriptable, {
     toJSON: function () {
         return {
             id: this._id,
-            name: this._name,
+            objName: this._name,
             scripts: this._scripts,
             costumes: this._costumes,
             costumeIndex: this._costumeIndex,
@@ -930,11 +930,13 @@ d.Sprite = d.Class(d.Scriptable, {
     fromJSON: function (o) {
         var amber = this.amber;
         this._scripts = o.scripts;
-        return this.setId(o.id).setName(o.objName).setCostumes(o.costumes ? o.costumes.map(function (a) {
+        this.setId(o.id).setName(o.objName).setCostumes(o.costumes ? o.costumes.map(function (a) {
             return new d.ImageMedia(amber).fromJSON(a);
         }) : []).setCostumeIndex(o.backdropIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setX(o.scratchX).setY(o.scratchY).setDirection(o.direction).setRotationStyle(o.rotationStyle).setVolume(o.volume).setSize(o.scale).setVisible(o.visible);
+        amber.spriteList.addIcon(this);
+        return this;
     }
 });
 
@@ -1070,9 +1072,13 @@ d.Amber = d.Class(d.App, {
             editor.fit();
         }
     },
+    selectSprite: function (object) {
+        this.spriteList.select(object);
+    },
     '.project': {
         apply: function (project) {
-            this.setEditor(project.stage().scripts());
+            var stage = project.stage();
+            this.selectSprite(stage.children()[0] || stage);
         }
     }
 });
@@ -1429,8 +1435,6 @@ d.Socket = d.Class(d.Base, {
         case 'user.login':
             if (packet.success) {
                 this.amber.userList.addUser(this.amber.currentUser = new d.User(this.amber).fromJSON(packet.result));
-                this.amber.setLightboxEnabled(false);
-                this.amber.remove(this.amber.authentication);
                 break;
             }
             this.amber.authentication.setMessage(packet.result.pop ? d.t.apply(this.amber, packet.result) : d.t(packet.result || 'Sign in failed.'));
@@ -1460,6 +1464,8 @@ d.Socket = d.Class(d.Base, {
             break;
         case 'chat.history':
             this.amber.chat.addItems(packet.history);
+            this.amber.setLightboxEnabled(false);
+            this.amber.remove(this.amber.authentication);
             break;
         default:
             console.warn('missed packet', packet);
@@ -1820,6 +1826,8 @@ d.Chat = d.Class(d.Control, {
                     t.contents.appendChild(line);
                     next();
                 });
+            } else {
+                t.autoscroll();
             }
         }
         next();
@@ -1879,10 +1887,43 @@ d.SpriteList = d.Class(d.Control, {
         this.amber = amber;
         this.base(arguments);
         this.initElements('d-sprite-list');
+        this.element.appendChild(this.container = this.newElement('d-panel-contents'));
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
         // this.title.appendChild(this.titleShadow = this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
         this.titleLabel.textContent = d.t('Sprites');
+        this.icons = {};
+    },
+    addIcon: function (object) {
+        return this.add(this.icons[object.id()] = new d.SpriteIcon(this.amber, object));
+    },
+    select: function (object) {
+        if (this.selectedIcon) this.selectedIcon.deselect();
+        (this.selectedIcon = this.icons[object.id()]).select();
+    }
+});
+d.SpriteIcon = d.Class(d.Control, {
+    acceptsClick: true,
+    init: function (amber, object) {
+        this.amber = amber;
+        this.object = object;
+        this.initElements('d-sprite-icon');
+        this.element.appendChild(this.image = this.newElement('d-sprite-icon-image'));
+        this.element.appendChild(this.label = this.newElement('d-sprite-icon-label'));
+        this.onTouchStart(function () {
+            amber.spriteList.select(this.object);
+        });
+        this.updateLabel();
+    },
+    updateLabel: function () {
+        this.label.textContent = this.object.name ? this.object.name() : d.t('Stage');
+    },
+    select: function () {
+        this.amber.setEditor(this.object.scripts());
+        d.addClass(this.element, 'd-sprite-icon-selected');
+    },
+    deselect: function () {
+        d.removeClass(this.element, 'd-sprite-icon-selected');
     }
 });
 d.BlockEditor = d.Class(d.Control, {
