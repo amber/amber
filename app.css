@@ -407,7 +407,7 @@
     box-shadow: 0 -1px rgba(0, 0, 0, .16);
 }
 .d-user-list .d-panel-contents {
-    overflow: visible;
+    
 }
 .d-collapse-user-panel .d-chat {
     top: 100%;
@@ -423,10 +423,12 @@
     opacity: 0;
 }
 .d-user-list .d-panel-contents {
-    -webkit-transition: padding .3s;
+    width: 200px;
+    -webkit-transition: padding .3s, width .3s;
 }
 .d-collapse-user-panel .d-user-list .d-panel-contents {
     padding: 3px 0;
+    width: 47px;
 }
 .d-user-panel .d-panel-title-label {
     -webkit-transition: opacity .3s;
@@ -640,7 +642,8 @@
 }
 .d-sprite-list .d-panel-contents {
     padding: 6px 0 0 6px;
-    -webkit-transition: padding .3s;
+    width: 474px;
+    -webkit-transition: padding .3s, width .3s ease;
 }
 .d-sprite-icon {
     padding: 6px;
@@ -681,6 +684,7 @@
 }
 .d-collapse-sprite-panel .d-sprite-list .d-panel-contents {
     padding: 0;
+    width: 47px;
 }
 .d-collapse-sprite-panel .d-sprite-icon {
     border-radius: 0;
@@ -760,7 +764,7 @@
 
 .d-block-feedback {
     position: fixed;
-    z-index: 3;
+    z-index: 2;
     display: none;
     background: rgba(255, 255, 255, .3);
     border: 2px solid #fff;
