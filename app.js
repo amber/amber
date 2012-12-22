@@ -1822,6 +1822,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
             this.usernameField.setEnabled(enabled);
             this.passwordField.setEnabled(enabled);
             this.signInButton.setEnabled(enabled);
+            this.registerButton.setEnabled(enabled);
             this.offlineButton.setEnabled(enabled);
         }
     },
