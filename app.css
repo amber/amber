@@ -705,6 +705,9 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+.d-block-stack-dragging {
+    z-index: 2;
+}
 
 .d-block {
     position: relative;

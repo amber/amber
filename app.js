@@ -869,7 +869,6 @@ d.Scriptable = d.Class(d.ServerData, {
                 var stack = new d.BlockStack().fromJSON(a, null, amber);
                 editor.add(stack);
             });
-            editor.fit();
             return editor;
         }
     },
@@ -1068,6 +1067,7 @@ d.Amber = d.Class(d.App, {
         apply: function (editor, old) {
             this.remove(old);
             this.add(editor);
+            editor.fit();
         }
     },
     '.project': {
@@ -1458,6 +1458,9 @@ d.Socket = d.Class(d.Base, {
                 this.chat.showMessage(user, packet.message);
             }.bind(this.amber));
             break;
+        case 'chat.history':
+            this.chat.addItems(packet.history);
+            break;
         default:
             console.warn('missed packet', packet);
             break;
@@ -1806,7 +1809,20 @@ d.Chat = d.Class(d.Control, {
             this.notificationCount = 0;
         }
     },
-    showMessage: function (user, chat) {
+    addItems: function (history) {
+        var i = 0,
+            t = this;
+        function next() {
+            var item = history[i++];
+            t.amber.getUserById(item[0], function (user) {
+                var line = this.createLine(user, item[1]);
+                this.contents.appendChild(line);
+                next();
+            });
+        }
+        next();
+    },
+    createLine: function (user, chat) {
         var line = this.newElement('d-chat-line'),
             username = this.newElement('d-chat-username'),
             hidden = this.newElement('d-chat-line-hidden'),
@@ -1817,6 +1833,10 @@ d.Chat = d.Class(d.Control, {
         line.appendChild(username);
         line.appendChild(hidden);
         line.appendChild(message);
+        return line;
+    },
+    showMessage: function (user, chat) {
+        var line = this.createLine(user, chat);
         this.contents.appendChild(line);
         this.autoscroll();
         if (this.amber.userPanel.collapsed) {
@@ -2186,6 +2206,7 @@ d.BlockStack = d.Class(d.Control, {
                         block$id: this.id()
                     };
                 });
+                this.app().editor().fit();
                 this.destroy();
                 return;
             }
