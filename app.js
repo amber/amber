@@ -3319,9 +3319,42 @@ d.Block = d.Class(d.Control, {
         case 'var:inline': return this.argFromSpec('var').setInline(true);
         case 'var:template': return new d.arg.Label();
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
-        case 'sprite': return new d.arg.Enum().setItems([{$:'mouse'}, d.Menu.separator, 'Sprite1', 'Sprite2']);
-        case 'object': return new d.arg.Enum().setItems(['Stage', d.Menu.separator, 'Sprite1', 'Sprite2']).setValue('Sprite1');
-        case 'clonable': return new d.arg.Enum().setItems([{$:'myself'}, d.Menu.separator, 'Sprite1', 'Sprite2']);
+        case 'sprite': return new d.arg.Enum().setItems(function () {
+                var result = [{$:'mouse'}],
+                    stage = this.app().project().stage(),
+                    children = stage.children();
+                if (children.length) {
+                    result.push(d.Menu.separator);
+                    children.forEach(function (child) {
+                        result.push(child.name());
+                    });
+                }
+                return result;
+            }).setValue({$:'mouse'});
+        case 'object': return new d.arg.Enum().setItems(function () {
+                var result = [{$:'Stage'}],
+                    stage = this.app().project().stage(),
+                    children = stage.children();
+                if (children.length) {
+                    result.push(d.Menu.separator);
+                    children.forEach(function (child) {
+                        result.push(child.name());
+                    });
+                }
+                return result;
+            }).setValue({$:'Stage'});
+        case 'clonable': return new d.arg.Enum().setItems(function () {
+                var result = [{$:'myself'}],
+                    stage = this.app().project().stage(),
+                    children = stage.children();
+                if (children.length) {
+                    result.push(d.Menu.separator);
+                    children.forEach(function (child) {
+                        result.push(child.name());
+                    });
+                }
+                return result;
+            }).setValue({$:'myself'});
         case 'attribute': return (arg = new d.arg.Enum()).setItems(function () {
             return arg.parent.arguments[1].text() === 'Stage' ? [{$:'backdrop #'}, {$:'volume'}, d.Menu.separator, 'global', 'counter'] : [{$:'x position'}, {$:'y position'}, {$:'direction'}, {$:'rotation style'}, {$:'costume #'}, {$:'size'}, {$:'volume'}, d.Menu.separator, 'var', 'a', 'b', 'c'];
         }).setValue({$: 'x position'});
