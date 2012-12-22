@@ -1198,6 +1198,7 @@ d.Amber = d.Class(d.App, {
             add(this.userPanel = new d.UserPanel(this)).
             add(this.spritePanel = new d.SpritePanel(this)).
             add(this.authentication = new d.AuthenticationPanel(this)).
+            add(this.tabs = new d.TabBar(this)).
             setLightboxEnabled(true);
         this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
         this.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
@@ -2058,15 +2059,15 @@ d.StageView = d.Class(d.Control, {
         this.base(arguments);
         this.initElements('d-stage');
     },
-    updateBackdrop: function () {
+    createBackdrop: function () {
         var image = this._model.filteredImage();
-        if (this.image) this.element.removeChild(this.image);
-        this.element.insertBefore(this.image = image, this.element.firstChild);
+        image.control = this;
+        this.element.appendChild(this.image = image, this.element.firstChild);
     },
     '.model': {
         apply: function (model) {
             this.element.innerHTML = '';
-            this.updateBackdrop();
+            this.createBackdrop();
             model.children().forEach(function (sprite) {
                 this.add(new d.SpriteView(this.amber).setModel(sprite));
             }, this);
@@ -2081,8 +2082,8 @@ d.SpriteView = d.Class(d.Control, {
     },
     createCostume: function () {
         var image = this._model.filteredImage();
-        if (this.image) this.element.removeChild(this.image);
-        this.element.insertBefore(this.image = image, this.element.firstChild);
+        image.control = this;
+        this.element.appendChild(this.image = image, this.element.firstChild);
     },
     updateCostume: function () {
         var costume = this._model.currentCostume();
@@ -2161,6 +2162,21 @@ d.SpriteIcon = d.Class(d.Control, {
     },
     deselect: function () {
         d.removeClass(this.element, 'd-sprite-icon-selected');
+    }
+});
+d.TabBar = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-tab-bar');
+        this.add(this.scriptsTab = new d.Button('d-tab d-tab-selected').setText(d.t('Scripts')));
+        this.add(this.costumesTab = new d.Button('d-tab').setText(d.t('Costumes')));
+        this.add(this.soundsTab = new d.Button('d-tab').setText(d.t('Sounds')));
+        this.selectedIndex = 0;
+    },
+    select: function (i) {
+        d.removeClass(this.children[this.selectedIndex], 'd-tab-selected');
+        d.addClass(this.children[this.selectedIndex = i], 'd-tab-selected');
     }
 });
 d.BlockEditor = d.Class(d.Control, {
