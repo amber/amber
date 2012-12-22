@@ -3965,7 +3965,7 @@ d.SetterBlock = d.Class(d.CommandBlock, {
             case 'rotation style':
                 return this.argFromSpec('rotationStyle');
             }
-            if (variable.$.substr(variable.length - 7) === ' effect') {
+            if (variable.$.substr(variable.$.length - 7) === ' effect') {
                 return this.argFromSpec('f').setValue(0);
             }
         }
