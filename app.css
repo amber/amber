@@ -668,13 +668,14 @@
 .d-sprite-icon-image {
     width: 59px;
     height: 59px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
+    background: rgba(0, 0, 0, .2);
     -webkit-transition: height .3s, width .3s;
 }
 .d-sprite-icon-label {
     font: 11px/12px sans-serif;
     height: 12px;
-    padding: 8px 0 0;
+    padding: 4px 0;
     color: #eee;
     overflow: hidden;
     white-space: nowrap;

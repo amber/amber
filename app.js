@@ -110,7 +110,44 @@ d.Base = d.Class(null, {
     init: function () {},
     base: function (args) {
         return args.callee.base.apply(this, [].slice.call(arguments, 1));
-    }
+    },
+    listen: function (name, handler, context) {
+        var key = '$listeners_' + name;
+        (this[key] || (this[key] = [])).push({
+            listener: handler,
+            context: context || this
+        });
+        return this;
+    },
+    unlisten: function (name, handler) {
+        var a = this[key = '$listeners_' + name],
+            i;
+        if (!a) return this;
+        
+        i = a.length;
+        while (i--) {
+            if (a[i].listener === handler) {
+                a.splice(i, 1);
+                break;
+            }
+        }
+        return this;
+    },
+    listeners: function (name) {
+        return this['$listeners_' + name] || [];
+    },
+    dispatch: function (name, event) {
+        var a = this[key = '$listeners_' + name],
+            listener, i;
+        if (!a) return this;
+        
+        i = a.length;
+        while (i--) {
+            listener = a[i];
+            listener.listener.call(listener.context, event);
+        }
+        return this;
+    },
 });
 d.Event = d.Class(d.Base, {
     setEvent: function (e) {
@@ -239,43 +276,6 @@ d.Control = d.Class(d.Base, {
             if (ch.hasChild(child)) return true;
         }
         return false;
-    },
-    listen: function (name, handler, context) {
-        var key = '$listeners_' + name;
-        (this[key] || (this[key] = [])).push({
-            listener: handler,
-            context: context || this
-        });
-        return this;
-    },
-    unlisten: function (name, handler) {
-        var a = this[key = '$listeners_' + name],
-            i;
-        if (!a) return this;
-        
-        i = a.length;
-        while (i--) {
-            if (a[i].listener === handler) {
-                a.splice(i, 1);
-                break;
-            }
-        }
-        return this;
-    },
-    listeners: function (name) {
-        return this['$listeners_' + name] || [];
-    },
-    dispatch: function (name, event) {
-        var a = this[key = '$listeners_' + name],
-            listener, i;
-        if (!a) return this;
-        
-        i = a.length;
-        while (i--) {
-            listener = a[i];
-            listener.listener.call(listener.context, event);
-        }
-        return this;
     },
     dispatchTouchEvents: function (type, e) {
         var touches = e.changedTouches,
@@ -828,6 +828,7 @@ d.ImageMedia = d.Class(d.ServerData, {
     '.name': {},
     '.image': {},
     '.text': {},
+    '@ImageLoad': {},
     toJSON: function (o) {
         var result = {
                 id: this._id,
@@ -844,9 +845,13 @@ d.ImageMedia = d.Class(d.ServerData, {
     },
     fromJSON: function (o) {
         var canvas = document.createElement('canvas'),
-            img = new Image();
+            img = new Image(),
+            t = this;
         img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
+            t.dispatch('ImageLoad', new d.ControlEvent().setControl(t));
         };
         img.src = o.base64;
         return this.setId(o.id).setName(o.name).setImage(canvas).setText(o.text ? {
@@ -858,6 +863,7 @@ d.ImageMedia = d.Class(d.ServerData, {
     }
 });
 d.Scriptable = d.Class(d.ServerData, {
+    '@CostumeChange': {},
     '.id': {},
     '.scripts': {
         get: function () {
@@ -874,7 +880,24 @@ d.Scriptable = d.Class(d.ServerData, {
     },
     '.costumes': {},
     '.costumeIndex': {},
-    '.sounds': {}
+    '.sounds': {},
+    '.currentCostume': {
+        get: function () {
+            return this._costumes[this._costumeIndex];
+        }
+    },
+    loadCostumes: function (costumes) {
+        if (costumes) this.setCostumes(costumes.map(function (a, i) {
+            var image = new d.ImageMedia(this.amber).fromJSON(a);
+            if (i === this._costumeIndex) {
+                image.onImageLoad(function () {
+                    this.dispatch('CostumeChange');
+                }, this);
+            }
+            return image;
+        }, this));
+        return this;
+    }
 });
 d.Stage = d.Class(d.Scriptable, {
     '.children': {},
@@ -893,11 +916,9 @@ d.Stage = d.Class(d.Scriptable, {
     fromJSON: function (o) {
         var amber = this.amber;
         this._scripts = o.scripts;
-        this.setChildren(o.children ? o.children.map(function (a) {
+        this.setCostumeIndex(o.currentCostumeIndex).setChildren(o.children ? o.children.map(function (a) {
             return new d.Sprite(amber).fromJSON(a);
-        }) : []).setCostumes(o.costumes ? o.costumes.map(function (a) {
-            return new d.ImageMedia(amber).fromJSON(a);
-        }) : []).setCostumeIndex(o.currentCostumeIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
+        }) : []).loadCostumes(o.costumes).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
         return this;
@@ -930,9 +951,7 @@ d.Sprite = d.Class(d.Scriptable, {
     fromJSON: function (o) {
         var amber = this.amber;
         this._scripts = o.scripts;
-        this.setId(o.id).setName(o.objName).setCostumes(o.costumes ? o.costumes.map(function (a) {
-            return new d.ImageMedia(amber).fromJSON(a);
-        }) : []).setCostumeIndex(o.backdropIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
+        this.setId(o.id).setName(o.objName).setCostumeIndex(o.currentCostumeIndex).loadCostumes(o.costumes).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setX(o.scratchX).setY(o.scratchY).setDirection(o.direction).setRotationStyle(o.rotationStyle).setVolume(o.volume).setSize(o.scale).setVisible(o.visible);
         amber.spriteList.addIcon(this);
@@ -1744,13 +1763,11 @@ d.UserList = d.Class(d.Control, {
     },
     createUserItem: function (user) {
         var d = this.newElement('d-user-list-item', 'a'),
-            icon = document.createElement('img'),
-            label = document.createElement('div');
+            icon = this.newElement('d-user-list-icon', 'img'),
+            label = this.newElement('d-user-list-label');
         d.href = user.profileURL();
         d.target = '_blank';
-        icon.className = 'd-user-list-icon';
         icon.src = user.iconURL();
-        label.className = 'd-user-list-label';
         label.textContent = user.name();
         d.appendChild(icon);
         d.appendChild(label);
@@ -1908,12 +1925,28 @@ d.SpriteIcon = d.Class(d.Control, {
         this.amber = amber;
         this.object = object;
         this.initElements('d-sprite-icon');
-        this.element.appendChild(this.image = this.newElement('d-sprite-icon-image'));
+        this.element.appendChild(this.image = this.newElement('d-sprite-icon-image', 'canvas'));
         this.element.appendChild(this.label = this.newElement('d-sprite-icon-label'));
         this.onTouchStart(function () {
             amber.spriteList.select(this.object);
         });
         this.updateLabel();
+        object.onCostumeChange(this.updateImage, this);
+    },
+    updateImage: function () {
+        var image = this.image,
+            w = image.offsetWidth,
+            h = image.offsetHeight,
+            x = image.getContext('2d'),
+            costume = this.object.currentCostume().image(),
+            ow = costume.width,
+            oh = costume.height,
+            ratio = Math.min(w / ow, h / oh),
+            tw = Math.min(ow, ow * ratio),
+            th = Math.min(oh, oh * ratio);
+        image.width = w;
+        image.height = h;
+        x.drawImage(costume, (w - tw) / 2, (h - th) / 2, tw, th);
     },
     updateLabel: function () {
         this.label.textContent = this.object.name ? this.object.name() : d.t('Stage');
