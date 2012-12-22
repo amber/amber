@@ -921,6 +921,7 @@ d.Stage = d.Class(d.Scriptable, {
         }) : []).loadCostumes(o.costumes).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
+        amber.spriteList.addIcon(this);
         return this;
     }
 });
@@ -1581,6 +1582,10 @@ d.OfflineSocket = d.Class(d.Socket, {
                 this.serve({
                     $: 'user.list',
                     users: [this.amber.currentUser]
+                });
+                this.serve({
+                    $: 'chat.history',
+                    history: []
                 });
             }.bind(this));
             break;
