@@ -953,7 +953,7 @@ d.t = function (id) {
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
 };
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.1',
+    PROTOCOL_VERSION: '1.1.1',
 
     init: function () {
         this.base(arguments);
@@ -1459,7 +1459,7 @@ d.Socket = d.Class(d.Base, {
             }.bind(this.amber));
             break;
         case 'chat.history':
-            this.chat.addItems(packet.history);
+            this.amber.chat.addItems(packet.history);
             break;
         default:
             console.warn('missed packet', packet);
@@ -1814,11 +1814,13 @@ d.Chat = d.Class(d.Control, {
             t = this;
         function next() {
             var item = history[i++];
-            t.amber.getUserById(item[0], function (user) {
-                var line = this.createLine(user, item[1]);
-                this.contents.appendChild(line);
-                next();
-            });
+            if (item) {
+                t.amber.getUserById(item[0], function (user) {
+                    var line = t.createLine(user, item[1]);
+                    t.contents.appendChild(line);
+                    next();
+                });
+            }
         }
         next();
     },
