@@ -1929,6 +1929,7 @@ d.SpriteIcon = d.Class(d.Control, {
     init: function (amber, object) {
         this.amber = amber;
         this.object = object;
+        this.base(arguments);
         this.initElements('d-sprite-icon');
         this.element.appendChild(this.image = this.newElement('d-sprite-icon-image', 'canvas'));
         this.element.appendChild(this.label = this.newElement('d-sprite-icon-label'));
