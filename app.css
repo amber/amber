@@ -558,6 +558,7 @@
     text-shadow: 0 1px #ddd;
 }
 .d-chat .d-panel-contents {
+    width: 200px;
     padding-bottom: 6px;
     cursor: text;
     -webkit-user-select: text;
