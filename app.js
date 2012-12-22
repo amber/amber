@@ -3624,7 +3624,9 @@ d.Block = d.Class(d.Control, {
             spec = d.BlockSpecBySelector[selector],
             block;
         if (!spec) {
-            throw new TypeError('Missing block spec mapping for selector #' + selector);
+            console.warn('missing block spec mapping for selector #' + selector);
+            spec = ['c', 'undefined', selector, '#' + selector];
+            a = [a[0], a[1]];
         }
         block = d.Block.fromSpec(spec);
         block.setId(a[0]);
