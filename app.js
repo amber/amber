@@ -846,7 +846,7 @@ d.ImageMedia = d.Class(d.ServerData, {
         var canvas = document.createElement('canvas'),
             img = new Image();
         img.onload = function () {
-            canvas.getContext('2d').drawImage(img);
+            canvas.getContext('2d').drawImage(img, 0, 0);
         };
         img.src = o.base64;
         return this.setId(o.id).setName(o.name).setImage(canvas).setText(o.text ? {
