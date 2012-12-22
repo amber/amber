@@ -961,6 +961,24 @@ d.Amber = d.Class(d.App, {
         this.usersByName = {};
         this.usersById = {};
         this.blocks = {};
+        document.addEventListener('keydown', this.keyDown.bind(this));
+    },
+    keyDown: function (e) {
+        var none = e.target === document.body;
+        switch (e.keyCode) {
+        case 32:
+            if (none) {
+                this.chat.show();
+                e.preventDefault();
+            }
+            break;
+        case 27:
+            if (none || e.target === this.chat.input) {
+                this.userPanel.setCollapsed(true);
+                e.preventDefault();
+            }
+            break;
+        }
     },
     createSocket: function (server, callback) {
         this.socket = new d.Socket(this, server, callback);
@@ -1690,6 +1708,9 @@ d.UserPanel = d.Class(d.Control, {
         if (this.collapsed !== collapsed) {
             this.toggle();
         }
+        if (this.collapsed) {
+            this.amber.chat.blur();
+        }
     }
 });
 d.UserList = d.Class(d.Control, {
@@ -1749,11 +1770,24 @@ d.Chat = d.Class(d.Control, {
             this.showMessage(this.amber.currentUser, this.input.value);
             this.input.value = '';
         }
+        if (e.keyCode === 32 && this.input.value === '') {
+            e.preventDefault();
+        }
     },
     focus: function () {
         this.removeNotification();
         this.input.focus();
         this.autoscroll();
+    },
+    blur: function () {
+        this.input.blur();
+    },
+    show: function () {
+        if (this.amber.userPanel.collapsed) {
+            this.amber.userPanel.toggle();
+        } else {
+            this.focus();
+        }
     },
     autoscroll: function () {
         this.contents.scrollTop = this.contents.scrollHeight;
