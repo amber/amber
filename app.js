@@ -1038,12 +1038,13 @@ d.Stage = d.Class(d.Scriptable, {
         var t = this,
             amber = this.amber;
         this._scripts = o.scripts;
-        this.loadCostumes(o.costumes).loadVariables(o.variables).setCostumeIndex(o.currentCostumeIndex).setChildren(o.children ? o.children.map(function (a) {
-            return new d.Sprite(amber).setStage(t).fromJSON(a);
-        }) : []).setSounds(o.sounds ? o.sounds.map(function (a) {
+        this.loadCostumes(o.costumes).loadVariables(o.variables).setCostumeIndex(o.currentCostumeIndex).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
         amber.spriteList.addIcon(this);
+        this.setChildren(o.children ? o.children.map(function (a) {
+            return new d.Sprite(amber).setStage(t).fromJSON(a);
+        }) : []);
         return this;
     }
 });
