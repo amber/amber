@@ -1872,7 +1872,7 @@ d.UserList = d.Class(d.Control, {
         this.base(arguments);
         this.initElements('d-user-list');
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
-        this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
+        this.element.appendChild(this.contents = this.newElement('d-panel-contents d-scrollable'));
         // this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
         this.titleLabel.textContent = d.t('Chat');
@@ -1907,7 +1907,7 @@ d.Chat = d.Class(d.Control, {
         this.base(arguments);
         this.initElements('d-chat');
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
-        this.element.appendChild(this.contents = this.newElement('d-panel-contents'));
+        this.element.appendChild(this.contents = this.newElement('d-panel-contents d-scrollable'));
         // this.title.appendChild(this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.input = this.newElement('d-chat-input', 'input'));
         this.input.addEventListener('keydown', this.keyDown.bind(this));
@@ -2029,7 +2029,7 @@ d.SpriteList = d.Class(d.Control, {
         this.amber = amber;
         this.base(arguments);
         this.initElements('d-sprite-list');
-        this.element.appendChild(this.container = this.newElement('d-panel-contents'));
+        this.element.appendChild(this.container = this.newElement('d-panel-contents d-scrollable'));
         this.element.appendChild(this.title = this.newElement('d-panel-title'));
         // this.title.appendChild(this.titleShadow = this.newElement('d-panel-title-shadow'));
         this.title.appendChild(this.titleLabel = this.newElement('d-panel-title-label'));
@@ -2090,7 +2090,7 @@ d.BlockEditor = d.Class(d.Control, {
     endPadding: 300,
     init: function () {
         this.base(arguments);
-        this.initElements('d-block-editor');
+        this.initElements('d-block-editor d-scrollable');
         this.fill = this.newElement('d-block-editor-fill');
         this.element.appendChild(this.fill);
     },
@@ -2586,7 +2586,7 @@ d.BlockPalette = d.Class(d.Control, {
 d.BlockList = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
-        this.initElements('d-panel-contents', 'd-block-list-contents');
+        this.initElements('d-panel-contents d-scrollable', 'd-block-list-contents');
         this.list = this.container;
     },
     add: function (child) {

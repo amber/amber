@@ -23,20 +23,20 @@
     min-height: 0;
 }
 
-.d-app ::-webkit-scrollbar {
+.d-scrollable::-webkit-scrollbar {
     background: #555;
     width: 5px;
     height: 5px;
     border-radius: 7px;
 }
-.d-app ::-webkit-scrollbar-thumb {
+.d-scrollable::-webkit-scrollbar-thumb {
     border-radius: 7px;
     background: rgba(255, 255, 255, .4);
     /*box-shadow:
         inset 1px 1px rgba(255, 255, 255, .3),
         inset -1px -1px rgba(0, 0, 0, .2);*/
 }
-.d-app ::-webkit-scrollbar-corner {
+.d-scrollable::-webkit-scrollbar-corner {
     background: transparent;
 }
 
