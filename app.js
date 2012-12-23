@@ -200,14 +200,14 @@ d.TouchEvent = d.Class(d.Event, {
 d.WheelEvent = d.Class(d.Event, {
     setWebkitEvent: function (e) {
         this.setEvent(e);
-        this.x = e.wheelDeltaX / 3;
-        this.y = e.wheelDeltaY / 3;
+        this.x = -e.wheelDeltaX / 3;
+        this.y = -e.wheelDeltaY / 3;
         return this;
     },
     setMozEvent: function (e) {
         this.setEvent(e);
         this.x = 0;
-        this.y = -e.detail;
+        this.y = e.detail;
         return this;
     }
 });
@@ -2290,18 +2290,32 @@ d.SoundEditor = d.Class(d.Control, {
     }
 });
 d.BlockEditor = d.Class(d.Control, {
-    startPadding: 10,
-    endPadding: 300,
+    padding: 10,
+    acceptsScrollWheel: true,
     init: function () {
         this.base(arguments);
         this.initElements('d-block-editor d-editor d-scrollable');
         this.fill = this.newElement('d-block-editor-fill');
         this.element.appendChild(this.fill);
+        this.element.addEventListener('scroll', this.fit.bind(this));
+        this.onScrollWheel(this.scrollWheel);
+    },
+    scrollWheel: function (e) {
+        var newTop = this.element.scrollTop + e.y,
+            newLeft = this.element.scrollLeft + e.x,
+            delta;
+        if ((delta = newLeft - this.element.scrollWidth + this.element.offsetWidth) > 0) {
+            this.fill.style.width = (this.fillWidth += delta) + 'px';
+        }
+        if ((delta = newTop - this.element.scrollHeight + this.element.offsetHeight) > 0) {
+            this.fill.style.height = (this.fillHeight += delta) + 'px';
+        }
+        this.element.scrollLeft = newLeft;
+        this.element.scrollTop = newTop;
     },
     fit: function () {
         var bb = this.fill.getBoundingClientRect(),
-            p = this.startPadding,
-            bp = this.endPadding,
+            p = this.padding,
             c = this.children,
             i = c.length,
             w = 0,
@@ -2331,8 +2345,8 @@ d.BlockEditor = d.Class(d.Control, {
             x = 0;
             y = 0;
         }
-        this.fill.style.width = w + p + bp + 'px';
-        this.fill.style.height = h + p + bp + 'px';
+        this.fill.style.width = (this.fillWidth = Math.max(w + p * 2, this.element.scrollLeft + this.element.offsetWidth)) + 'px';
+        this.fill.style.height = (this.fillHeight = Math.max(h + p * 2, this.element.scrollTop + this.element.offsetHeight)) + 'px';
         this.fill.style.left = x + 'px';
         this.fill.style.top = y + 'px';
     }

@@ -755,12 +755,13 @@
 .d-tab-bar {
     position: absolute;
     top: 0;
-    width: 400px;
+    width: 10000px;
     left: 682px;
-    -webkit-transform: translate(-419px, 0) rotate(-90deg);
+    -webkit-transform: translate(-10019px, 0) rotate(-90deg);
     -webkit-transform-origin: top right;
     z-index: 1;
     -webkit-transition: left .3s;
+    box-shadow: 0 6px 3px -3px rgb(30%, 30%, 30%);
 }
 .d-collapse-sprite-panel .d-tab-bar {
     left: 244px;
@@ -787,8 +788,10 @@
 
 .d-block-stack {
     position: absolute;
-    z-index: 2;
     pointer-events: none;
+}
+.d-block-stack-dragging {
+    z-index: 1;
 }
 .d-block-stack > .d-block {
     pointer-events: auto;
