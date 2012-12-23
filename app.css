@@ -24,7 +24,7 @@
 }
 
 .d-scrollable::-webkit-scrollbar {
-    background: #555;
+    background: rgba(120, 120, 120, .6);
     width: 5px;
     height: 5px;
     border-radius: 7px;
