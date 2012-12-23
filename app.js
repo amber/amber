@@ -2148,18 +2148,17 @@ d.SpriteIcon = d.Class(d.Control, {
     },
     updateImage: function () {
         var image = this.image,
-            w = image.offsetWidth,
-            h = image.offsetHeight,
+            size = 200,
             x = image.getContext('2d'),
             costume = this.object.currentCostume().image(),
             ow = costume.width,
             oh = costume.height,
-            ratio = Math.min(w / ow, h / oh),
+            ratio = Math.min(size / ow, size / oh),
             tw = Math.min(ow, ow * ratio),
             th = Math.min(oh, oh * ratio);
-        image.width = w;
-        image.height = h;
-        x.drawImage(costume, (w - tw) / 2, (h - th) / 2, tw, th);
+        image.width = size;
+        image.height = size;
+        x.drawImage(costume, (size - tw) / 2, (size - th) / 2, tw, th);
     },
     updateLabel: function () {
         this.label.textContent = this.object.name ? this.object.name() : d.t('Stage');
