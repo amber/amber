@@ -349,7 +349,7 @@
     background: rgb(20%, 20%, 20%);
 }*/
 
-.d-block-editor {
+.d-editor {
     position: absolute;
     top: 0;
     left: 682px;
@@ -359,20 +359,41 @@
         1px 0 rgb(18%, 18%, 18%),
         -1px 0 rgb(18%, 18%, 18%),
         inset -1px 0 rgb(30%, 30%, 30%);
+    background: rgb(30%, 30%, 30%);
+    overflow: auto;
+    -webkit-transition: left .3s, right .3s;
+}
+.d-block-editor {
     background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
     background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
     background-size: 4px 100%;
-    overflow: auto;
-    -webkit-transition: left .3s, right .3s;
 }
 .d-block-editor-fill {
     position: absolute;
 }
-.d-collapse-user-panel .d-block-editor {
+.d-collapse-user-panel .d-editor {
     right: 43px;
 }
-.d-collapse-sprite-panel .d-block-editor {
+.d-collapse-sprite-panel .d-editor {
     left: 244px;
+}
+.d-costume-editor-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 88px;
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+.d-costume-editor-contents {
+    position: absolute;
+    top: 0;
+    left: 83px;
+    right: 0;
+    bottom: 0;
+    border-left: 1px solid rgb(18%, 18%, 18%);
+    background: rgb(30%, 30%, 30%);
 }
 
 .d-user-panel {
@@ -654,7 +675,8 @@
     width: 474px;
     -webkit-transition: padding .3s, width .3s ease;
 }
-.d-sprite-icon {
+.d-sprite-icon,
+.d-costume-icon {
     padding: 6px;
     margin: 0 6px 6px 0;
     width: 59px;
@@ -665,8 +687,16 @@
     border-radius: 3px;
     vertical-align: top;
 }
+.d-costume-icon {
+    margin: 6px;
+    display: block;
+}
 .d-sprite-icon:hover {
     background: rgb(27%, 27%, 27%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+}
+.d-costume-icon:hover {
+    background: rgb(35%, 35%, 35%);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
 }
 .d-sprite-icon-selected,
@@ -675,14 +705,22 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
     position: relative;
 }
-.d-sprite-icon-image {
+.d-costume-icon-selected,
+.d-costume-icon-selected:hover {
+    background: rgb(39%, 39%, 39%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+    position: relative;
+}
+.d-sprite-icon-image,
+.d-costume-icon-image {
     width: 59px;
     height: 59px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
     background: rgba(0, 0, 0, .2);
     -webkit-transition: height .3s, width .3s;
 }
-.d-sprite-icon-label {
+.d-sprite-icon-label,
+.d-costume-icon-label {
     font: 11px/12px sans-serif;
     height: 12px;
     padding: 4px 0;
@@ -732,12 +770,12 @@
     padding: 3px 12px 1px;
     font: 11px sans-serif;
     color: #eee;
-    background: rgb(27%, 27%, 27%);
+    background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(24%, 24%, 24%));
     border: 1px solid rgb(18%, 18%, 18%);
     border-radius: 7px 7px 0 0 / 17px 17px 0 0;
 }
 .d-tab-selected {
-    background: rgb(30%, 30%, 30%);
+    background: -webkit-linear-gradient(rgb(35%, 35%, 35%), rgb(30%, 30%, 30%));
     border-bottom: 0;
     box-shadow: 0 1px rgb(30%, 30%, 30%);
 }

@@ -918,6 +918,7 @@ d.ImageMedia = d.Class(d.ServerData, {
     '.centerX': {},
     '.centerY': {},
     '@ImageLoad': {},
+    '@ImageChange': {},
     toJSON: function (o) {
         var result = {
                 id: this._id,
@@ -973,7 +974,11 @@ d.Scriptable = d.Class(d.ServerData, {
         }
     },
     '.costumes': {},
-    '.costumeIndex': {},
+    '.costumeIndex': {
+        apply: function () {
+            if (this._costumes) this.dispatch('CostumeChange');
+        }
+    },
     '.sounds': {},
     '.currentCostume': {
         get: function () {
@@ -1154,6 +1159,7 @@ d.Amber = d.Class(d.App, {
         var id = ++this.newScriptID,
             tracker = [],
             script = new d.BlockStack().fromJSON([x, y, blocks], tracker);
+        if (this.tabBar.selectedIndex !== 0) this.tabBar.select(0);
         this.socket.newScripts[id] = tracker;
         this.add(script);
         this.socket.send({
@@ -1193,12 +1199,12 @@ d.Amber = d.Class(d.App, {
         var name, category;
         this.base(arguments, element);
         this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
-        this.add(this._editor = new d.BlockEditor()).
+        this.add(this._tab = new d.BlockEditor()).
             add(this.palette = new d.BlockPalette()).
             add(this.userPanel = new d.UserPanel(this)).
             add(this.spritePanel = new d.SpritePanel(this)).
             add(this.authentication = new d.AuthenticationPanel(this)).
-            add(this.tabs = new d.TabBar(this)).
+            add(this.tabBar = new d.TabBar(this)).
             setLightboxEnabled(true);
         this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
         this.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
@@ -1231,15 +1237,19 @@ d.Amber = d.Class(d.App, {
             }
         }
     },
-    '.editor': {
-        apply: function (editor, old) {
+    '.editor': {},
+    '.tab': {
+        apply: function (tab, old) {
             this.remove(old);
-            this.add(editor);
-            editor.fit();
+            this.add(tab);
+            if (tab.fit) tab.fit();
         }
     },
     selectSprite: function (object) {
         this.selectedSprite = object;
+        this.setEditor(object.scripts());
+        this.tabBar.children[1].setText(d.t(object.isStage ? 'Backdrops' : 'Costumes'));
+        this.tabBar.select(this.tabBar.selectedIndex || 0);
         this.spriteList.select(object);
     },
     '.project': {
@@ -2141,7 +2151,7 @@ d.SpriteIcon = d.Class(d.Control, {
         this.element.appendChild(this.image = this.newElement('d-sprite-icon-image', 'canvas'));
         this.element.appendChild(this.label = this.newElement('d-sprite-icon-label'));
         this.onTouchStart(function () {
-            amber.selectSprite(this.object);
+            amber.selectSprite(object);
         });
         this.updateLabel();
         object.onCostumeChange(this.updateImage, this);
@@ -2164,7 +2174,6 @@ d.SpriteIcon = d.Class(d.Control, {
         this.label.textContent = this.object.name ? this.object.name() : d.t('Stage');
     },
     select: function () {
-        this.amber.setEditor(this.object.scripts());
         d.addClass(this.element, 'd-sprite-icon-selected');
     },
     deselect: function () {
@@ -2180,7 +2189,6 @@ d.TabBar = d.Class(d.Control, {
         this.addTab(d.t('Scripts'));
         this.addTab(d.t('Costumes'));
         this.addTab(d.t('Sounds'));
-        this.select(0);
     },
     addTab: function (label) {
         var i = this.children.length;
@@ -2198,6 +2206,87 @@ d.TabBar = d.Class(d.Control, {
         while (j--) {
             this.children[this.order[j]].element.style.zIndex = -j;
         }
+        switch (i) {
+        case 0:
+            this.amber.setTab(this.amber.selectedSprite.scripts());
+            break;
+        case 1:
+            this.amber.setTab(new d.CostumeEditor(this.amber.selectedSprite));
+            break;
+        case 2:
+            this.amber.setTab(new d.SoundEditor(this.amber.selectedSprite));
+            break;
+        }
+    }
+});
+d.CostumeEditor = d.Class(d.Control, {
+    init: function (object) {
+        var icons = this.icons = {},
+            id = 0,
+            selectedId = object.costumeIndex() + 1;
+        this.base(arguments);
+        this.initElements('d-costume-editor d-editor', 'd-costume-editor-list d-scrollable');
+        this.element.appendChild(this.contents = this.newElement('d-costume-editor-contents'));
+        (this.object = object).costumes().forEach(function (costume) {
+            costume.$$editorId = ++id;
+            this.add(icons[id] = new d.CostumeEditor.Icon(this, costume));
+            if (id === selectedId) {
+                this.selectedCostume = costume;
+                icons[id].select();
+            }
+        }, this);
+    },
+    select: function (costume) {
+        if (this.selectedCostume) {
+            this.icons[this.selectedCostume.$$editorId].deselect();
+        }
+        this.icons[(this.selectedCostume = costume).$$editorId].select();
+        this.object.setCostumeIndex(costume.$$editorId - 1);
+    }
+});
+d.CostumeEditor.Icon = d.Class(d.Control, {
+    acceptsClick: true,
+    init: function (editor, costume) {
+        this.costume = costume;
+        this.base(arguments);
+        this.initElements('d-costume-icon');
+        this.element.appendChild(this.image = this.newElement('d-costume-icon-image', 'canvas'));
+        this.element.appendChild(this.label = this.newElement('d-costume-icon-label'));
+        this.onTouchStart(function () {
+            editor.select(costume);
+        });
+        this.updateLabel();
+        costume.onImageChange(this.updateImage, this);
+        this.updateImage();
+    },
+    updateImage: function () {
+        var image = this.image,
+            size = 200,
+            x = image.getContext('2d'),
+            costume = this.costume.image(),
+            ow = costume.width,
+            oh = costume.height,
+            ratio = Math.min(size / ow, size / oh),
+            tw = Math.min(ow, ow * ratio),
+            th = Math.min(oh, oh * ratio);
+        image.width = size;
+        image.height = size;
+        x.drawImage(costume, (size - tw) / 2, (size - th) / 2, tw, th);
+    },
+    updateLabel: function () {
+        this.label.textContent = this.costume.name();
+    },
+    select: function () {
+        d.addClass(this.element, 'd-costume-icon-selected');
+    },
+    deselect: function () {
+        d.removeClass(this.element, 'd-costume-icon-selected');
+    }
+});
+d.SoundEditor = d.Class(d.Control, {
+    init: function () {
+        this.base(arguments);
+        this.initElements('d-sound-editor d-editor d-scrollable');
     }
 });
 d.BlockEditor = d.Class(d.Control, {
@@ -2205,7 +2294,7 @@ d.BlockEditor = d.Class(d.Control, {
     endPadding: 300,
     init: function () {
         this.base(arguments);
-        this.initElements('d-block-editor d-scrollable');
+        this.initElements('d-block-editor d-editor d-scrollable');
         this.fill = this.newElement('d-block-editor-fill');
         this.element.appendChild(this.fill);
     },
@@ -2284,9 +2373,9 @@ d.BlockStack = d.Class(d.Control, {
     y: function () {
         return this.element.getBoundingClientRect().top + this.app().editor().element.scrollTop;
     },
-    toSerial: function () {
+    toJSON: function () {
         return [this.x(), this.y(), this.children.map(function (block) {
-            return block.toSerial();
+            return block.toJSON();
         })];
     },
     fromJSON: function (a, tracker, amber, inline) {
@@ -2718,7 +2807,7 @@ d.arg.Base = d.Class(d.Control, {
     acceptsReporter: function (reporter) {
         return false;
     },
-    toSerial: function () {
+    toJSON: function () {
         return this.value();
     },
     claimEdits: function () {},
@@ -3072,8 +3161,8 @@ d.arg.CommandSlot = d.Class(d.arg.Base, {
     acceptsReporter: function (reporter) {
         return false;
     },
-    toSerial: function () {
-        return this.children.length ? this.children[0].toSerial()[2] : null;
+    toJSON: function () {
+        return this.children.length ? this.children[0].toJSON()[2] : null;
     },
     init: function () {
         this.base(arguments);
@@ -3215,12 +3304,12 @@ d.Block = d.Class(d.Control, {
         this.onDragStart(this.dragStart);
         this.onContextMenu(this.showContextMenu)
     },
-    toSerial: function () {
+    toJSON: function () {
         if (this.selector() === 'cClosure') {
-            return this.arguments[0].toSerial();
+            return this.arguments[0].toJSON();
         }
         return [this._id, this.selector()].concat(this.arguments.map(function (a) {
-            return a.toSerial();
+            return a.toJSON();
         }));
     },
     '.id': {
@@ -3288,7 +3377,7 @@ d.Block = d.Class(d.Control, {
             return p.isPalette;
         })) {
             bb = this.element.getBoundingClientRect();
-            (app = this.app()).createScript(this.x(), this.y(), [this.copy().toSerial()]).startDrag(app, e, bb);
+            (app = this.app()).createScript(this.x(), this.y(), [this.copy().toJSON()]).startDrag(app, e, bb);
         } else if (this.parent.isStack) {
             this.parent.dragStack(e, this);
         } else if (this.parent.isBlock) {
@@ -3300,17 +3389,12 @@ d.Block = d.Class(d.Control, {
     },
     showContextMenu: function (e) {
         var me = this;
-        new d.Menu().setItems(['duplicate']).setAction(function (item) {
-            var copy;
+        new d.Menu().setItems([{title: d.t('Duplicate'), action: 'duplicate'}]).setAction(function (item) {
+            var app, copy;
             switch (item.action) {
             case 'duplicate':
-                copy = new d.BlockStack();
-                if (me.parent && me.parent.isStack) {
-                    copy.appendStack(me.parent.copy())
-                } else {
-                    copy.add(me.copy());
-                }
-                me.app().add(copy);
+                app = me.app();
+                app.createScript(me.x(), me.y(), [(me.parent.isStack ? me.parent : me).copy().toJSON()]).startDrag(app, new d.TouchEvent(), me.element.getBoundingClientRect());
                 break;
             }
         }).show(this, e);
@@ -3745,6 +3829,7 @@ d.Block = d.Class(d.Control, {
         }
         block = d.Block.fromSpec(spec);
         block.setId(a[0]);
+        block.setSelector(a[1]);
         if (amber) block.amber(amber);
         if (tracker) {
             tracker.push(block);
