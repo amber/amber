@@ -364,9 +364,11 @@
     -webkit-transition: left .3s, right .3s;
 }
 .d-block-editor {
-    background: -webkit-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
-    background: -moz-linear-gradient(right, rgb(20%, 20%, 20%) 25%, rgb(30%, 30%, 30%) 25%);
-    background-size: 4px 100%;
+    background:
+        local -webkit-linear-gradient(right bottom, rgb(20%, 20%, 20%) 6.25%, transparent 6.25%),
+        local -webkit-linear-gradient(right bottom, rgb(20%, 20%, 20%) 6.25%, transparent 6.25%) -8px -8px,
+        rgb(30%, 30%, 30%);
+    background-size: 16px 16px;
 }
 .d-block-editor-fill {
     position: absolute;
