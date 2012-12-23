@@ -1773,7 +1773,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
         this.add(this.passwordField = new d.TextField.Password('d-authentication-input')
             .setPlaceholder(d.t('Password'))
             .onKeyDown(this.passwordKeyDown, this));
-        this.add(this.signInButton = new d.Button('d-authentication-button d-authentication-sign-in-button')
+        this.add(this.signInButton = new d.Button('d-authentication-button')
             .setText(d.t('Sign In'))
             .onExecute(this.submit, this));
         this.add(this.registerButton = new d.Button('d-authentication-button')
@@ -1798,6 +1798,7 @@ d.AuthenticationPanel = d.Class(d.Control, {
     },
     offlineMode: function () {
         this.amber.setOffline(true);
+        this.setEnabled(false);
         this.send();
     },
     submit: function () {
@@ -1824,6 +1825,12 @@ d.AuthenticationPanel = d.Class(d.Control, {
             this.signInButton.setEnabled(enabled);
             this.registerButton.setEnabled(enabled);
             this.offlineButton.setEnabled(enabled);
+            if (enabled) {
+                d.removeClass(this.signInButton.element, 'd-authentication-button-pressed');
+                d.removeClass(this.offlineButton.element, 'd-authentication-button-pressed');
+            } else {
+                d.addClass((this.amber.offline() ? this.offlineButton : this.signInButton).element, 'd-authentication-button-pressed');
+            }
         }
     },
     shown: function () {
