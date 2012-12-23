@@ -2176,14 +2176,28 @@ d.TabBar = d.Class(d.Control, {
         this.amber = amber;
         this.base(arguments);
         this.initElements('d-tab-bar');
-        this.add(this.scriptsTab = new d.Button('d-tab d-tab-selected').setText(d.t('Scripts')));
-        this.add(this.costumesTab = new d.Button('d-tab').setText(d.t('Costumes')));
-        this.add(this.soundsTab = new d.Button('d-tab').setText(d.t('Sounds')));
-        this.selectedIndex = 0;
+        this.order = [];
+        this.addTab(d.t('Scripts'));
+        this.addTab(d.t('Costumes'));
+        this.addTab(d.t('Sounds'));
+        this.select(0);
+    },
+    addTab: function (label) {
+        var i = this.children.length;
+        this.order.push(i);
+        return this.add(new d.Button('d-tab').setText(label).onExecute(function () {
+            this.select(i);
+        }, this));
     },
     select: function (i) {
-        d.removeClass(this.children[this.selectedIndex], 'd-tab-selected');
-        d.addClass(this.children[this.selectedIndex = i], 'd-tab-selected');
+        var j = this.order.length;
+        if (this.selectedIndex != null) d.removeClass(this.children[this.selectedIndex].element, 'd-tab-selected');
+        d.addClass(this.children[this.selectedIndex = i].element, 'd-tab-selected');
+        this.order.splice(this.order.indexOf(i), 1);
+        this.order.unshift(i);
+        while (j--) {
+            this.children[this.order[j]].element.style.zIndex = -j;
+        }
     }
 });
 d.BlockEditor = d.Class(d.Control, {

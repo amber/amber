@@ -727,6 +727,7 @@
 }
 .d-tab {
     float: right;
+    position: relative;
     margin: 0 0 0 -4px;
     padding: 3px 12px 1px;
     font: 11px sans-serif;
@@ -736,7 +737,6 @@
     border-radius: 7px 7px 0 0 / 17px 17px 0 0;
 }
 .d-tab-selected {
-    position: relative;
     background: rgb(30%, 30%, 30%);
     border-bottom: 0;
     box-shadow: 0 1px rgb(30%, 30%, 30%);
