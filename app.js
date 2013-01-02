@@ -3055,8 +3055,8 @@ d.arg.TextField = d.Class(d.arg.Base, {
         if (!(width = cache[this.input.value])) {
             measure.style.display = 'inline-block';
             measure.textContent = this.input.value;
-            measure.style.display = 'none';
             width = cache[this.input.value] = measure.offsetWidth + 1; // Math.max(1, measure.offsetWidth)
+            measure.style.display = 'none';
         }
         this.input.style.width = width + 'px';
     },
