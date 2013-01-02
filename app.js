@@ -397,7 +397,7 @@ d.App = d.Class(d.Control, {
                 c = c.parent;
             }
             if (!c) return;
-            if (e.button === 2 && !e.shiftKey) {
+            if (e.button === 2) {
                 c.dispatch('ContextMenu', new d.TouchEvent().setMouseEvent(e));
                 return;
             } else {
@@ -3044,18 +3044,21 @@ d.arg.TextField = d.Class(d.arg.Base, {
         }
     },
     autosize: function (e) {
-        var measure = d.arg.TextField.measure;
+        var cache = d.arg.TextField.cache,
+            measure = d.arg.TextField.measure;
         // (document.activeElement === this.input ? /[^0-9\.+-]/.test(this.input.value) :
         if (e && this._numeric && (this._integral ? isNaN(this.input.value) || +this.input.value % 1 : isNaN(this.input.value))) {
             this.input.value = (this._integral ? parseInt : parseFloat)(this.input.value) || 0;
             this.input.focus();
             this.input.select();
         }
-        measure.style.display = 'inline-block';
-        measure.textContent = this.input.value;
-        // this.input.style.width = Math.max(1, measure.offsetWidth) + 'px';
-        this.input.style.width = measure.offsetWidth + 1 + 'px';
-        measure.style.display = 'none';
+        if (!(width = cache[this.input.value])) {
+            measure.style.display = 'inline-block';
+            measure.textContent = this.input.value;
+            measure.style.display = 'none';
+            width = cache[this.input.value] = measure.offsetWidth + 1; // Math.max(1, measure.offsetWidth)
+        }
+        this.input.style.width = width + 'px';
     },
     key: function (e) {
         var v;
@@ -3076,6 +3079,7 @@ d.arg.TextField = d.Class(d.arg.Base, {
 });
 d.arg.TextField.measure = document.createElement('div');
 d.arg.TextField.measure.className = 'd-block-field-measure';
+d.arg.TextField.cache = {};
 document.body.appendChild(d.arg.TextField.measure);
 d.arg.Enum = d.Class(d.arg.Base, {
     acceptsClick: true,
