@@ -762,6 +762,7 @@
     z-index: 1;
     -webkit-transition: left .3s;
     box-shadow: 0 6px 3px -3px rgb(30%, 30%, 30%);
+    pointer-events: none;
 }
 .d-collapse-sprite-panel .d-tab-bar {
     left: 244px;
@@ -776,6 +777,7 @@
     background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(24%, 24%, 24%));
     border: 1px solid rgb(18%, 18%, 18%);
     border-radius: 7px 7px 0 0 / 17px 17px 0 0;
+    pointer-events: auto;
 }
 .d-tab-selected {
     background: -webkit-linear-gradient(rgb(35%, 35%, 35%), rgb(30%, 30%, 30%));
