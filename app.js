@@ -340,9 +340,11 @@ d.App = d.Class(d.Control, {
             this.add(menu);
         }
     },
+    touchMoveEvent: function () {
+        return new d.TouchEvent().setMouseEvent(this.lastMouseEvent);
+    },
     setElement: function (element) {
         var app = this,
-            mouseDown = false,
             shouldStartDrag = false;
         this.element = this.container = element;
         element.control = this;
@@ -378,15 +380,17 @@ d.App = d.Class(d.Control, {
             e.preventDefault();
         }, true);
         element.addEventListener('contextmenu', function (e) {
-            if (e.shiftKey || e.target.tagName === 'INPUT' && !e.target.control.isMenu) return true;
+            if (e.shiftKey || e.target.tagName === 'INPUT' && !e.target.control.isMenu) return;
             e.preventDefault();
         }, true);
         element.addEventListener('mousedown', function (e) {
             var c;
+            app.lastMouseEvent = e;
+            if (app.mouseDown) return;
             document.addEventListener('mousemove', mousemove, true);
             document.addEventListener('mouseup', mouseup, true);
             if (app._menu && !app._menu.hasChild(e.target.control)) app._menu.close();
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return true;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
             c = e.target.control;
             while (c && !c.acceptsClick) {
                 if (c.selectable) return;
@@ -397,7 +401,7 @@ d.App = d.Class(d.Control, {
                 c.dispatch('ContextMenu', new d.TouchEvent().setMouseEvent(e));
                 return;
             } else {
-                mouseDown = shouldStartDrag = true;
+                app.mouseDown = shouldStartDrag = true;
                 app.mouseDownControl = c;
 
                 app.mouseX = e.clientX;
@@ -409,7 +413,8 @@ d.App = d.Class(d.Control, {
             e.preventDefault();
         }, true);
         function mousemove(e) {
-            if (!mouseDown || !app.mouseDownControl) return true;
+            app.lastMouseEvent = e;
+            if (!app.mouseDown || !app.mouseDownControl) return;
             if (shouldStartDrag) {
                 app.mouseDownControl.dispatch('DragStart', new d.TouchEvent().setMouseEvent(e));
                 shouldStartDrag = false;
@@ -418,14 +423,15 @@ d.App = d.Class(d.Control, {
             // e.preventDefault();
         }
         function mouseup(e) {
-            if (!mouseDown || !app.mouseDownControl) return true;
-            mouseDown = false;
+            app.lastMouseEvent = e;
+            if (!app.mouseDown || !app.mouseDownControl) return;
+            app.mouseDown = false;
             if (app._menu && app._menu.hasChild(e.target.control)) {
                 dx = app.mouseX - app.menuOriginX;
                 dy = app.mouseY - app.menuOriginY;
                 if (dx * dx + dy * dy < 4 && +new Date - app.menuStart <= app.MENU_CLICK_TIME) {
                     app.menuStart -= 100;
-                    return true;
+                    return;
                 }
             }
             app.mouseDownControl.dispatch('TouchEnd', new d.TouchEvent().setMouseEvent(e));
@@ -438,7 +444,7 @@ d.App = d.Class(d.Control, {
                 t = t.control;
                 while (t && !t.acceptsScrollWheel) {
                     t = t.parent;
-                    if (!t) return true;
+                    if (!t) return;
                 }
                 t.dispatch('ScrollWheel', new d.WheelEvent()[f](e));
                 e.preventDefault();
@@ -2508,11 +2514,11 @@ d.BlockStack = d.Class(d.Control, {
         this.element.style.position = 'fixed';
         this.element.style.left = bb.left + 'px';
         this.element.style.top = bb.top + 'px';
+        app.mouseDown = true;
         app.mouseDownControl = this;
         app.add(this);
         this.dragStartEvent = e;
         this.dragStartBB = bb;
-        console.log('startDrag', app, e, bb);
     },
     touchMove: function (e) {
         var tolerance = 12,
@@ -3468,7 +3474,9 @@ d.Block = d.Class(d.Control, {
             case 'duplicate':
                 app = me.app();
                 bb = me.getPosition();
-                app.createScript(bb.x + 10, bb.y + 10, me.parent.isStack ? me.parent.toJSON(true) : [me.toJSON()]);
+                copy = app.createScript(bb.x, bb.y, me.parent.isStack ? me.parent.toJSON(true) : [me.toJSON()]);
+                copy.startDrag(app, Object.create(e), copy.top().element.getBoundingClientRect());
+                copy.touchMove(app.touchMoveEvent());
                 break;
             }
         }).show(this, e);
