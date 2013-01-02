@@ -1172,7 +1172,7 @@ d.Amber = d.Class(d.App, {
             script = new d.BlockStack().fromJSON([x, y, blocks], tracker);
         if (this.tabBar.selectedIndex !== 0) this.tabBar.select(0);
         this.socket.newScripts[id] = tracker;
-        this.add(script);
+        this.editor().add(script);
         this.socket.send({
             $: 'script.create',
             script: [x, y, blocks],
@@ -1706,13 +1706,13 @@ d.OfflineSocket = d.Class(d.Socket, {
         b[0] = ++this.blockId;
         b.slice(2).forEach(function (block) {
             if (block && block.pop) {
-                if (block[0] === -1) {
+                if (typeof block[0] === 'number') {
                     this.assignBlockIds(block);
                 } else {
                     this.assignScriptIds(block, true);
                 }
             }
-        });
+        }, this);
     },
     send: function (p) {
         this.sent.push(p);
@@ -2427,10 +2427,11 @@ d.BlockStack = d.Class(d.Control, {
         var e = this.app().editor().element;
         return this.element.getBoundingClientRect().top + e.scrollTop - e.getBoundingClientRect().top;
     },
-    toJSON: function () {
-        return [this.x(), this.y(), this.children.map(function (block) {
-            return block.toJSON();
-        })];
+    toJSON: function (inline) {
+        var children = this.children.map(function (block) {
+                return block.toJSON();
+            }), bb;
+        return inline ? children : [(bb = this.getPosition()).x, bb.y, children];
     },
     fromJSON: function (a, tracker, amber, inline) {
         if (!inline) {
@@ -2511,6 +2512,7 @@ d.BlockStack = d.Class(d.Control, {
         app.add(this);
         this.dragStartEvent = e;
         this.dragStartBB = bb;
+        console.log('startDrag', app, e, bb);
     },
     touchMove: function (e) {
         var tolerance = 12,
@@ -3461,11 +3463,12 @@ d.Block = d.Class(d.Control, {
     showContextMenu: function (e) {
         var me = this;
         new d.Menu().setItems([{title: d.t('Duplicate'), action: 'duplicate'}]).setAction(function (item) {
-            var app, copy;
+            var app, bb, copy;
             switch (item.action) {
             case 'duplicate':
                 app = me.app();
-                app.createScript(me.x(), me.y(), [(me.parent.isStack ? me.parent : me).copy().toJSON()]).startDrag(app, new d.TouchEvent(), me.element.getBoundingClientRect());
+                bb = me.getPosition();
+                app.createScript(bb.x + 10, bb.y + 10, me.parent.isStack ? me.parent.toJSON(true) : [me.toJSON()]);
                 break;
             }
         }).show(this, e);
