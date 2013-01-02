@@ -1046,6 +1046,17 @@ d.Stage = d.Class(d.Scriptable, {
     isStage: true,
     '.children': {},
     '.tempo': {},
+    objectWithId: function (id) {
+        var i, children, child;
+        if (this.id() === id) {
+            return this;
+        }
+        i = 0;
+        children = this.children;
+        while (child = children[i++]) {
+            if (child.id() === id) return child;
+        }
+    },
     toJSON: function () {
         return {
             id: this._id,
@@ -1062,7 +1073,7 @@ d.Stage = d.Class(d.Scriptable, {
         var t = this,
             amber = this.amber;
         this._scripts = o.scripts;
-        this.setCostumeIndex(o.currentCostumeIndex || 0).loadCostumes(o.costumes).loadVariables(o.variables).setSounds(o.sounds ? o.sounds.map(function (a) {
+        this.setId(o.id).setCostumeIndex(o.currentCostumeIndex || 0).loadCostumes(o.costumes).loadVariables(o.variables).setSounds(o.sounds ? o.sounds.map(function (a) {
             return new d.SoundMedia(amber).fromJSON(a);
         }) : []).setTempo(o.tempo);
         amber.spriteList.addIcon(this);
@@ -1125,7 +1136,7 @@ d.t = function (id) {
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
 };
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.1.2',
+    PROTOCOL_VERSION: '1.1.4',
 
     init: function () {
         this.base(arguments);
@@ -1165,7 +1176,8 @@ d.Amber = d.Class(d.App, {
         this.socket.send({
             $: 'script.create',
             script: [x, y, blocks],
-            request$id: id
+            request$id: id,
+            object$id: this.selectedSprite().id()
         });
         return script;
     },
@@ -1245,8 +1257,12 @@ d.Amber = d.Class(d.App, {
             if (tab.fit) tab.fit();
         }
     },
+    '.selectedSprite': {},
+    objectWithId: function (id) {
+        return this.project().stage().objectWithId(id);
+    },
     selectSprite: function (object) {
-        this.selectedSprite = object;
+        this.setSelectedSprite(object);
         this.setEditor(object.scripts());
         this.tabBar.children[1].setText(d.t(object.isStage ? 'Backdrops' : 'Costumes'));
         this.tabBar.select(this.tabBar.selectedIndex || 0);
@@ -1556,7 +1572,7 @@ d.Socket = d.Class(d.Base, {
                 tracker.forEach(function (a) {
                     a.amber(this);
                 }, this.amber);
-                this.amber.add(a);
+                this.amber.objectWithId(packet.object$id).editor().add(a);
             }
             break;
         case 'block.move':
@@ -1707,7 +1723,8 @@ d.OfflineSocket = d.Class(d.Socket, {
                 $: 'script.create',
                 script: p.script,
                 user$id: this.amber.currentUser.id(),
-                request$id: p.request$id
+                request$id: p.request$id,
+                object$id: p.object$id
             });
             break;
         case 'block.move':
@@ -2219,13 +2236,13 @@ d.TabBar = d.Class(d.Control, {
         }
         switch (i) {
         case 0:
-            this.amber.setTab(this.amber.selectedSprite.scripts());
+            this.amber.setTab(this.amber.selectedSprite().scripts());
             break;
         case 1:
-            this.amber.setTab(new d.CostumeEditor(this.amber.selectedSprite));
+            this.amber.setTab(new d.CostumeEditor(this.amber.selectedSprite()));
             break;
         case 2:
-            this.amber.setTab(new d.SoundEditor(this.amber.selectedSprite));
+            this.amber.setTab(new d.SoundEditor(this.amber.selectedSprite()));
             break;
         }
     }
@@ -3548,7 +3565,7 @@ d.Block = d.Class(d.Control, {
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
         case 'var': return new d.arg.Var().setItems(function () {
-                var object = this.app().selectedSprite,
+                var object = this.app().selectedSprite(),
                     result = [],
                     vars;
                 if (!object.isStage) {
