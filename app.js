@@ -382,7 +382,7 @@ d.App = d.Class(d.Control, {
             e.preventDefault();
         }, true);
         element.addEventListener('mousedown', function (e) {
-            var dx, dy, c;
+            var c;
             document.addEventListener('mousemove', mousemove, true);
             document.addEventListener('mouseup', mouseup, true);
             if (app._menu && !app._menu.hasChild(e.target.control)) app._menu.close();
@@ -1566,29 +1566,40 @@ d.Socket = d.Class(d.Base, {
             });
             break;
         case 'block.attach':
+            a = this.amber.blocks[packet.target$id];
+            b = this.amber.blocks[packet.block$id].detach();
             switch (packet.type) {
             case d.BlockAttachType.stack$append:
-                bb = this.amber.blocks[packet.target$id].parent.element.getBoundingClientRect();
-                this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.bottom, function () {
-                    this.amber.blocks[packet.target$id].parent.appendStack(this.amber.blocks[packet.block$id].parent);
+                bb = a.getPosition();
+                b.setPosition(bb.x, bb.y + a.element.offsetHeight, function () {
+                    a.parent.appendStack(b);
                 }.bind(this));
                 break;
             case d.BlockAttachType.stack$insert:
-                bb = (a = this.amber.blocks[packet.target$id]).element.getBoundingClientRect();
-                this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.top, function () {
-                    a.parent.insertStack(this.amber.blocks[packet.block$id].parent, a);
+                bb = a.getPosition();
+                tracker = a.parent;
+                (a = a.detach()).setPosition(bb.x, bb.y + b.element.offsetHeight);
+                b.top().detach();
+                b.setPosition(bb.x, bb.y, function () {
+                    if (a.top() == tracker.top()) {
+                        b.appendStack(a);
+                    } else {
+                        tracker.appendStack(b).appendStack(a);
+                    }
                 }.bind(this));
                 break;
             case d.BlockAttachType.slot$command:
-                bb = (a = this.amber.blocks[packet.target$id].arguments[packet.slot$index]).element.getBoundingClientRect();
-                this.amber.blocks[packet.block$id].detach().setPosition(bb.left, bb.top, function () {
-                    a.setValue(this.amber.blocks[packet.block$id].parent);
+                a = a.arguments[packet.slot$index];
+                bb = a.getPosition();
+                b.setPosition(bb.x, bb.y, function () {
+                    b.removePosition();
+                    a.setValue(b);
                 }.bind(this));
                 break;
             case d.BlockAttachType.slot$replace:
-                bb = (a = (tracker = this.amber.blocks[packet.target$id]).arguments[packet.slot$index]).element.getBoundingClientRect();
-                (b = this.amber.blocks[packet.block$id]).detach().setPosition(bb.left, bb.top, function () {
-                    tracker.replaceArg(a, b);
+                bb = (tracker = a.arguments[packet.slot$index]).getPosition();
+                b.setPosition(bb.x, bb.y, function () {
+                    a.replaceArg(tracker, b.top());
                 }.bind(this));
             }
             break;
@@ -2339,8 +2350,8 @@ d.BlockEditor = d.Class(d.Control, {
         if (x < 0 || y < 0) {
             i = c.length;
             while (i--) {
-                b = c[i].element.getBoundingClientRect();
-                c[i].initPosition(b.left - x - bb.left, b.top - y - bb.top, true);
+                b = c[i].getPosition();
+                c[i].initPosition(b.x - x, b.y - y);
             }
             x = 0;
             y = 0;
@@ -2360,13 +2371,11 @@ d.BlockStack = d.Class(d.Control, {
         this.initElements('d-block-stack');
     },
     setPosition: function (x, y, callback) {
-        var editor = this.app().editor().element;
         setTimeout(function () {
             this.element.style.WebkitTransition =
                 this.element.style.MozTransition = 'top .3s ease, left .3s ease';
-            this.element.style.position = 'fixed';
-            this.element.style.left = x - editor.scrollLeft + 'px';
-            this.element.style.top = y - editor.scrollTop + 'px';
+            this.element.style.left = x + 'px';
+            this.element.style.top = y + 'px';
             setTimeout(function () {
                 this.element.style.WebkitTransition = 
                     this.element.style.MozTransition = '';
@@ -2375,17 +2384,31 @@ d.BlockStack = d.Class(d.Control, {
         }.bind(this), 16);
         return this;
     },
-    initPosition: function (x, y, relative) {
-        if (!relative) this.element.style.position = 'fixed';
+    removePosition: function () {
+        this.element.style.left = 
+            this.element.style.top = '';
+    },
+    initPosition: function (x, y) {
         this.element.style.left = x + 'px';
         this.element.style.top = y + 'px';
         return this;
     },
+    getPosition: function () {
+        var e = this.app().editor().element,
+            bb = this.element.getBoundingClientRect(),
+            bbe = e.getBoundingClientRect();
+        return {
+            x: bb.left + e.scrollLeft - bbe.left,
+            y: bb.top + e.scrollTop - bbe.top
+        };
+    },
     x: function () {
-        return this.element.getBoundingClientRect().left + this.app().editor().element.scrollLeft;
+        var e = this.app().editor().element;
+        return this.element.getBoundingClientRect().left + e.scrollLeft - e.getBoundingClientRect().left;
     },
     y: function () {
-        return this.element.getBoundingClientRect().top + this.app().editor().element.scrollTop;
+        var e = this.app().editor().element;
+        return this.element.getBoundingClientRect().top + e.scrollTop - e.getBoundingClientRect().top;
     },
     toJSON: function () {
         return [this.x(), this.y(), this.children.map(function (block) {
@@ -2414,6 +2437,9 @@ d.BlockStack = d.Class(d.Control, {
     },
     terminal: function () {
         return this.children.length && this.children[this.children.length - 1].terminal();
+    },
+    hat: function () {
+        return this.children.length && this.children[0].isHat;
     },
     top: function () {
         return this.children[0];
@@ -2473,7 +2499,7 @@ d.BlockStack = d.Class(d.Control, {
         var tolerance = 12,
             stackTolerance = 20,
             t = this,
-            isTerminal, stacks, blocks, i,
+            isTerminal, isHat, stacks, blocks, i,
             stack, last, target, targetDistance;
         function closer(test, newTarget) {
             var dx = (test.left + test.right) / 2 - e.x,
@@ -2530,7 +2556,8 @@ d.BlockStack = d.Class(d.Control, {
             }
         } else {
             isTerminal = this.terminal();
-            stacks = this.app().childrenSatisfying(function (child) {
+            isHat = this.hat();
+            stacks = this.app().editor().childrenSatisfying(function (child) {
                 return child.isStack || child.isStackSlot && !child.anyParentSatisfies(function (p) {
                     return p.isPalette;
                 });
@@ -2539,7 +2566,7 @@ d.BlockStack = d.Class(d.Control, {
             while (i--) {
                 if ((stack = stacks[i]) !== this) {
                     if (stack.isStackSlot) {
-                        if (!stack.value()) {
+                        if (!stack.value() && !isHat) {
                             bb = stack.element.getBoundingClientRect();
                             if (d.inBB(e, test = {
                                 left: bb.left - stackTolerance,
@@ -2557,8 +2584,7 @@ d.BlockStack = d.Class(d.Control, {
                         while (j--) {
                             block = stack.children[j];
                             bb = block.element.getBoundingClientRect();
-                            last = j === stack.children.length - 1;
-                            if (!isTerminal && d.inBB(e, test = {
+                            if (!isTerminal && (j === 0 && !stack.parent.parent.isBlock || !isHat) && (j !== 0 || !stack.hat()) && d.inBB(e, test = {
                                 left: bb.left - stackTolerance,
                                 right: bb.left + stackTolerance,
                                 top: bb.top - stackTolerance,
@@ -2568,7 +2594,7 @@ d.BlockStack = d.Class(d.Control, {
                                 block: block,
                                 bb: bb
                             });
-                            if (last && !stack.terminal()) {
+                            if (j === stack.children.length - 1 && !isHat && !stack.terminal()) {
                                 if (d.inBB(e, test = {
                                     left: bb.left - stackTolerance,
                                     right: bb.left + stackTolerance,
@@ -2708,14 +2734,6 @@ d.BlockStack = d.Class(d.Control, {
         this.element.style.left = bbb.left + editor.element.scrollLeft - bbe.left + 'px';
         this.element.style.top = bbb.top + editor.element.scrollTop - bbe.top + 'px';
         editor.fit();
-        return this;
-    },
-    unembed: function () {
-        var bb = this.element.getBoundingClientRect();
-        this.element.style.position = 'fixed';
-        this.element.style.left = bb.left + 'px';
-        this.element.style.top = bb.top + 'px';
-        this.app().add(this);
         return this;
     },
     destroy: function () {
@@ -2863,6 +2881,15 @@ d.arg.Base = d.Class(d.Control, {
     },
     isClaimed: function () {
         return this._isClaimed;
+    },
+    getPosition: function () {
+        var e = this.app().editor().element,
+            bb = this.element.getBoundingClientRect(),
+            bbe = e.getBoundingClientRect();
+        return {
+            x: bb.left + e.scrollLeft - bbe.left,
+            y: bb.top + e.scrollTop - bbe.top
+        };
     },
     '.value': {
         get: function () {
@@ -3351,21 +3378,23 @@ d.Block = d.Class(d.Control, {
             app = this.app();
             if (this.parent.top() === this) {
                 if (this.parent.parent && this.parent.parent.isStackSlot) {
+                    bb = this.getPosition();
                     this.parent.parent.setValue(null);
-                    app.add(this.parent);
+                    this.parent.initPosition(bb.x, bb.y);
                 }
-                return this.parent.unembed();
+                app.editor().add(this.parent);
+                return this.parent;
             }
-            bb = this.element.getBoundingClientRect();
+            bb = this.getPosition();
             stack = this.parent.splitStack(this);
-            stack.initPosition(bb.left, bb.top);
-            app.add(stack);
+            stack.initPosition(bb.x, bb.y);
+            app.editor().add(stack);
             return stack;
         }
-        bb = this.element.getBoundingClientRect();
+        bb = this.getPosition();
         stack = new d.BlockStack();
-        stack.initPosition(bb.left, bb.top);
-        this.app().add(stack);
+        stack.initPosition(bb.x, bb.y);
+        this.app().editor().add(stack);
         this.parent.restoreArg(this);
         return stack.add(this);
     },
@@ -3378,11 +3407,22 @@ d.Block = d.Class(d.Control, {
         socket.send(f.call(this));
         return this;
     },
+    getPosition: function () {
+        var e = this.app().editor().element,
+            bb = this.element.getBoundingClientRect(),
+            bbe = e.getBoundingClientRect();
+        return {
+            x: bb.left + e.scrollLeft - bbe.left,
+            y: bb.top + e.scrollTop - bbe.top
+        };
+    },
     x: function () {
-        return this.element.getBoundingClientRect().left + this.app().editor().element.scrollLeft;
+        var e = this.app().editor().element;
+        return this.element.getBoundingClientRect().left + e.scrollLeft - e.getBoundingClientRect().left;
     },
     y: function () {
-        return this.element.getBoundingClientRect().top + this.app().editor().element.scrollTop;
+        var e = this.app().editor().element;
+        return this.element.getBoundingClientRect().top + e.scrollTop - e.getBoundingClientRect().top;
     },
     dragStart: function (e) {
         var app, bb;
@@ -4114,6 +4154,7 @@ d.HatBlock = d.Class(d.Block, {
         this.addFill(this.newElement('d-hat-block-fill-t'));
         this.element.appendChild(this.container = this.newElement('d-hat-block-label'));
     },
+    isHat: true,
     '.terminal': {
         readonly: true,
         get: function () {
