@@ -431,9 +431,12 @@ d.App = d.Class(d.Control, {
             // e.preventDefault();
         }
         function mouseup(e) {
+            var not = !app.mouseDown || !app.mouseDownControl,
+                control = app.mouseDownControl;
             app.lastMouseEvent = e;
-            if (!app.mouseDown || !app.mouseDownControl) return;
             app.mouseDown = false;
+            app.mouseDownControl = undefined;
+            if (not) return;
             if (app._menu && app._menu.hasChild(e.target.control)) {
                 dx = app.mouseX - app.menuOriginX;
                 dy = app.mouseY - app.menuOriginY;
@@ -442,7 +445,7 @@ d.App = d.Class(d.Control, {
                     return;
                 }
             }
-            app.mouseDownControl.dispatch('TouchEnd', new d.TouchEvent().setMouseEvent(e));
+            control.dispatch('TouchEnd', new d.TouchEvent().setMouseEvent(e));
             // e.preventDefault();
         }
         function mousewheel(f) {
