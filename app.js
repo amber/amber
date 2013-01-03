@@ -1673,6 +1673,7 @@ d.Socket = d.Class(d.Base, {
     },
     message: function (e) {
         var packet = JSON.parse(e.data);
+        packet.$timestamp = +new Date;
         this.received.push(packet);
         this.receive(packet);
     },
@@ -1734,15 +1735,8 @@ d.Socket = d.Class(d.Base, {
                 break;
             case d.BlockAttachType.stack$insert:
                 bb = a.getPosition();
-                tracker = a.parent;
-                (a = a.detach()).setPosition(bb.x, bb.y + b.element.offsetHeight);
-                b.top().detach();
                 b.setPosition(bb.x, bb.y, function () {
-                    if (a.top() == tracker.top()) {
-                        b.appendStack(a);
-                    } else {
-                        tracker.appendStack(b).appendStack(a);
-                    }
+                    a.parent.insertStack(b, a);
                 }.bind(this));
                 break;
             case d.BlockAttachType.slot$command:
@@ -1822,6 +1816,7 @@ d.Socket = d.Class(d.Base, {
         }
     },
     send: function (packet) {
+        packet.$timestamp = +new Date;
         this.sent.push(packet);
         packet = JSON.stringify(packet);
         this.socket.send(packet);
@@ -1838,6 +1833,7 @@ d.OfflineSocket = d.Class(d.Socket, {
     },
     serve: function (p) {
         var p = JSON.parse(JSON.stringify(p));
+        packet.$timestamp = +new Date;
         this.received.push(p);
         this.receive(p);
     },
@@ -1859,6 +1855,7 @@ d.OfflineSocket = d.Class(d.Socket, {
         }, this);
     },
     send: function (p) {
+        p.$timestamp = +new Date;
         this.sent.push(p);
         switch (p.$) {
         case 'script.create':
@@ -3598,7 +3595,7 @@ d.Block = d.Class(d.Control, {
             return p.isPalette;
         })) {
             bb = this.element.getBoundingClientRect();
-            (app = this.app()).createScript(this.x(), this.y(), [this.copy().toJSON()]).startDrag(app, e, bb);
+            (app = this.app()).createScript(10, 10, [this.copy().toJSON()]).startDrag(app, e, bb);
         } else if (this.parent.isStack) {
             this.parent.dragStack(e, this);
         } else if (this.parent.isBlock) {
