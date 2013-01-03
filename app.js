@@ -303,6 +303,14 @@ d.Control = d.Class(d.Base, {
     app: function () {
         return this.parent && this.parent.app();
     },
+    hide: function () {
+        this.element.style.display = 'none';
+        return this;
+    },
+    show: function () {
+        this.element.style.display = '';
+        return this;
+    },
     childrenSatisfying: function (predicate) {
         var a = [];
         function add(control) {
@@ -1701,6 +1709,7 @@ d.Socket = d.Class(d.Base, {
                 tracker.forEach(function (a) {
                     a.amber(this);
                 }, this.amber);
+                a.hide();
                 this.amber.objectWithId(packet.object$id).scripts().add(a);
             }
             break;
@@ -3538,7 +3547,7 @@ d.Block = d.Class(d.Control, {
                     this.parent.initPosition(bb.x, bb.y);
                 }
                 app.editor().add(this.parent);
-                return this.parent;
+                return this.parent.show();
             }
             bb = this.getPosition();
             stack = this.parent.splitStack(this);
