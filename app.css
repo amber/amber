@@ -52,7 +52,7 @@
     z-index: 3;
 }
 
-.d-authentication-panel {
+.d-dialog {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -63,10 +63,7 @@
     border-radius: 4px;
     z-index: 4;
 }
-.d-authentication-input {
-    display: block;
-    width: 20em;
-    margin: 0 0 6px;
+.d-textfield {
     padding: 2px 6px;
     background: #fff;
     border: 0;
@@ -74,6 +71,14 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 1px 3px rgba(0, 0, 0, .3);
     outline: 0;
     position: relative;
+}
+.d-dialog .d-textfield,
+.d-dialog .d-checkbox {
+    display: block;
+    margin: 0 0 6px;
+}
+.d-dialog .d-textfield {
+    width: 20em;
 }
 .d-authentication-server {
     width: 18.4em;
@@ -88,16 +93,15 @@
     background: #ddd;
     border: 0;
 }
-.d-authentication-input:focus {
+.d-textfield:focus {
     box-shadow:
         0 0 1px 1px rgba(0, 0, 0, .4),
         0 0 0 3px rgba(20%, 80%, 100%, .8),
         inset 0 1px 3px rgba(0, 0, 0, .3);
 }
-.d-authentication-button {
-    margin: 0 0 0 6px;
-    display: block;
-    float: right;
+.d-button,
+.d-checkbox-button {
+    margin: 0;
     border: 0;
     border-radius: 2px;
     padding: 2px 6px 4px;
@@ -107,16 +111,46 @@
     color: #222;
     outline: 0;
 }
-.d-authentication-button:focus {
+.d-checkbox-button-checked::before {
+    content: '\2713';
+    font: 9px "Lucida Grande", Tahoma, sans-serif;
+    vertical-align: top;
+}
+.d-dialog .d-button {
+    margin: 0 0 0 6px;
+    display: block;
+    float: right;
+}
+.d-button:focus,
+.d-checkbox-button:focus {
     box-shadow:
         0 0 1px 1px rgba(0, 0, 0, .4),
         0 0 0 3px rgba(20%, 80%, 100%, .8);
 }
-.d-authentication-button:not(:disabled):active,
-.d-authentication-button-pressed {
+.d-button:not(:disabled):active,
+.d-checkbox-button:not(:disabled):active,
+.d-checkbox:active > .d-checkbox-button,
+.d-button-pressed {
     color: #000;
     background: -webkit-linear-gradient(#aaa, #bbb);
     background: -moz-linear-gradient(#aaa, #bbb);
+}
+.d-checkbox-button {
+    padding: 0;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.d-checkbox {
+}
+.d-checkbox-label {
+    display: inline-block;
+    color: #ddd;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.5);
+    margin-left: 6px;
+    vertical-align: middle;
+    font: 13px sans-serif;
 }
 .d-authentication-message {
     clear: both;

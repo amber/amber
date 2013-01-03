@@ -784,7 +784,7 @@ d.TextField = d.Class(d.FormControl, {
     '@KeyDown': {},
     init: function (className) {
         this.base(arguments);
-        this.element = this.newElement(className, 'input');
+        this.element = this.newElement(className || 'd-textfield', 'input');
         this.element.addEventListener('input', function (e) {
             this.dispatch('Input', new d.ControlEvent().setControl(this));
         }.bind(this));
@@ -826,12 +826,17 @@ d.Button = d.Class(d.FormControl, {
     '@Execute': {},
     init: function (className) {
         this.base(arguments);
-        this.element = this.newElement(className, 'button');
+        this.element = this.newElement(className || 'd-button', 'button');
         this.onTouchEnd(function (e) {
             if (d.inBB(e, this.element.getBoundingClientRect())) {
                 this.dispatch('Execute', new d.ControlEvent().setControl(this));
             }
         });
+        this.element.addEventListener('keyup', function (e) {
+            if (e.keyCode === 32) {
+                this.dispatch('Execute', new d.ControlEvent().setControl(this));
+            }
+        }.bind(this));
     },
     '.text': {
         get: function () {
@@ -840,6 +845,75 @@ d.Button = d.Class(d.FormControl, {
         set: function (text) {
             this.element.textContent = text;
         }
+    }
+});
+d.Checkbox = d.Class(d.Control, {
+    acceptsClick: true,
+    '@Change': {},
+    init: function (className) {
+        this.base(arguments);
+        this.initElements('d-checkbox', 'label');
+        this.element.appendChild((this.button = new d.Button('d-checkbox-button')
+            .onExecute(function () {
+                this.setChecked(!this.checked());
+            }, this)).element);
+        this.element.appendChild(this.label = this.newElement('d-checkbox-label'));
+        this.onTouchEnd(function (e) {
+            if (d.inBB(e, this.element.getBoundingClientRect())) {
+                this.setChecked(!this.checked());
+            }
+        });
+    },
+    focus: function () {
+        this.button.focus();
+        return this;
+    },
+    '.checked': {
+        event: 'Change',
+        apply: function (checked) {
+            d.toggleClass(this.button.element, 'd-checkbox-button-checked', checked);
+        }
+    },
+    '.text': {
+        get: function () {
+            return this.label.textContent;
+        },
+        set: function (text) {
+            this.label.textContent = text;
+        }
+    }
+});
+
+d.Dialog = d.Class(d.Control, {
+    init: function () {
+        this.base(arguments);
+        this.initElements('d-dialog');
+    },
+    show: function (app) {
+        app.setLightboxEnabled(true).add(this);
+        this.layout();
+        this.focus();
+        return this;
+    },
+    close: function () {
+        this.app().setLightboxEnabled(false).remove(this);
+    },
+    focus: function () {
+        function descend(child) {
+            var i = 0, c;
+            if (child.tagName === 'INPUT' || child.tagName === 'BUTTON' || child.tagName === 'TEXTAREA') {
+                child.focus();
+                return true;
+            }
+            while (c = child.childNodes[i++]) {
+                if (descend(c)) return true;
+            }
+        }
+        descend(this.element);
+    },
+    layout: function () {
+        this.element.style.marginLeft = this.element.offsetWidth * -.5 + 'px';
+        this.element.style.marginTop = this.element.offsetHeight * -.5 + 'px';
     }
 });
 
@@ -999,7 +1073,7 @@ d.Scriptable = d.Class(d.ServerData, {
         this._filteredImage.getContext('2d').drawImage(costume, 0, 0);
     },
     variable: function (name) {
-        return this._variables[name];
+        return this._variables['v_' + name];
     },
     variables: function () {
         var array = [], name;
@@ -1011,14 +1085,21 @@ d.Scriptable = d.Class(d.ServerData, {
     variableNames: function () {
         var array = [], name;
         for (name in this._variables) if (this._variables.hasOwnProperty(name)) {
-            array.push(name);
+            array.push(name.substr(2));
         }
         return array;
+    },
+    hasVariable: function (name) {
+        return this._variables.hasOwnProperty('var_' + name);
+    },
+    addVariable: function (name) {
+        this._variables['v_' + name] = new d.Variable().setName(name).setValue('0');
+        return this;
     },
     loadVariables: function (variables) {
         var o = this._variables = {};
         if (variables) variables.forEach(function (variable) {
-            o[variable.name] = new d.Variable().fromJSON(variable);
+            o['v_' + variable.name] = new d.Variable().fromJSON(variable);
         });
         return this;
     },
@@ -1142,7 +1223,7 @@ d.t = function (id) {
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
 };
 d.Amber = d.Class(d.App, {
-    PROTOCOL_VERSION: '1.1.4',
+    PROTOCOL_VERSION: '1.1.5',
 
     init: function () {
         this.base(arguments);
@@ -1214,19 +1295,20 @@ d.Amber = d.Class(d.App, {
         xhr.send();
     },
     setElement: function (element) {
-        var name, category;
-        this.base(arguments, element);
-        this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
-        this.add(this._tab = new d.BlockEditor()).
-            add(this.palette = new d.BlockPalette()).
-            add(this.userPanel = new d.UserPanel(this)).
-            add(this.spritePanel = new d.SpritePanel(this)).
-            add(this.authentication = new d.AuthenticationPanel(this)).
-            add(this.tabBar = new d.TabBar(this)).
+        var t = this,
+            name, category;
+        t.base(arguments, element);
+        t.element.appendChild(t.lightbox = t.newElement('d-lightbox'));
+        t.add(t._tab = new d.BlockEditor()).
+            add(t.palette = new d.BlockPalette()).
+            add(t.userPanel = new d.UserPanel(t)).
+            add(t.spritePanel = new d.SpritePanel(t)).
+            add(t.authentication = new d.AuthenticationPanel(t)).
+            add(t.tabBar = new d.TabBar(t)).
             setLightboxEnabled(true);
-        this.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
-        this.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
-        this.authentication.layout();
+        t.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
+        t.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
+        t.authentication.layout();
 
         for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
             category = new d.BlockList();
@@ -1234,14 +1316,48 @@ d.Amber = d.Class(d.App, {
                 var block;
                 if (spec === '-') {
                     category.addSpace();
+                } else if (spec[0] === '&') {
+                    category.add(new d.Button().setText(spec[2]).onExecute(function () {
+                        t[spec[1]]();
+                    }));
                 } else {
                     category.add(d.Block.fromSpec(spec));
                 }
             });
-            this.palette.addCategory(name, category);
+            t.palette.addCategory(name, category);
         }
 
-        return this;
+        return t;
+    },
+    createVariable: function () {
+        var dialog, name;
+        dialog = new d.Dialog()
+            .add(name = new d.TextField()
+                .setPlaceholder(d.t('Variable Name')))
+            .add(new d.Checkbox()
+                .setText(d.t('For this sprite only')))
+            .add(new d.Button()
+                .setText(d.t('OK'))
+                .onExecute(function () {
+                    var sprite = this.selectedSprite(),
+                        variable = name.text();
+                    dialog.close();
+                    if (/^\s*$/.test(variable) || sprite.hasVariable(variable)) {
+                        return;
+                    }
+                    sprite.addVariable(variable);
+                    this.socket.send({
+                        $: 'variable.create',
+                        object$id: sprite.id(),
+                        name: variable
+                    });
+                }, this))
+            .add(new d.Button()
+                .setText(d.t('Cancel'))
+                .onExecute(function () {
+                    dialog.close();
+                }))
+            .show(this);
     },
     '.lightboxEnabled': {
         apply: function (lightboxEnabled) {
@@ -1373,7 +1489,9 @@ d.BlockSpecs = {
         ['vs', {$:'pen size'}]
     ],
     data: [
-        ['v', 'var'],
+        ['&', 'createVariable', 'Make a Variable'],
+        '-',
+        ['v', ''],
         '-',
         ['vs', ''],
         ['vc', ''],
@@ -1668,6 +1786,9 @@ d.Socket = d.Class(d.Base, {
         case 'project.data':
             this.amber.setProject(new d.Project(this.amber).fromJSON(packet.data));
             break;
+        case 'variable.create':
+            this.amber.objectWithId(packet.object$id).addVariable(packet.name);
+            break;
         case 'chat.message':
             this.amber.getUserById(packet.user$id, function (user) {
                 this.chat.showMessage(user, packet.message);
@@ -1803,27 +1924,27 @@ d.AuthenticationPanel = d.Class(d.Control, {
         this.amber = amber;
         this.base(arguments);
 
-        this.initElements('d-authentication-panel');
+        this.initElements('d-dialog');
         this.element.appendChild(this.serverSelect = this.newElement('d-authentication-server-select', 'select'));
-        this.add(this.serverField = new d.TextField('d-authentication-input d-authentication-server')
+        this.add(this.serverField = new d.TextField('d-textfield d-authentication-server')
             .setPlaceholder(d.t('Server'))
             .onInput(this.serverInput, this)
             .setText((savedServer =
                 localStorage.getItem('d.authentication-panel.server')) ? savedServer :
                 'ws://mpblocks.cloudno.de/:9182'));
-        this.add(this.usernameField = new d.TextField('d-authentication-input')
+        this.add(this.usernameField = new d.TextField()
             .setPlaceholder(d.t('Scratch Username'))
             .onInput(this.userInput, this));
-        this.add(this.passwordField = new d.TextField.Password('d-authentication-input')
+        this.add(this.passwordField = new d.TextField.Password()
             .setPlaceholder(d.t('Password'))
             .onKeyDown(this.passwordKeyDown, this));
-        this.add(this.signInButton = new d.Button('d-authentication-button')
+        this.add(this.signInButton = new d.Button()
             .setText(d.t('Sign In'))
             .onExecute(this.submit, this));
-        this.add(this.registerButton = new d.Button('d-authentication-button')
+        this.add(this.registerButton = new d.Button()
             .setText(d.t('Register'))
             .onExecute(this.register, this));
-        this.add(this.offlineButton = new d.Button('d-authentication-button')
+        this.add(this.offlineButton = new d.Button()
             .setText(d.t('Offline'))
             .onExecute(this.offlineMode, this));
         this.element.appendChild(this.messageField = this.newElement('d-authentication-message'));
@@ -1870,10 +1991,10 @@ d.AuthenticationPanel = d.Class(d.Control, {
             this.registerButton.setEnabled(enabled);
             this.offlineButton.setEnabled(enabled);
             if (enabled) {
-                d.removeClass(this.signInButton.element, 'd-authentication-button-pressed');
-                d.removeClass(this.offlineButton.element, 'd-authentication-button-pressed');
+                d.removeClass(this.signInButton.element, 'd-button-pressed');
+                d.removeClass(this.offlineButton.element, 'd-button-pressed');
             } else {
-                d.addClass((this.amber.offline() ? this.offlineButton : this.signInButton).element, 'd-authentication-button-pressed');
+                d.addClass((this.amber.offline() ? this.offlineButton : this.signInButton).element, 'd-button-pressed');
             }
         }
     },
