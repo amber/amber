@@ -1039,7 +1039,11 @@ d.Scriptable = d.Class(d.ServerData, {
         this.onCostumeChange(this.updateFilteredImage);
     },
     '@CostumeChange': {},
-    '.id': {},
+    '.id': {
+        apply: function (id) {
+            this.amber.objects[id] = this;
+        }
+    },
     '.scripts': {
         get: function () {
             var editor = this._editor,
@@ -1230,6 +1234,7 @@ d.Amber = d.Class(d.App, {
         this.usersByName = {};
         this.usersById = {};
         this.blocks = {};
+        this.objects = {};
         document.addEventListener('keydown', this.keyDown.bind(this));
     },
     keyDown: function (e) {
@@ -1381,7 +1386,7 @@ d.Amber = d.Class(d.App, {
     },
     '.selectedSprite': {},
     objectWithId: function (id) {
-        return this.project().stage().objectWithId(id);
+        return this.objects[id];
     },
     selectSprite: function (object) {
         this.setSelectedSprite(object);
@@ -1696,7 +1701,7 @@ d.Socket = d.Class(d.Base, {
                 tracker.forEach(function (a) {
                     a.amber(this);
                 }, this.amber);
-                this.amber.objectWithId(packet.object$id).editor().add(a);
+                this.amber.objectWithId(packet.object$id).scripts().add(a);
             }
             break;
         case 'block.move':
