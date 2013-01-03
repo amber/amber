@@ -580,7 +580,7 @@ d.Menu = d.Class(d.Control, {
             max, bottom, delta;
         this.viewHeight = parseFloat(getComputedStyle(this.element).height);
         max = this.container.offsetHeight - this.viewHeight;
-        this.scrollY = Math.max(0, Math.min(max, this.scrollY - e.y));
+        this.scrollY = Math.max(0, Math.min(max, this.scrollY + e.y));
         if (top > 4 && max > 0) {
             this.scrollY -= top - (top = Math.max(4, top - this.scrollY));
             this.element.style.top = top + 'px';
