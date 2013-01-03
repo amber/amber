@@ -399,10 +399,12 @@
 }
 .d-block-editor {
     background:
-        local -webkit-linear-gradient(right bottom, rgb(20%, 20%, 20%) 6.25%, transparent 6.25%),
-        local -webkit-linear-gradient(right bottom, rgb(20%, 20%, 20%) 6.25%, transparent 6.25%) -8px -8px,
+        local -webkit-linear-gradient(left bottom, rgb(36%, 36%, 36%) 20%, transparent 20%) 0 -2px,
+        local -webkit-linear-gradient(left bottom, rgb(33%, 33%, 33%) 20%, transparent 20%) 0 -3px,
+        local -webkit-linear-gradient(left bottom, rgb(36%, 36%, 36%) 20%, transparent 20%) 2px 0,
+        local -webkit-linear-gradient(left bottom, rgb(33%, 33%, 33%) 20%, transparent 20%) 2px -1px,
         rgb(30%, 30%, 30%);
-    background-size: 16px 16px;
+    background-size: 4px 4px;
 }
 .d-block-editor-fill {
     position: absolute;
