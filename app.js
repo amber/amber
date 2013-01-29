@@ -1412,6 +1412,12 @@ d.Amber = d.Class(d.App, {
             this.selectSprite(stage.children()[0] || stage);
             this.stageView.setModel(stage);
         }
+    },
+    isBlockVisible: function (block) {
+        var scripts = this.selectedSprite().scripts();
+        return block.anyParentSatisfies(function (parent) {
+            return parent === scripts;
+        });
     }
 });
 d.BlockSpecs = {
@@ -1718,47 +1724,74 @@ d.Socket = d.Class(d.Base, {
             }
             break;
         case 'block.move':
-            a = this.amber.blocks[packet.block$id];
-            a.detach().setPosition(packet.x, packet.y, function () {
-                a.parent.embed();
-            });
+            a = this.amber.blocks[packet.block$id].detach();
+            if (this.amber.isBlockVisible(a)) {
+                a.setPosition(packet.x, packet.y, function () {
+                    a.parent.embed();
+                });
+                return;
+            }
+            a.initPosition(packet.x, packet.y);
             break;
         case 'block.attach':
             a = this.amber.blocks[packet.target$id];
             b = this.amber.blocks[packet.block$id].detach();
+            if (this.amber.isBlockVisible(a)) {
+                switch (packet.type) {
+                case d.BlockAttachType.stack$append:
+                    bb = a.getPosition();
+                    b.setPosition(bb.x, bb.y + a.element.offsetHeight, function () {
+                        a.parent.appendStack(b);
+                    }.bind(this));
+                    break;
+                case d.BlockAttachType.stack$insert:
+                    bb = a.getPosition();
+                    b.setPosition(bb.x, bb.y, function () {
+                        a.parent.insertStack(b, a);
+                    }.bind(this));
+                    break;
+                case d.BlockAttachType.slot$command:
+                    a = a.arguments[packet.slot$index];
+                    bb = a.getPosition();
+                    b.setPosition(bb.x, bb.y, function () {
+                        b.removePosition();
+                        a.setValue(b);
+                    }.bind(this));
+                    break;
+                case d.BlockAttachType.slot$replace:
+                    bb = (tracker = a.arguments[packet.slot$index]).getPosition();
+                    b.setPosition(bb.x, bb.y, function () {
+                        a.replaceArg(tracker, b.top());
+                    }.bind(this));
+                    break;
+                }
+                return;
+            }
             switch (packet.type) {
             case d.BlockAttachType.stack$append:
-                bb = a.getPosition();
-                b.setPosition(bb.x, bb.y + a.element.offsetHeight, function () {
-                    a.parent.appendStack(b);
-                }.bind(this));
+                a.parent.appendStack(b);
                 break;
             case d.BlockAttachType.stack$insert:
-                bb = a.getPosition();
-                b.setPosition(bb.x, bb.y, function () {
-                    a.parent.insertStack(b, a);
-                }.bind(this));
+                a.parent.insertStack(b, a);
                 break;
             case d.BlockAttachType.slot$command:
-                a = a.arguments[packet.slot$index];
-                bb = a.getPosition();
-                b.setPosition(bb.x, bb.y, function () {
-                    b.removePosition();
-                    a.setValue(b);
-                }.bind(this));
+                a.setValue(b);
                 break;
             case d.BlockAttachType.slot$replace:
-                bb = (tracker = a.arguments[packet.slot$index]).getPosition();
-                b.setPosition(bb.x, bb.y, function () {
-                    a.replaceArg(tracker, b.top());
-                }.bind(this));
+                a.replaceArg(tracker, b.top());
+                break;
             }
             break;
         case 'block.delete':
-            bb = d.BlockPalette.palettes[0].element.getBoundingClientRect();
-            (a = this.amber.blocks[packet.block$id]).detach().setPosition(bb.left + 10, bb.top + 10 + (bb.bottom - bb.top - 20) * Math.random(), function () {
-                a.parent.destroy();
-            }.bind(this));
+            a = this.amber.blocks[packet.block$id];
+            if (this.amber.isBlockVisible(a)) {
+                bb = d.BlockPalette.palettes[0].element.getBoundingClientRect();
+                a.detach().setPosition(bb.left + 10, bb.top + 10 + (bb.bottom - bb.top - 20) * Math.random(), function () {
+                    a.parent.destroy();
+                }.bind(this));
+                return;
+            }
+            a.parent.destroy();
             break;
         case 'slot.claim':
             if (packet.block$id === -1) {
@@ -2552,9 +2585,16 @@ d.BlockStack = d.Class(d.Control, {
         return this;
     },
     getPosition: function () {
-        var e = this.app().editor().element,
-            bb = this.element.getBoundingClientRect(),
-            bbe = e.getBoundingClientRect();
+        var app = this.app(), e, bb, bbe;
+        if (!app) {
+            return {
+                x: parseInt(this.element.style.left),
+                y: parseInt(this.element.style.top)
+            };
+        }
+        e = app.editor().element;
+        bb = this.element.getBoundingClientRect();
+        bbe = e.getBoundingClientRect();
         return {
             x: bb.left + e.scrollLeft - bbe.left,
             y: bb.top + e.scrollTop - bbe.top
@@ -3005,13 +3045,16 @@ d.arg.Base = d.Class(d.Control, {
     claimEdits: function () {},
     unclaimEdits: function () {},
     claim: function () {
+        var id = this.parent.id();
+        if (id === -1) return;
         this.app().socket.send({
             $: 'slot.claim',
-            block$id: this.parent.id(),
+            block$id: id,
             slot$index: this.parent.slotIndex(this)
         });
     },
     unclaim: function () {
+        if (this.parent.id() === -1) return;
         this.app().socket.send({
             $: 'slot.claim',
             block$id: -1
@@ -3537,28 +3580,30 @@ d.Block = d.Class(d.Control, {
         }
     },
     detach: function () {
-        var stack, app, bb;
+        var stack,
+            bb = this.getPosition(),
+            editor = this;
+        do {
+            editor = editor.parent;
+        } while (editor && !(editor instanceof d.BlockEditor));
         if (this.parent.isStack) {
-            app = this.app();
+            ;
             if (this.parent.top() === this) {
                 if (this.parent.parent && this.parent.parent.isStackSlot) {
-                    bb = this.getPosition();
                     this.parent.parent.setValue(null);
                     this.parent.initPosition(bb.x, bb.y);
                 }
-                app.editor().add(this.parent);
+                editor.add(this.parent);
                 return this.parent.show();
             }
-            bb = this.getPosition();
             stack = this.parent.splitStack(this);
             stack.initPosition(bb.x, bb.y);
-            app.editor().add(stack);
+            editor.add(stack);
             return stack;
         }
-        bb = this.getPosition();
         stack = new d.BlockStack();
         stack.initPosition(bb.x, bb.y);
-        this.app().editor().add(stack);
+        editor.add(stack);
         this.parent.restoreArg(this);
         return stack.add(this);
     },
