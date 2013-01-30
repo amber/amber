@@ -1866,7 +1866,7 @@ d.OfflineSocket = d.Class(d.Socket, {
     },
     serve: function (p) {
         var p = JSON.parse(JSON.stringify(p));
-        packet.$timestamp = +new Date;
+        p.$timestamp = +new Date;
         this.received.push(p);
         this.receive(p);
     },
