@@ -1632,14 +1632,14 @@
     margin-top: -18px;
     margin-bottom: 6px;
 }
-.d-r-project-authors a {
+.d-app a {
     color: #eee;
     text-decoration: none;
 }
-.d-r-project-authors a:hover {
+.d-app a:hover {
     text-decoration: underline;
 }
-.d-r-project-authors a:active {
+.d-app a:active {
     color: #ccc;
 }
 .d-r-project-stats {
@@ -1664,4 +1664,44 @@
     word-wrap: break-word;
     overflow: auto;
     max-height: 389px;
+}
+
+.d-r-user-about {
+    padding: 0 12px 12px;
+    font: 13px/17px sans-serif;
+    color: #eee;
+}
+.d-r-user-activity {
+    float: left;
+    width: 360px;
+    margin: 0 12px 12px 0;
+}
+.d-r-user-carousels {
+    margin: 0 0 12px 372px;
+}
+.d-r-user-activity-item {
+    padding: 12px;
+    color: #aaa;
+    font: 13px/17px sans-serif;
+}
+.d-r-user-activity-item strong {
+    color: #eee;
+    font-weight: normal;
+}
+.d-r-activity-date {
+    color: #aaa;
+    font: 11px/15px sans-serif;
+}
+.d-r-user-title-alternate,
+.d-r-user-about-alternate,
+.d-r-user-activity-item:nth-child(2n+1) {
+    background: rgb(24%, 24%, 24%);
+}
+.d-r-user-activity-title,
+.d-r-user-title {
+    padding-bottom: 0;
+}
+.d-r-user-icon {
+    float: left;
+    width: ;
 }

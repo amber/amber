@@ -4580,7 +4580,40 @@ d.r.views = {
         });
     },
     'user.profile': function (args) {
-        // TODO
+        this.page
+            .add(new d.Container('d-r-user-icon'))
+            .add(new d.Label('d-r-title d-r-user-title').setText(args[1]))
+            .add(new d.Container('d-r-user-icon'))
+            .add(new d.Container('d-r-user-activity')
+                .add(new d.Label('d-r-title').setText('About Me'))
+                .add(new d.Label('d-r-user-about').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'))
+                .add(new d.Label('d-r-title d-r-user-title-alternate').setText('What I\'m Working On'))
+                .add(new d.Label('d-r-user-about d-r-user-about-alternate').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
+                .add(new d.Label('d-r-title d-r-user-activity-title').setText('What I\'ve Been Doing'))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('2 days, 8 hours ago'))))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
+                .add(new d.Container('d-r-user-activity-item')
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="#">Awesome Projects</a>')))
+                    .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago')))))
+            .add(new d.Container('d-r-user-carousels')
+                .add(new d.r.Carousel().setTitle(d.t('Shared Projects')))
+                .add(new d.r.Carousel().setTitle(d.t('Favorite Projects')))
+                .add(new d.r.Carousel().setTitle(d.t('Collections')))
+                .add(new d.r.Carousel().setTitle(d.t('Following')))
+                .add(new d.r.Carousel().setTitle(d.t('Followers'))));
     }
 };
 d.r.App = d.Class(d.App, {
@@ -4728,7 +4761,7 @@ d.r.CarouselItem = d.Class(d.Button, {
         this.element.appendChild(this.icon = this.newElement('d-r-carousel-item-icon'));
         this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
         this.onExecute(function () {
-            this.app().show('project.view', 0);
+            this.app().show('project.view', 3);
         });
     },
     '.label': {
