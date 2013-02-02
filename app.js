@@ -248,6 +248,23 @@ d.Control = d.Class(d.Base, {
         this.container.appendChild(child.element);
         return this;
     },
+    clear: function () {
+        var children = this.children, i = 0, child;
+        while (child = children[i++]) {
+            child.parent = null;
+        }
+        this.children = [];
+        this.container.innerHTML = '';
+        return this;
+    },
+    addClass: function (className) {
+        d.addClass(this.element, className);
+        return this;
+    },
+    removeClass: function (className) {
+        d.removeClass(this.element, className);
+        return this;
+    },
     remove: function (child) {
         this.children.splice(this.children.indexOf(child), 1);
         child.parent = null;
@@ -311,6 +328,10 @@ d.Control = d.Class(d.Base, {
         this.element.style.display = '';
         return this;
     },
+    setVisible: function (visible) {
+        this.element.style.display = visible ? '' : 'none';
+        return this;
+    },
     childrenSatisfying: function (predicate) {
         var a = [];
         function add(control) {
@@ -331,6 +352,20 @@ d.Control = d.Class(d.Base, {
             if (predicate(control)) return true;
         } while (control = control.parent);
         return false;
+    }
+});
+d.Label = d.Class(d.Control, {
+    init: function (className) {
+        this.base(arguments);
+        this.element = this.newElement(className || 'd-label');
+    },
+    '.text': {
+        get: function () {
+            return this.element.textContent;
+        },
+        set: function (text) {
+            this.element.textContent = text;
+        }
     }
 });
 d.App = d.Class(d.Control, {
@@ -357,7 +392,6 @@ d.App = d.Class(d.Control, {
         this.element = this.container = element;
         element.control = this;
         d.addClass(element, 'd-app');
-        d.addClass(element, 'd-collapse-user-panel');
         element.addEventListener('touchstart', function (e) {
             var t = e.target;
             if (t.nodeType === 3) t = t.parentNode;
@@ -464,12 +498,6 @@ d.App = d.Class(d.Control, {
         element.addEventListener('mousewheel', mousewheel('setWebkitEvent'), true);
         element.addEventListener('MozMousePixelScroll', mousewheel('setMozEvent'), true);
         return this;
-    },
-    '.fullscreen': {
-        apply: function (fullscreen) {
-            d.toggleClass(this.element, 'd-fullscreen', fullscreen);
-            document.body.style.overflow = fullscreen ? 'hidden' : '';
-        }
     }
 });
 d.Menu = d.Class(d.Control, {
@@ -895,6 +923,26 @@ d.Checkbox = d.Class(d.Control, {
     }
 });
 
+d.ProgressBar = d.Class(d.Control, {
+    init: function () {
+        this.base(arguments);
+        this.element = this.newElement('d-progress');
+        this.element.appendChild(this.bar = this.newElement('d-progress-bar'))
+    },
+    '.progress': {
+        apply: function (progress) {
+            this.bar.style.width = progress * 100 + '%';
+        }
+    }
+});
+
+d.Container = d.Class(d.Control, {
+    init: function (className) {
+        this.base(arguments);
+        this.element = this.container = this.newElement(className || '');
+    }
+});
+
 d.Dialog = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
@@ -927,8 +975,6 @@ d.Dialog = d.Class(d.Control, {
         this.element.style.marginTop = this.element.offsetHeight * -.5 + 'px';
     }
 });
-
-// == Amber ==
 
 d.locale = {};
 d.ServerData = d.Class(d.Base, {
@@ -1223,6 +1269,8 @@ d.Sprite = d.Class(d.Scriptable, {
     }
 });
 
+d.API_URL = 'http://25.3.222.90:8080/api/';
+
 d.currentLocale = 'en-US';
 d.t = function (id) {
     var locale = d.locale[d.currentLocale],
@@ -1236,6 +1284,9 @@ d.t = function (id) {
         result = locale[id];
     }
     return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
+};
+d.t.list = function (list) {
+    return (d.locale[d.currentLocale].__list || d.locale['en-US'].__list)(list);
 };
 d.Amber = d.Class(d.App, {
     PROTOCOL_VERSION: '1.1.5',
@@ -1311,20 +1362,28 @@ d.Amber = d.Class(d.App, {
         xhr.send();
     },
     setElement: function (element) {
-        var t = this,
-            name, category;
-        t.base(arguments, element);
-        t.element.appendChild(t.lightbox = t.newElement('d-lightbox'));
-        t.add(t._tab = new d.BlockEditor()).
-            add(t.palette = new d.BlockPalette()).
-            add(t.userPanel = new d.UserPanel(t)).
-            add(t.spritePanel = new d.SpritePanel(t)).
-            add(t.authentication = new d.AuthenticationPanel(t)).
-            add(t.tabBar = new d.TabBar(t)).
-            setLightboxEnabled(true);
-        t.userPanel.setCollapsed(localStorage.getItem('d.chat.collapsed') === 'true');
-        t.spritePanel.setCollapsed(localStorage.getItem('d.sprite-panel.collapsed') !== 'false');
-        t.authentication.layout();
+        this.base(arguments, element);
+        d.addClass(element, 'd-amber');
+        d.addClass(element, 'd-collapse-user-panel');
+        element.appendChild(this.lightbox = this.newElement('d-lightbox'));
+        this.lightbox.style.display = 'none';
+        this.preloader = new d.Dialog().addClass('d-preloader')
+            .add(this._progressLabel = new d.Label())
+            .add(this._progressBar = new d.ProgressBar())
+            .show(this);
+        this.add(this.spritePanel = new d.SpritePanel(this));
+        this.spriteList.hide();
+        this.spritePanel.setToggleVisible(false);
+        return this;
+    },
+    initEditMode: function (element) {
+        var t = this;
+        t.editorLoaded = true;
+        t.add(t._tab = new d.BlockEditor())
+            .add(t.palette = new d.BlockPalette())
+            .add(t.userPanel = new d.UserPanel(t))
+            .add(t.authentication = new d.AuthenticationPanel(t)) // TODO remove
+            .add(t.tabBar = new d.TabBar(t));
 
         for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
             category = new d.BlockList();
@@ -1341,9 +1400,8 @@ d.Amber = d.Class(d.App, {
                 }
             });
             t.palette.addCategory(name, category);
-        }
-
-        return t;
+        };
+        return this;
     },
     createVariable: function () {
         var dialog, name;
@@ -1378,6 +1436,12 @@ d.Amber = d.Class(d.App, {
     '.lightboxEnabled': {
         apply: function (lightboxEnabled) {
             this.lightbox.style.display = lightboxEnabled ? 'block' : 'none';
+        }
+    },
+    '.preloaderEnabled': {
+        apply: function (preloaderEnabled) {
+            this.preloader.setVisible(preloaderEnabled);
+            this.setLightboxEnabled(true);
         }
     },
     '.offline': {
@@ -1418,6 +1482,76 @@ d.Amber = d.Class(d.App, {
         return block.anyParentSatisfies(function (parent) {
             return parent === scripts;
         });
+    },
+    '.projectId': {
+        apply: function (id) {
+            this.setPreloaderEnabled(true);
+            this.setProgressText(d.t('Loading project data…'));
+            this.load('GET', 'projects/' + id + '/', null, function (data) {
+                var project = JSON.parse(data);
+            });
+        }
+    },
+    activeRequests: [],
+    updateProgress: function () {
+        var p = 0, i = this.activeRequests.length;
+        while (i--) {
+            p += this.activeRequests[i].progress;
+        }
+        this.setProgress(p / this.activeRequests.length);
+    },
+    load: function (method, url, body, callback) {
+        var t = this, req = {progress: 0}, xhr = new XMLHttpRequest, p = 0;
+        t.activeRequests.push(req);
+        t.updateProgress();
+        xhr.open(method, d.API_URL + url, true);
+        xhr.onprogress = function (e) {
+            if (e.lengthComputable) {
+                req.progress = e.loaded / e.total;
+                t.updateProgress();
+            }
+        };
+        xhr.onload = function () {
+            t.updateProgress();
+            if (callback) callback.call(t, req.responseText);
+        };
+        xhr.onerror = function () {
+            t.activeRequests = [];
+            t.updateProgress();
+            t.setProgressText(d.t('Error.'));
+        };
+        xhr.send(body);
+    },
+    '.progress': {
+        apply: function (progress) {
+            this._progressBar.setProgress(progress);
+        }
+    },
+    '.progressText': {
+        apply: function (progressText) {
+            this._progressLabel.setText(progressText);
+        }
+    },
+    '.editMode': {
+        apply: function (editMode) {
+            var t = this;
+            d.toggleClass(this.element, 'd-app-edit', editMode);
+            document.body.style.overflow = editMode ? 'hidden' : '';
+            if (t.editorLoaded) {
+                t._tab.setVisible(editMode);
+                t.palette.setVisible(editMode);
+                t.userPanel.setVisible(editMode);
+                t.tabBar.setVisible(editMode);
+                t.setLightboxEnabled(t.lightboxEnabled() && editMode || t.preloaderEnabled());
+            } else if (editMode) {
+                t.initEditMode();
+            }
+            if (!editMode) {
+                t.spritePanel.setCollapsed(false);
+            }
+            t.spriteList.setVisible(editMode);
+            t.spritePanel.setToggleVisible(editMode);
+        }
     }
 });
 d.BlockSpecs = {
@@ -1671,10 +1805,6 @@ d.Socket = d.Class(d.Base, {
         if (this.callback) this.callback();
     },
     close: function (e) {
-        if (this.amber.authentication.shown()) {
-            this.amber.authentication.setMessage(d.t('Connection failed.'));
-            this.amber.authentication.setEnabled(true);
-        }
         console.warn('Socket closed:', e);
     },
     message: function (e) {
@@ -2108,7 +2238,6 @@ d.UserPanel = d.Class(d.Control, {
     collapsed: true,
     toggle: function () {
         d.toggleClass(this.app().element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
-        localStorage.setItem('d.chat.collapsed', this.collapsed);
         if (!this.collapsed) {
             this.amber.chat.focus();
         }
@@ -2263,9 +2392,11 @@ d.SpritePanel = d.Class(d.Control, {
         this.toggleButton.addEventListener('click', this.toggle.bind(this));
     },
     collapsed: false,
+    setToggleVisible: function (toggleVisible) {
+        this.toggleButton.style.display = toggleVisible ? '' : 'none';
+    },
     toggle: function () {
         d.toggleClass(this.app().element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
-        localStorage.setItem('d.sprite-panel.collapsed', this.collapsed);
     },
     setCollapsed: function (collapsed) {
         if (this.collapsed !== collapsed) {
@@ -4371,6 +4502,215 @@ d.HatBlock = d.Class(d.Block, {
         readonly: true,
         get: function () {
             return false;
+        }
+    }
+});
+
+d.r = {};
+d.r.views = {
+    index: function () {
+        this.page
+            .add(new d.r.Carousel().setTitle(d.t('Featured Projects')))
+            .add(new d.r.Carousel().setTitle(d.t('Projects by Users I\'m Following')))
+            .add(new d.r.Carousel().setTitle(d.t('Projects Loved by Users I\'m Following')))
+            .add(new d.r.Carousel().setTitle(d.t('What the Community is Remixing')))
+            .add(new d.r.Carousel().setTitle(d.t('What the Community is Loving')));
+    },
+    notFound: function (args) {
+        this.page
+            .add(new d.Label('d-r-title').setText(d.t('Page Not Found')))
+            .add(new d.Label('d-r-paragraph').setText(d.t('The page at the URL "%" could not be found.', args[0])));
+    },
+    help: function (args) {
+        this.page
+            .add(new d.Label('d-r-title').setText(d.t('Help')))
+            .add(new d.Label('d-r-paragraph').setText(d.t('This is a placeholder help section.')));
+    },
+    about: function (args) {
+        this.page
+            .add(new d.Label('d-r-title').setText(d.t('About Amber')))
+            .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
+    },
+    project: function (args) {
+        var title, authors, notes, favorites, loves, views, remixes;
+        this.page
+            .add(new d.Container('d-r-project-container')
+                .add(title = new d.Label('d-r-project-title'))
+                .add(new d.Label('d-r-project-notes-title').setText(d.t('Notes')))
+                .add(new d.Container('d-r-project-player-wrap')
+                    .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
+                    .add(new d.Container('d-r-project-player'))
+                    .add(new d.Container('d-r-project-stats')
+                        .add(favorites = new d.Label('d-r-project-stat').setText(d.t('% Favorites', 0)))
+                        .add(loves = new d.Label('d-r-project-stat').setText(d.t('% Loves', 0)))
+                        .add(views = new d.Label('d-r-project-stat').setText(d.t('% Views', 0)))
+                        .add(remixes = new d.Label('d-r-project-stat').setText(d.t('% Remixes', 0)))))
+                .add(notes = new d.Label('d-r-project-notes d-scrollable'))
+                .add(new d.Label('d-r-project-comments-title').setText(d.t('Comments')))
+                .add(new d.Label('d-r-project-remixes-title').setText(d.t('Remixes')))
+                .add(new d.Container('d-r-project-comments')));
+        this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
+            title.setText(info.project.name);
+            authors.setText(d.t('by %', d.t.list(info.project.authors)));
+            notes.setText(info.project.notes);
+            favorites.setText(d.t('% Favorites', info.favorites));
+            loves.setText(d.t('% Loves', info.loves));
+            views.setText(d.t('% Views', info.views));
+            remixes.setText(d.t('% Remixes', info.remixes.length));
+        }, function (status) {
+            if (status === 404) {
+                this.notFound();
+            }
+        });
+    }
+};
+d.r.App = d.Class(d.App, {
+    setElement: function (element) {
+        this.base(arguments, element)
+            .add(new d.Container('d-r-header')
+                .add(this.panelLink('Amber', 'index'))
+                .add(this.panelLink('Create', 'newProject'))
+                .add(this.panelLink('Explore', 'explore'))
+                .add(this.panelLink('Discuss', 'forums.index'))
+                .add(this.spinner = new d.Container('d-r-spinner').hide()))
+            .add(new d.Container('d-r-wrap').addClass('d-scrollable')
+                .add(this.page = new d.Container('d-r-page'))
+                .add(new d.Container('d-r-footer')
+                    .add(this.panelLink('Help', 'help'))
+                    .add(this.panelLink('About', 'about'))
+                    .add(this.panelLink('Feedback', 'forums.topic', 1))
+                    .add(this.panelLink('Contact', 'contact'))));
+        this.go(location.hash.substr(1));
+        window.addEventListener('hashchange', function () {
+            this.go(location.hash.substr(1));
+        }.bind(this));
+        return this;
+    },
+    panelLink: function (t, view) {
+        var url;
+        try {
+            url = this.reverse.apply(this, [].slice.call(arguments, 1));
+        } catch (e) {
+            url = '{404}';
+        }
+        return new d.Button('d-r-panel-button').setText(d.t(t)).onExecute(function () {
+                this.go(url);
+            }, this);
+    },
+    requests: [],
+    request: function (method, url, body, callback, error) {
+        var t = this, xhr = new XMLHttpRequest;
+        function decr() {
+            t.requests.splice(t.requests.indexOf(xhr), 1);
+            if (!t.requests.length) {
+                t.spinner.hide();
+            }
+        }
+        if (!this.requests.length) {
+            this.spinner.show();
+        }
+        this.requests.push(xhr);
+        xhr.open(method, d.API_URL + url, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                callback.call(t, JSON.parse(xhr.responseText));
+            } else {
+                error.call(t, xhr.status);
+            }
+            decr();
+        };
+        xhr.onerror = function () {
+            decr();
+            if (error) error.call(t, xhr.status);
+        };
+        xhr.onabort = decr;
+        xhr.send(body);
+        return this;
+    },
+    notFound: function () {
+        this.page.clear();
+        d.r.views.notFound.call(this, [this.url]);
+        return this;
+    },
+    urls: [
+        [/^$/, 'index'],
+        [/^projects\/(\d+)$/, 'project'],
+        [/^help$/, 'help'],
+        [/^about$/, 'about']
+    ],
+    reverse: function (view) {
+        var urls = this.urls, i = 0, url, args = [].slice.call(arguments, 1), arg, source, out;
+        while (url = urls[i++]) {
+            if (url[1] === view) {
+                source = url[0].source.replace(/^\^/, '').replace(/\\\//g, '/').replace(/\$$/, '');
+                arg = 0;
+                out = source.replace(/\((?:[^\)]|\\\))+\)/g, function () {
+                    return args[arg++];
+                });
+                if (args.length === arg) {
+                    return out;
+                }
+            }
+        }
+        throw new Error('No reverse match for "' + view + '" with arguments [' + args + ']');
+    },
+    show: function (view) {
+        return this.go(this.reverse.apply(this, arguments));
+    },
+    go: function (loc, soft) {
+        var urls = this.urls, i = 0, url, request, match;
+        if (loc[loc.length - 1] === '/') {
+            return this.go(loc.substr(0, loc.length - 1), true);
+        }
+        if (loc[0] === '/') {
+            return this.go(loc.substr(1), true);
+        }
+        if (!soft) location.hash = loc;
+        this.url = loc;
+        if (this.requests.length) {
+            while (request = this.requests.pop()) {
+                request.abort();
+            }
+        }
+        this.page.clear();
+        while (url = urls[i++]) {
+            if (match = url[0].exec(loc)) {
+                return d.r.views[url[1]].call(this, match);
+            }
+        }
+        d.r.views.notFound.call(this, [loc]);
+    }
+});
+d.r.Carousel = d.Class(d.Control, {
+    init: function () {
+        var i = 20;
+        this.base(arguments);
+        this.element = this.newElement('d-r-carousel');
+        this.element.appendChild(this.header = this.newElement('d-r-carousel-header'));
+        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').element);
+        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').element);
+        this.element.appendChild(this.container = this.newElement('d-r-carousel-container'));
+        while (i--)
+            this.add(new d.r.CarouselItem().setLabel('My Cool Project'));
+    },
+    '.title': {
+        apply: function (title) {
+            this.header.textContent = title;
+        }
+    }
+});
+d.r.CarouselItem = d.Class(d.Button, {
+    init: function () {
+        this.base(arguments, 'd-r-carousel-item');
+        this.element.appendChild(this.icon = this.newElement('d-r-carousel-item-icon'));
+        this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
+        this.onExecute(function () {
+            this.app().show('project', 0);
+        });
+    },
+    '.label': {
+        apply: function (label) {
+            this.labelElement.textContent = label;
         }
     }
 });

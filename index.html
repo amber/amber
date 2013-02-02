@@ -1,12 +1,24 @@
 <!doctype html>
 <meta charset=utf-8>
 <title>Amber</title>
+<!-- <link rel=stylesheet href=page.css> -->
 <link rel=stylesheet href=app.css>
-<link rel=icon type=image/png href=favicon.png>
-<div id=app></div>
+<body>
 <script src=app.js></script>
 <script src=locale/en-US.js></script>
-<script src=locale/en-PT.js></script>
 <script>
-	window.Amber = new d.Amber().setElement(document.getElementById('app')).setFullscreen(true);
+var app = new d.r.App().setElement(document.body);
+
+// var app = new d.Amber().setElement(document.getElementById('app'));
+// var editButton = document.getElementById('edit-button');
+// var controls = editButton.parentNode;
+// var header = document.getElementById('header-controls');
+// editButton.addEventListener('click', function () {
+//     app.setEditMode(!app.editMode());
+//     (app.editMode() ? header : controls).appendChild(editButton);
+// });
+// if (location.hash) {
+//     app.setProjectId(location.hash.substr(1));
+// }
 </script>
+</body>
