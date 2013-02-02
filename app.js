@@ -30,6 +30,12 @@ d.format = function (format) {
         return n ? args[n] : args[i++];
     });
 };
+d.htmle = function (string) {
+    return string.replace(/&/g, '&amp;').replace(/</, '&lt;').replace(/>/, '&gt;').replace(/"/, '&quot;');
+};
+d.htmlu = function (string) {
+    return string.replace(/&lt;/, '<').replace(/&gt;/, '>').replace(/&quot;/, '"').replace(/&amp;/g, '&');
+};
 d.bbTouch = function (element, e) {
     var bb = element.getBoundingClientRect();
     return e.x + e.radiusX >= bb.left && e.x - e.radiusX <= bb.right &&
@@ -365,6 +371,14 @@ d.Label = d.Class(d.Control, {
         },
         set: function (text) {
             this.element.textContent = text;
+        }
+    },
+    '.richText': {
+        get: function () {
+            return this.element.innerHTML;
+        },
+        set: function (richText) {
+            this.element.innerHTML = richText;
         }
     }
 });
@@ -4531,7 +4545,7 @@ d.r.views = {
             .add(new d.Label('d-r-title').setText(d.t('About Amber')))
             .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
     },
-    project: function (args) {
+    'project.view': function (args) {
         var title, authors, notes, favorites, loves, views, remixes;
         this.page
             .add(new d.Container('d-r-project-container')
@@ -4551,7 +4565,9 @@ d.r.views = {
                 .add(new d.Container('d-r-project-comments')));
         this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
             title.setText(info.project.name);
-            authors.setText(d.t('by %', d.t.list(info.project.authors)));
+            authors.setRichText(d.t('by %', d.t.list(info.project.authors.map(function (author) {
+                return '<a href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
+            }, this))));
             notes.setText(info.project.notes);
             favorites.setText(d.t('% Favorites', info.favorites));
             loves.setText(d.t('% Loves', info.loves));
@@ -4562,6 +4578,9 @@ d.r.views = {
                 this.notFound();
             }
         });
+    },
+    'user.profile': function (args) {
+        // TODO
     }
 };
 d.r.App = d.Class(d.App, {
@@ -4632,9 +4651,13 @@ d.r.App = d.Class(d.App, {
         d.r.views.notFound.call(this, [this.url]);
         return this;
     },
+    abs: function (url) {
+        return '#' + url;
+    },
     urls: [
         [/^$/, 'index'],
-        [/^projects\/(\d+)$/, 'project'],
+        [/^projects\/(\d+)$/, 'project.view'],
+        [/^users\/([\w-]+)$/, 'user.profile'],
         [/^help$/, 'help'],
         [/^about$/, 'about']
     ],
@@ -4705,7 +4728,7 @@ d.r.CarouselItem = d.Class(d.Button, {
         this.element.appendChild(this.icon = this.newElement('d-r-carousel-item-icon'));
         this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
         this.onExecute(function () {
-            this.app().show('project', 0);
+            this.app().show('project.view', 0);
         });
     },
     '.label': {

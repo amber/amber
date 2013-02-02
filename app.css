@@ -1501,7 +1501,7 @@
 .d-r-project-remixes-title,
 .d-r-title {
     font: 21px/30px sans-serif;
-    color: rgb(80%, 80%, 80%);
+    color: #eee;
 }
 .d-r-carousel-button {
     position: absolute;
@@ -1628,9 +1628,19 @@
 }
 .d-r-project-authors {
     font: 11px/17px sans-serif;
-    color: #eee;
+    color: #aaa;
     margin-top: -18px;
     margin-bottom: 6px;
+}
+.d-r-project-authors a {
+    color: #eee;
+    text-decoration: none;
+}
+.d-r-project-authors a:hover {
+    text-decoration: underline;
+}
+.d-r-project-authors a:active {
+    color: #ccc;
 }
 .d-r-project-stats {
     font: 11px/17px sans-serif;
