@@ -4549,7 +4549,7 @@ d.HatBlock = d.Class(d.Block, {
 d.r = {};
 d.r.urls = [
     [/^$/, 'index'],
-    [/^projects\/(\d+)$/, 'project.view'],
+    [/^projects\/(\d+)(\/edit)?$/, 'project.view'],
     [/^users\/([\w-]+)$/, 'user.profile'],
     [/^help$/, 'help'],
     [/^about$/, 'about']
@@ -4608,6 +4608,9 @@ d.r.views = {
             views.setText(d.t('% Views', info.views));
             remixes.setText(d.t('% Remixes', info.remixes.length));
             player.setProject(info.project);
+            if (args[2]) {
+                player.setEditMode(true);
+            }
         }, function (status) {
             if (status === 404) {
                 this.notFound();
