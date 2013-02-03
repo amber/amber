@@ -363,7 +363,7 @@ d.Control = d.Class(d.Base, {
 d.Label = d.Class(d.Control, {
     init: function (className) {
         this.base(arguments);
-        this.element = this.newElement(className || 'd-label');
+        this.initElements(className || 'd-label');
     },
     '.text': {
         get: function () {
@@ -940,7 +940,7 @@ d.Checkbox = d.Class(d.Control, {
 d.ProgressBar = d.Class(d.Control, {
     init: function () {
         this.base(arguments);
-        this.element = this.newElement('d-progress');
+        this.initElements('d-progress');
         this.element.appendChild(this.bar = this.newElement('d-progress-bar'))
     },
     '.progress': {
@@ -1059,7 +1059,10 @@ d.Project = d.Class(d.ServerData, {
 d.SoundMedia = d.Class(d.ServerData, {
     '.id': {},
     '.name': {},
-    '.sound': {}
+    '.sound': {},
+    fromJSON: function () {
+        return this;
+    }
 });
 d.ImageMedia = d.Class(d.ServerData, {
     '.id': {},
@@ -1071,36 +1074,24 @@ d.ImageMedia = d.Class(d.ServerData, {
     '@ImageLoad': {},
     '@ImageChange': {},
     toJSON: function (o) {
-        var result = {
-                id: this._id,
-                name: this._name,
-                base64: this.img.toDataURL()
-            };
-        if (this._text) {
-            result.text = this._text.text;
-            result.text$font = this._text.font;
-            result.text$x = this._text.x;
-            result.text$y = this._text.y;
-        }
-        return result;
+        return {
+            id: this._id,
+            name: this._name,
+            hash: this._hash,
+            rotationCenterX: this._centerX,
+            rotationCenterY: this._centerY
+        };
     },
     fromJSON: function (o) {
         var canvas = document.createElement('canvas'),
-            img = new Image(),
             t = this;
-        img.onload = function () {
+        this.amber.loadImage('assets/' + o.hash + '/', function (img) {
             canvas.width = img.width;
             canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
             t.dispatch('ImageLoad', new d.ControlEvent().setControl(t));
-        };
-        img.src = o.base64;
-        return this.setId(o.id).setName(o.name).setImage(canvas).setCenterX(o.rotationCenterX).setCenterY(o.rotationCenterY).setText(o.text ? {
-            text: o.text,
-            font: o.text$font,
-            x: o.text$x,
-            y: o.text$y
-        } : null);
+        });
+        return this.setId(o.id).setName(o.name).setImage(canvas).setCenterX(o.rotationCenterX).setCenterY(o.rotationCenterY);
     }
 });
 d.Scriptable = d.Class(d.ServerData, {
@@ -1302,7 +1293,7 @@ d.t = function (id) {
 d.t.list = function (list) {
     return (d.locale[d.currentLocale].__list || d.locale['en-US'].__list)(list);
 };
-d.Amber = d.Class(d.App, {
+d.Amber = d.Class(d.Control, {
     PROTOCOL_VERSION: '1.1.5',
 
     init: function () {
@@ -1311,7 +1302,20 @@ d.Amber = d.Class(d.App, {
         this.usersById = {};
         this.blocks = {};
         this.objects = {};
+        this.element = this.container = this.newElement('d-amber d-collapse-user-panel');
+        this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
+        this.lightbox.style.display = 'none';
+        this.preloader = new d.Dialog().addClass('d-preloader')
+            .add(this._progressLabel = new d.Label())
+            .add(this._progressBar = new d.ProgressBar());
+        this.add(this.spritePanel = new d.SpritePanel(this))
+            .setLightboxEnabled(true);
+        this.spriteList.hide();
+        this.spritePanel.setToggleVisible(false);
         document.addEventListener('keydown', this.keyDown.bind(this));
+    },
+    app: function () {
+        return this;
     },
     keyDown: function (e) {
         var none = e.target === document.body;
@@ -1375,29 +1379,15 @@ d.Amber = d.Class(d.App, {
         };
         xhr.send();
     },
-    setElement: function (element) {
-        this.base(arguments, element);
-        d.addClass(element, 'd-amber');
-        d.addClass(element, 'd-collapse-user-panel');
-        element.appendChild(this.lightbox = this.newElement('d-lightbox'));
-        this.lightbox.style.display = 'none';
-        this.preloader = new d.Dialog().addClass('d-preloader')
-            .add(this._progressLabel = new d.Label())
-            .add(this._progressBar = new d.ProgressBar())
-            .show(this);
-        this.add(this.spritePanel = new d.SpritePanel(this));
-        this.spriteList.hide();
-        this.spritePanel.setToggleVisible(false);
-        return this;
-    },
     initEditMode: function (element) {
-        var t = this;
+        var t = this,
+            stage = this.project().stage();
         t.editorLoaded = true;
         t.add(t._tab = new d.BlockEditor())
             .add(t.palette = new d.BlockPalette())
             .add(t.userPanel = new d.UserPanel(t))
-            .add(t.authentication = new d.AuthenticationPanel(t)) // TODO remove
             .add(t.tabBar = new d.TabBar(t));
+        this.selectSprite(stage.children()[0] || stage);
 
         for (name in d.BlockSpecs) if (d.BlockSpecs.hasOwnProperty(name)) {
             category = new d.BlockList();
@@ -1454,8 +1444,9 @@ d.Amber = d.Class(d.App, {
     },
     '.preloaderEnabled': {
         apply: function (preloaderEnabled) {
+            if (!this.preloader.parent) this.preloader.show(this);
             this.preloader.setVisible(preloaderEnabled);
-            this.setLightboxEnabled(true);
+            this.setLightboxEnabled(preloaderEnabled);
         }
     },
     '.offline': {
@@ -1485,26 +1476,21 @@ d.Amber = d.Class(d.App, {
         this.spriteList.select(object);
     },
     '.project': {
-        apply: function (project) {
-            var stage = project.stage();
-            this.selectSprite(stage.children()[0] || stage);
-            this.stageView.setModel(stage);
+        set: function (project) {
+            this.setPreloaderEnabled(true);
+            this.setProgressText(d.t('Loading resources…'));
+            this._project = project = new d.Project(this).fromJSON(project);
+            this.stageView.setModel(project.stage());
         }
+    },
+    doneLoading: function () {
+        this.setPreloaderEnabled(false);
     },
     isBlockVisible: function (block) {
         var scripts = this.selectedSprite().scripts();
         return block.anyParentSatisfies(function (parent) {
             return parent === scripts;
         });
-    },
-    '.projectId': {
-        apply: function (id) {
-            this.setPreloaderEnabled(true);
-            this.setProgressText(d.t('Loading project data…'));
-            this.load('GET', 'projects/' + id + '/', null, function (data) {
-                var project = JSON.parse(data);
-            });
-        }
     },
     activeRequests: [],
     updateProgress: function () {
@@ -1513,9 +1499,12 @@ d.Amber = d.Class(d.App, {
             p += this.activeRequests[i].progress;
         }
         this.setProgress(p / this.activeRequests.length);
+        if (p === this.activeRequests.length) {
+            this.doneLoading();
+        }
     },
     load: function (method, url, body, callback) {
-        var t = this, req = {progress: 0}, xhr = new XMLHttpRequest, p = 0;
+        var t = this, req = {progress: 0}, xhr = new XMLHttpRequest;
         t.activeRequests.push(req);
         t.updateProgress();
         xhr.open(method, d.API_URL + url, true);
@@ -1526,6 +1515,7 @@ d.Amber = d.Class(d.App, {
             }
         };
         xhr.onload = function () {
+            req.progress = 1;
             t.updateProgress();
             if (callback) callback.call(t, req.responseText);
         };
@@ -1535,6 +1525,24 @@ d.Amber = d.Class(d.App, {
             t.setProgressText(d.t('Error.'));
         };
         xhr.send(body);
+        return this;
+    },
+    loadImage: function (url, callback) {
+        var t = this, req = {progress: 0}, img = new Image;
+        t.activeRequests.push(req);
+        t.updateProgress();
+        img.onload = function () {
+            req.progress = 1;
+            t.updateProgress();
+            if (callback) callback.call(t, img);
+        };
+        img.onerror = function (e) {
+            t.activeRequests = [];
+            t.setProgress(0);
+            t.setProgressText(d.t('Error.'));
+        };
+        img.src = d.API_URL + url;
+        return this;
     },
     '.progress': {
         apply: function (progress) {
@@ -1549,6 +1557,12 @@ d.Amber = d.Class(d.App, {
     '.editMode': {
         apply: function (editMode) {
             var t = this;
+            if (editMode) {
+                this.originalParent = this.parent;
+                this.parent.app().add(this);
+            } else if (this.originalParent) {
+                this.originalParent.add(this);
+            }
             d.toggleClass(this.element, 'd-app-edit', editMode);
             document.body.style.overflow = editMode ? 'hidden' : '';
             if (t.editorLoaded) {
@@ -1972,7 +1986,7 @@ d.Socket = d.Class(d.Base, {
             }.bind(this));
             break;
         case 'project.data':
-            this.amber.setProject(new d.Project(this.amber).fromJSON(packet.data));
+            this.amber.setProject(packet.data);
             break;
         case 'variable.create':
             this.amber.objectWithId(packet.object$id).addVariable(packet.name);
@@ -2400,7 +2414,8 @@ d.SpritePanel = d.Class(d.Control, {
         this.amber = amber;
         this.base(arguments);
         this.initElements('d-sprite-panel');
-        this.add(amber.stageView = new d.StageView(amber))
+        this.add(amber.stageControls = new d.StageControls(amber))
+            .add(amber.stageView = new d.StageView(amber))
             .add(amber.spriteList = new d.SpriteList(amber));
         this.element.appendChild(this.toggleButton = this.newElement('d-sprite-panel-toggle'));
         this.toggleButton.addEventListener('click', this.toggle.bind(this));
@@ -2418,6 +2433,18 @@ d.SpritePanel = d.Class(d.Control, {
         }
     }
 })
+d.StageControls = d.Class(d.Control, {
+    init: function (amber) {
+        this.amber = amber;
+        this.base(arguments);
+        this.initElements('d-stage-controls');
+        this.add(new d.Button('d-stage-control d-stage-control-go'))
+            .add(new d.Button('d-stage-control d-stage-control-stop'))
+            .add(new d.Button('d-stage-control d-stage-control-edit').onExecute(function () {
+                this.setEditMode(!this.editMode());
+            }, amber));
+    },
+});
 d.StageView = d.Class(d.Control, {
     init: function (amber) {
         this.amber = amber;
@@ -4546,14 +4573,15 @@ d.r.views = {
             .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
     },
     'project.view': function (args) {
-        var title, authors, notes, favorites, loves, views, remixes;
+        var title, authors, player, notes, favorites, loves, views, remixes;
         this.page
             .add(new d.Container('d-r-project-container')
                 .add(title = new d.Label('d-r-project-title'))
                 .add(new d.Label('d-r-project-notes-title').setText(d.t('Notes')))
                 .add(new d.Container('d-r-project-player-wrap')
                     .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
-                    .add(new d.Container('d-r-project-player'))
+                    .add(new d.Container('d-r-project-player')
+                        .add(player = new d.Amber()))
                     .add(new d.Container('d-r-project-stats')
                         .add(favorites = new d.Label('d-r-project-stat').setText(d.t('% Favorites', 0)))
                         .add(loves = new d.Label('d-r-project-stat').setText(d.t('% Loves', 0)))
@@ -4573,6 +4601,7 @@ d.r.views = {
             loves.setText(d.t('% Loves', info.loves));
             views.setText(d.t('% Views', info.views));
             remixes.setText(d.t('% Remixes', info.remixes.length));
+            player.setProject(info.project);
         }, function (status) {
             if (status === 404) {
                 this.notFound();
@@ -4741,7 +4770,7 @@ d.r.Carousel = d.Class(d.Control, {
     init: function () {
         var i = 20;
         this.base(arguments);
-        this.element = this.newElement('d-r-carousel');
+        this.initElements('d-r-carousel');
         this.element.appendChild(this.header = this.newElement('d-r-carousel-header'));
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').element);
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').element);
