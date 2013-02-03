@@ -436,13 +436,9 @@
     -webkit-transition: left .3s, right .3s;
 }
 .d-block-editor {
-    background:
-        local -webkit-linear-gradient(left bottom, rgb(36%, 36%, 36%) 20%, transparent 20%) 0 -2px,
-        local -webkit-linear-gradient(left bottom, rgb(33%, 33%, 33%) 20%, transparent 20%) 0 -3px,
-        local -webkit-linear-gradient(left bottom, rgb(36%, 36%, 36%) 20%, transparent 20%) 2px 0,
-        local -webkit-linear-gradient(left bottom, rgb(33%, 33%, 33%) 20%, transparent 20%) 2px -1px,
+    background: local -webkit-linear-gradient(left, rgb(27%, 27%, 27%) 25%, transparent 25%),
         rgb(30%, 30%, 30%);
-    background-size: 4px 4px;
+    background-size: 4px 100%;
 }
 .d-block-editor-fill {
     position: absolute;
@@ -878,7 +874,7 @@
     -webkit-transform-origin: top right;
     z-index: 1;
     -webkit-transition: left .3s;
-    box-shadow: 0 6px 3px -3px rgb(30%, 30%, 30%);
+    box-shadow: 0 3px 3px 0px rgb(30%, 30%, 30%);
     pointer-events: none;
 }
 .d-collapse-sprite-panel .d-tab-bar {

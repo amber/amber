@@ -4750,6 +4750,9 @@ d.r.App = d.Class(d.App, {
     show: function (view) {
         return this.go(this.reverse.apply(this, arguments));
     },
+    redirect: function () {
+        
+    },
     go: function (loc, soft) {
         var urls = d.r.urls, i = 0, url, request, match;
         if (loc[loc.length - 1] === '/') {
