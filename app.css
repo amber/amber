@@ -52,14 +52,13 @@
     background: transparent;
 }
 
-.d-lightbox {
+.d-lightbox,
+.d-r-lightbox {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    /*background: -webkit-radial-gradient(ellipse farthest-corner, rgba(0, 0, 0, .5), rgba(0, 0, 0, .7));
-    background: -moz-radial-gradient(ellipse farthest-corner, rgba(0, 0, 0, .5), rgba(0, 0, 0, .7));*/
     background: rgba(0, 0, 0, .6);
     z-index: 3;
 }
@@ -1505,6 +1504,10 @@
     padding: 0 0 29px;
     overflow: auto;
 }
+.d-r-lightbox {
+    top: 28px;
+    z-index: 1;
+}
 .d-r-page {
     min-height: 100%;
     /*padding: 12px;
@@ -1513,8 +1516,11 @@
     background: rgb(22%, 22%, 22%);
 }
 .d-r-footer {
-    position: static;
+    position: relative;
     margin: 0 0 -29px;
+    z-index: 1;
+    border-top: 0;
+    box-shadow: 0 -1px rgba(0, 0, 0, .24);
 }
 .d-r-carousel {
     position: relative;

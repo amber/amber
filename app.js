@@ -326,6 +326,9 @@ d.Control = d.Class(d.Base, {
     app: function () {
         return this.parent && this.parent.app();
     },
+    amber: function () {
+        return this.parent && this.parent.amber();
+    },
     hide: function () {
         this.element.style.display = 'none';
         return this;
@@ -969,7 +972,7 @@ d.Dialog = d.Class(d.Control, {
         return this;
     },
     close: function () {
-        this.app().setLightboxEnabled(false).remove(this);
+        this.parent.setLightboxEnabled(false).remove(this);
     },
     focus: function () {
         function descend(child) {
@@ -1306,13 +1309,12 @@ d.Amber = d.Class(d.Control, {
         this.preloader = new d.Dialog().addClass('d-preloader')
             .add(this._progressLabel = new d.Label())
             .add(this._progressBar = new d.ProgressBar());
-        this.add(this.spritePanel = new d.SpritePanel(this))
-            .setLightboxEnabled(true);
+        this.add(this.spritePanel = new d.SpritePanel(this));
         this.spriteList.hide();
         this.spritePanel.setToggleVisible(false);
         document.addEventListener('keydown', this.keyDown.bind(this));
     },
-    app: function () {
+    amber: function () {
         return this;
     },
     keyDown: function (e) {
@@ -1557,7 +1559,7 @@ d.Amber = d.Class(d.Control, {
             var t = this;
             if (editMode) {
                 this.originalParent = this.parent;
-                this.parent.app().add(this);
+                this.app().add(this);
             } else if (this.originalParent) {
                 this.originalParent.add(this);
             }
@@ -1848,7 +1850,7 @@ d.Socket = d.Class(d.Base, {
         function unpack(block) {
             var j = 2;
             if (typeof block[0] === 'number') {
-                destination[i++].setId(block[0]).amber(amber);
+                destination[i++].setId(block[0]).setAmber(amber);
                 while (j < block.length) {
                     if (block[j] instanceof Array) {
                         unpack(block[j]);
@@ -1873,7 +1875,7 @@ d.Socket = d.Class(d.Base, {
                 tracker = [];
                 a = new d.BlockStack().fromJSON(packet.script, tracker);
                 tracker.forEach(function (a) {
-                    a.amber(this);
+                    a.setAmber(this);
                 }, this.amber);
                 a.hide();
                 this.amber.objectWithId(packet.object$id).scripts().add(a);
@@ -2263,7 +2265,7 @@ d.UserPanel = d.Class(d.Control, {
     },
     collapsed: true,
     toggle: function () {
-        d.toggleClass(this.app().element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
+        d.toggleClass(this.amber().element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
         if (!this.collapsed) {
             this.amber.chat.focus();
         }
@@ -2423,7 +2425,7 @@ d.SpritePanel = d.Class(d.Control, {
         this.toggleButton.style.display = toggleVisible ? '' : 'none';
     },
     toggle: function () {
-        d.toggleClass(this.app().element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
+        d.toggleClass(this.amber().element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
     },
     setCollapsed: function (collapsed) {
         if (this.collapsed !== collapsed) {
@@ -2755,7 +2757,7 @@ d.BlockStack = d.Class(d.Control, {
         return this;
     },
     getPosition: function () {
-        var app = this.app(), e, bb, bbe;
+        var app = this.amber(), e, bb, bbe;
         if (!app) {
             return {
                 x: parseInt(this.element.style.left),
@@ -2771,11 +2773,11 @@ d.BlockStack = d.Class(d.Control, {
         };
     },
     x: function () {
-        var e = this.app().editor().element;
+        var e = this.amber().editor().element;
         return this.element.getBoundingClientRect().left + e.scrollLeft - e.getBoundingClientRect().left;
     },
     y: function () {
-        var e = this.app().editor().element;
+        var e = this.amber().editor().element;
         return this.element.getBoundingClientRect().top + e.scrollTop - e.getBoundingClientRect().top;
     },
     toJSON: function (inline) {
@@ -2819,7 +2821,7 @@ d.BlockStack = d.Class(d.Control, {
             this.insert(child, next);
         }
         stack.destroy();
-        this.app().editor().fit();
+        this.amber().editor().fit();
         return this;
     },
     appendStack: function (stack) {
@@ -2828,7 +2830,7 @@ d.BlockStack = d.Class(d.Control, {
             this.add(child);
         }
         stack.destroy();
-        this.app().editor().fit();
+        this.amber().editor().fit();
         return this;
     },
     splitStack: function (top) {
@@ -2844,7 +2846,7 @@ d.BlockStack = d.Class(d.Control, {
     },
     dragStack: function (e, top) {
         var bb = top.element.getBoundingClientRect(),
-            app = this.app(),
+            app = this.amber(),
             topTop = top === this.top(),
             stack = this.splitStack(top);
         if (topTop && this.parent && this.parent.isStackSlot) {
@@ -2917,7 +2919,7 @@ d.BlockStack = d.Class(d.Control, {
                     }
                 }
             }
-            blocks = this.app().editor().children;
+            blocks = this.amber().editor().children;
             i = blocks.length;
             while (i--) {
                 blocks[i].children.forEach(function (block) {
@@ -2927,7 +2929,7 @@ d.BlockStack = d.Class(d.Control, {
         } else {
             isTerminal = this.terminal();
             isHat = this.hat();
-            stacks = this.app().editor().childrenSatisfying(function (child) {
+            stacks = this.amber().editor().childrenSatisfying(function (child) {
                 return child.isStack || child.isStackSlot && !child.anyParentSatisfies(function (p) {
                     return p.isPalette;
                 });
@@ -3013,7 +3015,7 @@ d.BlockStack = d.Class(d.Control, {
             i = palettes.length,
             block, slot;
         d.removeClass(this.element, 'd-block-stack-dragging');
-        this.app().element.removeChild(this.feedback);
+        this.amber().element.removeChild(this.feedback);
         while (i--) {
             if (d.bbTouch(palettes[i].element, e)) {
                 this.top().send(function () {
@@ -3022,7 +3024,7 @@ d.BlockStack = d.Class(d.Control, {
                         block$id: this.id()
                     };
                 });
-                this.app().editor().fit();
+                this.amber().editor().fit();
                 this.destroy();
                 return;
             }
@@ -3096,7 +3098,7 @@ d.BlockStack = d.Class(d.Control, {
         }
     },
     embed: function () {
-        var editor = this.app().editor(),
+        var editor = this.amber().editor(),
             bbe = editor.element.getBoundingClientRect(),
             bbb = this.element.getBoundingClientRect();
         editor.add(this);
@@ -3217,7 +3219,7 @@ d.arg.Base = d.Class(d.Control, {
     claim: function () {
         var id = this.parent.id();
         if (id === -1) return;
-        this.app().socket.send({
+        this.amber().socket.send({
             $: 'slot.claim',
             block$id: id,
             slot$index: this.parent.slotIndex(this)
@@ -3225,13 +3227,13 @@ d.arg.Base = d.Class(d.Control, {
     },
     unclaim: function () {
         if (this.parent.id() === -1) return;
-        this.app().socket.send({
+        this.amber().socket.send({
             $: 'slot.claim',
             block$id: -1
         });
     },
     sendEdit: function (value) {
-        this.app().socket.send({
+        this.amber().socket.send({
             $: 'slot.set',
             block$id: this.parent.id(),
             slot$index: this.parent.slotIndex(this),
@@ -3256,7 +3258,7 @@ d.arg.Base = d.Class(d.Control, {
         return this._isClaimed;
     },
     getPosition: function () {
-        var e = this.app().editor().element,
+        var e = this.amber().editor().element,
             bb = this.element.getBoundingClientRect(),
             bbe = e.getBoundingClientRect();
         return {
@@ -3736,7 +3738,7 @@ d.Block = d.Class(d.Control, {
     slotIndex: function (arg) {
         return this.arguments.indexOf(arg);
     },
-    amber: function (amber) {
+    setAmber: function (amber) {
         var socket;
         if (this._id !== -1) {
             amber.blocks[this._id] = this;
@@ -3778,7 +3780,7 @@ d.Block = d.Class(d.Control, {
         return stack.add(this);
     },
     send: function (f) {
-        var socket = this.app().socket;
+        var socket = this.amber().socket;
         if (this._id === -1) {
             (this.sendQueue || (this.sendQueue = [])).push(f);
             return this;
@@ -3787,7 +3789,7 @@ d.Block = d.Class(d.Control, {
         return this;
     },
     getPosition: function () {
-        var e = this.app().editor().element,
+        var e = this.amber().editor().element,
             bb = this.element.getBoundingClientRect(),
             bbe = e.getBoundingClientRect();
         return {
@@ -3796,11 +3798,11 @@ d.Block = d.Class(d.Control, {
         };
     },
     x: function () {
-        var e = this.app().editor().element;
+        var e = this.amber().editor().element;
         return this.element.getBoundingClientRect().left + e.scrollLeft - e.getBoundingClientRect().left;
     },
     y: function () {
-        var e = this.app().editor().element;
+        var e = this.amber().editor().element;
         return this.element.getBoundingClientRect().top + e.scrollTop - e.getBoundingClientRect().top;
     },
     dragStart: function (e) {
@@ -3810,11 +3812,11 @@ d.Block = d.Class(d.Control, {
             return p.isPalette;
         })) {
             bb = this.element.getBoundingClientRect();
-            (app = this.app()).createScript(10, 10, [this.copy().toJSON()]).startDrag(app, e, bb);
+            (app = this.amber()).createScript(10, 10, [this.copy().toJSON()]).startDrag(app, e, bb);
         } else if (this.parent.isStack) {
             this.parent.dragStack(e, this);
         } else if (this.parent.isBlock) {
-            app = this.app();
+            app = this.amber();
             bb = this.element.getBoundingClientRect();
             this.parent.restoreArg(this);
             new d.BlockStack().add(this).startDrag(app, e, bb);
@@ -3826,7 +3828,7 @@ d.Block = d.Class(d.Control, {
             var app, bb, copy;
             switch (item.action) {
             case 'duplicate':
-                app = me.app();
+                app = me.amber();
                 bb = me.getPosition();
                 copy = app.createScript(bb.x, bb.y, me.parent.isStack ? me.parent.toJSON(true) : [me.toJSON()]);
                 copy.startDrag(app, Object.create(e), copy.top().element.getBoundingClientRect());
@@ -3930,7 +3932,7 @@ d.Block = d.Class(d.Control, {
         // Open Enumerations (temporary)
         case 'list': return new d.arg.List();
         case 'var': return new d.arg.Var().setItems(function () {
-                var object = this.app().selectedSprite(),
+                var object = this.amber().selectedSprite(),
                     result = [],
                     vars;
                 if (!object.isStage) {
@@ -3956,7 +3958,7 @@ d.Block = d.Class(d.Control, {
         case 'event': return new d.arg.Enum().setItems(['event 1', 'event 2']);
         case 'sprite': return new d.arg.Enum().setItems(function () {
                 var result = [{$:'mouse'}],
-                    stage = this.app().project().stage(),
+                    stage = this.amber().project().stage(),
                     children = stage.children();
                 if (children.length) {
                     result.push(d.Menu.separator);
@@ -3968,7 +3970,7 @@ d.Block = d.Class(d.Control, {
             }).setValue({$:'mouse'});
         case 'object': return new d.arg.Enum().setItems(function () {
                 var result = [{$:'Stage'}],
-                    stage = this.app().project().stage(),
+                    stage = this.amber().project().stage(),
                     children = stage.children();
                 if (children.length) {
                     result.push(d.Menu.separator);
@@ -3980,7 +3982,7 @@ d.Block = d.Class(d.Control, {
             }).setValue({$:'Stage'});
         case 'clonable': return new d.arg.Enum().setItems(function () {
                 var result = [{$:'myself'}],
-                    stage = this.app().project().stage(),
+                    stage = this.amber().project().stage(),
                     children = stage.children();
                 if (children.length) {
                     result.push(d.Menu.separator);
@@ -4211,11 +4213,11 @@ d.Block = d.Class(d.Control, {
     replaceArg: function (oldArg, newArg) {
         var i = this.arguments.indexOf(oldArg),
             bb = oldArg.isBlock && oldArg.element.getBoundingClientRect(),
-            amber = this.app(),
+            amber = this.amber(),
             stack;
         this.replace(oldArg, this.arguments[i] = newArg);
         if (oldArg.isBlock && !oldArg._embedded) {
-            this.app().add(stack = new d.BlockStack().add(oldArg));
+            this.amber().add(stack = new d.BlockStack().add(oldArg));
             stack.element.style.left = bb.left + 20 + 'px';
             stack.element.style.top = bb.top - 20 + 'px';
         }
@@ -4265,7 +4267,7 @@ d.Block = d.Class(d.Control, {
         }
         block = d.Block.fromSpec(spec);
         block.setSelector(selector);
-        if (amber) block.amber(amber);
+        if (amber) block.setAmber(amber);
         if (tracker) {
             tracker.push(block);
         }
@@ -4651,6 +4653,7 @@ d.r.App = d.Class(d.App, {
                 .add(this.panelLink('Explore', 'explore'))
                 .add(this.panelLink('Discuss', 'forums.index'))
                 .add(this.spinner = new d.Container('d-r-spinner').hide()))
+            .add(this.lightbox = new d.Container('d-r-lightbox').hide())
             .add(new d.Container('d-r-wrap').addClass('d-scrollable')
                 .add(this.page = new d.Container('d-r-page'))
                 .add(new d.Container('d-r-footer')
@@ -4682,10 +4685,12 @@ d.r.App = d.Class(d.App, {
             t.requests.splice(t.requests.indexOf(xhr), 1);
             if (!t.requests.length) {
                 t.spinner.hide();
+                t.lightbox.hide();
             }
         }
         if (!this.requests.length) {
             this.spinner.show();
+            this.lightbox.show();
         }
         this.requests.push(xhr);
         xhr.open(method, d.API_URL + url, true);
