@@ -4547,6 +4547,13 @@ d.HatBlock = d.Class(d.Block, {
 });
 
 d.r = {};
+d.r.urls = [
+    [/^$/, 'index'],
+    [/^projects\/(\d+)$/, 'project.view'],
+    [/^users\/([\w-]+)$/, 'user.profile'],
+    [/^help$/, 'help'],
+    [/^about$/, 'about']
+];
 d.r.views = {
     index: function () {
         this.page
@@ -4721,15 +4728,8 @@ d.r.App = d.Class(d.App, {
     abs: function (url) {
         return '#' + url;
     },
-    urls: [
-        [/^$/, 'index'],
-        [/^projects\/(\d+)$/, 'project.view'],
-        [/^users\/([\w-]+)$/, 'user.profile'],
-        [/^help$/, 'help'],
-        [/^about$/, 'about']
-    ],
     reverse: function (view) {
-        var urls = this.urls, i = 0, url, args = [].slice.call(arguments, 1), arg, source, out;
+        var urls = d.r.urls, i = 0, url, args = [].slice.call(arguments, 1), arg, source, out;
         while (url = urls[i++]) {
             if (url[1] === view) {
                 source = url[0].source.replace(/^\^/, '').replace(/\\\//g, '/').replace(/\$$/, '');
@@ -4748,7 +4748,7 @@ d.r.App = d.Class(d.App, {
         return this.go(this.reverse.apply(this, arguments));
     },
     go: function (loc, soft) {
-        var urls = this.urls, i = 0, url, request, match;
+        var urls = d.r.urls, i = 0, url, request, match;
         if (loc[loc.length - 1] === '/') {
             return this.go(loc.substr(0, loc.length - 1), true);
         }
