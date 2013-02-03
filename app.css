@@ -1600,10 +1600,12 @@
     background: rgb(31%, 31%, 31%);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
 }
-.d-r-carousel-item-icon {
+.d-r-carousel-item-thumbnail {
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
-    background: rgba(0, 0, 0, .2);
+    background: #fff;
     height: 90px;
+    display: block;
+    width: 100%;
 }
 .d-r-carousel-item-label {
     font: 11px/12px sans-serif;

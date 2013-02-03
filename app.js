@@ -4774,7 +4774,20 @@ d.r.Carousel = d.Class(d.Control, {
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').element);
         this.element.appendChild(this.container = this.newElement('d-r-carousel-container'));
         while (i--)
-            this.add(new d.r.CarouselItem().setLabel('My Cool Project'));
+            this.add(new d.r.ProjectCarouselItem().setProject({
+                id: 12,
+                favorites: 0,
+                loves: 0,
+                views: 0,
+                versions: 0,
+                remixes: [],
+                project: {
+                    created: +new Date,
+                    authors: ['RHY3756547', '-XD-'],
+                    name: 'Summer',
+                    notes: ''
+                }
+            }));
     },
     '.title': {
         apply: function (title) {
@@ -4785,15 +4798,28 @@ d.r.Carousel = d.Class(d.Control, {
 d.r.CarouselItem = d.Class(d.Button, {
     init: function () {
         this.base(arguments, 'd-r-carousel-item');
-        this.element.appendChild(this.icon = this.newElement('d-r-carousel-item-icon'));
+        this.element.appendChild(this.thumbnailImage = this.newElement('d-r-carousel-item-thumbnail', 'img'));
         this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
         this.onExecute(function () {
-            this.app().show('project.view', 3);
+            this.app().show('project.view', 12);
         });
     },
     '.label': {
         apply: function (label) {
             this.labelElement.textContent = label;
+        }
+    },
+    '.thumbnail': {
+        apply: function (url) {
+            this.thumbnailImage.src = d.API_URL + url;
+        }
+    }
+});
+d.r.ProjectCarouselItem = d.Class(d.r.CarouselItem, {
+    '.project': {
+        apply: function (info) {
+            this.setLabel(info.project.name);
+            this.setThumbnail('projects/' + info.id + '/thumbnail/');
         }
     }
 });
