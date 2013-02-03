@@ -1065,7 +1065,6 @@ d.SoundMedia = d.Class(d.ServerData, {
     }
 });
 d.ImageMedia = d.Class(d.ServerData, {
-    '.id': {},
     '.name': {},
     '.image': {},
     '.text': {},
@@ -1075,7 +1074,6 @@ d.ImageMedia = d.Class(d.ServerData, {
     '@ImageChange': {},
     toJSON: function (o) {
         return {
-            id: this._id,
             name: this._name,
             hash: this._hash,
             rotationCenterX: this._centerX,
@@ -1091,7 +1089,7 @@ d.ImageMedia = d.Class(d.ServerData, {
             canvas.getContext('2d').drawImage(img, 0, 0);
             t.dispatch('ImageLoad', new d.ControlEvent().setControl(t));
         });
-        return this.setId(o.id).setName(o.name).setImage(canvas).setCenterX(o.rotationCenterX).setCenterY(o.rotationCenterY);
+        return this.setName(o.name).setImage(canvas).setCenterX(o.rotationCenterX).setCenterY(o.rotationCenterY);
     }
 });
 d.Scriptable = d.Class(d.ServerData, {
@@ -4257,24 +4255,23 @@ d.Block = d.Class(d.Control, {
     }
 }, {
     fromJSON: function (a, tracker, amber) {
-        var selector = a[1],
+        var selector = a[0],
             spec = d.BlockSpecBySelector[selector],
             block;
         if (!spec) {
             console.warn('missing block spec mapping for selector #' + selector);
             spec = ['c', 'undefined', selector, '#' + selector];
-            a = [a[0], a[1]];
+            a = [a[0]];
         }
         block = d.Block.fromSpec(spec);
-        block.setId(a[0]);
-        block.setSelector(a[1]);
+        block.setSelector(selector);
         if (amber) block.amber(amber);
         if (tracker) {
             tracker.push(block);
         }
-        a.slice(2).forEach(function (arg, i) {
+        a.slice(1).forEach(function (arg, i) {
             if (arg instanceof Array) {
-                if (typeof arg[0] === 'number') {
+                if (typeof arg[0] === 'string') {
                     block.replaceArg(block.arguments[i], d.Block.fromJSON(arg, tracker, amber));
                 } else {
                     block.arguments[i].setValue(new d.BlockStack().fromJSON(arg, tracker, amber, true));
