@@ -2265,7 +2265,7 @@ d.UserPanel = d.Class(d.Control, {
     },
     collapsed: true,
     toggle: function () {
-        d.toggleClass(this.amber().element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
+        d.toggleClass(this.amber.element, 'd-collapse-user-panel', this.collapsed = !this.collapsed);
         if (!this.collapsed) {
             this.amber.chat.focus();
         }
@@ -2425,7 +2425,7 @@ d.SpritePanel = d.Class(d.Control, {
         this.toggleButton.style.display = toggleVisible ? '' : 'none';
     },
     toggle: function () {
-        d.toggleClass(this.amber().element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
+        d.toggleClass(this.amber.element, 'd-collapse-sprite-panel', this.collapsed = !this.collapsed);
     },
     setCollapsed: function (collapsed) {
         if (this.collapsed !== collapsed) {
@@ -4751,7 +4751,7 @@ d.r.App = d.Class(d.App, {
         return this.go(this.reverse.apply(this, arguments));
     },
     redirect: function () {
-        
+
     },
     go: function (loc, soft) {
         var urls = d.r.urls, i = 0, url, request, match;
