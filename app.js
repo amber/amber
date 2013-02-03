@@ -4758,6 +4758,7 @@ d.r.App = d.Class(d.App, {
             }
         }
         this.page.clear();
+        this.page.element.scrollTop = 0;
         while (url = urls[i++]) {
             if (match = url[0].exec(loc)) {
                 return d.r.views[url[1]].call(this, match);
