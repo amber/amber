@@ -4606,6 +4606,9 @@ d.r.views = {
                 this.notFound();
             }
         });
+        this.unload = function () {
+            player.parent.remove(player);
+        };
     },
     'user.profile': function (args) {
         this.page
@@ -4753,6 +4756,10 @@ d.r.App = d.Class(d.App, {
             return this.go(loc.substr(1), true);
         }
         if (!soft) location.hash = loc;
+        if (this.unload) {
+            this.unload();
+            this.unload = undefined;
+        }
         this.url = loc;
         if (this.requests.length) {
             while (request = this.requests.pop()) {
