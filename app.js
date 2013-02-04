@@ -1483,6 +1483,7 @@ d.Amber = d.Class(d.Control, {
             this.stageView.setModel(project.stage());
         }
     },
+    '.projectId': {},
     doneLoading: function () {
         this.setPreloaderEnabled(false);
     },
@@ -1556,13 +1557,15 @@ d.Amber = d.Class(d.Control, {
     },
     '.editMode': {
         apply: function (editMode) {
-            var t = this;
+            var t = this,
+                app = this.app();
             if (editMode) {
                 this.originalParent = this.parent;
                 this.app().add(this);
             } else if (this.originalParent) {
                 this.originalParent.add(this);
             }
+            app.redirect(app.reverse(editMode ? 'project.edit' : 'project.view', this.projectId()));
             d.toggleClass(this.element, 'd-app-edit', editMode);
             document.body.style.overflow = editMode ? 'hidden' : '';
             if (t.editorLoaded) {
@@ -4549,7 +4552,8 @@ d.HatBlock = d.Class(d.Block, {
 d.r = {};
 d.r.urls = [
     [/^$/, 'index'],
-    [/^projects\/(\d+)(\/edit)?$/, 'project.view'],
+    [/^projects\/(\d+)$/, 'project.view'],
+    [/^projects\/(\d+)\/edit$/, 'project.edit'],
     [/^users\/([\w-]+)$/, 'user.profile'],
     [/^help$/, 'help'],
     [/^about$/, 'about']
@@ -4578,7 +4582,7 @@ d.r.views = {
             .add(new d.Label('d-r-title').setText(d.t('About Amber')))
             .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
     },
-    'project.view': function (args) {
+    'project.view': function (args, isEdit) {
         var title, authors, player, notes, favorites, loves, views, remixes;
         this.page
             .add(new d.Container('d-r-project-container')
@@ -4587,7 +4591,7 @@ d.r.views = {
                 .add(new d.Container('d-r-project-player-wrap')
                     .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
                     .add(new d.Container('d-r-project-player')
-                        .add(player = new d.Amber()))
+                        .add(player = new d.Amber().setProjectId(args[1])))
                     .add(new d.Container('d-r-project-stats')
                         .add(favorites = new d.Label('d-r-project-stat').setText(d.t('% Favorites', 0)))
                         .add(loves = new d.Label('d-r-project-stat').setText(d.t('% Loves', 0)))
@@ -4608,7 +4612,7 @@ d.r.views = {
             views.setText(d.t('% Views', info.views));
             remixes.setText(d.t('% Remixes', info.remixes.length));
             player.setProject(info.project);
-            if (args[2]) {
+            if (isEdit) {
                 player.setEditMode(true);
             }
         }, function (status) {
@@ -4619,6 +4623,9 @@ d.r.views = {
         this.unload = function () {
             player.parent.remove(player);
         };
+    },
+    'project.edit': function (args) {
+        return d.r.views['project.view'].call(this, args, true);
     },
     'user.profile': function (args) {
         this.page
@@ -4676,7 +4683,11 @@ d.r.App = d.Class(d.App, {
                     .add(this.panelLink('Contact', 'contact'))));
         this.go(location.hash.substr(1));
         window.addEventListener('hashchange', function () {
-            this.go(location.hash.substr(1));
+            if (this.isRedirect) {
+                this.isRedirect = false;
+                return;
+            }
+            this.go(location.hash.substr(1), true);
         }.bind(this));
         return this;
     },
@@ -4750,16 +4761,25 @@ d.r.App = d.Class(d.App, {
     show: function (view) {
         return this.go(this.reverse.apply(this, arguments));
     },
-    redirect: function () {
-
+    redirect: function (loc) {
+        if (loc[loc.length - 1] === '/') {
+            loc = loc.substr(0, loc.length - 1);
+        }
+        if (loc[0] === '/') {
+            loc = loc.substr(1);
+        }
+        if (loc === this.url) return;
+        this.isRedirect = true;
+        this.url = loc;
+        location.hash = '#' + loc;
     },
     go: function (loc, soft) {
         var urls = d.r.urls, i = 0, url, request, match;
         if (loc[loc.length - 1] === '/') {
-            return this.go(loc.substr(0, loc.length - 1), true);
+            return this.go(loc.substr(0, loc.length - 1), soft);
         }
         if (loc[0] === '/') {
-            return this.go(loc.substr(1), true);
+            return this.go(loc.substr(1), soft);
         }
         if (!soft) location.hash = loc;
         if (this.unload) {
