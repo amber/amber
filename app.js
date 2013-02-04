@@ -4860,6 +4860,9 @@ d.r.Carousel = d.Class(d.Control, {
     visibleItemCount: function () {
         return Math.max(1, Math.floor(this.wrap.offsetWidth / this.ITEM_WIDTH));
     },
+    maxVisibleItemCount: function () {
+        return Math.max(1, Math.ceil(this.wrap.offsetWidth / this.ITEM_WIDTH));
+    },
     scroll: function (screens) {
         this.offset += screens * this.visibleItemCount();
         this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
@@ -4888,7 +4891,7 @@ d.r.Carousel = d.Class(d.Control, {
     reveal: function () {
         var item,
             offset = this.offset,
-            length = this.visibleItemCount(),
+            length = this.maxVisibleItemCount(),
             j = 0;
         while (item = this.visibleItems.pop()) {
             item.hide();
@@ -4901,7 +4904,7 @@ d.r.Carousel = d.Class(d.Control, {
     load: function (callback) {
         var t = this,
             offset = this.offset,
-            length = this.visibleItemCount();
+            length = this.maxVisibleItemCount();
         this.loadItems(offset, length, function (items) {
             var i = 0, item;
             while (item = items[i++]) {
@@ -4947,13 +4950,14 @@ d.r.ProjectCarousel = d.Class(d.r.Carousel, {
     },
     _transformer: function (project) {
         var order = this.order();
-        return new d.r.ProjectCarouselItem().setProject(project).setDetail(order === 'views' ? d.t.plural('% Views', '% View', project.views) : '');
+        return new d.r.ProjectCarouselItem().setProject(project).setDetail(
+            order === 'views' ? d.t.plural('% Views', '% View', project.views) :
+            order === 'loves' ? d.t.plural('% Loves', '% Love', project.loves) :
+            order === 'remixes' ? d.t.plural('% Remixes', '% Remix', project.remixes.length) : '');
     },
     '.order': {
         apply: function (order) {
-            if (order === 'views') {
-                this.setHasDetails(true);
-            }
+            this.setHasDetails(order === 'views' || order === 'loves' || order === 'remixes');
         }
     }
 });
