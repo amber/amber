@@ -4579,7 +4579,8 @@ d.r.views = {
             .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')))
             .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')))
             .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Remixing')).setOrder('remixes'))
-            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setOrder('loves'));
+            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setOrder('loves'))
+            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Viewing')).setOrder('views'));
     },
     notFound: function (args) {
         this.page
