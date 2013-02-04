@@ -204,6 +204,7 @@ d.TouchEvent = d.Class(d.Event, {
     }
 });
 d.WheelEvent = d.Class(d.Event, {
+    '.allowDefault': {},
     setWebkitEvent: function (e) {
         this.setEvent(e);
         this.x = -e.wheelDeltaX / 3;
@@ -515,15 +516,15 @@ d.App = d.Class(d.Control, {
         }
         function mousewheel(f) {
             return function (e) {
-                var t = e.target;
+                var t = e.target, event;
                 if (t.nodeType === 3) t = t.parentNode;
                 t = t.control;
                 while (t && !t.acceptsScrollWheel) {
                     t = t.parent;
                     if (!t) return;
                 }
-                t.dispatch('ScrollWheel', new d.WheelEvent()[f](e));
-                e.preventDefault();
+                t.dispatch('ScrollWheel', event = new d.WheelEvent()[f](e));
+                if (!event.allowDefault()) e.preventDefault();
             };
         }
         element.addEventListener('mousewheel', mousewheel('setWebkitEvent'), true);
@@ -4818,6 +4819,7 @@ d.r.App = d.Class(d.App, {
     }
 });
 d.r.Carousel = d.Class(d.Control, {
+    acceptsScrollWheel: true,
     init: function () {
         var i = 20;
         this.items = [];
@@ -4841,8 +4843,10 @@ d.r.Carousel = d.Class(d.Control, {
         this.onLive(function () {
             this.clear();
             this.offset = 0;
+            this.scrollX = 0;
             this.load();
         });
+        this.onScrollWheel(this.scrollWheel);
     },
     '.title': {
         apply: function (title) {
@@ -4857,6 +4861,22 @@ d.r.Carousel = d.Class(d.Control, {
     '.loader': {},
     '.transformer': {},
     ITEM_WIDTH: 140,
+    scrollWheel: function (e) {
+        var t = this, offset, max = this.container.offsetWidth - this.ITEM_WIDTH;
+        this.scrollX += e.x;
+        if (this.scrollX < 0) this.scrollX = 0;
+        if (this.scrollX > max) this.scrollX = max;
+        this.container.style.WebkitTransition = 'none';
+        this.container.style.left = -this.scrollX + 'px';
+        setTimeout(function () {
+            t.container.style.WebkitTransition = '';
+        });
+        if ((offset = Math.ceil(this.scrollX / this.ITEM_WIDTH)) !== this.offset) {
+            this.offset = offset;
+            this.load();
+        }
+        e.setAllowDefault(true);
+    },
     visibleItemCount: function () {
         return Math.max(1, Math.floor(this.wrap.offsetWidth / this.ITEM_WIDTH));
     },
@@ -4865,6 +4885,8 @@ d.r.Carousel = d.Class(d.Control, {
     },
     scroll: function (screens) {
         this.offset += screens * this.visibleItemCount();
+        if (this.offset < 0) this.offset = 0;
+        this.scrollX = this.offset * this.ITEM_WIDTH;
         this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
         return this;
     },
@@ -4878,15 +4900,14 @@ d.r.Carousel = d.Class(d.Control, {
         if (offset < this.loaded) {
             delta = this.loaded - offset;
             this._loader(offset + delta, length - delta, function (result) {
-                t.loaded = offset + length;
                 callback.call(t, result);
             });
         } else {
             this._loader(offset, length, function (result) {
-                t.loaded = offset + length;
                 callback.call(t, result);
             });
         }
+        this.loaded = offset + length;
     },
     reveal: function () {
         var item,
