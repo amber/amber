@@ -1524,6 +1524,9 @@
     height: 194px;
     margin-bottom: 12px;
 }
+.d-r-carousel-detail {
+    height: 206px;
+}
 .d-r-carousel:nth-child(2n) {
     background-color: rgb(24%, 24%, 24%);
 }
@@ -1600,6 +1603,9 @@
     -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
+.d-r-carousel-detail .d-r-carousel-item {
+    height: 126px;
+}
 .d-r-carousel-item:hover {
     background: rgb(27%, 27%, 27%);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
@@ -1615,7 +1621,8 @@
     display: block;
     width: 100%;
 }
-.d-r-carousel-item-label {
+.d-r-carousel-item-label,
+.d-r-carousel-item-detail {
     font: 11px/12px sans-serif;
     height: 12px;
     padding: 8px 0 4px;
@@ -1624,6 +1631,13 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: center;
+}
+.d-r-carousel-detail .d-r-carousel-item-label {
+    padding-bottom: 0;
+}
+.d-r-carousel-item-detail {
+    display: none;
+    padding: 0 0 4px;
 }
 
 .d-r-title {

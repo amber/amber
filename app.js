@@ -1308,6 +1308,9 @@ d.t = function (id) {
 d.t.list = function (list) {
     return (d.locale[d.currentLocale].__list || d.locale['en-US'].__list)(list);
 };
+d.t.plural = function (a, b, n) {
+    return n === 1 ? d.t(b, n) : d.t(a, n);
+};
 d.Amber = d.Class(d.Control, {
     PROTOCOL_VERSION: '1.1.5',
 
@@ -4608,10 +4611,10 @@ d.r.views = {
                     .add(new d.Container('d-r-project-player')
                         .add(player = new d.Amber().setProjectId(args[1])))
                     .add(new d.Container('d-r-project-stats')
-                        .add(favorites = new d.Label('d-r-project-stat').setText(d.t('% Favorites', 0)))
-                        .add(loves = new d.Label('d-r-project-stat').setText(d.t('% Loves', 0)))
-                        .add(views = new d.Label('d-r-project-stat').setText(d.t('% Views', 0)))
-                        .add(remixes = new d.Label('d-r-project-stat').setText(d.t('% Remixes', 0)))))
+                        .add(favorites = new d.Label('d-r-project-stat').setText(d.t.plural('% Favorites', '% Favorite', 0)))
+                        .add(loves = new d.Label('d-r-project-stat').setText(d.t.plural('% Loves', '% Love', 0)))
+                        .add(views = new d.Label('d-r-project-stat').setText(d.t.plural('% Views', '% View', 0)))
+                        .add(remixes = new d.Label('d-r-project-stat').setText(d.t.plural('% Remixes', '% Remix', 0)))))
                 .add(notes = new d.Label('d-r-project-notes d-scrollable'))
                 .add(new d.Label('d-r-project-comments-title').setText(d.t('Comments')))
                 .add(new d.Label('d-r-project-remixes-title').setText(d.t('Remixes')))
@@ -4622,10 +4625,10 @@ d.r.views = {
                 return '<a href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
             }, this))));
             notes.setText(info.project.notes);
-            favorites.setText(d.t('% Favorites', info.favorites));
-            loves.setText(d.t('% Loves', info.loves));
-            views.setText(d.t('% Views', info.views));
-            remixes.setText(d.t('% Remixes', info.remixes.length));
+            favorites.setText(d.t.plural('% Favorites', '% Favorite', info.favorites));
+            loves.setText(d.t.plural('% Loves', '% Love', info.loves));
+            views.setText(d.t.plural('% Views', '% View', info.views));
+            remixes.setText(d.t.plural('% Remixes', '% Remix', info.remixes.length));
             player.setProject(info.project);
             if (isEdit) {
                 player.setEditMode(true);
@@ -4846,6 +4849,11 @@ d.r.Carousel = d.Class(d.Control, {
             this.header.textContent = title;
         }
     },
+    '.hasDetails': {
+        apply: function (hasDetails) {
+            d.toggleClass(this.element, 'd-r-carousel-detail', hasDetails);
+        }
+    },
     '.loader': {},
     '.transformer': {},
     ITEM_WIDTH: 140,
@@ -4908,10 +4916,17 @@ d.r.CarouselItem = d.Class(d.Button, {
         this.base(arguments, 'd-r-carousel-item');
         this.element.appendChild(this.thumbnailImage = this.newElement('d-r-carousel-item-thumbnail', 'img'));
         this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
+        this.element.appendChild(this.detailElement = this.newElement('d-r-carousel-item-detail'));
     },
     '.label': {
         apply: function (label) {
             this.labelElement.textContent = label;
+        }
+    },
+    '.detail': {
+        apply: function (detail) {
+            this.detailElement.textContent = detail;
+            this.detailElement.style.display = detail ? 'block' : 'none';
         }
     },
     '.thumbnail': {
@@ -4931,9 +4946,16 @@ d.r.ProjectCarousel = d.Class(d.r.Carousel, {
         });
     },
     _transformer: function (project) {
-        return new d.r.ProjectCarouselItem().setProject(project);
+        var order = this.order();
+        return new d.r.ProjectCarouselItem().setProject(project).setDetail(order === 'views' ? d.t.plural('% Views', '% View', project.views) : '');
     },
-    '.order': {}
+    '.order': {
+        apply: function (order) {
+            if (order === 'views') {
+                this.setHasDetails(true);
+            }
+        }
+    }
 });
 d.r.ProjectCarouselItem = d.Class(d.r.CarouselItem, {
     init: function () {
