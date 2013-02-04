@@ -4831,7 +4831,7 @@ d.r.Carousel = d.Class(d.Control, {
             }
         }, this).element);
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').onExecute(function () {
-            if (this.loaded === this.items.length || this.offset + this.visibleItemCount() !== this.loaded) {
+            if (this.loaded === this.items.length || this.offset + this.maxVisibleItemCount() !== this.loaded) {
                 this.scroll(1);
                 this.load();
             }
