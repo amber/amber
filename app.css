@@ -1574,17 +1574,22 @@
 .d-r-carousel-button:hover:active {
     opacity: 1;
 }
-.d-r-carousel-container {
+.d-r-carousel-wrap {
     position: absolute;
     top: 54px;
     left: 36px;
-    right: 30px;
+    right: 36px;
     bottom: 12px;
     overflow: hidden;
-    text-align: center;
+    white-space: nowrap;
+}
+.d-r-carousel-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-transition: left .3s;
 }
 .d-r-carousel-item {
-    display: inline-block;
     margin: 1px 7px 1px 1px;
     padding: 6px;
     border-radius: 3px;

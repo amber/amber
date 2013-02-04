@@ -4579,7 +4579,7 @@ d.r.views = {
             .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')))
             .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')))
             .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Remixing')).setOrder('remixes'))
-            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setOrder('views'));
+            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setOrder('loves'));
     },
     notFound: function (args) {
         this.page
@@ -4733,7 +4733,7 @@ d.r.App = d.Class(d.App, {
             if (xhr.status === 200) {
                 callback.call(t, JSON.parse(xhr.responseText));
             } else {
-                error.call(t, xhr.status);
+                if (error) error.call(t, xhr.status);
             }
             decr();
         };
@@ -4816,19 +4816,30 @@ d.r.App = d.Class(d.App, {
 d.r.Carousel = d.Class(d.Control, {
     init: function () {
         var i = 20;
+        this.items = [];
+        this.visibleItems = [];
         this.base(arguments);
         this.initElements('d-r-carousel');
         this.element.appendChild(this.header = this.newElement('d-r-carousel-header'));
-        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').element);
-        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').element);
-        this.element.appendChild(this.container = this.newElement('d-r-carousel-container'));
+        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').onExecute(function () {
+            if (this.offset > 0) {
+                this.scroll(-1);
+            }
+        }, this).element);
+        this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').onExecute(function () {
+            if (this.loaded === this.items.length || this.offset + this.visibleItemCount() !== this.loaded) {
+                this.scroll(1);
+                this.load();
+            }
+        }, this).element);
+        this.element.appendChild(this.wrap = this.newElement('d-r-carousel-wrap'));
+        this.wrap.appendChild(this.container = this.newElement('d-r-carousel-container'));
         this.onLive(function () {
             this.clear();
             this.offset = 0;
             this.load();
         });
     },
-    cache: [],
     '.title': {
         apply: function (title) {
             this.header.textContent = title;
@@ -4836,38 +4847,58 @@ d.r.Carousel = d.Class(d.Control, {
     },
     '.loader': {},
     '.transformer': {},
+    ITEM_WIDTH: 140,
     visibleItemCount: function () {
-        return Math.max(1, Math.floor(this.container.offsetWidth / 134));
+        return Math.max(1, Math.floor(this.wrap.offsetWidth / this.ITEM_WIDTH));
     },
+    scroll: function (screens) {
+        this.offset += screens * this.visibleItemCount();
+        this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
+        return this;
+    },
+    loaded: 0,
     loadItems: function (offset, length, callback) {
         var t = this, cached, delta;
-        if (offset + length < this.cache.length) {
-            callback.call(this, this.cache.slice(offset, offset + length));
+        if (offset + length < this.loaded) {
+            callback.call(this, []);
             return;
         }
-        if (offset < this.cache.length) {
-            cached = this.cache.slice(offset, this.cache.length);
-            delta = this.cache.length - offset;
+        if (offset < this.loaded) {
+            delta = this.loaded - offset;
             this._loader(offset + delta, length - delta, function (result) {
-                t.cache = t.cache.concat(result);
-                callback.call(t, cached.concat(result));
+                t.loaded = offset + length;
+                callback.call(t, result);
             });
         } else {
-            this._loader(offset, delta, function (result) {
-                if (offset === t.cache.length) {
-                    t.cache = t.cache.concat(result);
-                }
+            this._loader(offset, length, function (result) {
+                t.loaded = offset + length;
                 callback.call(t, result);
             });
         }
     },
-    load: function () {
-        var t = this;
-        this.loadItems(this.offset, this.visibleItemCount(), function (items) {
+    reveal: function () {
+        var item,
+            offset = this.offset,
+            length = this.visibleItemCount(),
+            j = 0;
+        while (item = this.visibleItems.pop()) {
+            item.hide();
+        }
+        while (j < length) {
+            this.visibleItems.push(item = this.items[offset + j]);
+            item.show();
+        }
+    },
+    load: function (callback) {
+        var t = this,
+            offset = this.offset,
+            length = this.visibleItemCount();
+        this.loadItems(offset, length, function (items) {
             var i = 0, item;
             while (item = items[i++]) {
-                t.add(t._transformer(item));
+                t.add(t.items[offset + i - 1] = t._transformer(item));
             }
+            if (callback) callback.call(t);
         });
     }
 });
@@ -4890,7 +4921,7 @@ d.r.CarouselItem = d.Class(d.Button, {
 });
 d.r.ProjectCarousel = d.Class(d.r.Carousel, {
     _loader: function (offset, length, callback) {
-        this.app().request('GET', 'projects/all/', {
+        this.app().request('POST', 'projects/all/', {
             offset: offset,
             length: length,
             order: this.order()
