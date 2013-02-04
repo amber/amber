@@ -229,6 +229,8 @@ d.Control = d.Class(d.Base, {
     '@ScrollWheel': null,
     '@DragStart': null,
 
+    '@Live': null,
+
     initElements: function (elementClass, containerClass, isFlat) {
         this.element = this.newElement(elementClass);
         if (containerClass) {
@@ -252,7 +254,17 @@ d.Control = d.Class(d.Base, {
         this.children.push(child);
         child.parent = this;
         this.container.appendChild(child.element);
+        child.becomeLive();
         return this;
+    },
+    becomeLive: function () {
+        var children = this.children, i = 0, child;
+        if (!this.isLive) {
+            this.dispatch('Live', new d.ControlEvent().setControl(this));
+        }
+        while (child = children[i++]) {
+            child.becomeLive();
+        }
     },
     clear: function () {
         var children = this.children, i = 0, child;
@@ -285,6 +297,7 @@ d.Control = d.Class(d.Base, {
         oldChild.parent = null;
         newChild.parent = this;
         this.container.replaceChild(newChild.element, oldChild.element);
+        newChild.becomeLive();
         return this;
     },
     insert: function (newChild, beforeChild) {
@@ -295,6 +308,7 @@ d.Control = d.Class(d.Base, {
         this.children.splice(i === -1 ? this.children.length : i, 0, newChild);
         newChild.parent = this;
         this.container.insertBefore(newChild.element, beforeChild && beforeChild.element);
+        newChild.becomeLive();
         return this;
     },
     hasChild: function (child) {
@@ -4561,11 +4575,11 @@ d.r.urls = [
 d.r.views = {
     index: function () {
         this.page
-            .add(new d.r.Carousel().setTitle(d.t('Featured Projects')))
-            .add(new d.r.Carousel().setTitle(d.t('Projects by Users I\'m Following')))
-            .add(new d.r.Carousel().setTitle(d.t('Projects Loved by Users I\'m Following')))
-            .add(new d.r.Carousel().setTitle(d.t('What the Community is Remixing')))
-            .add(new d.r.Carousel().setTitle(d.t('What the Community is Loving')));
+            .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')))
+            .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')))
+            .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')))
+            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Remixing')).setOrder('remixes'))
+            .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setOrder('views'));
     },
     notFound: function (args) {
         this.page
@@ -4728,7 +4742,7 @@ d.r.App = d.Class(d.App, {
             if (error) error.call(t, xhr.status);
         };
         xhr.onabort = decr;
-        xhr.send(body);
+        xhr.send(body ? JSON.stringify(body) : null);
         return this;
     },
     notFound: function () {
@@ -4808,26 +4822,53 @@ d.r.Carousel = d.Class(d.Control, {
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').element);
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').element);
         this.element.appendChild(this.container = this.newElement('d-r-carousel-container'));
-        while (i--)
-            this.add(new d.r.ProjectCarouselItem().setProject({
-                id: 12,
-                favorites: 0,
-                loves: 0,
-                views: 0,
-                versions: 0,
-                remixes: [],
-                project: {
-                    created: +new Date,
-                    authors: ['RHY3756547', '-XD-'],
-                    name: 'Summer',
-                    notes: ''
-                }
-            }));
+        this.onLive(function () {
+            this.clear();
+            this.offset = 0;
+            this.load();
+        });
     },
+    cache: [],
     '.title': {
         apply: function (title) {
             this.header.textContent = title;
         }
+    },
+    '.loader': {},
+    '.transformer': {},
+    visibleItemCount: function () {
+        return Math.max(1, Math.floor(this.container.offsetWidth / 134));
+    },
+    loadItems: function (offset, length, callback) {
+        var t = this, cached, delta;
+        if (offset + length < this.cache.length) {
+            callback.call(this, this.cache.slice(offset, offset + length));
+            return;
+        }
+        if (offset < this.cache.length) {
+            cached = this.cache.slice(offset, this.cache.length);
+            delta = this.cache.length - offset;
+            this._loader(offset + delta, length - delta, function (result) {
+                t.cache = t.cache.concat(result);
+                callback.call(t, cached.concat(result));
+            });
+        } else {
+            this._loader(offset, delta, function (result) {
+                if (offset === t.cache.length) {
+                    t.cache = t.cache.concat(result);
+                }
+                callback.call(t, result);
+            });
+        }
+    },
+    load: function () {
+        var t = this;
+        this.loadItems(this.offset, this.visibleItemCount(), function (items) {
+            var i = 0, item;
+            while (item = items[i++]) {
+                t.add(t._transformer(item));
+            }
+        });
     }
 });
 d.r.CarouselItem = d.Class(d.Button, {
@@ -4835,9 +4876,6 @@ d.r.CarouselItem = d.Class(d.Button, {
         this.base(arguments, 'd-r-carousel-item');
         this.element.appendChild(this.thumbnailImage = this.newElement('d-r-carousel-item-thumbnail', 'img'));
         this.element.appendChild(this.labelElement = this.newElement('d-r-carousel-item-label'));
-        this.onExecute(function () {
-            this.app().show('project.view', 12);
-        });
     },
     '.label': {
         apply: function (label) {
@@ -4850,7 +4888,28 @@ d.r.CarouselItem = d.Class(d.Button, {
         }
     }
 });
+d.r.ProjectCarousel = d.Class(d.r.Carousel, {
+    _loader: function (offset, length, callback) {
+        this.app().request('GET', 'projects/all/', {
+            offset: offset,
+            length: length,
+            order: this.order()
+        }, function (result) {
+            callback(result);
+        });
+    },
+    _transformer: function (project) {
+        return new d.r.ProjectCarouselItem().setProject(project);
+    },
+    '.order': {}
+});
 d.r.ProjectCarouselItem = d.Class(d.r.CarouselItem, {
+    init: function () {
+        this.base(arguments);
+        this.onExecute(function () {
+            this.app().show('project.view', this.project().id);
+        });
+    },
     '.project': {
         apply: function (info) {
             this.setLabel(info.project.name);
