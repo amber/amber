@@ -1305,11 +1305,11 @@ d.Amber = d.Class(d.Control, {
         this.objects = {};
         this.element = this.container = this.newElement('d-amber d-collapse-user-panel');
         this.element.appendChild(this.lightbox = this.newElement('d-lightbox'));
-        this.lightbox.style.display = 'none';
         this.preloader = new d.Dialog().addClass('d-preloader')
             .add(this._progressLabel = new d.Label())
             .add(this._progressBar = new d.ProgressBar());
-        this.add(this.spritePanel = new d.SpritePanel(this));
+        this.add(this.spritePanel = new d.SpritePanel(this))
+            .setLightboxEnabled(true);
         this.spriteList.hide();
         this.spritePanel.setToggleVisible(false);
         document.addEventListener('keydown', this.keyDown.bind(this));
@@ -4673,7 +4673,6 @@ d.r.App = d.Class(d.App, {
                 .add(this.panelLink('Explore', 'explore'))
                 .add(this.panelLink('Discuss', 'forums.index'))
                 .add(this.spinner = new d.Container('d-r-spinner').hide()))
-            .add(this.lightbox = new d.Container('d-r-lightbox').hide())
             .add(new d.Container('d-r-wrap').addClass('d-scrollable')
                 .add(this.page = new d.Container('d-r-page'))
                 .add(new d.Container('d-r-footer')
@@ -4709,12 +4708,10 @@ d.r.App = d.Class(d.App, {
             t.requests.splice(t.requests.indexOf(xhr), 1);
             if (!t.requests.length) {
                 t.spinner.hide();
-                t.lightbox.hide();
             }
         }
         if (!this.requests.length) {
             this.spinner.show();
-            this.lightbox.show();
         }
         this.requests.push(xhr);
         xhr.open(method, d.API_URL + url, true);
