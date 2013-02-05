@@ -4834,8 +4834,9 @@ d.r.Carousel = d.Class(d.Control, {
         }, this).element);
         this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').onExecute(function () {
             if (this.loaded === this.items.length || this.offset + this.maxVisibleItemCount() !== this.loaded) {
-                this.scroll(1);
-                this.load();
+                if (this.scroll(1)) {
+                    this.load();
+                }
             }
         }, this).element);
         this.element.appendChild(this.wrap = this.newElement('d-r-carousel-wrap'));
@@ -4844,6 +4845,7 @@ d.r.Carousel = d.Class(d.Control, {
             this.clear();
             this.offset = 0;
             this.scrollX = 0;
+            this.max = -1;
             this.load();
         });
         this.onScrollWheel(this.scrollWheel);
@@ -4861,8 +4863,9 @@ d.r.Carousel = d.Class(d.Control, {
     '.loader': {},
     '.transformer': {},
     ITEM_WIDTH: 140,
+    scrollLoadAmount: 10,
     scrollWheel: function (e) {
-        var t = this, offset, max = this.container.offsetWidth - this.ITEM_WIDTH;
+        var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.wrap.offsetWidth) : this.container.offsetWidth;
         this.scrollX += e.x;
         if (this.scrollX < 0) this.scrollX = 0;
         if (this.scrollX > max) this.scrollX = max;
@@ -4873,7 +4876,9 @@ d.r.Carousel = d.Class(d.Control, {
         });
         if ((offset = Math.ceil(this.scrollX / this.ITEM_WIDTH)) !== this.offset) {
             this.offset = offset;
-            this.load();
+            if (this.offset + this.maxVisibleItemCount() > this.loaded) {
+                this.load();
+            }
         }
         e.setAllowDefault(true);
     },
@@ -4884,11 +4889,15 @@ d.r.Carousel = d.Class(d.Control, {
         return Math.max(1, Math.ceil(this.wrap.offsetWidth / this.ITEM_WIDTH));
     },
     scroll: function (screens) {
-        this.offset += screens * this.visibleItemCount();
+        var length = this.visibleItemCount();
+        if (screens > 0 && this.max > -1 && this.offset + length >= this.max) {
+            return false;
+        }
+        this.offset += screens * length;
         if (this.offset < 0) this.offset = 0;
         this.scrollX = this.offset * this.ITEM_WIDTH;
         this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
-        return this;
+        return true;
     },
     loaded: 0,
     loadItems: function (offset, length, callback) {
@@ -4900,38 +4909,30 @@ d.r.Carousel = d.Class(d.Control, {
         if (offset < this.loaded) {
             delta = this.loaded - offset;
             this._loader(offset + delta, length - delta, function (result) {
+                if (t.max === -1 && result.length < length - delta) {
+                    t.max = offset + delta + result.length;
+                }
                 callback.call(t, result);
             });
         } else {
             this._loader(offset, length, function (result) {
+                if (t.max === -1 && result.length < length) {
+                    t.max = offset + result.length;
+                }
                 callback.call(t, result);
             });
         }
         this.loaded = offset + length;
     },
-    reveal: function () {
-        var item,
-            offset = this.offset,
-            length = this.maxVisibleItemCount(),
-            j = 0;
-        while (item = this.visibleItems.pop()) {
-            item.hide();
-        }
-        while (j < length) {
-            this.visibleItems.push(item = this.items[offset + j]);
-            item.show();
-        }
-    },
-    load: function (callback) {
+    load: function () {
         var t = this,
             offset = this.offset,
-            length = this.maxVisibleItemCount();
+            length = this.maxVisibleItemCount() * 2;
         this.loadItems(offset, length, function (items) {
             var i = 0, item;
             while (item = items[i++]) {
                 t.add(t.items[offset + i - 1] = t._transformer(item));
             }
-            if (callback) callback.call(t);
         });
     }
 });

@@ -62,7 +62,7 @@ d.r.OfflineApp = d.Class(d.r.App, {
             projects: [],
             orderedProjects: [],
         };
-        i = 400;
+        i = 100;
         while (i--) {
             this.data.projects.push({
                 id: this.data.projects.length,
