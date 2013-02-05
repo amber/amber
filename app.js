@@ -4905,14 +4905,14 @@ d.r.Carousel = d.Class(d.Control, {
         if (offset < this.loaded) {
             delta = this.loaded - offset;
             this._loader(offset + delta, length - delta, function (result) {
-                if (t.max === -1 && result.length < length - delta) {
+                if (result.length < length - delta) {
                     t.max = offset + delta + result.length;
                 }
                 callback.call(t, result);
             });
         } else {
             this._loader(offset, length, function (result) {
-                if (t.max === -1 && result.length < length) {
+                if (result.length < length) {
                     t.max = offset + result.length;
                 }
                 callback.call(t, result);
@@ -4921,9 +4921,10 @@ d.r.Carousel = d.Class(d.Control, {
         this.loaded = offset + length;
     },
     load: function () {
-        var t = this,
-            offset = this.offset,
-            length = this.maxVisibleItemCount() * 2;
+        var t = this, offset, length;
+        if (this.max !== -1) return;
+        offset = this.offset;
+        length = this.maxVisibleItemCount() * 2;
         this.loadItems(offset, length, function (items) {
             var i = 0, item;
             while (item = items[i++]) {
