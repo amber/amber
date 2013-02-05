@@ -4869,13 +4869,9 @@ d.r.Carousel = d.Class(d.Control, {
         this.scrollX += e.x;
         if (this.scrollX < 0) this.scrollX = 0;
         if (this.scrollX > max) this.scrollX = max;
-        this.container.style.WebkitTransition = 'none';
-        this.container.style.left = -this.scrollX + 'px';
-        setTimeout(function () {
-            t.container.style.WebkitTransition = '';
-        });
         if ((offset = Math.ceil(this.scrollX / this.ITEM_WIDTH)) !== this.offset) {
             this.offset = offset;
+            this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
             if (this.offset + this.maxVisibleItemCount() > this.loaded) {
                 this.load();
             }
