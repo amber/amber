@@ -1593,6 +1593,7 @@
     -webkit-transition: left .3s;
 }
 .d-r-carousel-item {
+    display: inline-block;
     margin: 1px 7px 1px 1px;
     padding: 6px;
     border-radius: 3px;
@@ -1696,13 +1697,16 @@
     margin-bottom: 6px;
 }
 .d-app a {
+    text-decoration: none;
+}
+.d-app .d-link {
     color: #eee;
     text-decoration: none;
 }
-.d-app a:hover {
+.d-app .d-link:hover {
     text-decoration: underline;
 }
-.d-app a:active {
+.d-app .d-link:active {
     color: #ccc;
 }
 .d-r-project-stats {

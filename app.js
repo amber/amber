@@ -4623,7 +4623,7 @@ d.r.views = {
         this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
             title.setText(info.project.name);
             authors.setRichText(d.t('by %', d.t.list(info.project.authors.map(function (author) {
-                return '<a href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
+                return '<a class=d-link href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
             }, this))));
             notes.setText(info.project.notes);
             favorites.setText(d.t.plural('% Favorites', '% Favorite', info.favorites));
@@ -4658,22 +4658,22 @@ d.r.views = {
                 .add(new d.Label('d-r-user-about d-r-user-about-alternate').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
                 .add(new d.Label('d-r-title d-r-user-activity-title').setText('What I\'ve Been Doing'))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('2 days, 8 hours ago'))))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                 .add(new d.Container('d-r-user-activity-item')
-                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a href="#">Awesome Projects</a>')))
+                    .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="#">Awesome Projects</a>')))
                     .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago')))))
             .add(new d.Container('d-r-user-carousels')
                 .add(new d.r.Carousel().setTitle(d.t('Shared Projects')))
@@ -4716,9 +4716,7 @@ d.r.App = d.Class(d.App, {
         } catch (e) {
             url = '{404}';
         }
-        return new d.Button('d-r-panel-button').setText(d.t(t)).onExecute(function () {
-                this.go(url);
-            }, this);
+        return new d.r.Link('d-r-panel-button').setText(d.t(t)).setUrl(url);
     },
     requests: [],
     request: function (method, url, body, callback, error) {
@@ -4816,6 +4814,20 @@ d.r.App = d.Class(d.App, {
             }
         }
         d.r.views.notFound.call(this, [loc]);
+    }
+});
+d.r.Link = d.Class(d.Label, {
+    init: function (className) {
+        this.base(arguments);
+        this.element = this.container = this.newElement(className || 'd-r-link', 'a');
+    },
+    setView: function (view) {
+        return this.setUrl(d.r.App.prototype.reverse.apply(null, arguments));
+    },
+    '.url': {
+        apply: function (url) {
+            this.element.href = d.r.App.prototype.abs(url);
+        }
     }
 });
 d.r.Carousel = d.Class(d.Control, {
@@ -4933,7 +4945,7 @@ d.r.Carousel = d.Class(d.Control, {
         });
     }
 });
-d.r.CarouselItem = d.Class(d.Button, {
+d.r.CarouselItem = d.Class(d.r.Link, {
     init: function () {
         this.base(arguments, 'd-r-carousel-item');
         this.element.appendChild(this.thumbnailImage = this.newElement('d-r-carousel-item-thumbnail', 'img'));
@@ -4981,14 +4993,9 @@ d.r.ProjectCarousel = d.Class(d.r.Carousel, {
     }
 });
 d.r.ProjectCarouselItem = d.Class(d.r.CarouselItem, {
-    init: function () {
-        this.base(arguments);
-        this.onExecute(function () {
-            this.app().show('project.view', this.project().id);
-        });
-    },
     '.project': {
         apply: function (info) {
+            this.setView('project.view', info.id);
             this.setLabel(info.project.name);
             this.setThumbnail('projects/' + info.id + '/thumbnail/');
         }
