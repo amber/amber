@@ -262,6 +262,7 @@ d.Control = d.Class(d.Base, {
         var children = this.children, i = 0, child;
         if (!this.isLive) {
             this.dispatch('Live', new d.ControlEvent().setControl(this));
+            this.isLive = true;
         }
         while (child = children[i++]) {
             child.becomeLive();
