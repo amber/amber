@@ -853,18 +853,27 @@ d.FormControl = d.Class(d.Control, {
 });
 d.TextField = d.Class(d.FormControl, {
     '@Input': {},
+    '@InputDone': {},
     '@KeyDown': {},
+    INPUT_DONE_THRESHOLD: 300,
     init: function (className) {
         this.base(arguments);
         this.element = this.newElement(className || 'd-textfield', 'input');
+        this._inputDone = this._inputDone.bind(this);
         this.element.addEventListener('input', function (e) {
             this.dispatch('Input', new d.ControlEvent().setControl(this));
+            if (this._inputDoneTimer) clearTimeout(this._inputDoneTimer);
+            this._inputDoneTimer = setTimeout(this._inputDone, this.INPUT_DONE_THRESHOLD);
         }.bind(this));
         this.element.addEventListener('keydown', function (e) {
             this.dispatch('KeyDown', new d.ControlEvent().setControl(this).withProperties({
                 keyCode: e.keyCode
             }));
         }.bind(this));
+    },
+    _inputDone: function () {
+        this._inputDoneTimer = undefined;
+        this.dispatch('InputDone', new d.ControlEvent().setControl(this));
     },
     select: function () {
         this.element.select();
@@ -4571,11 +4580,13 @@ d.HatBlock = d.Class(d.Block, {
 d.r = {};
 d.r.urls = [
     [/^$/, 'index'],
-    [/^projects\/(\d+)$/, 'project.view'],
-    [/^projects\/(\d+)\/edit$/, 'project.edit'],
-    [/^users\/([\w-]+)$/, 'user.profile'],
-    [/^help$/, 'help'],
-    [/^about$/, 'about']
+    [/^search\/(all|users|projects|collections|forums)\/$/, 'search'],
+    [/^search\/(all|users|projects|collections|forums)\/(.+)\/$/, 'search'],
+    [/^projects\/(\d+)\/$/, 'project.view'],
+    [/^projects\/(\d+)\/edit\/$/, 'project.edit'],
+    [/^users\/([\w-]+)\/$/, 'user.profile'],
+    [/^help\/$/, 'help'],
+    [/^about\/$/, 'about']
 ];
 d.r.views = {
     index: function () {
@@ -4601,6 +4612,11 @@ d.r.views = {
         this.page
             .add(new d.Label('d-r-title').setText(d.t('About Amber')))
             .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
+    },
+    search: function () {
+        this.page
+            .add(new d.Label('d-r-title').setText(d.t('Search')))
+            .add(new d.Label('d-r-paragraph').setText('This is a placeholder search page.'));
     },
     'project.view': function (args, isEdit) {
         var title, authors, player, notes, favorites, loves, views, remixes;
@@ -4692,6 +4708,13 @@ d.r.App = d.Class(d.App, {
                 .add(this.panelLink('Create', 'newProject'))
                 .add(this.panelLink('Explore', 'explore'))
                 .add(this.panelLink('Discuss', 'forums.index'))
+                .add(this.search = new d.TextField('d-r-panel-search').setPlaceholder(d.t('Search…')).onInputDone(function () {
+                    if (this.search.text()) {
+                        this.show('search', 'all', this.search.text());
+                    } else {
+                        this.show('search', 'all');
+                    }
+                }, this))
                 .add(this.spinner = new d.Container('d-r-spinner').hide()))
             .add(new d.Container('d-r-wrap').addClass('d-scrollable')
                 .add(this.page = new d.Container('d-r-page'))
@@ -4777,11 +4800,11 @@ d.r.App = d.Class(d.App, {
         return this.go(this.reverse.apply(this, arguments));
     },
     redirect: function (loc) {
-        if (loc[loc.length - 1] === '/') {
-            loc = loc.substr(0, loc.length - 1);
+        if (loc[loc.length - 1] !== '/') {
+            loc = loc + '/';
         }
-        if (loc[0] === '/') {
-            loc = loc.substr(1);
+        if (loc[0] !== '/') {
+            loc = '/' + loc;
         }
         if (loc === this.url) return;
         this.isRedirect = true;
@@ -4790,11 +4813,11 @@ d.r.App = d.Class(d.App, {
     },
     go: function (loc, soft) {
         var urls = d.r.urls, i = 0, url, request, match;
-        if (loc[loc.length - 1] === '/') {
-            return this.go(loc.substr(0, loc.length - 1), soft);
+        if (loc[loc.length - 1] !== '/') {
+            return this.go(loc + '/', soft);
         }
-        if (loc[0] === '/') {
-            return this.go(loc.substr(1), soft);
+        if (loc[0] !== '/') {
+            return this.go('/' + loc, soft);
         }
         if (!soft) location.hash = loc;
         if (this.unload) {
@@ -4810,7 +4833,7 @@ d.r.App = d.Class(d.App, {
         this.page.clear();
         this.page.element.scrollTop = 0;
         while (url = urls[i++]) {
-            if (match = url[0].exec(loc)) {
+            if (match = url[0].exec(loc.substr(1))) {
                 return d.r.views[url[1]].call(this, match);
             }
         }

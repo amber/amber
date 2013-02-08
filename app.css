@@ -1480,8 +1480,10 @@
     color: #aaa;
     text-shadow: 0 -1px rgb(12%, 12%, 12%);
     text-decoration: none;
+    outline: 0;
 }
 .d-r-panel-button:hover,
+.d-r-panel-button:focus,
 .d-r-panel-button:active {
     color: #ccc;
     background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(23%, 23%, 23%));
@@ -1491,6 +1493,19 @@
     color: #888;
     background: -webkit-linear-gradient(rgb(19%, 19%, 19%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .24), inset -1px 0 rgba(0, 0, 0, .24);
+}
+.d-r-panel-search {
+    float: right;
+    height: 12px;
+    margin: 6px 0 6px 12px;
+    border: 0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    outline: 0;
+    background: #fff;
+    box-shadow: 0 1px rgb(19%, 19%, 19%);
+    font: 12px sans-serif;
+    width: 120px;
 }
 .d-r-wrap {
     position: absolute;
