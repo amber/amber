@@ -4580,13 +4580,17 @@ d.HatBlock = d.Class(d.Block, {
 d.r = {};
 d.r.urls = [
     [/^$/, 'index'],
-    [/^search\/(all|users|projects|collections|forums)\/$/, 'search'],
-    [/^search\/(all|users|projects|collections|forums)\/(.+)\/$/, 'search'],
+    [/^search\/$/, 'search'],
+    [/^search\/(.+)\/$/, 'search'],
     [/^projects\/(\d+)\/$/, 'project.view'],
     [/^projects\/(\d+)\/edit\/$/, 'project.edit'],
     [/^users\/([\w-]+)\/$/, 'user.profile'],
     [/^help\/$/, 'help'],
-    [/^about\/$/, 'about']
+    [/^about\/$/, 'about'],
+    [/^forums\/$/, 'forums.index'],
+    [/^forums\/(\d+)\/$/, 'forums.forum.view'],
+    [/^forums\/t\/(\d+)\/$/, 'forums.topic.view'],
+    [/^forums\/p\/(\d+)\/$/, 'forums.post.link']
 ];
 d.r.views = {
     index: function () {
@@ -4710,9 +4714,9 @@ d.r.App = d.Class(d.App, {
                 .add(this.panelLink('Discuss', 'forums.index'))
                 .add(this.search = new d.TextField('d-r-panel-search').setPlaceholder(d.t('Search…')).onInputDone(function () {
                     if (this.search.text()) {
-                        this.show('search', 'all', this.search.text());
+                        this.show('search', this.search.text());
                     } else {
-                        this.show('search', 'all');
+                        this.show('search');
                     }
                 }, this))
                 .add(this.spinner = new d.Container('d-r-spinner').hide()))
