@@ -38,16 +38,20 @@
 
 .d-scrollable::-webkit-scrollbar {
     background: rgba(120, 120, 120, .6);
-    width: 5px;
-    height: 5px;
-    border-radius: 7px;
+    width: 3px;
+    height: 3px;
 }
 .d-scrollable::-webkit-scrollbar-thumb {
-    border-radius: 7px;
-    background: rgba(255, 255, 255, .4);
+    background: #888;
     /*box-shadow:
         inset 1px 1px rgba(255, 255, 255, .3),
         inset -1px -1px rgba(0, 0, 0, .2);*/
+}
+.d-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+.d-scrollable::-webkit-scrollbar-thumb:active {
+    background: #eee;
 }
 .d-scrollable::-webkit-scrollbar-corner {
     background: transparent;
@@ -80,12 +84,15 @@
 }
 .d-textfield {
     padding: 2px 6px;
+    margin: 6px 0;
     background: #fff;
     border: 0;
     border-radius: 2px;
+    box-sizing: border-box;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 1px 3px rgba(0, 0, 0, .3);
     outline: 0;
     position: relative;
+    font: 12px sans-serif;
 }
 .d-dialog .d-textfield,
 .d-dialog .d-checkbox,
@@ -188,6 +195,40 @@
     display: none;
 }
 
+.d-form-grid {
+    display: table;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+}
+.d-form-grid-row {
+    display: table-row;
+    margin: 0 0 12px;
+}
+.d-form-grid-label,
+.d-form-grid-input {
+    display: table-cell;
+    vertical-align: top;
+}
+.d-form-grid-label {
+    padding: 0 12px 6px 0;
+    white-space: nowrap;
+    width: 30%;
+    text-align: right;
+}
+.d-form-grid-input {
+    padding: 0 0 6px;
+    width: 70%;
+}
+.d-form-grid .d-textfield {
+    margin: 0;
+    vertical-align: top;
+    width: 100%;
+}
+.d-form-grid textarea.d-textfield {
+    resize: vertical;
+}
+
 .d-progress {
     height: 12px;
     box-shadow: 0 1px rgba(0, 0, 0, 0.3);
@@ -221,6 +262,7 @@
     padding: 0;
     border: 0;
     margin: 0;
+    outline: 0;
     color: transparent;
     background: transparent;
     z-index: -1000;
@@ -339,7 +381,9 @@
     font: 13px/28px sans-serif;
 }
 .d-r-header {
-    border-bottom: 1px solid rgba(0, 0, 0, .4);
+    border-bottom: 1px solid rgba(0, 0, 0, .5);
+    box-shadow: 0 3px 20px rgba(0, 0, 0, .2);
+    z-index: 1;
 }
 .d-panel-title-shadow {
     position: absolute;
@@ -1489,14 +1533,108 @@
     background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .1), inset -1px 0 rgba(0, 0, 0, .1);
 }
-.d-r-panel-button:active:hover {
+.d-r-panel-button-pressed,
+.d-r-panel-button-pressed:hover,
+.d-r-panel-button-pressed:focus,
+.d-r-panel-button-pressed:active {
+    color: #aaa;
+    background: -webkit-linear-gradient(rgb(21%, 21%, 21%), rgb(25%, 25%, 25%));
+    box-shadow: inset 1px 0 rgba(0, 0, 0, .18), inset -1px 0 rgba(0, 0, 0, .18);
+}
+.d-r-panel-button:active:hover,
+.d-r-panel-button:active:focus {
     color: #888;
     background: -webkit-linear-gradient(rgb(19%, 19%, 19%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .24), inset -1px 0 rgba(0, 0, 0, .24);
 }
-.d-r-panel-search {
+.d-r-header-user {
     float: right;
-    height: 12px;
+    margin-left: 6px;
+    cursor: pointer;
+}
+.d-r-header-user-label {
+    max-width: 100px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+}
+.d-r-header-user-arrow,
+.d-r-header-user-label {
+    display: inline-block;
+}
+.d-r-header-user-arrow {
+    margin-left: 6px;
+}
+.d-r-header-user-arrow::after {
+    content: ' \25be';
+}
+.d-r-header-sign-in,
+.d-r-header-user-menu {
+    position: absolute;
+    top: 29px !important;
+    right: 6px !important;
+    left: auto !important;
+    padding: 12px;
+    border-radius: 0 0 6px 6px;
+    background: rgb(27%, 27%, 27%);
+    border: 1px solid rgba(0, 0, 0, .4);
+    box-shadow: 0 3px 20px rgba(0, 0, 0, .2);
+    border-top: 0;
+    z-index: 2;
+    width: 162px;
+}
+.d-r-header-sign-in-field {
+    display: block;
+    margin-top: 6px;
+    width: 150px;
+}
+.d-r-header-sign-in-field:first-child {
+    margin-top: 0;
+}
+.d-r-header-sign-in-error {
+    color: #faa;
+    width: 150px;
+    font: 12px sans-serif;
+    white-space: normal;
+    word-wrap: break-word;
+    margin-top: 6px;
+}
+.d-r-header-user-menu {
+    padding: 6px 0;
+}
+.d-r-header-user-menu .d-menu-separator {
+    background: rgb(22%, 22%, 22%);
+    margin: 6px 0;
+}
+.d-r-header-user-menu .d-menu-item {
+    color: #aaa;
+    padding: 3px 12px;
+    font: 12px sans-serif;
+    cursor: pointer;
+}
+.d-r-header-user-menu .d-menu-item-active {
+    color: #eee;
+    background: rgb(22%, 22%, 22%);
+    border-color: rgb(19%, 19%, 19%);
+}
+.d-r-header-user-menu .d-menu-up,
+.d-r-header-user-menu .d-menu-down {
+    background: rgb(27%, 27%, 27%);
+    color: #aaa;
+}
+.d-r-header-user-menu .d-menu-up {
+    box-shadow: 0 1px rgba(0, 0, 0, .3);
+    border-radius: 0;
+}
+.d-r-header-user-menu .d-menu-down {
+    box-shadow: 0 -1px rgba(0, 0, 0, .3);
+    border-radius: 0 0 6px 6px;
+}
+
+.d-r-header-search {
+    float: right;
+    height: 16px;
     margin: 6px 0 6px 12px;
     border: 0;
     padding: 2px 8px;
@@ -1533,6 +1671,7 @@
     z-index: 1;
     border-top: 0;
     box-shadow: 0 -1px rgba(0, 0, 0, .24);
+    clear: both;
 }
 .d-r-carousel {
     position: relative;
@@ -1569,6 +1708,7 @@
     top: 54px;
     bottom: 0;
     border: 0;
+    outline: 0;
     margin: 0;
     padding: 0;
     border-bottom: 48px solid transparent;
@@ -1587,10 +1727,12 @@
     background-image: url(static/img/carousel/right.svg);
 }
 .d-r-carousel-button:hover,
+.d-r-carousel-button:focus,
 .d-r-carousel-button:active {
     opacity: .6;
 }
-.d-r-carousel-button:hover:active {
+.d-r-carousel-button:hover:active,
+.d-r-carousel-button:focus:active {
     opacity: 1;
 }
 .d-r-carousel-wrap {
@@ -1660,10 +1802,16 @@
 .d-r-title {
     padding: 12px;
 }
-.d-r-paragraph {
-    padding: 0 12px 12px;
+.d-r-paragraph,
+.d-r-form {
+    padding: 0 12px;
     font: 13px/17px sans-serif;
     color: #eee;
+}
+.d-r-form {
+    padding: 0 12px 6px;
+    margin: 0 auto;
+    max-width: 852px;
 }
 
 .d-r-project-container {
@@ -1716,13 +1864,17 @@
     text-decoration: none;
 }
 .d-app .d-link {
+    outline: 0;
     color: #eee;
     text-decoration: none;
 }
-.d-app .d-link:hover {
+.d-app .d-link:hover,
+.d-app .d-link:focus,
+.d-app .d-link:active {
     text-decoration: underline;
 }
-.d-app .d-link:active {
+.d-app .d-link:hover:active,
+.d-app .d-link:focus:active {
     color: #ccc;
 }
 .d-r-project-stats {

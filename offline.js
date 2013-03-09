@@ -1,4 +1,4 @@
-d.r.OfflineApp = d.Class(d.r.App, {
+d.r.OfflineServer = d.Class(d.Base, {
     latency: 100,
     init: function () {
         var i;
@@ -62,6 +62,9 @@ d.r.OfflineApp = d.Class(d.r.App, {
             projects: [],
             orderedProjects: [],
         };
+        this.userId = 0;
+        this.usersById = {};
+        this.usersByName = {};
         i = 100;
         while (i--) {
             this.data.projects.push({
@@ -70,6 +73,7 @@ d.r.OfflineApp = d.Class(d.r.App, {
                 loves: rfloat(0, 10) * rfloat(0, 30) | 0,
                 views: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
                 versions: rint(1, 5),
+                featured: rfloat(1, 5) > 4,
                 remixes: [],
                 project: {
                     created: +new Date,
@@ -80,38 +84,60 @@ d.r.OfflineApp = d.Class(d.r.App, {
             });
         }
     },
-    request: function (method, url, body, callback, error) {
-        var t = this, req = {};
-        if (!this.requests.length) {
-            this.spinner.show();
-        }
-        this.requests.push(req);
-        setTimeout(function () {
-            t.requests.splice(t.requests.indexOf(req), 1);
-            if (!t.requests.length) {
-                t.spinner.hide();
+    '.app': {},
+    queries: {
+        'projects.topLoved': {
+            model: 'projects',
+            order: 'loves'
+        },
+        'projects.topViewed': {
+            model: 'projects',
+            order: 'views'
+        },
+        'projects.topRemixed': {
+            model: 'projects',
+            order: 'remixCount'
+        },
+        'projects.featured': {
+            model: 'projects',
+            filter: function (p) {
+                return p.featured;
             }
-            callback.call(t, t.api(method, d.API_URL + url, body));
-        }, this.latency);
-        return this;
-    },
-    api: function (method, url, body) {
-        var args;
-        if (args = /projects\/(\d+)\//.exec(url)) {
-            return this.data.projects[args[1]];
-        }
-        if (args = /projects\/all\//.exec(url)) {
-            return this.orderProjectsBy(body.order).slice(body.offset, body.offset + body.length);
         }
     },
-    orderProjectsBy: function (order) {
-        if (this.data.orderedProjects[order]) {
-            return this.data.orderedProjects[order];
+    getAsset: function (hash) {
+        return 'data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
+    },
+    query: function (query, callback) {
+        if (this.queries[query.name]) {
+            setTimeout(function () {
+                callback(this.fetch(this.queries[query.name], query.offset, query.length));
+            }.bind(this), this.latency);
+        } else {
+            console.error('QueryError: Undefined query in', query);
         }
-        return this.data.orderedProjects[order] = this.data.projects.slice(0).sort(order === 'remixes' ? function (a, b) {
-            return b.remixes.length - a.remixes.length;
-        } : function (a, b) {
-            return b[order] - a[order];
-        });
+    },
+    fetch: function (config, offset, length) {
+        var order = config.order || 'id',
+            model = config.model;
+        return (this.data[model + '_' + order] || (
+                this.data[model + '_' + order] = this.data[model].slice(0).sort(order === 'remixCount' ? function (a, b) {
+                    return b.remixes.length - a.remixes.length;
+                } : function (a, b) {
+                    return b[order] - a[order];
+                }))).filter(config.filter || function () {return true}).slice(offset, offset + length);
+    },
+    signIn: function (username, password, errorCallback) {
+        setTimeout(function () {
+            this.app().setUser(new d.r.User(this).fromJSON({
+                name: username,
+                id: ++this.userId
+            }));
+        }.bind(this), this.latency);
+    },
+    signOut: function () {
+        setTimeout(function () {
+            this.app().setUser(null);
+        }.bind(this), this.latency);
     }
 });
