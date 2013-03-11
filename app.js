@@ -64,10 +64,10 @@
                     return this[_name];
                 },
             apply = options.apply;
-        
+
         if (options.hasOwnProperty('value'))
             object[_name] = options.value;
-        
+
         object[setName] = function (value) {
             var old = this[_name];
             setter.call(this, value);
@@ -135,7 +135,7 @@
             var a = this[key = '$listeners_' + name],
                 i;
             if (!a) return this;
-            
+
             i = a.length;
             while (i--) {
                 if (a[i].listener === handler) {
@@ -152,7 +152,7 @@
             var a = this[key = '$listeners_' + name],
                 listener, i;
             if (!a) return this;
-            
+
             i = a.length;
             while (i--) {
                 listener = a[i];
@@ -344,7 +344,7 @@
                     control.dispatch('TouchStart', e);
                     return;
                 }
-            } 
+            }
         },
         app: function () {
             return this.parent && this.parent.app();
@@ -2864,7 +2864,7 @@
                 this.element.style.left = x + 'px';
                 this.element.style.top = y + 'px';
                 setTimeout(function () {
-                    this.element.style.WebkitTransition = 
+                    this.element.style.WebkitTransition =
                         this.element.style.MozTransition = '';
                     if (callback) callback();
                 }.bind(this), 300);
@@ -2872,7 +2872,7 @@
             return this;
         },
         removePosition: function () {
-            this.element.style.left = 
+            this.element.style.left =
                 this.element.style.top = '';
         },
         initPosition: function (x, y) {
@@ -4757,7 +4757,7 @@
             this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
                 title.setText(info.project.name);
                 authors.setRichText(d.t('by %', d.t.list(info.project.authors.map(function (author) {
-                    return '<a class=d-link href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
+                    return '<a class=d-r-link href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
                 }, this))));
                 notes.setText(info.project.notes);
                 favorites.setText(d.t.plural('% Favorites', '% Favorite', info.favorites));
@@ -4792,22 +4792,22 @@
                     .add(new d.Label('d-r-user-about d-r-user-about-alternate').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
                     .add(new d.Label('d-r-title d-r-user-activity-title').setText('What I\'ve Been Doing'))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('2 days, 8 hours ago'))))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
                     .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-link href="#">Awesome Projects</a>')))
+                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="#">Awesome Projects</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago')))))
                 .add(new d.Container('d-r-user-carousels')
                     .add(new d.r.Carousel().setTitle(d.t('Shared Projects')))
@@ -4831,7 +4831,7 @@
                     .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
                     .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
                     .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
-                    // .add(this.signUpLink = new d.r.Link().setText(d.t('Register')))
+                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')))
                     .add(this.signInError = new d.Label('d-label d-r-header-sign-in-error').hide()))
                 .add(new d.Container('d-r-header')
                     .add(this.panelLink('Amber', 'index'))
@@ -5336,7 +5336,7 @@
         },
         '.loader': {},
         '.transformer': {},
-        ITEM_WIDTH: 140,
+        ITEM_WIDTH: 194.6458333731,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
             var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.wrap.offsetWidth) : this.container.offsetWidth;

@@ -11,7 +11,7 @@
     user-select: none;
     overflow: hidden;
     -webkit-transform: translateZ(0);
-    background: rgb(22%, 22%, 22%);
+    background: #fff;
 }
 .d-amber {
     position: relative;
@@ -37,24 +37,28 @@
 }
 
 .d-scrollable::-webkit-scrollbar {
-    background: rgba(120, 120, 120, .6);
-    width: 3px;
-    height: 3px;
+    background: #ccc;
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, .3);
+    width: 6pt;
+    height: 6pt;
 }
 .d-scrollable::-webkit-scrollbar-thumb {
-    background: #888;
-    /*box-shadow:
-        inset 1px 1px rgba(255, 255, 255, .3),
-        inset -1px -1px rgba(0, 0, 0, .2);*/
+    background: #555;
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, .2),
+        inset -2px -2px 4px rgba(0, 0, 0, .2);
 }
 .d-scrollable::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
+    background: #666;
 }
 .d-scrollable::-webkit-scrollbar-thumb:active {
-    background: #eee;
+    background: #555;
+    box-shadow:
+        inset -2px -2px 4px rgba(255, 255, 255, .1),
+        inset 2px 2px 4px rgba(0, 0, 0, .1);
 }
 .d-scrollable::-webkit-scrollbar-corner {
-    background: transparent;
+    background: #ccc;
 }
 
 .d-lightbox,
@@ -364,8 +368,7 @@
 }
 .d-panel-title,
 .d-stage-controls,
-.d-r-header,
-.d-r-footer {
+.d-r-header {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -379,11 +382,6 @@
     color: #aaa;
     text-shadow: 0 -1px rgb(12%, 12%, 12%);
     font: 13px/28px sans-serif;
-}
-.d-r-header {
-    border-bottom: 1px solid rgba(0, 0, 0, .5);
-    box-shadow: 0 3px 20px rgba(0, 0, 0, .2);
-    z-index: 1;
 }
 .d-panel-title-shadow {
     position: absolute;
@@ -544,7 +542,7 @@
     box-shadow: 0 -1px rgba(0, 0, 0, .16);
 }
 .d-user-list .d-panel-contents {
-    
+
 }
 .d-collapse-user-panel .d-chat {
     top: 100%;
@@ -1509,45 +1507,49 @@
     top: 0;
     bottom: auto;
     border-top: 0;
+    padding: 0 6pt;
+    border-bottom: 1px solid rgba(0, 0, 0, .5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .4);
+    z-index: 1;
 }
 .d-r-header,
 .d-r-footer {
     overflow: hidden;
 }
-.d-r-panel-button {
+.d-r-header .d-r-panel-button {
     float: left;
     background: transparent;
     border: 0;
     margin: 0;
-    padding: 0 12px;
+    padding: 0 9pt;
     font: 13px/28px sans-serif;
     color: #aaa;
     text-shadow: 0 -1px rgb(12%, 12%, 12%);
     text-decoration: none;
     outline: 0;
 }
-.d-r-panel-button:hover,
-.d-r-panel-button:focus,
-.d-r-panel-button:active {
+.d-r-header .d-r-panel-button:hover,
+.d-r-header .d-r-panel-button:focus,
+.d-r-header .d-r-panel-button:active {
     color: #ccc;
     background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .1), inset -1px 0 rgba(0, 0, 0, .1);
 }
-.d-r-panel-button-pressed,
-.d-r-panel-button-pressed:hover,
-.d-r-panel-button-pressed:focus,
-.d-r-panel-button-pressed:active {
+.d-r-header .d-r-panel-button-pressed,
+.d-r-header .d-r-panel-button-pressed:hover,
+.d-r-header .d-r-panel-button-pressed:focus,
+.d-r-header .d-r-panel-button-pressed:active {
     color: #aaa;
     background: -webkit-linear-gradient(rgb(21%, 21%, 21%), rgb(25%, 25%, 25%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .18), inset -1px 0 rgba(0, 0, 0, .18);
 }
-.d-r-panel-button:active:hover,
-.d-r-panel-button:active:focus {
+.d-r-header .d-r-panel-button:active:hover,
+.d-r-header .d-r-panel-button:active:focus {
     color: #888;
     background: -webkit-linear-gradient(rgb(19%, 19%, 19%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .24), inset -1px 0 rgba(0, 0, 0, .24);
 }
-.d-r-header-user {
+.d-r-header .d-r-header-user {
     float: right;
     margin-left: 6px;
     cursor: pointer;
@@ -1573,7 +1575,7 @@
 .d-r-header-user-menu {
     position: absolute;
     top: 29px !important;
-    right: 6px !important;
+    right: 6pt !important;
     left: auto !important;
     padding: 12px;
     border-radius: 0 0 6px 6px;
@@ -1582,7 +1584,22 @@
     box-shadow: 0 3px 20px rgba(0, 0, 0, .2);
     border-top: 0;
     z-index: 2;
-    width: 162px;
+    width: 150px;
+}
+.d-r-header-sign-in .d-r-link {
+    margin: 3px 0 0 6px;
+    color: #ccc;
+    font: 12px sans-serif;
+    cursor: pointer;
+}
+.d-r-header-sign-in .d-r-link:hover,
+.d-r-header-sign-in .d-r-link:focus,
+.d-r-header-sign-in .d-r-link:active {
+    color: #eee;
+}
+.d-r-header-sign-in .d-r-link:hover:active,
+.d-r-header-sign-in .d-r-link:focus:active {
+    color: #fff;
 }
 .d-r-header-sign-in-field {
     display: block;
@@ -1651,7 +1668,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 0 0 28px;
+    padding: 0 0 18pt;
     overflow: auto;
 }
 .d-r-lightbox {
@@ -1660,36 +1677,43 @@
 }
 .d-r-page {
     min-height: 100%;
-    /*padding: 12px;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;*/
-    background: rgb(22%, 22%, 22%);
 }
 .d-r-footer {
     position: relative;
-    margin: 0 0 -29px;
+    margin: 0 0 -18pt;
     z-index: 1;
-    border-top: 0;
-    box-shadow: 0 -1px rgba(0, 0, 0, .24);
     clear: both;
+    text-align: center;
+    font: 10pt/18pt Baskerville, serif;
+}
+.d-r-footer .d-r-panel-button {
+    display: inline-block;
+    padding: 0 9pt;
+    color: #555;
+}
+.d-r-footer .d-r-panel-button:hover,
+.d-r-footer .d-r-panel-button:active,
+.d-r-footer .d-r-panel-button:focus {
+    text-decoration: underline;
+}
+.d-r-footer .d-r-panel-button:hover:active,
+.d-r-footer .d-r-panel-button:focus:active {
+    color: #000;
 }
 .d-r-carousel {
     position: relative;
-    height: 194px;
+    height: 189pt;
     margin-bottom: 12px;
 }
 .d-r-carousel-detail {
-    height: 206px;
-}
-.d-r-carousel:nth-child(2n) {
-    background-color: rgb(24%, 24%, 24%);
+    height: 216pt;
 }
 .d-r-carousel-header {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    height: 30px;
+    top: 9pt;
+    left: 9pt;
+    right: 9pt;
+    height: 30pt;
     overflow: hidden;
     white-space: pre;
     text-overflow: ellipsis;
@@ -1700,20 +1724,20 @@
 .d-r-project-comments-title,
 .d-r-project-remixes-title,
 .d-r-title {
-    font: 21px/30px sans-serif;
-    color: #eee;
+    font: 24pt/30pt Georgia, serif;
+    color: #000;
 }
 .d-r-carousel-button {
     position: absolute;
-    top: 54px;
+    top: 48pt;
     bottom: 0;
     border: 0;
     outline: 0;
     margin: 0;
     padding: 0;
-    border-bottom: 48px solid transparent;
+    border-bottom: 36pt solid transparent;
     height: auto;
-    width: 36px;
+    width: 27pt;
     background: transparent no-repeat center center;
     opacity: .3;
     cursor: pointer;
@@ -1737,10 +1761,10 @@
 }
 .d-r-carousel-wrap {
     position: absolute;
-    top: 54px;
-    left: 36px;
-    right: 36px;
-    bottom: 12px;
+    top: 48pt;
+    left: 27pt;
+    right: 27pt;
+    bottom: 9pt;
     overflow: hidden;
     white-space: nowrap;
 }
@@ -1752,40 +1776,44 @@
 }
 .d-r-carousel-item {
     display: inline-block;
-    margin: 1px 7px 1px 1px;
-    padding: 6px;
+    margin: 1pt 9pt 1pt 1pt;
+    padding: 8pt;
     border-radius: 3px;
-    width: 120px;
-    height: 114px;
+    width: 120pt;
+    height: 114pt;
     border: 0;
+    outline: 0;
     background: transparent;
     -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
 .d-r-carousel-detail .d-r-carousel-item {
-    height: 126px;
+    height: 135pt;
 }
-.d-r-carousel-item:hover {
-    background: rgb(27%, 27%, 27%);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
-}
+.d-r-carousel-item:hover,
+.d-r-carousel-item:focus,
 .d-r-carousel-item:active {
-    background: rgb(31%, 31%, 31%);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
+    background: #f5f5f5;
+    box-shadow: 0 0 0 1pt rgba(0, 0, 0, .1);
+}
+.d-r-carousel-item:hover:active,
+.d-r-carousel-item:focus:active {
+    background: #eee;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 2px 10px rgba(0, 0, 0, .1);
 }
 .d-r-carousel-item-thumbnail {
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
     background: #fff;
-    height: 90px;
+    height: 90pt;
     display: block;
     width: 100%;
 }
 .d-r-carousel-item-label,
 .d-r-carousel-item-detail {
-    font: 11px/12px sans-serif;
-    height: 12px;
-    padding: 8px 0 4px;
-    color: #eee;
+    font: 12pt/18pt Baskerville, serif;
+    height: 18pt;
+    padding: 6pt 0 3pt;
+    color: #000;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -1800,16 +1828,16 @@
 }
 
 .d-r-title {
-    padding: 12px;
+    padding: 9pt;
 }
 .d-r-paragraph,
 .d-r-form {
-    padding: 0 12px;
-    font: 13px/17px sans-serif;
-    color: #eee;
+    padding: 0 9pt;
+    font: 12pt/18pt Baskerville, serif;
+    color: #000;
 }
 .d-r-form {
-    padding: 0 12px 6px;
+    padding: 0 9pt 6px;
     margin: 0 auto;
     max-width: 852px;
 }
@@ -1863,19 +1891,19 @@
 .d-app a {
     text-decoration: none;
 }
-.d-app .d-link {
+.d-r-link {
     outline: 0;
-    color: #eee;
+    color: #05d;
     text-decoration: none;
 }
-.d-app .d-link:hover,
-.d-app .d-link:focus,
-.d-app .d-link:active {
+.d-r-link:hover,
+.d-r-link:focus,
+.d-r-link:active {
     text-decoration: underline;
 }
-.d-app .d-link:hover:active,
-.d-app .d-link:focus:active {
-    color: #ccc;
+.d-r-link:hover:active,
+.d-r-link:focus:active {
+    color: #028;
 }
 .d-r-project-stats {
     font: 11px/17px sans-serif;
@@ -1902,35 +1930,26 @@
 }
 
 .d-r-user-about {
-    padding: 0 12px 12px;
-    font: 13px/17px sans-serif;
-    color: #eee;
+    padding: 0 9pt 9pt;
+    font: 12pt/18pt Baskerville, serif;
+    color: #000;
 }
 .d-r-user-activity {
     float: left;
-    width: 360px;
-    margin: 0 12px 12px 0;
+    width: 270pt;
+    margin: 0 9pt 9pt 0;
 }
 .d-r-user-carousels {
-    margin: 0 0 12px 372px;
+    margin: 0 0 9pt 279pt;
 }
 .d-r-user-activity-item {
-    padding: 12px;
-    color: #aaa;
-    font: 13px/17px sans-serif;
-}
-.d-r-user-activity-item strong {
-    color: #eee;
-    font-weight: normal;
+    padding: 9pt;
+    color: #000;
+    font: 12pt/18pt Baskerville, serif;
 }
 .d-r-activity-date {
-    color: #aaa;
-    font: 11px/15px sans-serif;
-}
-.d-r-user-title-alternate,
-.d-r-user-about-alternate,
-.d-r-user-activity-item:nth-child(2n+1) {
-    background: rgb(24%, 24%, 24%);
+    color: #888;
+    font: 10pt/18pt Baskerville, serif;
 }
 .d-r-user-activity-title,
 .d-r-user-title {
