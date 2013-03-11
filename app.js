@@ -4837,7 +4837,7 @@
                     .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
                     .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
                     .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
-                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')))
+                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')).setExternalUrl('http://scratch.mit.edu/signup'))
                     .add(this.signInError = new d.Label('d-label d-r-header-sign-in-error').hide()))
                 .add(new d.Container('d-r-header')
                     .add(this.panelLink('Amber', 'index'))
@@ -5305,7 +5305,15 @@
         },
         '.url': {
             apply: function (url) {
-                this.element.href = d.r.App.prototype.abs(url);
+                this.element.target = '';
+                this.element.href = this._externalUrl = d.r.App.prototype.abs(url);
+            }
+        },
+        '.externalUrl': {
+            apply: function (url) {
+                this._url = null;
+                this.element.target = '_blank';
+                this.element.href = url;
             }
         }
     });
