@@ -4693,6 +4693,12 @@
     ];
     d.r.views = {
         index: function () {
+            if (this.user()) {
+
+            } else {
+                this.page
+                    .add(new d.Label('d-r-title').setText('Create your own stories, games, music & art'));
+            }
             this.page
                 .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'))
                 .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')).setQuery('user.byFollowing'))
@@ -5055,6 +5061,7 @@
             this.usersByName = {};
             this.usersById = {};
             this.log = [];
+            this._sessionId = localStorage.getItem('d.r.sessionId');
             this.open();
         },
         open: function () {
@@ -5066,7 +5073,11 @@
             this.socketQueue = [];
         },
         '.app': {},
-        '.sessionId': {},
+        '.sessionId': {
+            apply: function (sessionId) {
+                localStorage.setItem('d.r.sessionId', sessionId);
+            }
+        },
         on: {
             'connect': function (p) {
                 this.app().setUser(p.user ? new d.r.User(this).fromJSON(p.user) : null);
@@ -5102,7 +5113,7 @@
         listeners: {
             open: function () {
                 var socketQueue = this.socketQueue, packet = {
-                    sessionId: localStorage.getItem('d.r.sessionId')
+                    sessionId: this.sessionId()
                 };
                 this.socket.send(JSON.stringify(this.encodePacket('Client', 'connect', packet)));
                 packet.$type = 'connect';
