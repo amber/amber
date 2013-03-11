@@ -5052,7 +5052,7 @@
         }
     });
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signInFailed":["message"],"Server:auth.signInSucceeded":["user"],"Client:query":["request$id","name","options"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query":["request$id"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
             this.assetStoreURL = assetStoreURL;
@@ -5083,13 +5083,16 @@
                 this.app().setUser(p.user ? new d.r.User(this).fromJSON(p.user) : null);
                 this.setSessionId(p.sessionId);
             },
-            'auth.signInFailed': function (p) {
+            'auth.signIn.failed': function (p) {
                 if (this.signInErrorCallback) {
                     this.signInErrorCallback(p.message);
                 }
             },
-            'auth.signInSucceeded': function (p) {
+            'auth.signIn.succeeded': function (p) {
                 this.app().setUser(new d.r.User(this).fromJSON(p.user));
+            },
+            'auth.signOut.succeeded': function () {
+                this.app().setUser(null);
             },
             'query.result': function (p) {
                 var request = this.requests[p.request$id];
@@ -5223,6 +5226,9 @@
                 password: password
             }, {password: true});
             this.signInErrorCallback = errorCallback;
+        },
+        signOut: function () {
+            this.send('auth.signOut');
         },
         getAsset: function (hash) {
             return this.assetStoreURL + hash + '/';
