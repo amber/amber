@@ -5097,7 +5097,7 @@
                     console.warn('Invalid request id:', p);
                     return;
                 }
-                request.callback.call(p.result);
+                request.callback(p.result);
                 delete this.requests[p.request$id];
             },
             'query.error': function (p) {
