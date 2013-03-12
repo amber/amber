@@ -1690,6 +1690,7 @@
     display: inline-block;
     padding: 0 9pt;
     color: #555;
+    outline: 0;
 }
 .d-r-footer .d-r-panel-button:hover,
 .d-r-footer .d-r-panel-button:active,
