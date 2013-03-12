@@ -5148,7 +5148,7 @@
             close: function () {
                 console.warn('Socket closed. Reopening.');
                 if (this.signInErrorCallback) {
-                    this.signInErrorCallback('Socket closed.');
+                    this.signInErrorCallback('Connection lost.');
                     this.signInErrorCallback = undefined;
                 }
                 this.open();
