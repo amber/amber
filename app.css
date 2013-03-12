@@ -1802,7 +1802,7 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 2px 10px rgba(0, 0, 0, .1);
 }
 .d-r-carousel-item-thumbnail {
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .4);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
     background: #fff;
     height: 90pt;
     display: block;
