@@ -1854,9 +1854,15 @@
 .d-r-forum-list-item-title {
     font-weight: bold;
 }
-.d-r-forum-list-item:hover > .d-r-forum-list-item-title {
+.d-r-forum-list-item:hover > .d-r-forum-list-item-title,
+.d-r-forum-list-item:focus > .d-r-forum-list-item-title,
+.d-r-forum-list-item:active > .d-r-forum-list-item-title {
     color: #05d;
     text-decoration: underline;
+}
+.d-r-forum-list-item:focus:active > .d-r-forum-list-item-title,
+.d-r-forum-list-item:hover:active > .d-r-forum-list-item-title {
+    color: #028;
 }
 
 .d-r-project-container {
