@@ -1535,6 +1535,7 @@
 .d-r-header .d-r-panel-button:active {
     color: #ccc;
     background: -webkit-linear-gradient(rgb(27%, 27%, 27%), rgb(23%, 23%, 23%));
+    background: -moz-linear-gradient(rgb(27%, 27%, 27%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .1), inset -1px 0 rgba(0, 0, 0, .1);
 }
 .d-r-header .d-r-panel-button-pressed,
@@ -1543,12 +1544,14 @@
 .d-r-header .d-r-panel-button-pressed:active {
     color: #aaa;
     background: -webkit-linear-gradient(rgb(21%, 21%, 21%), rgb(25%, 25%, 25%));
+    background: -moz-linear-gradient(rgb(21%, 21%, 21%), rgb(25%, 25%, 25%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .18), inset -1px 0 rgba(0, 0, 0, .18);
 }
 .d-r-header .d-r-panel-button:active:hover,
 .d-r-header .d-r-panel-button:active:focus {
     color: #888;
     background: -webkit-linear-gradient(rgb(19%, 19%, 19%), rgb(23%, 23%, 23%));
+    background: -moz-linear-gradient(rgb(19%, 19%, 19%), rgb(23%, 23%, 23%));
     box-shadow: inset 1px 0 rgba(0, 0, 0, .24), inset -1px 0 rgba(0, 0, 0, .24);
 }
 .d-r-header .d-r-header-user {
@@ -1776,6 +1779,7 @@
     top: 0;
     left: 0;
     -webkit-transition: left .3s;
+    -moz-transition: left .3s;
 }
 .d-r-carousel-item {
     display: inline-block;
