@@ -5064,7 +5064,7 @@
         }
     });
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query":["request$id"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query":["request$id","name","options"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
             this.assetStoreURL = assetStoreURL;
