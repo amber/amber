@@ -1409,6 +1409,12 @@
         }
         return arguments.length === 1 ? result : d.format.apply(null, [result].concat([].slice.call(arguments, 1)));
     };
+    d.t.maybe = function (trans) {
+        if (trans && trans.$) {
+            return d.t(trans.$);
+        }
+        return trans;
+    };
     d.t.list = function (list) {
         return (d.locale[d.currentLocale].__list || d.locale['en-US'].__list)(list);
     };
@@ -4823,31 +4829,31 @@
                     .add(new d.r.Carousel().setTitle(d.t('Followers'))));
         },
         'forums.index': function () {
+            this.query({ name: 'forum.categories' }, function (categories) {
+                categories.forEach(function (category) {
+                    this.page
+                        .add(new d.Label('d-r-title').setText(d.t.maybe(category.name)));
+                    category.forums.forEach(function (forum) {
+                        this.page
+                            .add(new d.Container('d-r-forum-list')
+                                .add(new d.r.Link('d-r-forum-list-item')
+                                     .add(new d.Label('d-r-forum-list-item-title').setText(d.t.maybe(forum.name)))
+                                     .add(new d.Label('d-r-forum-list-item-description').setText(d.t.maybe(forum.description)))
+                                     .setUrl(this.reverse('forums.forum.view', forum.id))));
+                    }, this);
+                }, this);
+            }.bind(this));
+        },
+        'forums.forum.view': function (id) {
             this.page
-                .add(new d.Label('d-r-title').setText(d.t('Welcome')))
-                .add(new d.Container('d-r-forum-list')
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Announcements')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Updates from the Amber team.')))))
-                .add(new d.Label('d-r-title').setText(d.t('About Amber')))
-                .add(new d.Container('d-r-forum-list')
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Bugs and Glitches')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Report a bug you found in Amber.'))))
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Questions about Amber')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Post general questions about Amber here.'))))
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Feedback')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Share your thoughts and impressions of Amber.')))))
-                .add(new d.Label('d-r-title').setText(d.t('Making Amber Projects')))
-                .add(new d.Container('d-r-forum-list')
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Help with Scripts')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Need help with your Amber project? Ask here!'))))
-                    .add(new d.r.Link('d-r-forum-list-item')
-                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Show and Tell')))
-                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Tell everyone about your projects and collections.')))));
+                .add(new d.r.LazyList('d-r-topic-list').setItemHeight(10).setLoader(function (offset, length, callback) {
+                    return this.query({
+                        name: 'forum.topics',
+                        forum$id: id,
+                        offset: offset,
+                        length: length
+                    }, callback);
+                }.bind(this)));
         }
     };
     d.r.App = d.Class(d.App, {
@@ -4882,7 +4888,7 @@
                         }
                     }, this))
                     .add(this.spinner = new d.Container('d-r-spinner').hide()))
-                .add(new d.Container('d-r-wrap').addClass('d-scrollable')
+                .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable')
                     .add(this.page = new d.Container('d-r-page'))
                     .add(new d.Container('d-r-footer')
                         .add(this.panelLink('Help', 'help'))
@@ -5369,7 +5375,6 @@
     d.r.Carousel = d.Class(d.Control, {
         acceptsScrollWheel: true,
         init: function () {
-            var i = 20;
             this.items = [];
             this.visibleItems = [];
             this.base(arguments);
@@ -5540,4 +5545,75 @@
             }
         }
     });
+    d.r.LazyList = d.Class(d.Container, {
+        init: function (className) {
+            this.items = [];
+            this.visibleItems = [];
+            this.base(arguments, className || 'd-r-list');
+            this.onLive(function () {
+                this.clear();
+                this.offset = 0;
+                this.scrollX = 0;
+                this.max = -1;
+                this.load();
+            });
+            this.onScrollWheel(this.scrollWheel);
+        },
+        '.loader': {},
+        '.transformer': {},
+        '.itemHeight': { value: Infinity },
+        scrollLoadAmount: 10,
+        scrollWheel: function (e) {
+            var t = this, offset = Math.ceil(this.app().wrap.element.scrollTop / this.itemHeight());
+            if (offset + this.maxVisibleItemCount() > this.loaded) {
+                this.load();
+            }
+            e.setAllowDefault(true);
+        },
+        visibleItemCount: function () {
+            return Math.max(1, Math.floor(this.app().wrap.element.offsetHeight / this.itemHeight()));
+        },
+        maxVisibleItemCount: function () {
+            return Math.max(1, Math.ceil(this.app().wrap.element.offsetHeight / this.itemHeight()));
+        },
+        loaded: 0,
+        loadItems: function (offset, length, callback) {
+            var t = this, cached, delta;
+            if (!this._loader) return;
+            if (offset + length < this.loaded) {
+                callback.call(this, []);
+                return;
+            }
+            if (offset < this.loaded) {
+                delta = this.loaded - offset;
+                this._loader(offset + delta, length - delta, function (result) {
+                    if (result.length < length - delta) {
+                        t.max = offset + delta + result.length;
+                    }
+                    callback.call(t, result);
+                });
+            } else {
+                this._loader(offset, length, function (result) {
+                    if (result.length < length) {
+                        t.max = offset + result.length;
+                    }
+                    callback.call(t, result);
+                });
+            }
+            this.loaded = offset + length;
+        },
+        load: function () {
+            var t = this, offset, length;
+            if (this.max !== -1) return;
+            offset = this.offset;
+            length = this.maxVisibleItemCount() * 2;
+            this.loadItems(offset, length, function (items) {
+                var i = 0, item;
+                while (item = items[i++]) {
+                    t.add(t.items[offset + i - 1] = t._transformer(item));
+                }
+            });
+        }
+    });
+
 })(this);
