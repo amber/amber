@@ -4955,14 +4955,20 @@
                 this.signInError.show().setText(d.t(message));
             }.bind(this));
         },
+        request: function () {
+            ++this.pendingRequests;
+            this.spinner.show();
+        },
+        requestEnd: function () {
+            if (!--this.pendingRequests) {
+                this.spinner.hide();
+            }
+        },
         query: function (name, callback) {
             var t = this;
-            ++t.pendingRequests;
-            t.spinner.show();
+            this.request();
             this.server().query(name, function (result) {
-                if (!--t.pendingRequests) {
-                    t.spinner.hide();
-                }
+                t.requestEnd();
                 callback(result);
             });
         },
@@ -5090,15 +5096,18 @@
                 this.setSessionId(p.sessionId);
             },
             'auth.signIn.failed': function (p) {
+                this.app().requestEnd();
                 if (this.signInErrorCallback) {
                     this.signInErrorCallback(p.message);
                     this.signInErrorCallback = undefined;
                 }
             },
             'auth.signIn.succeeded': function (p) {
+                this.app().requestEnd();
                 this.app().setUser(new d.r.User(this).fromJSON(p.user));
             },
             'auth.signOut.succeeded': function () {
+                this.app().requestEnd();
                 this.app().setUser(null);
             },
             'query.result': function (p) {
@@ -5235,6 +5244,7 @@
             });
         },
         signIn: function (username, password, errorCallback) {
+            this.app().request();
             this.send('auth.signIn', {
                 username: username,
                 password: password
@@ -5242,6 +5252,7 @@
             this.signInErrorCallback = errorCallback;
         },
         signOut: function () {
+            this.app().request();
             this.send('auth.signOut');
         },
         getAsset: function (hash) {
