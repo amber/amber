@@ -4824,8 +4824,30 @@
         },
         'forums.index': function () {
             this.page
-                .add(new d.Label('d-r-title').setText(d.t('Forums')))
-                .add(new d.Label('d-r-paragraph').setText(''));
+                .add(new d.Label('d-r-title').setText(d.t('Welcome')))
+                .add(new d.Container('d-r-forum-list')
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Announcements')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Updates from the Amber team.')))))
+                .add(new d.Label('d-r-title').setText(d.t('About Amber')))
+                .add(new d.Container('d-r-forum-list')
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Bugs and Glitches')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Report a bug you found in Amber.'))))
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Questions about Amber')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Post general questions about Amber here.'))))
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Feedback')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Share your thoughts and impressions of Amber.')))))
+                .add(new d.Label('d-r-title').setText(d.t('Making Amber Projects')))
+                .add(new d.Container('d-r-forum-list')
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Help with Scripts')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Need help with your Amber project? Ask here!'))))
+                    .add(new d.r.Link('d-r-forum-list-item')
+                         .add(new d.Label('d-r-forum-list-item-title').setText(d.t('Show and Tell')))
+                         .add(new d.Label('d-r-forum-list-item-description').setText(d.t('Tell everyone about your projects and collections.')))));
         }
     };
     d.r.App = d.Class(d.App, {

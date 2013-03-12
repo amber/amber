@@ -1837,9 +1837,26 @@
     color: #000;
 }
 .d-r-form {
-    padding: 0 9pt 6px;
+    padding: 0 9pt 45.pt;
     margin: 0 auto;
     max-width: 852px;
+}
+.d-r-forum-list {
+    padding: 0 9pt;
+    margin-top: -4.5pt;
+    margin-bottom: 4.5pt;
+}
+.d-r-forum-list-item {
+    display: block;
+    cursor: pointer;
+    padding: 4.5pt 0;
+}
+.d-r-forum-list-item-title {
+    font-weight: bold;
+}
+.d-r-forum-list-item:hover > .d-r-forum-list-item-title {
+    color: #05d;
+    text-decoration: underline;
 }
 
 .d-r-project-container {
@@ -1895,6 +1912,7 @@
     outline: 0;
     color: #05d;
     text-decoration: none;
+    cursor: pointer;
 }
 .d-r-link:hover,
 .d-r-link:focus,
