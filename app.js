@@ -4907,6 +4907,7 @@
             this.signInForm.show();
             this.signInUsername.clear();
             this.signInPassword.clear();
+            this.signInError.hide();
             this.signInButton.setEnabled(true);
             this.signInButton.removeClass('d-button-pressed');
             this.signInUsername.focus();
