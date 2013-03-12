@@ -4829,6 +4829,10 @@
         }
     };
     d.r.App = d.Class(d.App, {
+        init: function () {
+            this.base(arguments);
+            this.setConfig({});
+        },
         setElement: function (element) {
             this.base(arguments, element)
                 .add((this.signInForm = new d.Form('d-r-header-sign-in'))
@@ -4872,6 +4876,7 @@
             }.bind(this));
             return this;
         },
+        '.config': {},
         '.server': {
             apply: function (server) {
                 server.setApp(this);
@@ -5123,7 +5128,9 @@
                 packet.$time = new Date;
                 packet.$side = 'Client';
                 this.log.splice(this.log.length - socketQueue.length, 0, packet);
+                if (this.app().config().livePacketLog) this.logPacket(packet);
                 while (packet = socketQueue.pop()) {
+                    if (this.app().config().livePacketLog) this.logPacket(this.log[this.log.length - socketQueue.length - 1]);
                     this.socket.send(packet);
                 }
             },
@@ -5137,6 +5144,7 @@
                 packet.$time = new Date;
                 packet.$side = 'Server';
                 this.log.push(packet);
+                if (this.app().config().livePacketLog) this.logPacket(packet);
                 if (this.on.hasOwnProperty(packet.$type)) {
                     this.on[packet.$type].call(this, packet);
                 }
@@ -5202,6 +5210,7 @@
                 this.socketQueue.push(packet);
                 return;
             }
+            if (this.app().config().livePacketLog) this.logPacket(log);
             this.socket.send(packet);
         },
         query: function (query, callback) {
@@ -5233,8 +5242,7 @@
         getAsset: function (hash) {
             return this.assetStoreURL + hash + '/';
         },
-        showLog: function () {
-            var s = [], i = 0, packet;
+        logPacket: function (packet) {
             function log(object, dollar) {
                 var key;
                 for (key in object) if (object.hasOwnProperty(key) && (!dollar || key[0] !== '$')) {
@@ -5247,11 +5255,14 @@
                     }
                 }
             }
+            console.groupCollapsed('[' + packet.$time.toLocaleTimeString() + '] ' + packet.$side + ':' + packet.$type);
+            log(packet, true);
+            console.groupEnd();
+        },
+        showLog: function () {
+            var s = [], i = 0;
             while (i < this.log.length) {
-                packet = this.log[i++];
-                console.groupCollapsed('[' + packet.$time.toLocaleTimeString() + '] ' + packet.$side + ':' + packet.$type);
-                log(packet, true);
-                console.groupEnd();
+                this.logPacket(this.log[i++]);
             }
         }
     });
