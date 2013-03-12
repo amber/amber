@@ -5186,18 +5186,17 @@
             return result;
         },
         encodePacket: function (side, type, properties) {
-            var info = this.PACKETS[side + ':' + type], i, result;
+            var info = this.PACKETS[side + ':' + type], i, l, result;
             if (!info) {
                 console.warn('Invalid packet type:', type, properties);
                 return;
             }
-            i = info.length;
-            result = [];
-            while (i--) {
-                result.push(properties[info[i]]);
+            i = 0;
+            l = info.length;
+            result = [type];
+            while (i < l) {
+                result.push(properties[info[i++]]);
             }
-            result.push(type);
-            result.reverse();
             return result;
         },
         send: function (type, properties, censorFields) {
