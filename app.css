@@ -92,6 +92,7 @@
     background: #fff;
     border: 0;
     border-radius: 2px;
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 1px 3px rgba(0, 0, 0, .3);
     outline: 0;
@@ -201,8 +202,8 @@
 
 .d-form-grid {
     display: table;
-    box-sizing: border-box;
     -moz-box-sizing: border-box;
+    box-sizing: border-box;
     width: 100%;
 }
 .d-form-grid-row {
@@ -667,6 +668,7 @@
 .d-chat-input {
     width: 100%;
     -webkit-transition: box-shadow .3s;
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     background: rgb(27%, 27%, 27%);
     box-shadow:
