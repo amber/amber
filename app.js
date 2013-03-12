@@ -5091,6 +5091,7 @@
             'auth.signIn.failed': function (p) {
                 if (this.signInErrorCallback) {
                     this.signInErrorCallback(p.message);
+                    this.signInErrorCallback = undefined;
                 }
             },
             'auth.signIn.succeeded': function (p) {
@@ -5136,6 +5137,10 @@
             },
             close: function () {
                 console.warn('Socket closed. Reopening.');
+                if (this.signInErrorCallback) {
+                    this.signInErrorCallback('Socket closed.');
+                    this.signInErrorCallback = undefined;
+                }
                 this.open();
             },
             message: function (e) {
