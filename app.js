@@ -71,7 +71,7 @@
         object[setName] = function (value) {
             var old = this[_name];
             setter.call(this, value);
-            if (apply) apply.call(this, value, old);
+            if (apply && old !== value) apply.call(this, value, old);
             if (event) this.dispatch(event, new d.PropertyEvent().setObject(this));
             return this;
         };
@@ -4963,6 +4963,7 @@
             }
         },
         '.user': {
+            value: null,
             apply: function (user) {
                 if (user) {
                     this.signInForm.hide();
