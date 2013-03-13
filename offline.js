@@ -26,29 +26,18 @@ d.r.OfflineServer = d.Class(d.r.Server, {
             }
         },
         'forum.categories': function () {
-            return [
-                {
-                    name: {$:'Welcome'},
-                    forums: [
-                        { name: {$:'Announcements'}, description: {$:'Updates from the Amber team.'}, id: 1 }
-                    ]
-                },
-                {
-                    name: {$:'About Amber'},
-                    forums: [
-                        { name: {$:'Bugs and Glitches'}, description: {$:'Report a bug you found in Amber.'}, id: 2 },
-                        { name: {$:'Questions about Amber'}, description: {$:'Post general questions about Amber.'}, id: 3 },
-                        { name: {$:'Feedback'}, description: {$:'Share your thoughts and impressions of Amber'}, id: 4 }
-                    ]
-                },
-                {
-                    name: {$:'Making Amber Projects'},
-                    forums: [
-                        { name: {$:'Help with Scripts'}, description: {$:'Need help with your Amber project? Ask here!'}, id: 5 },
-                        { name: {$:'Show and Tell'}, description: {$:'Tell everyone about your projects and collections'}, id: 6 }
-                    ]
-                }
-            ];
+            return this.data.categories.map(function (category) {
+                return {
+                    name: category.name,
+                    forums: category.forums.map(function (forum) {
+                        return {
+                            id: forum.id,
+                            name: forum.name,
+                            description: forum.description
+                        };
+                    })
+                };
+            });
         }
     },
     onServer: {
@@ -146,8 +135,30 @@ d.r.OfflineServer = d.Class(d.r.Server, {
         var punctuation = '..............?!';
         this.base(arguments);
         this.data = {
-            projects: [],
-            orderedProjects: [],
+            categories: [
+                {
+                    name: {$:'Welcome'},
+                    forums: [
+                        { name: {$:'Announcements'}, description: {$:'Updates from the Amber team.'}, id: 1 }
+                    ]
+                },
+                {
+                    name: {$:'About Amber'},
+                    forums: [
+                        { name: {$:'Bugs and Glitches'}, description: {$:'Report a bug you found in Amber.'}, id: 2 },
+                        { name: {$:'Questions about Amber'}, description: {$:'Post general questions about Amber.'}, id: 3 },
+                        { name: {$:'Feedback'}, description: {$:'Share your thoughts and impressions of Amber'}, id: 4 }
+                    ]
+                },
+                {
+                    name: {$:'Making Amber Projects'},
+                    forums: [
+                        { name: {$:'Help with Scripts'}, description: {$:'Need help with your Amber project? Ask here!'}, id: 5 },
+                        { name: {$:'Show and Tell'}, description: {$:'Tell everyone about your projects and collections'}, id: 6 }
+                    ]
+                }
+            ],
+            projects: []
         };
         this.userId = 0;
         this.usersById = {};
