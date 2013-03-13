@@ -252,6 +252,12 @@
             if (className) el.className = className;
             return el;
         },
+        '.selectable': {
+            value: false,
+            apply: function (selectable) {
+                d.toggleClass(this.element, 'd-selectable', selectable);
+            }
+        },
         add: function (child) {
             if (child.parent) {
                 child.parent.remove(child);
@@ -478,7 +484,7 @@
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
                 c = e.target.control;
                 while (c && !c.acceptsClick) {
-                    if (c.selectable) return;
+                    if (c.selectable()) return;
                     c = c.parent;
                 }
                 if (!c) return;
@@ -4909,7 +4915,7 @@
                     }, this))
                     .add(this.spinner = new d.Container('d-r-spinner').hide()))
                 .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable')
-                    .add(this.page = new d.Container('d-r-page'))
+                    .add(this.page = new d.Container('d-r-page').setSelectable(true))
                     .add(new d.Container('d-r-footer')
                         .add(this.panelLink('Help', 'help'))
                         .add(this.panelLink('About', 'about'))
