@@ -4928,7 +4928,8 @@
                             this.show('search');
                         }
                     }, this))
-                    .add(this.spinner = new d.Container('d-r-spinner').hide()))
+                    .add(this.spinner = new d.Container('d-r-spinner').hide())
+                    .add(this.connectionWarning = new d.Container('d-r-connection-warning').hide()))
                 .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable')
                     .add(this.page = new d.Container('d-r-page').setSelectable(true))
                     .add(new d.Container('d-r-footer')
@@ -4950,6 +4951,11 @@
             apply: function (server) {
                 server.setApp(this);
                 this.go(location.hash.substr(1));
+            }
+        },
+        '.connected': {
+            apply: function (connected) {
+                this.connectionWarning.setVisible(!connected);
             }
         },
         '.user': {
@@ -5134,6 +5140,7 @@
     });
     d.r.Server = d.Class(d.Base, {
         PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query":["request$id","name","options"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        INITIAL_REOPEN_DELAY: 100,
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
             this.assetStoreURL = assetStoreURL;
@@ -5143,7 +5150,8 @@
             this.usersById = {};
             this.log = [];
             this._sessionId = localStorage.getItem('d.r.sessionId');
-            this.open();
+            this.reopenDelay = this.INITIAL_REOPEN_DELAY;
+            (this.open = this.open.bind(this))();
         },
         open: function () {
             this.socket = new WebSocket(this.socketURL);
@@ -5203,6 +5211,8 @@
                 var socketQueue = this.socketQueue, packet = {
                     sessionId: this.sessionId()
                 };
+                this.app().setConnected(true);
+                this.reopenDelay = this.INITIAL_REOPEN_DELAY;
                 this.socket.send(JSON.stringify(this.encodePacket('Client', 'connect', packet)));
                 packet.$type = 'connect';
                 packet.$time = new Date;
@@ -5215,12 +5225,14 @@
                 }
             },
             close: function () {
+                this.app().setConnected(false);
                 console.warn('Socket closed. Reopening.');
                 if (this.signInErrorCallback) {
                     this.signInErrorCallback('Connection lost.');
                     this.signInErrorCallback = undefined;
                 }
-                this.open();
+                setTimeout(this.open, this.reopenDelay);
+                this.reopenDelay *= 2;
             },
             message: function (e) {
                 var packet = this.decodePacket('Server', e.data);

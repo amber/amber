@@ -1547,11 +1547,15 @@
     padding: 0;
 }
 
-.d-r-spinner {
+.d-r-spinner,
+.d-r-connection-warning {
     float: right;
     width: 28px;
     height: 28px;
     background: url(static/img/spinner.svg) no-repeat center center;
+}
+.d-r-connection-warning {
+    background-image: url(static/img/warning.svg);
 }
 .d-r-header {
     position: absolute;
