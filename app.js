@@ -4723,7 +4723,7 @@
                         .add(new d.Label('d-r-splash-link-title').setText('Sign In'))
                         .add(new d.Label('d-r-splash-link-subtitle').setText('With your Scratch Account')))
                     .add(new d.Container('d-r-splash-footer')
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('About Amber'))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('About Amber').setUrl(this.reverse('about')))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('Terms of Service'))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('For Educators')));
             }
