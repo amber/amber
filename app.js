@@ -4695,7 +4695,9 @@
         [/^users\/([\w-]+)\/$/, 'user.profile'],
         [/^settings\/$/, 'settings'],
         [/^help\/$/, 'help'],
-        [/^help\/about\/$/, 'about'],
+        [/^help\/about\/$/, 'help.about'],
+        [/^help\/tos\/$/, 'help.tos'],
+        [/^help\/educators\/$/, 'help.educators'],
         [/^help\/contact\/$/, 'contact'],
         [/^explore\/$/, 'explore'],
         [/^forums\/$/, 'forums.index'],
@@ -4710,22 +4712,22 @@
 
             } else {
                 this.page
-                    .add(new d.Label('d-r-splash-title').setText('Amber'))
-                    .add(new d.Label('d-r-splash-subtitle').setText('Collaborate in realtime with others around the world'))
-                    .add(new d.Label('d-r-splash-subtitle').setText('Create your own interactive stories, games, music & art'))
+                    .add(new d.Label('d-r-splash-title').setText(d.t('Amber')))
+                    .add(new d.Label('d-r-splash-subtitle').setText(d.t('Collaborate in realtime with others around the world')))
+                    .add(new d.Label('d-r-splash-subtitle').setText(d.t('Create your own interactive stories, games, music & art')))
                     .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('project.new'))
-                        .add(new d.Label('d-r-splash-link-title').setText('Get Started'))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText('Make an Amber project')))
+                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Get Started')))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('Make an Amber project'))))
                     .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('explore'))
-                        .add(new d.Label('d-r-splash-link-title').setText('Explore'))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText('1,234,567 projects')))
+                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Explore')))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 1,234,567))))
                     .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
-                        .add(new d.Label('d-r-splash-link-title').setText('Sign In'))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText('With your Scratch Account')))
+                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Sign In')))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('With your Scratch Account'))))
                     .add(new d.Container('d-r-splash-footer')
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('About Amber').setUrl(this.reverse('about')))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('Terms of Service'))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('For Educators')));
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setUrl(this.reverse('help.about')))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setUrl(this.reverse('help.tos')))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setUrl(this.reverse('help.educators'))));
             }
             this.page
                 .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'));
@@ -4747,17 +4749,22 @@
         forbidden: function (args) {
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Authentication Required')))
-                .add(new d.Label('d-r-paragraph').setText(d.t('You need to log in to see this page.', args[0])));
+                .add(new d.Label('d-r-paragraph').setText(d.t('You need to log in to see this page.')));
         },
         help: function (args) {
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Help')))
                 .add(new d.Label('d-r-paragraph').setText(d.t('This is a placeholder help section.')));
         },
-        about: function (args) {
+        'help.about': function (args) {
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('About Amber')))
                 .add(new d.Label('d-r-paragraph').setText(d.t('Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.')));
+        },
+        'help.tos': function () {
+            this.page
+                .add(new d.Label('d-r-title').setText(d.t('Terms of Service')))
+                .add(new d.Label('d-r-paragraph').setText(d.t('You just do what the **** you want to.')));
         },
         search: function () {
             this.page
@@ -4918,7 +4925,7 @@
                     .add(this.page = new d.Container('d-r-page').setSelectable(true))
                     .add(new d.Container('d-r-footer')
                         .add(this.panelLink('Help', 'help'))
-                        .add(this.panelLink('About', 'about'))
+                        .add(this.panelLink('About', 'help.about'))
                         .add(this.panelLink('Feedback', 'forums.topic.view', 1))
                         .add(this.panelLink('Contact', 'contact'))));
             window.addEventListener('hashchange', function () {
