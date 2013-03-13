@@ -4969,14 +4969,11 @@
                     this.signInError.hide();
                     this.userButton.removeClass('d-r-panel-button-pressed');
                     this.userLabel.setText(user.name());
-                    if (this.reloadOnAuthentication) {
-                        this.reload();
-                    }
                 } else {
                     this.userLabel.setText(d.t('Sign In'));
-                    if (this.reloadOnAuthentication) {
-                        this.show('index');
-                    }
+                }
+                if (this.reloadOnAuthentication) {
+                    this.reload();
                 }
             }
         },
