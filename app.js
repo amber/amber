@@ -1048,6 +1048,7 @@
     });
     d.Form = d.Class(d.Container, {
         '@Submit': {},
+        '@Cancel': {},
         init: function (className) {
             this.base(arguments, className);
             this.element.addEventListener('keydown', this.keydown.bind(this));
@@ -1056,9 +1057,15 @@
             if (e.keyCode === 13) {
                 this.submit();
             }
+            if (e.keyCode === 27) {
+                this.cancel();
+            }
         },
         submit: function () {
             this.dispatch('Submit', new d.ControlEvent().setControl(this));
+        },
+        cancel: function () {
+            this.dispatch('Cancel', new d.ControlEvent().setControl(this));
         }
     });
     d.FormGrid = d.Class(d.Form, {
@@ -4899,6 +4906,7 @@
                 .add((this.signInForm = new d.Form('d-r-header-sign-in'))
                     .hide()
                     .onSubmit(this.signIn, this)
+                    .onCancel(this.hideSignIn, this)
                     .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
                     .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
                     .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
