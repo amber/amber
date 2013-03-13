@@ -1518,6 +1518,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     padding: 9pt 9pt 30pt;
+    color: #000;
 }
 .d-r-splash-link-title {
     color: #05d;

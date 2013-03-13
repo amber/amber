@@ -4713,13 +4713,13 @@
                     .add(new d.Label('d-r-splash-title').setText('Amber'))
                     .add(new d.Label('d-r-splash-subtitle').setText('Collaborate in realtime with others around the world'))
                     .add(new d.Label('d-r-splash-subtitle').setText('Create your own interactive stories, games, music & art'))
-                    .add(new d.r.Link('d-r-splash-link')
+                    .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('project.new'))
                         .add(new d.Label('d-r-splash-link-title').setText('Get Started'))
                         .add(new d.Label('d-r-splash-link-subtitle').setText('Make an Amber project')))
-                    .add(new d.r.Link('d-r-splash-link')
+                    .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('explore'))
                         .add(new d.Label('d-r-splash-link-title').setText('Explore'))
                         .add(new d.Label('d-r-splash-link-subtitle').setText('1,234,567 projects')))
-                    .add(new d.r.Link('d-r-splash-link')
+                    .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
                         .add(new d.Label('d-r-splash-link-title').setText('Sign In'))
                         .add(new d.Label('d-r-splash-link-subtitle').setText('With your Scratch Account')))
                     .add(new d.Container('d-r-splash-footer')
@@ -5376,7 +5376,7 @@
             return this.setId(o.id).setName(o.name).setRank(o.rank || 'default');
         }
     });
-    d.r.Link = d.Class(d.Label, {
+    d.r.Link = d.Class(d.Button, {
         init: function (className) {
             this.base(arguments);
             this.element = this.container = this.newElement(className || 'd-r-link', 'a');
