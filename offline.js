@@ -1,5 +1,92 @@
-d.r.OfflineServer = d.Class(d.Base, {
-    latency: 100,
+d.r.OfflineServer = d.Class(d.r.Server, {
+    openTime: 0,
+    latency: 10,
+    userRank: 'default',
+    acceptSignIn: true,
+    queries: {
+        'projects.count': function () {
+            return this.data.projects.length;
+        },
+        'projects.topLoved': {
+            model: 'projects',
+            order: 'loves'
+        },
+        'projects.topViewed': {
+            model: 'projects',
+            order: 'views'
+        },
+        'projects.topRemixed': {
+            model: 'projects',
+            order: 'remixCount'
+        },
+        'projects.featured': {
+            model: 'projects',
+            filter: function (p) {
+                return p.featured;
+            }
+        },
+        'forum.categories': function () {
+            return [
+                {
+                    name: {$:'Welcome'},
+                    forums: [
+                        { name: {$:'Announcements'}, description: {$:'Updates from the Amber team.'}, id: 1 }
+                    ]
+                },
+                {
+                    name: {$:'About Amber'},
+                    forums: [
+                        { name: {$:'Bugs and Glitches'}, description: {$:'Report a bug you found in Amber.'}, id: 2 },
+                        { name: {$:'Questions about Amber'}, description: {$:'Post general questions about Amber.'}, id: 3 },
+                        { name: {$:'Feedback'}, description: {$:'Share your thoughts and impressions of Amber'}, id: 4 }
+                    ]
+                },
+                {
+                    name: {$:'Making Amber Projects'},
+                    forums: [
+                        { name: {$:'Help with Scripts'}, description: {$:'Need help with your Amber project? Ask here!'}, id: 5 },
+                        { name: {$:'Show and Tell'}, description: {$:'Tell everyone about your projects and collections'}, id: 6 }
+                    ]
+                }
+            ];
+        }
+    },
+    onServer: {
+        connect: function (p) {
+            this.sendServer('connect', {
+                sessionId: p.sessionId,
+                user: null
+            });
+        },
+        'auth.signIn': function (p) {
+            if (this.acceptSignIn) {
+                this.sendServer('auth.signIn.succeeded', {
+                    user: { name: p.username, id: 1, rank: this.userRank }
+                });
+            } else {
+                this.sendServer('auth.signIn.failed', {
+                    message: 'acceptSignIn is disabled'
+                });
+            }
+        },
+        'auth.signOut': function () {
+            this.sendServer('auth.signOut.succeeded', {});
+        },
+        query: function (p) {
+            if (this.queries[p.name]) {
+                setTimeout(function () {
+                    this.sendServer('query.result', {
+                        request$id: p.request$id,
+                        result: typeof this.queries[p.name] === 'function' ?
+                            this.queries[p.name].call(this, p.options) :
+                            this.fetch(this.queries[p.name], p.options.offset, p.options.length)
+                    });
+                }.bind(this), this.latency);
+            } else {
+                console.error('QueryError: Undefined query in', p.name);
+            }
+        }
+    },
     init: function () {
         var i;
         function rint(min, max) {
@@ -83,39 +170,39 @@ d.r.OfflineServer = d.Class(d.Base, {
                 }
             });
         }
+        this.socket.send = this.socket.send.bind(this);
     },
-    '.app': {},
-    queries: {
-        'projects.topLoved': {
-            model: 'projects',
-            order: 'loves'
-        },
-        'projects.topViewed': {
-            model: 'projects',
-            order: 'views'
-        },
-        'projects.topRemixed': {
-            model: 'projects',
-            order: 'remixCount'
-        },
-        'projects.featured': {
-            model: 'projects',
-            filter: function (p) {
-                return p.featured;
+    socket: {
+        readyState: 1,
+        send: function (data) {
+            var packet = this.decodePacket('Client', data);
+            if (!packet) return;
+            packet.$time = new Date;
+            packet.$side = 'Client';
+            if (this.onServer.hasOwnProperty(packet.$type)) {
+                this.onServer[packet.$type].call(this, packet);
+            } else {
+                console.warn('Invalid packet: Client:' + packet.$type);
             }
         }
+    },
+    open: function () {
+        this.socketQueue = [];
+        setTimeout(function () {
+            this.listeners.open.call(this);
+        }.bind(this), this.openTime);
     },
     getAsset: function (hash) {
         return 'data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
     },
-    query: function (query, callback) {
-        if (this.queries[query.name]) {
-            setTimeout(function () {
-                callback(this.fetch(this.queries[query.name], query.offset, query.length));
-            }.bind(this), this.latency);
-        } else {
-            console.error('QueryError: Undefined query in', query);
-        }
+    sendServer: function (type, properties) {
+        var p = this.encodePacket('Server', type, properties);
+        if (!p) return;
+        setTimeout(function () {
+            this.listeners.message.call(this, {
+                data: JSON.stringify(p)
+            });
+        }.bind(this), this.latency);
     },
     fetch: function (config, offset, length) {
         var order = config.order || 'id',
@@ -126,18 +213,5 @@ d.r.OfflineServer = d.Class(d.Base, {
                 } : function (a, b) {
                     return b[order] - a[order];
                 }))).filter(config.filter || function () {return true}).slice(offset, offset + length);
-    },
-    signIn: function (username, password, errorCallback) {
-        setTimeout(function () {
-            this.app().setUser(new d.r.User(this).fromJSON({
-                name: username,
-                id: ++this.userId
-            }));
-        }.bind(this), this.latency);
-    },
-    signOut: function () {
-        setTimeout(function () {
-            this.app().setUser(null);
-        }.bind(this), this.latency);
     }
 });

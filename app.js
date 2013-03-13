@@ -4714,6 +4714,7 @@
     ];
     d.r.views = {
         index: function () {
+            var projectCount;
             this.reloadOnAuthentication = true;
             if (this.user()) {
 
@@ -4727,7 +4728,7 @@
                         .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('Make an Amber project'))))
                     .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('explore'))
                         .add(new d.Label('d-r-splash-link-title').setText(d.t('Explore')))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 1,234,567))))
+                        .add(projectCount = new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 0))))
                     .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
                         .add(new d.Label('d-r-splash-link-title').setText(d.t('Sign In')))
                         .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('With your Scratch Account'))))
@@ -4735,6 +4736,9 @@
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setUrl(this.reverse('help.about')))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setUrl(this.reverse('help.tos')))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setUrl(this.reverse('help.educators'))));
+                this.query({ name: 'projects.count' }, function (result) {
+                    projectCount.setText(d.t('% projects', result));
+                });
             }
             this.page
                 .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'));
@@ -5243,6 +5247,8 @@
                 if (this.app().config().livePacketLog) this.logPacket(packet);
                 if (this.on.hasOwnProperty(packet.$type)) {
                     this.on[packet.$type].call(this, packet);
+                } else {
+                    this.warn('Missed packet:', packet);
                 }
             },
             error: function (e) {

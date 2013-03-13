@@ -7,6 +7,8 @@
 <script src=offline.js></script>
 <script src=locale/en-US.js></script>
 <script>
-var app = new d.r.App().setElement(document.body).setServer(new d.r.OfflineServer);
+var app = new d.r.App().setConfig({
+    livePacketLog: true
+}).setElement(document.body).setServer(new d.r.OfflineServer);
 </script>
 </body>
