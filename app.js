@@ -4699,16 +4699,36 @@
     ];
     d.r.views = {
         index: function () {
+            this.reloadOnAuthentication = true;
             if (this.user()) {
 
             } else {
                 this.page
-                    .add(new d.Label('d-r-title').setText('Create your own stories, games, music & art'));
+                    .add(new d.Label('d-r-splash-title').setText('Amber'))
+                    .add(new d.Label('d-r-splash-subtitle').setText('Collaborate in realtime with others around the world'))
+                    .add(new d.Label('d-r-splash-subtitle').setText('Create your own interactive stories, games, music & art'))
+                    .add(new d.r.Link('d-r-splash-link')
+                        .add(new d.Label('d-r-splash-link-title').setText('Get Started'))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText('Make an Amber project')))
+                    .add(new d.r.Link('d-r-splash-link')
+                        .add(new d.Label('d-r-splash-link-title').setText('Explore'))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText('1,234,567 projects')))
+                    .add(new d.r.Link('d-r-splash-link')
+                        .add(new d.Label('d-r-splash-link-title').setText('Sign In'))
+                        .add(new d.Label('d-r-splash-link-subtitle').setText('With your Scratch Account')))
+                    .add(new d.Container('d-r-splash-footer')
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('About Amber'))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('Terms of Service'))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText('For Educators')));
             }
             this.page
-                .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'))
-                .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')).setQuery('user.byFollowing'))
-                .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')).setQuery('user.lovedByFollowing'))
+                .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'));
+            if (this.user()) {
+                this.page
+                    .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')).setQuery('user.byFollowing'))
+                    .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')).setQuery('user.lovedByFollowing'))
+            }
+            this.page
                 .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Remixing')).setQuery('topRemixed'))
                 .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setQuery('topLoved'))
                 .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Viewing')).setQuery('topViewed'));
@@ -4918,12 +4938,12 @@
                     this.signInError.hide();
                     this.userButton.removeClass('d-r-panel-button-pressed');
                     this.userLabel.setText(user.name());
-                    if (this.authenticationRequired) {
+                    if (this.reloadOnAuthentication) {
                         this.reload();
                     }
                 } else {
                     this.userLabel.setText(d.t('Sign In'));
-                    if (this.authenticationRequired) {
+                    if (this.reloadOnAuthentication) {
                         this.show('index');
                     }
                 }
@@ -4966,7 +4986,7 @@
         },
         authenticationError: {},
         requireAuthentication: function () {
-            this.authenticationRequired = true;
+            this.reloadOnAuthentication = true;
             if (!this.user()) {
                 this.showSignIn(true);
                 throw this.authenticationError;
@@ -5060,7 +5080,7 @@
                 this.unload();
                 this.unload = undefined;
             }
-            this.authenticationRequired = false;
+            this.reloadOnAuthentication = false;
             this.url = loc;
             this.page.clear();
             this.page.element.scrollTop = 0;

@@ -1498,6 +1498,50 @@
     margin: 0 2px 0 3px;
 }
 
+.d-r-splash-title {
+    font: 24pt/30pt Georgia, serif;
+    padding: 9pt 9pt 0;
+}
+.d-r-splash-subtitle {
+    font: 12pt/18pt Georgia, serif;
+    padding: 0 9pt;
+}
+.d-r-splash-link {
+    width: 33%;
+    float: left;
+    cursor: pointer;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 9pt 9pt 30pt;
+}
+.d-r-splash-link-title {
+    color: #05d;
+}
+.d-r-splash-link:hover .d-r-splash-link-title,
+.d-r-splash-link:focus .d-r-splash-link-title,
+.d-r-splash-link:active .d-r-splash-link-title {
+    text-decoration: underline;
+}
+.d-r-splash-link:hover:active .d-r-splash-link-title,
+.d-r-splash-link:focus:active .d-r-splash-link-title {
+    color: #028;
+}
+.d-r-splash-footer {
+    clear: both;
+    padding: 0 9pt 9pt;
+}
+.d-r-splash-footer-link {
+    display: inline-block;
+    margin: 0 0 0 9pt;
+    padding: 0 0 0 9pt;
+    border-left: 1px solid #ddd;
+}
+.d-r-splash-footer-link:first-child {
+    border-left: 0;
+    margin: 0;
+    padding: 0;
+}
+
 .d-r-spinner {
     float: right;
     width: 28px;
