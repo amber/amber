@@ -71,7 +71,7 @@
         object[setName] = function (value) {
             var old = this[_name];
             setter.call(this, value);
-            if (apply && value !== old) apply.call(this, value, old);
+            if (apply) apply.call(this, value, old);
             if (event) this.dispatch(event, new d.PropertyEvent().setObject(this));
             return this;
         };
@@ -4902,17 +4902,16 @@
             this.setConfig({});
         },
         setElement: function (element) {
-            this.base(arguments, element);
-            (this.signInForm = new d.r.SignInForm('d-r-header-sign-in'))
-                .onSubmit(this.signIn, this)
-                .onCancel(this.hideSignIn, this)
-                .onClose(this.hideSignIn, this)
-                .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
-                .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
-                .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
-                .add(this.signUpLink = new d.r.Link().setText(d.t('Register')).setExternalUrl('http://scratch.mit.edu/signup'))
-                .add(this.signInError = new d.Label('d-label d-r-header-sign-in-error').hide())
-            this
+            this.base(arguments, element)
+                .add((this.signInForm = new d.Form('d-r-header-sign-in'))
+                    .hide()
+                    .onSubmit(this.signIn, this)
+                    .onCancel(this.hideSignIn, this)
+                    .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
+                    .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
+                    .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
+                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')).setExternalUrl('http://scratch.mit.edu/signup'))
+                    .add(this.signInError = new d.Label('d-label d-r-header-sign-in-error').hide()))
                 .add(new d.Container('d-r-header')
                     .add(this.panelLink('Amber', 'index'))
                     .add(this.panelLink('Create', 'project.new'))
@@ -4954,10 +4953,9 @@
             }
         },
         '.user': {
-            value: null,
             apply: function (user) {
                 if (user) {
-                    this.remove(this.signInForm);
+                    this.signInForm.hide();
                     this.signInError.hide();
                     this.userButton.removeClass('d-r-panel-button-pressed');
                     this.userLabel.setText(user.name());
@@ -4973,19 +4971,20 @@
             }
         },
         showSignIn: function (autohide) {
-            if (this.signInForm.parent) return;
+            if (this.signInForm.visible()) return;
+            this.signInAutohide = autohide;
+            this.signInForm.show();
             this.signInUsername.clear();
             this.signInPassword.clear();
             this.signInError.hide();
             this.signInButton.setEnabled(true);
             this.signInButton.removeClass('d-button-pressed');
-            this.userButton.addClass('d-r-panel-button-pressed');
-            this.setMenu(this.signInForm);
             this.signInUsername.focus();
+            this.userButton.addClass('d-r-panel-button-pressed');
         },
         hideSignIn: function () {
-            this.signInForm.close();
             this.userButton.removeClass('d-r-panel-button-pressed');
+            this.signInForm.hide();
         },
         toggleUserPanel: function () {
             if (this.user()) {
@@ -4999,7 +4998,7 @@
                     this.userButton.removeClass('d-r-panel-button-pressed');
                 }, this).show(this.userButton, this.userButton.element);
             } else {
-                if (this.signInForm.parent && this.signInButton.enabled()) {
+                if (this.signInForm.visible() && this.signInButton.enabled()) {
                     this.hideSignIn();
                 } else {
                     this.showSignIn();
@@ -5095,6 +5094,9 @@
             }
             if (!soft) location.hash = loc;
             if (this.url === loc) return;
+            if (this.signInForm.visible() && this.signInAutohide) {
+                this.hideSignIn();
+            }
             if (this.unload) {
                 this.unload();
                 this.unload = undefined;
@@ -5408,15 +5410,6 @@
                 this._url = null;
                 this.element.target = '_blank';
                 this.element.href = url;
-            }
-        }
-    });
-    d.r.SignInForm = d.Class(d.Form, {
-        '@Close': {},
-        close: function () {
-            if (this.parent) {
-                this.parent.remove(this);
-                this.dispatch('Close', new d.ControlEvent().setControl(this));
             }
         }
     });
