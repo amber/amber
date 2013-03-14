@@ -5423,6 +5423,7 @@
         init: function (className) {
             this.base(arguments);
             this.element = this.container = this.newElement(className || 'd-r-link', 'a');
+            this.element.tabIndex = 0;
         },
         setView: function (view) {
             return this.setUrl(d.r.App.prototype.reverse.apply(null, arguments));
