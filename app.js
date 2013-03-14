@@ -4736,7 +4736,7 @@
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setUrl(this.reverse('help.about')))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setUrl(this.reverse('help.tos')))
                         .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setUrl(this.reverse('help.educators'))));
-                this.query({ name: 'projects.count' }, function (result) {
+                this.query('projects.count', {}, function (result) {
                     projectCount.setText(d.t('% projects', result));
                 });
             }
@@ -4873,7 +4873,7 @@
                     .add(new d.r.Carousel().setTitle(d.t('Followers'))));
         },
         'forums.index': function () {
-            this.query({ name: 'forum.categories' }, function (categories) {
+            this.query('forum.categories', {}, function (categories) {
                 categories.forEach(function (category) {
                     this.page
                         .add(new d.Label('d-r-title').setText(d.t.maybe(category.name)));
@@ -4888,16 +4888,34 @@
                 }, this);
             }.bind(this));
         },
-        'forums.forum.view': function (id) {
+        'forums.forum.view': function (args) {
+            var t = this, title, subtitle;
             this.page
-                .add(new d.r.LazyList('d-r-topic-list').setItemHeight(10).setLoader(function (offset, length, callback) {
-                    return this.query({
-                        name: 'forum.topics',
-                        forum$id: id,
-                        offset: offset,
-                        length: length
-                    }, callback);
-                }.bind(this)));
+                .add(title = new d.Label('d-r-title'))
+                .add(subtitle = new d.Label('d-r-subtitle'))
+                .add(new d.r.LazyList('d-r-topic-list')
+                     .setItemHeight(10)
+                     .setLoader(function (offset, length, callback) {
+                        return this.query('forum.topics', {
+                            forum$id: args[1],
+                            offset: offset,
+                            length: length
+                        }, callback);
+                    }.bind(this))
+                    .setTransformer(function (topic) {
+                        return new d.r.Link('d-r-topic-list-item')
+                            .setUrl(t.reverse('forums.topic.view', topic.id))
+                            .add(new d.Container('d-r-topic-list-item-title')
+                                .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
+                                .add(new d.Label('d-r-topic-list-item-author').setText(d.t('by %', 'nXIII'))))
+                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts · % views', topic.posts, topic.views))); // TODO
+                    }));
+            this.query('forum.forum', {
+                forum$id: args[1]
+            }, function (forum) {
+                title.setText(d.t.maybe(forum.name));
+                subtitle.setText(d.t.maybe(forum.description));
+            });
         }
     };
     d.r.App = d.Class(d.App, {
@@ -5041,10 +5059,10 @@
                 this.spinner.hide();
             }
         },
-        query: function (name, callback) {
+        query: function (name, options, callback) {
             var t = this;
             this.request();
-            this.server().query(name, function (result) {
+            this.server().query(name, options, function (result) {
                 t.requestEnd();
                 callback(result);
             });
@@ -5204,7 +5222,7 @@
                     console.warn('Invalid request id:', p);
                     return;
                 }
-                console.error('QueryError: ' + p.message + ' in', request.query);
+                console.error('QueryError: ' + p.message + ' in ' + request.name, request.options);
                 delete this.requests[p.request$id];
             }
         },
@@ -5312,19 +5330,16 @@
             if (this.app().config().livePacketLog) this.logPacket(log);
             this.socket.send(packet);
         },
-        query: function (query, callback) {
-            var id = ++this.requestId,
-                options = {}, key;
+        query: function (name, options, callback) {
+            var id = ++this.requestId;
             this.requests[id] = {
-                query: query,
+                name: name,
+                options: options,
                 callback: callback
             };
-            for (key in query) if (query.hasOwnProperty(key) && key !== 'name') {
-                options[key] = query[key];
-            }
             this.send('query', {
                 request$id: id,
-                name: query.name,
+                name: name,
                 options: options
             });
         },
@@ -5570,8 +5585,7 @@
     });
     d.r.ProjectCarousel = d.Class(d.r.Carousel, {
         _loader: function (offset, length, callback) {
-            this.app().query({
-                name: 'projects.' + this.query(),
+            this.app().query('projects.' + this.query(), {
                 offset: offset,
                 length: length
             }, function (result) {

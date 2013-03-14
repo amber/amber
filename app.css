@@ -1786,6 +1786,10 @@
     font: 24pt/30pt Georgia, serif;
     color: #000;
 }
+.d-r-subtitle {
+    margin: -9pt 0 0;
+    padding: 0 9pt 9pt;
+}
 .d-r-carousel-button {
     position: absolute;
     top: 48pt;
@@ -1923,6 +1927,39 @@
 }
 .d-r-forum-list-item:focus:active > .d-r-forum-list-item-title,
 .d-r-forum-list-item:hover:active > .d-r-forum-list-item-title {
+    color: #028;
+}
+
+.d-r-topic-list {
+    padding: 0 9pt;
+}
+.d-r-topic-list-item {
+    display: block;
+    padding-bottom: 9pt;
+    color: #000;
+}
+.d-r-topic-list-item-title {
+    text-indent: -18pt;
+    padding-left: 18pt;
+}
+.d-r-topic-list-item-name,
+.d-r-topic-list-item-author {
+    display: inline;
+}
+.d-r-topic-list-item-name {
+    color: #05d;
+}
+.d-r-topic-list-item-author {
+    margin-left: 3pt;
+}
+.d-r-topic-list-item:hover .d-r-topic-list-item-name,
+.d-r-topic-list-item:focus .d-r-topic-list-item-name,
+.d-r-topic-list-item:active .d-r-topic-list-item-name {
+    color: #05d;
+    text-decoration: underline;
+}
+.d-r-topic-list-item:hover:active .d-r-topic-list-item-name,
+.d-r-topic-list-item:focus:active .d-r-topic-list-item-name {
     color: #028;
 }
 

@@ -33,11 +33,26 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                         return {
                             id: forum.id,
                             name: forum.name,
-                            description: forum.description
+                            description: forum.description,
+                            isUnread: false
                         };
                     })
                 };
             });
+        },
+        'forum.forum': function (options) {
+            var forum = this.data.forums[options.forum$id];
+            return {
+                id: forum.id,
+                name: forum.name,
+                description: forum.description,
+                isUnread: false,
+                topics: forum.topicCount,
+                posts: forum.postCount
+            };
+        },
+        'forum.topics': function (options) {
+            return this.data.forums[options.forum$id].topics.slice(options.offset, options.length);
         }
     },
     onServer: {
@@ -77,7 +92,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
         }
     },
     init: function () {
-        var i;
+        var i, id, topicId, data;
         function rint(min, max) {
             return Math.random() * (max - min + 1) + min | 0;
         }
@@ -134,39 +149,41 @@ d.r.OfflineServer = d.Class(d.r.Server, {
         var consonants = 'abcdefghijklmnopqrstuvwxyz'.replace(new RegExp(vowels.split('').join('|'), 'g'), '');
         var punctuation = '..............?!';
         this.base(arguments);
-        this.data = {
+        this.data = data = {
             categories: [
                 {
                     name: {$:'Welcome'},
                     forums: [
-                        { name: {$:'Announcements'}, description: {$:'Updates from the Amber team.'}, id: 1 }
+                        { name: {$:'Announcements'}, description: {$:'Updates from the Amber team.'} }
                     ]
                 },
                 {
                     name: {$:'About Amber'},
                     forums: [
-                        { name: {$:'Bugs and Glitches'}, description: {$:'Report a bug you found in Amber.'}, id: 2 },
-                        { name: {$:'Questions about Amber'}, description: {$:'Post general questions about Amber.'}, id: 3 },
-                        { name: {$:'Feedback'}, description: {$:'Share your thoughts and impressions of Amber'}, id: 4 }
+                        { name: {$:'Bugs and Glitches'}, description: {$:'Report a bug you found in Amber.'} },
+                        { name: {$:'Questions about Amber'}, description: {$:'Post general questions about Amber.'} },
+                        { name: {$:'Feedback'}, description: {$:'Share your thoughts and impressions of Amber'} }
                     ]
                 },
                 {
                     name: {$:'Making Amber Projects'},
                     forums: [
-                        { name: {$:'Help with Scripts'}, description: {$:'Need help with your Amber project? Ask here!'}, id: 5 },
-                        { name: {$:'Show and Tell'}, description: {$:'Tell everyone about your projects and collections'}, id: 6 }
+                        { name: {$:'Help with Scripts'}, description: {$:'Need help with your Amber project? Ask here!'} },
+                        { name: {$:'Show and Tell'}, description: {$:'Tell everyone about your projects and collections'} }
                     ]
                 }
             ],
-            projects: []
+            projects: [],
+            forums: [],
+            topics: []
         };
         this.userId = 0;
         this.usersById = {};
         this.usersByName = {};
         i = 100;
         while (i--) {
-            this.data.projects.push({
-                id: this.data.projects.length,
+            data.projects.push({
+                id: data.projects.length,
                 favorites: rfloat(0, 10) * rfloat(0, 10) | 0,
                 loves: rfloat(0, 10) * rfloat(0, 30) | 0,
                 views: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
@@ -181,10 +198,31 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 }
             });
         }
+        id = 0;
+        topicId = 0;
+        data.categories.forEach(function (category) {
+            category.forums.forEach(function (forum) {
+                var topic;
+                forum.id = ++id;
+                data.forums[id] = forum;
+                forum.topics = [];
+                i = 100;
+                while (i--) {
+                    forum.topics.push(topic = {
+                        id: ++topicId,
+                        name: rclause(3, 10),
+                        views: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
+                        posts: 10
+                    });
+                    data.topics[topicId] = topic;
+                }
+                forum.topicCount = forum.topics.length;
+            });
+        });
         this.socket.send = this.socket.send.bind(this);
     },
     socket: {
-        readyState: 1,
+        readyState: 0,
         send: function (data) {
             var packet = this.decodePacket('Client', data);
             if (!packet) return;
@@ -200,6 +238,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
     open: function () {
         this.socketQueue = [];
         setTimeout(function () {
+            this.socket.readyState = 1;
             this.listeners.open.call(this);
         }.bind(this), this.openTime);
     },
