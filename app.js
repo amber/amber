@@ -4894,7 +4894,7 @@
                 .add(title = new d.Label('d-r-title'))
                 .add(subtitle = new d.Label('d-r-subtitle'))
                 .add(new d.r.LazyList('d-r-topic-list')
-                     .setItemHeight(10)
+                     .setItemHeight(48)
                      .setLoader(function (offset, length, callback) {
                         return this.query('forum.topics', {
                             forum$id: args[1],
@@ -5159,7 +5159,7 @@
         }
     });
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query":["request$id","name","options"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forum.categories":["request$id"],"Client:query.forum.forum":["request$id","forum$id"],"Client:query.forum.topics":["request$id","forum$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
         INITIAL_REOPEN_DELAY: 100,
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
@@ -5337,11 +5337,8 @@
                 options: options,
                 callback: callback
             };
-            this.send('query', {
-                request$id: id,
-                name: name,
-                options: options
-            });
+            options.request$id = id;
+            this.send('query.' + name, options);
         },
         signIn: function (username, password, errorCallback) {
             this.app().request();

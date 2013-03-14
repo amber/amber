@@ -82,8 +82,8 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                     this.sendServer('query.result', {
                         request$id: p.request$id,
                         result: typeof this.queries[p.name] === 'function' ?
-                            this.queries[p.name].call(this, p.options) :
-                            this.fetch(this.queries[p.name], p.options.offset, p.options.length)
+                            this.queries[p.name].call(this, p) :
+                            this.fetch(this.queries[p.name], p.offset, p.length)
                     });
                 }.bind(this), this.latency);
             } else {
@@ -228,6 +228,10 @@ d.r.OfflineServer = d.Class(d.r.Server, {
             if (!packet) return;
             packet.$time = new Date;
             packet.$side = 'Client';
+            if (packet.$type.substr(0, 6) === 'query.') {
+                packet.name = packet.$type.substr(6);
+                return this.onServer.query.call(this, packet);
+            }
             if (this.onServer.hasOwnProperty(packet.$type)) {
                 this.onServer[packet.$type].call(this, packet);
             } else {
