@@ -25,7 +25,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 return p.featured;
             }
         },
-        'forum.categories': function () {
+        'forums.categories': function () {
             return this.data.categories.map(function (category) {
                 return {
                     name: category.name,
@@ -40,7 +40,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 };
             });
         },
-        'forum.forum': function (options) {
+        'forums.forum': function (options) {
             var forum = this.data.forums[options.forum$id];
             return {
                 id: forum.id,
@@ -51,7 +51,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 posts: forum.postCount
             };
         },
-        'forum.topics': function (options) {
+        'forums.topics': function (options) {
             return this.data.forums[options.forum$id].topics.slice(options.offset, options.length);
         }
     },
