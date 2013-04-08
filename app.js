@@ -4908,7 +4908,7 @@
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
                                 .add(new d.Label('d-r-topic-list-item-author').setText(d.t('by %', 'nXIII'))))
-                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts · % views', topic.posts, topic.views))); // TODO
+                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts \xb7 % views', topic.posts, topic.views))); // TODO
                     }));
             this.query('forums.forum', {
                 forum$id: args[1]
