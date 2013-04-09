@@ -4927,6 +4927,7 @@
         init: function () {
             this.base(arguments);
             this.setConfig({});
+            this.pendingRequests = 0;
         },
         setElement: function (element) {
             this.base(arguments, element)
