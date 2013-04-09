@@ -265,7 +265,9 @@
             this.children.push(child);
             child.parent = this;
             this.container.appendChild(child.element);
-            child.becomeLive();
+            if (this.isLive) {
+                child.becomeLive();
+            }
             return this;
         },
         becomeLive: function () {
@@ -312,7 +314,9 @@
             oldChild.parent = null;
             newChild.parent = this;
             this.container.replaceChild(newChild.element, oldChild.element);
-            newChild.becomeLive();
+            if (this.isLive) {
+                newChild.becomeLive();
+            }
             return this;
         },
         insert: function (newChild, beforeChild) {
@@ -323,7 +327,9 @@
             this.children.splice(i === -1 ? this.children.length : i, 0, newChild);
             newChild.parent = this;
             this.container.insertBefore(newChild.element, beforeChild && beforeChild.element);
-            newChild.becomeLive();
+            if (this.isLive) {
+                newChild.becomeLive();
+            }
             return this;
         },
         hasChild: function (child) {
@@ -420,6 +426,7 @@
     d.App = d.Class(d.Control, {
         MENU_CLICK_TIME: 250,
         acceptsClick: true,
+        isLive: true,
 
         app: function () {
             return this;
@@ -4959,7 +4966,7 @@
                     .add(this.spinner = new d.Container('d-r-spinner').hide())
                     .add(this.connectionWarning = new d.Container('d-r-connection-warning').hide()))
                 .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable')
-                    .add(this.page = new d.Container('d-r-page').setSelectable(true))
+                    .add(this.page = this.createPage())
                     .add(new d.Container('d-r-footer')
                         .add(this.panelLink('Help', 'help'))
                         .add(this.panelLink('About', 'help.about'))
@@ -5001,6 +5008,9 @@
                     this.reload();
                 }
             }
+        },
+        createPage: function () {
+            return new d.Container('d-r-page').setSelectable(true);
         },
         showSignIn: function (autohide) {
             if (this.signInForm.visible()) return;
@@ -5063,6 +5073,7 @@
         requestEnd: function () {
             if (!--this.pendingRequests) {
                 this.spinner.hide();
+                this.swapIfComplete();
             }
         },
         query: function (name, options, callback) {
@@ -5141,10 +5152,13 @@
                 this.unload();
                 this.unload = undefined;
             }
+            this.pendingRequests = 0;
             this.reloadOnAuthentication = false;
             this.url = loc;
-            this.page.clear();
-            this.page.element.scrollTop = 0;
+            if (this.page.parent) {
+                this.oldPage = this.page;
+            }
+            this.page = this.createPage();
             try {
                 while (url = urls[i++]) {
                     if (match = url[0].exec(loc.substr(1))) {
@@ -5152,7 +5166,9 @@
                             console.error('Undefined view ' + url[1]);
                             break;
                         }
-                        return d.r.views[url[1]].call(this, match);
+                        d.r.views[url[1]].call(this, match);
+                        this.swapIfComplete();
+                        return this;
                     }
                 }
                 d.r.views.notFound.call(this, [loc]);
@@ -5162,6 +5178,15 @@
                 } else {
                     throw e;
                 }
+            }
+            this.swapIfComplete();
+            return this;
+        },
+        swapIfComplete: function () {
+            if (!this.oldPage) return this;
+            if (this.pendingRequests == 0) {
+                this.wrap.replace(this.oldPage, this.page);
+                this.oldPage = undefined;
             }
             return this;
         },
