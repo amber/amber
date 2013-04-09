@@ -4948,7 +4948,7 @@
             var t = this, topicId = +args[1], up, title;
             this.page
                 .add(up = new d.r.Link('d-r-list-up-button'))
-                .add(title = new d.Label('d-r-title'))
+                .add(title = new d.Label('d-r-title d-r-topic-title'))
                 .add(new d.r.LazyList('d-r-post-list')
                     .setLoader(function (offset, length, callback) {
                         return this.query('forums.posts', {
@@ -4958,11 +4958,13 @@
                         }, callback);
                     }.bind(this))
                     .setTransformer(function (post) {
-                        var userLabel, container;
+                        var userLabel, userLink, container;
                         container = new d.Container('d-r-post')
-                            .add(userLabel = new d.Label('d-r-post-author'))
-                            .add(new d.Label('d-r-post-content').setText(post.body));
+                            .add(userLink = new d.r.Link('d-r-link d-r-post-author')
+                                 .add(userLabel = new d.Label()))
+                            .add(new d.Label('d-r-post-body').setText(post.body));
                         t.getUser(post.author$id, function (user) {
+                            userLink.setURL(t.reverse('user.profile', user.name()));
                             userLabel.setText(user.name());
                         });
                         return container;

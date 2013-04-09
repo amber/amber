@@ -1760,6 +1760,22 @@
     text-decoration: underline;
     border-radius: 3px;
 }
+
+.d-r-link {
+    color: #05d;
+    text-decoration: none;
+    cursor: pointer;
+}
+.d-r-link:hover,
+.d-r-link:focus,
+.d-r-link:active {
+    text-decoration: underline;
+}
+.d-r-link:hover:active,
+.d-r-link:focus:active {
+    color: #028;
+}
+
 .d-r-carousel {
     position: relative;
     height: 189pt;
@@ -1984,6 +2000,30 @@
     color: #028;
 }
 
+.d-r-topic-title {
+    padding-bottom: 0;
+}
+.d-r-post-list {
+    padding: 0 9pt;
+}
+.d-r-post {
+    padding: 9pt 0;
+}
+.d-r-post-author {
+    display: block;
+    color: #000;
+    font: 16pt/20pt Georgia, serif;
+}
+.d-r-post-author:hover {
+    color: #05d;
+}
+.d-r-post-body {
+    white-space: pre-wrap;
+    padding: 9pt 0 0;
+    font: 12pt/18pt Baskerville, serif;
+    color: #000;
+}
+
 .d-r-project-container {
     margin: 0 auto;
     max-width: 852px;
@@ -2032,20 +2072,6 @@
 }
 .d-app a {
     text-decoration: none;
-}
-.d-r-link {
-    color: #05d;
-    text-decoration: none;
-    cursor: pointer;
-}
-.d-r-link:hover,
-.d-r-link:focus,
-.d-r-link:active {
-    text-decoration: underline;
-}
-.d-r-link:hover:active,
-.d-r-link:focus:active {
-    color: #028;
 }
 .d-r-project-stats {
     font: 11px/17px sans-serif;
