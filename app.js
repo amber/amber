@@ -4903,12 +4903,17 @@
                         }, callback);
                     }.bind(this))
                     .setTransformer(function (topic) {
-                        return new d.r.Link('d-r-topic-list-item')
+                        var userLabel, link;
+                        link = new d.r.Link('d-r-topic-list-item')
                             .setURL(t.reverse('forums.topic.view', topic.id))
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
-                                .add(new d.Label('d-r-topic-list-item-author').setText(d.t('by %', 'nXIII'))))
-                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts \xb7 % views', topic.posts, topic.views))); // TODO
+                                .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', ''))))
+                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts \xb7 % views', topic.posts, topic.views)))
+                        t.getUser(topic.author, function (user) {
+                            userLabel.setText(d.t('by %', user.name()));
+                        });
+                        return link;
                     }));
             this.query('forums.forum', {
                 forum$id: args[1]
@@ -5067,6 +5072,14 @@
                 callback(result);
             });
         },
+        getUser: function (id, callback, context) {
+            var t = this;
+            this.request();
+            this.server().getUser(id, function (result) {
+                t.requestEnd();
+                callback.call(context, result);
+            });
+        },
         panelLink: function (t, view) {
             return new d.r.Link('d-r-panel-button').setText(d.t(t)).setURL(this.reverse.apply(this, [].slice.call(arguments, 1)));
         },
@@ -5159,7 +5172,7 @@
         }
     });
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forums.categories":["request$id"],"Client:query.forums.forum":["request$id","forum$id"],"Client:query.forums.topics":["request$id","forum$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query.users.user":["request$id","user$id"],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forums.categories":["request$id"],"Client:query.forums.forum":["request$id","forum$id"],"Client:query.forums.topics":["request$id","forum$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
         INITIAL_REOPEN_DELAY: 100,
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
@@ -5354,6 +5367,17 @@
         },
         getAsset: function (hash) {
             return this.assetStoreURL + hash + '/';
+        },
+        getUser: function (id, callback, context) {
+            var t = this;
+            if (this.usersById[id]) {
+                return callback.call(context, this.usersById[id]);
+            }
+            this.query('users.user', {
+                user$id: id
+            }, function (result) {
+                callback.call(context, new d.r.User(t).fromJSON(result));
+            });
         },
         logPacket: function (packet) {
             function log(object, dollar) {
