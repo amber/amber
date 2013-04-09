@@ -4931,7 +4931,7 @@
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
                                 .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', ''))))
                             .add(new d.Label('d-r-topic-list-item-description').setText(d.t.plural('% posts', '% post', topic.posts) + ' \xb7 ' + d.t.plural('% views', '% view', topic.views)))
-                        t.getUser(topic.author, function (user) {
+                        t.getUser(topic.author$id, function (user) {
                             userLabel.setText(d.t('by %', user.name()));
                         });
                         return link;
@@ -4960,7 +4960,7 @@
                         container = new d.Container('d-r-post')
                             .add(userLabel = new d.Label('d-r-post-author'))
                             .add(new d.Label('d-r-post-content').setText(post.body));
-                        t.getUser(post.author, function (user) {
+                        t.getUser(post.author$id, function (user) {
                             userLabel.setText(user.name());
                         });
                         return container;

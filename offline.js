@@ -57,7 +57,25 @@ d.r.OfflineServer = d.Class(d.r.Server, {
             };
         },
         'forums.topics': function (options) {
-            return this.data.forums[options.forum$id].topics.slice(options.offset, options.offset + options.length);
+            return this.data.forums[options.forum$id].topics.slice(options.offset, options.offset + options.length).map(function (topic) {
+                return this.queries['forums.topic'].call(this, {
+                    topic$id: topic.id
+                });
+            }, this);
+        },
+        'forums.topic': function (options) {
+            var topic = this.data.topics[options.topic$id];
+            return {
+                id: topic.id,
+                name: topic.name,
+                author$id: topic.author$id,
+                isUnread: false,
+                views: topic.viewCount,
+                posts: topic.postCount
+            };
+        },
+        'forums.posts': function (options) {
+            return this.data.topics[options.topic$id].posts.slice(options.offset, options.offset + options.length);
         }
     },
     onServer: {
@@ -215,9 +233,11 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 while (i--) {
                     forum.topics.push(topic = {
                         id: ++topicId,
-                        name: rclause(3, 10),
-                        views: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
-                        posts: 10
+                        name: capitalize(rclause(3, 10)),
+                        author$id: 1,
+                        viewCount: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
+                        postCount: 0,
+                        posts: []
                     });
                     data.topics[topicId] = topic;
                 }
