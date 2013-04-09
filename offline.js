@@ -4,6 +4,11 @@ d.r.OfflineServer = d.Class(d.r.Server, {
     userRank: 'default',
     acceptSignIn: true,
     queries: {
+        'users.user': function (id) {
+            return {
+                name: 'nXIII'
+            };
+        },
         'projects.count': function () {
             return this.data.projects.length;
         },
@@ -52,7 +57,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
             };
         },
         'forums.topics': function (options) {
-            return this.data.forums[options.forum$id].topics.slice(options.offset, options.length);
+            return this.data.forums[options.forum$id].topics.slice(options.offset, options.offset + options.length);
         }
     },
     onServer: {

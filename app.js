@@ -148,6 +148,10 @@
         listeners: function (name) {
             return this['$listeners_' + name] || [];
         },
+        clearListeners: function (name) {
+            delete this['$listeners_' + name];
+            return this;
+        },
         dispatch: function (name, event) {
             var a = this[key = '$listeners_' + name],
                 listener, i;
@@ -232,6 +236,7 @@
         '@TouchEnd': null,
         '@ContextMenu': null,
         '@ScrollWheel': null,
+        '@Scroll': null,
         '@DragStart': null,
 
         '@Live': null,
@@ -257,6 +262,16 @@
             apply: function (selectable) {
                 d.toggleClass(this.element, 'd-selectable', selectable);
             }
+        },
+        _hasScrollEvent: false,
+        withScrollEvent: function () {
+            var t = this;
+            if (!this._hasScrollEvent) {
+                this.element.addEventListener('scroll', function () {
+                    t.dispatch('Scroll', new d.ControlEvent().setControl(this));
+                });
+            }
+            return this;
         },
         add: function (child) {
             if (child.parent) {
@@ -4836,9 +4851,9 @@
                     this.notFound();
                 }
             });
-            this.unload = function () {
+            this.onUnload(function () {
                 player.parent.remove(player);
-            };
+            });
         },
         'project.edit': function (args) {
             return d.r.views['project.view'].call(this, args, true);
@@ -4896,15 +4911,14 @@
             }.bind(this));
         },
         'forums.forum.view': function (args) {
-            var t = this, title, subtitle;
+            var t = this, forumId = +args[1], title, subtitle;
             this.page
                 .add(title = new d.Label('d-r-title'))
                 .add(subtitle = new d.Label('d-r-subtitle'))
                 .add(new d.r.LazyList('d-r-topic-list')
-                     .setItemHeight(48)
-                     .setLoader(function (offset, length, callback) {
+                    .setLoader(function (offset, length, callback) {
                         return this.query('forums.topics', {
-                            forum$id: args[1],
+                            forum$id: forumId,
                             offset: offset,
                             length: length
                         }, callback);
@@ -4923,14 +4937,44 @@
                         return link;
                     }));
             this.query('forums.forum', {
-                forum$id: args[1]
+                forum$id: forumId
             }, function (forum) {
                 title.setText(d.t.maybe(forum.name));
                 subtitle.setText(d.t.maybe(forum.description));
             });
+        },
+        'forums.topic.view': function (args) {
+            var t = this, topicId = +args[1], title;
+            this.page
+                .add(title = new d.Label('d-r-title'))
+                .add(new d.r.LazyList('d-r-post-list')
+                    .setLoader(function (offset, length, callback) {
+                        return this.query('forums.posts', {
+                            topic$id: topicId,
+                            offset: offset,
+                            length: length
+                        }, callback);
+                    }.bind(this))
+                    .setTransformer(function (post) {
+                        var userLabel, container;
+                        container = new d.Container('d-r-post')
+                            .add(userLabel = new d.Label('d-r-post-author'))
+                            .add(new d.Label('d-r-post-content').setText(post.body));
+                        t.getUser(post.author, function (user) {
+                            userLabel.setText(user.name());
+                        });
+                        return container;
+                    }));
+            this.query('forums.topic', {
+                topic$id: topicId
+            }, function (topic) {
+                title.setText(d.t.maybe(topic.name));
+            });
         }
     };
     d.r.App = d.Class(d.App, {
+        '@Unload': {},
+
         init: function () {
             this.base(arguments);
             this.setConfig({});
@@ -4965,7 +5009,7 @@
                     }, this))
                     .add(this.spinner = new d.Container('d-r-spinner').hide())
                     .add(this.connectionWarning = new d.Container('d-r-connection-warning').hide()))
-                .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable')
+                .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable').withScrollEvent()
                     .add(this.page = this.createPage())
                     .add(new d.Container('d-r-footer')
                         .add(this.panelLink('Help', 'help'))
@@ -5148,10 +5192,8 @@
             if (this.signInForm.visible() && this.signInAutohide) {
                 this.hideSignIn();
             }
-            if (this.unload) {
-                this.unload();
-                this.unload = undefined;
-            }
+            this.dispatch('Unload', new d.ControlEvent().setControl(this));
+            this.clearListeners('Unload');
             this.pendingRequests = 0;
             this.reloadOnAuthentication = false;
             this.url = loc;
@@ -5198,7 +5240,7 @@
         }
     });
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query.users.user":["request$id","user$id"],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forums.categories":["request$id"],"Client:query.forums.forum":["request$id","forum$id"],"Client:query.forums.topics":["request$id","forum$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","message"]},
+        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:query.users.user":["request$id","user$id"],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forums.categories":["request$id"],"Client:query.forums.forum":["request$id","forum$id"],"Client:query.forums.topics":["request$id","forum$id","offset","length"],"Client:query.forums.topic":["request$id","topic$id"],"Client:query.forums.posts":["request$id","topic$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","code"]},
         INITIAL_REOPEN_DELAY: 100,
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
@@ -5669,33 +5711,23 @@
             this.items = [];
             this.visibleItems = [];
             this.base(arguments, className || 'd-r-list');
+            this.element.style.paddingBottom = this.buffer + 'px';
             this.onLive(function () {
-                this.clear();
                 this.offset = 0;
                 this.scrollX = 0;
                 this.max = -1;
-                this.load();
+                this.loadIfNecessary();
+                this.app().wrap.onScroll(this.loadIfNecessary, this);
+                this.app().onUnload(function () {
+                    this.app().wrap.unScroll(this.loadIfNecessary, this);
+                });
             });
-            this.onScrollWheel(this.scrollWheel);
         },
         '.loader': {},
         '.transformer': {},
-        '.itemHeight': { value: Infinity },
-        scrollLoadAmount: 10,
-        scrollWheel: function (e) {
-            var t = this, offset = Math.ceil(this.app().wrap.element.scrollTop / this.itemHeight());
-            if (offset + this.maxVisibleItemCount() > this.loaded) {
-                this.load();
-            }
-            e.setAllowDefault(true);
-        },
-        visibleItemCount: function () {
-            return Math.max(1, Math.floor(this.app().wrap.element.offsetHeight / this.itemHeight()));
-        },
-        maxVisibleItemCount: function () {
-            return Math.max(1, Math.ceil(this.app().wrap.element.offsetHeight / this.itemHeight()));
-        },
+        loadAmount: 10,
         loaded: 0,
+        buffer: 200,
         loadItems: function (offset, length, callback) {
             var t = this, cached, delta;
             if (!this._loader) return;
@@ -5708,6 +5740,7 @@
                 this._loader(offset + delta, length - delta, function (result) {
                     if (result.length < length - delta) {
                         t.max = offset + delta + result.length;
+                        t.element.style.paddingBottom = '';
                     }
                     callback.call(t, result);
                 });
@@ -5715,6 +5748,7 @@
                 this._loader(offset, length, function (result) {
                     if (result.length < length) {
                         t.max = offset + result.length;
+                        t.element.style.paddingBottom = '';
                     }
                     callback.call(t, result);
                 });
@@ -5722,16 +5756,25 @@
             this.loaded = offset + length;
         },
         load: function () {
-            var t = this, offset, length;
+            var t = this, offset;
             if (this.max !== -1) return;
             offset = this.offset;
-            length = this.maxVisibleItemCount() * 2;
-            this.loadItems(offset, length, function (items) {
+            this.loadItems(offset, this.loadAmount, function (items) {
                 var i = 0, item;
                 while (item = items[i++]) {
                     t.add(t.items[offset + i - 1] = t._transformer(item));
                 }
+                this.offset += this.loadAmount;
+                this.loadIfNecessary();
             });
+        },
+        loadIfNecessary: function () {
+            var wrap;
+            if (this.max !== -1) return;
+            wrap = this.app().wrap.element;
+            if (this.element.offsetHeight - this.buffer - wrap.scrollTop < wrap.offsetHeight) {
+                this.load();
+            }
         }
     });
 
