@@ -4909,7 +4909,7 @@
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
                                 .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', ''))))
-                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t('% posts \xb7 % views', topic.posts, topic.views)))
+                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t.plural('% posts', '% post', topic.posts) + ' \xb7 ' + d.t.plural('% views', '% view', topic.views)))
                         t.getUser(topic.author, function (user) {
                             userLabel.setText(d.t('by %', user.name()));
                         });
