@@ -1906,6 +1906,26 @@
     margin: 0 auto;
     max-width: 852px;
 }
+.d-r-list-up-button {
+    width: 12pt;
+    height: 30pt;
+    padding: 9pt;
+    border: 0;
+    margin: 0;
+    float: left;
+    background: url('static/img/list-up.svg') center center no-repeat;
+    cursor: pointer;
+    opacity: .3;
+}
+.d-r-list-up-button:focus,
+.d-r-list-up-button:hover,
+.d-r-list-up-button:active {
+    opacity: .6;
+}
+.d-r-list-up-button:focus:active,
+.d-r-list-up-button:hover:active {
+    opacity: 1;
+}
 .d-r-forum-list {
     padding: 0 9pt;
     margin-top: -4.5pt;

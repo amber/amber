@@ -66,6 +66,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
         'forums.topic': function (options) {
             var topic = this.data.topics[options.topic$id];
             return {
+                forum$id: topic.forum$id,
                 id: topic.id,
                 name: topic.name,
                 author$id: topic.author$id,
@@ -232,6 +233,7 @@ d.r.OfflineServer = d.Class(d.r.Server, {
                 i = 100;
                 while (i--) {
                     forum.topics.push(topic = {
+                        forum$id: forum.id,
                         id: ++topicId,
                         name: capitalize(rclause(3, 10)),
                         author$id: 1,
