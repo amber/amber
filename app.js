@@ -4723,19 +4723,19 @@
                     .add(new d.Label('d-r-splash-title').setText(d.t('Amber')))
                     .add(new d.Label('d-r-splash-subtitle').setText(d.t('Collaborate in realtime with others around the world')))
                     .add(new d.Label('d-r-splash-subtitle').setText(d.t('Create your own interactive stories, games, music & art')))
-                    .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('project.new'))
+                    .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('project.new'))
                         .add(new d.Label('d-r-splash-link-title').setText(d.t('Get Started')))
                         .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('Make an Amber project'))))
-                    .add(new d.r.Link('d-r-splash-link').setUrl(this.reverse('explore'))
+                    .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('explore'))
                         .add(new d.Label('d-r-splash-link-title').setText(d.t('Explore')))
                         .add(projectCount = new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 0))))
                     .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
                         .add(new d.Label('d-r-splash-link-title').setText(d.t('Sign In')))
                         .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('With your Scratch Account'))))
                     .add(new d.Container('d-r-splash-footer')
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setUrl(this.reverse('help.about')))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setUrl(this.reverse('help.tos')))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setUrl(this.reverse('help.educators'))));
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setURL(this.reverse('help.about')))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setURL(this.reverse('help.tos')))
+                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setURL(this.reverse('help.educators'))));
                 this.query('projects.count', {}, function (result) {
                     projectCount.setText(d.t('% projects', result));
                 });
@@ -4883,7 +4883,7 @@
                                 .add(new d.r.Link('d-r-forum-list-item')
                                      .add(new d.Label('d-r-forum-list-item-title').setText(d.t.maybe(forum.name)))
                                      .add(new d.Label('d-r-forum-list-item-description').setText(d.t.maybe(forum.description)))
-                                     .setUrl(this.reverse('forums.forum.view', forum.id))));
+                                     .setURL(this.reverse('forums.forum.view', forum.id))));
                     }, this);
                 }, this);
             }.bind(this));
@@ -4904,7 +4904,7 @@
                     }.bind(this))
                     .setTransformer(function (topic) {
                         return new d.r.Link('d-r-topic-list-item')
-                            .setUrl(t.reverse('forums.topic.view', topic.id))
+                            .setURL(t.reverse('forums.topic.view', topic.id))
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
                                 .add(new d.Label('d-r-topic-list-item-author').setText(d.t('by %', 'nXIII'))))
@@ -4932,7 +4932,7 @@
                     .add(this.signInUsername = new d.TextField('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Username')))
                     .add(this.signInPassword = new d.TextField.Password('d-textfield d-r-header-sign-in-field').setPlaceholder(d.t('Password')))
                     .add(this.signInButton = new d.Button().setText(d.t('Sign In')).onExecute(this.signInForm.submit, this.signInForm))
-                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')).setExternalUrl('http://scratch.mit.edu/signup'))
+                    .add(this.signUpLink = new d.r.Link().setText(d.t('Register')).setExternalURL('http://scratch.mit.edu/signup'))
                     .add(this.signInError = new d.Label('d-label d-r-header-sign-in-error').hide()))
                 .add(new d.Container('d-r-header')
                     .add(this.panelLink('Amber', 'index'))
@@ -5068,7 +5068,7 @@
             });
         },
         panelLink: function (t, view) {
-            return new d.r.Link('d-r-panel-button').setText(d.t(t)).setUrl(this.reverse.apply(this, [].slice.call(arguments, 1)));
+            return new d.r.Link('d-r-panel-button').setText(d.t(t)).setURL(this.reverse.apply(this, [].slice.call(arguments, 1)));
         },
         notFound: function () {
             this.page.clear();
@@ -5426,15 +5426,15 @@
             this.element.tabIndex = 0;
         },
         setView: function (view) {
-            return this.setUrl(d.r.App.prototype.reverse.apply(null, arguments));
+            return this.setURL(d.r.App.prototype.reverse.apply(null, arguments));
         },
-        '.url': {
+        '.URL': {
             apply: function (url) {
                 this.element.target = '';
-                this.element.href = this._externalUrl = d.r.App.prototype.abs(url);
+                this.element.href = this._externalURL = d.r.App.prototype.abs(url);
             }
         },
-        '.externalUrl': {
+        '.externalURL': {
             apply: function (url) {
                 this._url = null;
                 this.element.target = '_blank';
