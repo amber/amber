@@ -5249,6 +5249,7 @@
             this.requests = {};
             this.usersByName = {};
             this.usersById = {};
+            this.userIdCallbacks = {};
             this.log = [];
             this._sessionId = localStorage.getItem('d.r.sessionId');
             this.reopenDelay = this.INITIAL_REOPEN_DELAY;
@@ -5437,15 +5438,32 @@
             return this.assetStoreURL + hash + '/';
         },
         getUser: function (id, callback, context) {
-            var t = this;
+            var t = this, callbacks;
             if (this.usersById[id]) {
-                return callback.call(context, this.usersById[id]);
+                callback.call(context, this.usersById[id]);
+                return this;
             }
+            if (callbacks = this.userIdCallbacks[id]) {
+                callbacks.push({
+                    callback: callback,
+                    context: context
+                });
+                return this;
+            }
+            callbacks = this.userIdCallbacks[id] = [{
+                callback: callback,
+                context: context
+            }];
             this.query('users.user', {
                 user$id: id
             }, function (result) {
-                callback.call(context, new d.r.User(t).fromJSON(result));
+                var user = new d.r.User(t).fromJSON(result), i = callbacks.length;
+                while (i--) {
+                    callbacks[i].callback.call(callbacks[i].context, user);
+                }
+                delete t.userIdCallbacks[id];
             });
+            return this;
         },
         logPacket: function (packet) {
             function log(object, dollar) {
