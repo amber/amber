@@ -5233,6 +5233,7 @@
             if (!this.oldPage) return this;
             if (this.pendingRequests == 0) {
                 this.wrap.replace(this.oldPage, this.page);
+                this.wrap.element.scrollTop = 0;
                 this.oldPage = undefined;
             }
             return this;
