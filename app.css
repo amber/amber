@@ -1515,7 +1515,9 @@
 .d-r-splash-title,
 .d-r-splash-subtitle,
 .d-r-splash-links,
-.d-r-carousel-header {
+.d-r-carousel-header,
+.d-r-paragraph,
+.d-r-title {
     padding: 0 12px;
     margin: 0 auto;
     max-width: 600px;
@@ -1955,9 +1957,9 @@
 }
 .d-r-carousel-item-label,
 .d-r-carousel-item-detail {
-    font: 12pt/18pt Baskerville, serif;
-    height: 18pt;
-    padding: 6pt 0 3pt;
+    font-size: 16px;
+    line-height: 24px;
+    padding: 8px 0 4px;
     color: #000;
     overflow: hidden;
     white-space: nowrap;
@@ -1973,18 +1975,17 @@
 }
 
 .d-r-title {
-    padding: 9pt;
+    padding: 12px;
 }
 .d-r-paragraph,
 .d-r-form {
-    padding: 0 9pt;
-    font: 12pt/18pt Baskerville, serif;
+    padding: 0 12px;
     color: #000;
 }
 .d-r-form {
-    padding: 0 9pt 45.pt;
+    padding: 0 12px 0;
     margin: 0 auto;
-    max-width: 852px;
+    max-width: 600px;
 }
 .d-r-list-up-button,
 .d-r-list-back-button {
