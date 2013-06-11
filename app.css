@@ -2046,19 +2046,25 @@
     padding: 0 9pt;
 }
 .d-r-post {
-    padding: 9pt 0;
+    padding: 9pt 20%;
 }
 .d-r-post-author {
     display: block;
     color: #000;
     font: 16pt/20pt Georgia, serif;
+    margin: 0 0 -20pt -25%;
+    width: 25%;
+    text-align: right;
 }
 .d-r-post-author:hover {
     color: #05d;
 }
+.d-r-post-author .d-label {
+    text-decoration: inherit;
+}
 .d-r-post-body {
+    margin: 0 -9pt 0 9pt;
     white-space: pre-wrap;
-    padding: 9pt 0 0;
     font: 12pt/18pt Baskerville, serif;
     color: #000;
 }
