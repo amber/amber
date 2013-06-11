@@ -4730,10 +4730,10 @@
         [/^help\/contact\/$/, 'contact'],
         [/^explore\/$/, 'explore'],
         [/^forums\/$/, 'forums.index'],
-        [/^forums\/(\d+)\/$/, 'forums.forum.view'],
-        [/^forums\/(\d+)\/add-topic\/$/, 'forums.forum.newTopic'],
-        [/^forums\/t\/(\d+)\/$/, 'forums.topic.view'],
-        [/^forums\/p\/(\d+)\/$/, 'forums.post.link']
+        [/^forums\/(\w+)\/$/, 'forums.forum.view'],
+        [/^forums\/(\w+)\/add-topic\/$/, 'forums.forum.newTopic'],
+        [/^forums\/t\/(\w+)\/$/, 'forums.topic.view'],
+        [/^forums\/p\/(\w+)\/$/, 'forums.post.link']
     ];
     d.r.views = {
         index: function () {
