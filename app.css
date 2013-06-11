@@ -66,6 +66,10 @@
     background: #ccc;
 }
 
+.d-label {
+    display: inline-block;
+}
+
 .d-lightbox,
 .d-r-lightbox {
     position: absolute;
@@ -1776,6 +1780,28 @@
     color: #028;
 }
 
+.d-r-separator {
+    display: inline-block;
+    margin: 0 3pt;
+}
+
+.d-r-page .d-textfield {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .3), inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+.d-r-page .d-textfield:focus {
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, .5),
+        inset 0 1px 2px rgba(0, 0, 0, .2);
+}
+
+.d-r-block-form {
+    padding: 0 9pt 9pt;
+}
+.d-r-block-form .d-textfield {
+    display: block;
+    width: 100%;
+}
+
 .d-r-carousel {
     position: relative;
     height: 189pt;
@@ -1922,7 +1948,8 @@
     margin: 0 auto;
     max-width: 852px;
 }
-.d-r-list-up-button {
+.d-r-list-up-button,
+.d-r-list-back-button {
     width: 12pt;
     height: 30pt;
     padding: 9pt;
@@ -1933,13 +1960,21 @@
     cursor: pointer;
     opacity: .3;
 }
+.d-r-list-back-button {
+    background: url('static/img/list-back.svg') center center no-repeat;
+}
 .d-r-list-up-button:focus,
 .d-r-list-up-button:hover,
-.d-r-list-up-button:active {
+.d-r-list-up-button:active,
+.d-r-list-back-button:focus,
+.d-r-list-back-button:hover,
+.d-r-list-back-button:active {
     opacity: .6;
 }
 .d-r-list-up-button:focus:active,
-.d-r-list-up-button:hover:active {
+.d-r-list-up-button:hover:active,
+.d-r-list-back-button:focus:active,
+.d-r-list-back-button:hover:active {
     opacity: 1;
 }
 .d-r-forum-list {
@@ -1998,6 +2033,10 @@
 .d-r-topic-list-item:hover:active .d-r-topic-list-item-name,
 .d-r-topic-list-item:focus:active .d-r-topic-list-item-name {
     color: #028;
+}
+
+.d-r-post-editor {
+    height: 120pt;
 }
 
 .d-r-topic-title {

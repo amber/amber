@@ -4731,6 +4731,7 @@
         [/^explore\/$/, 'explore'],
         [/^forums\/$/, 'forums.index'],
         [/^forums\/(\d+)\/$/, 'forums.forum.view'],
+        [/^forums\/(\d+)\/add-topic\/$/, 'forums.forum.newTopic'],
         [/^forums\/t\/(\d+)\/$/, 'forums.topic.view'],
         [/^forums\/p\/(\d+)\/$/, 'forums.post.link']
     ];
@@ -4915,7 +4916,12 @@
             this.page
                 .add(new d.r.Link('d-r-list-up-button').setURL(this.reverse('forums.index')))
                 .add(title = new d.Label('d-r-title'))
-                .add(subtitle = new d.Label('d-r-subtitle'))
+                .add(new d.Container('d-r-subtitle')
+                    .add(subtitle = new d.Label())
+                    .add(new d.r.Separator())
+                    .add(new d.r.Link()
+                        .setText(d.t('New Topic'))
+                        .setURL(this.reverse('forums.forum.newTopic', forumId))))
                 .add(new d.r.LazyList('d-r-topic-list')
                     .setLoader(function (offset, length, callback) {
                         return this.query('forums.topics', {
@@ -4931,12 +4937,31 @@
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
                                 .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', ''))))
-                            .add(new d.Label('d-r-topic-list-item-description').setText(d.t.plural('% posts', '% post', topic.posts) + ' \xb7 ' + d.t.plural('% views', '% view', topic.views)))
+                            .add(new d.Container('d-r-topic-list-item-description')
+                                .add(new d.Label().setText(d.t.plural('% posts', '% post', topic.posts)))
+                                .add(new d.r.Separator())
+                                .add(new d.Label().setText(d.t.plural('% views', '% view', topic.views))))
                         t.getUser(topic.author$id, function (user) {
                             userLabel.setText(d.t('by %', user.name()));
                         });
                         return link;
                     }));
+            this.query('forums.forum', {
+                forum$id: forumId
+            }, function (forum) {
+                title.setText(d.t.maybe(forum.name));
+                subtitle.setText(d.t.maybe(forum.description));
+            });
+        },
+        'forums.forum.newTopic': function (args) {
+            var t = this, forumId = +args[1], title, subtitle, topicName;
+            this.page
+                .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
+                .add(title = new d.Label('d-r-title'))
+                .add(subtitle = new d.Label('d-r-subtitle'))
+                .add(new d.Container('d-r-block-form')
+                    .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
+                    .add(new d.TextField.Multiline('d-textfield d-r-block-field d-r-post-editor')));
             this.query('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
@@ -5556,6 +5581,12 @@
                 this.element.target = '_blank';
                 this.element.href = url;
             }
+        }
+    });
+    d.r.Separator = d.Class(d.Label, {
+        init: function () {
+            this.base(arguments, 'd-r-separator');
+            this.setText('\xb7');
         }
     });
     d.r.Carousel = d.Class(d.Control, {
