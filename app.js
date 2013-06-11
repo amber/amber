@@ -4744,21 +4744,27 @@
             } else {
                 this.page
                     .add(new d.Label('d-r-splash-title').setText(d.t('Amber')))
-                    .add(new d.Label('d-r-splash-subtitle').setText(d.t('Collaborate in realtime with others around the world')))
-                    .add(new d.Label('d-r-splash-subtitle').setText(d.t('Create your own interactive stories, games, music & art')))
-                    .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('project.new'))
-                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Get Started')))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('Make an Amber project'))))
-                    .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('explore'))
-                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Explore')))
-                        .add(projectCount = new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 0))))
-                    .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
-                        .add(new d.Label('d-r-splash-link-title').setText(d.t('Sign In')))
-                        .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('With your Scratch Account'))))
-                    .add(new d.Container('d-r-splash-footer')
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('About Amber')).setURL(this.reverse('help.about')))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('Terms of Service')).setURL(this.reverse('help.tos')))
-                        .add(new d.r.Link('d-r-link d-r-splash-footer-link').setText(d.t('For Educators')).setURL(this.reverse('help.educators'))));
+                    .add(new d.Label('d-r-splash-subtitle').setText(d.t('Collaborate in realtime with others around the world to create your own interactive stories, games, music & art.')))
+                    .add(new d.Container('d-r-splash-links')
+                        .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('project.new'))
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('Get Started')))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('Make an Amber project'))))
+                        .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('explore'))
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('Explore')))
+                            .add(projectCount = new d.Label('d-r-splash-link-subtitle').setText(d.t('% projects', 0))))
+                        .add(new d.r.Link('d-r-splash-link').onExecute(this.showSignIn, this)
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('Sign In')))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('With a Scratch account'))))
+                        .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('help.about'))
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('About Amber')))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('What is this thing?'))))
+                        .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('help.tos'))
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('Terms of Service')))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How can I use it?'))))
+                        .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('help.educators'))
+                            .add(new d.Label('d-r-splash-link-title').setText(d.t('For Educators')))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How should I use it?')))))
+                    .add(new d.Container('d-r-splash-footer'));
                 this.query('projects.count', {}, function (result) {
                     projectCount.setText(d.t('% projects', result));
                 });
@@ -5011,6 +5017,7 @@
             this.pendingRequests = 0;
         },
         setElement: function (element) {
+            d.addClass(element, 'd-r-app');
             this.base(arguments, element)
                 .add((this.signInForm = new d.Form('d-r-header-sign-in'))
                     .hide()
