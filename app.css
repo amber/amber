@@ -43,24 +43,17 @@
 
 .d-scrollable::-webkit-scrollbar {
     background: #ccc;
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, .3);
-    width: 6pt;
-    height: 6pt;
+    width: 4px;
+    height: 4px;
 }
 .d-scrollable::-webkit-scrollbar-thumb {
     background: #555;
-    box-shadow:
-        inset 2px 2px 4px rgba(255, 255, 255, .2),
-        inset -2px -2px 4px rgba(0, 0, 0, .2);
 }
 .d-scrollable::-webkit-scrollbar-thumb:hover {
-    background: #666;
+    background: #444;
 }
 .d-scrollable::-webkit-scrollbar-thumb:active {
-    background: #555;
-    box-shadow:
-        inset -2px -2px 4px rgba(255, 255, 255, .1),
-        inset 2px 2px 4px rgba(0, 0, 0, .1);
+    background: #222;
 }
 .d-scrollable::-webkit-scrollbar-corner {
     background: #ccc;
@@ -1537,14 +1530,22 @@
     margin-bottom: 12px;
 }
 .d-r-splash-link {
+    display: block;
     float: left;
     width: 33%;
     cursor: pointer;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    padding: 12px 36px 12px 12px;
+    padding: 12px;
     margin-left: -12px;
     color: #000;
+}
+@media (max-width: 540px) {
+    .d-r-splash-link {
+        float: none;
+        display: inline-block;
+        width: auto;
+    }
 }
 .d-r-splash-link-title {
     color: #05d;
@@ -1560,7 +1561,7 @@
 }
 .d-r-splash-footer {
     clear: both;
-    height: 24px;
+    height: 48px;
 }
 
 .d-r-spinner,
@@ -1825,7 +1826,7 @@
 .d-r-carousel {
     position: relative;
     height: 252px;
-    margin-bottom: 12px;
+    margin-bottom: 48px;
 }
 .d-r-carousel-detail {
     height: 288px;
