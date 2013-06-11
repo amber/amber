@@ -4918,7 +4918,7 @@
             }.bind(this));
         },
         'forums.forum.view': function (args) {
-            var t = this, forumId = +args[1], title, subtitle;
+            var t = this, forumId = args[1], title, subtitle;
             this.page
                 .add(new d.r.Link('d-r-list-up-button').setURL(this.reverse('forums.index')))
                 .add(title = new d.Label('d-r-title'))
@@ -4960,7 +4960,7 @@
             });
         },
         'forums.forum.newTopic': function (args) {
-            var t = this, forumId = +args[1], title, subtitle, topicName;
+            var t = this, forumId = args[1], title, subtitle, topicName;
             this.page
                 .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
                 .add(title = new d.Label('d-r-title'))
@@ -4976,7 +4976,7 @@
             });
         },
         'forums.topic.view': function (args) {
-            var t = this, topicId = +args[1], up, title;
+            var t = this, topicId = args[1], up, title;
             this.page
                 .add(up = new d.r.Link('d-r-list-up-button'))
                 .add(title = new d.Label('d-r-title d-r-topic-title'))
