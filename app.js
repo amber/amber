@@ -5603,7 +5603,11 @@
             this.visibleItems = [];
             this.base(arguments);
             this.initElements('d-r-carousel');
+            this.element.appendChild(this.wrap = this.newElement('d-r-carousel-wrap'));
+            this.wrap.appendChild(this.container = this.newElement('d-r-carousel-container'));
             this.element.appendChild(this.header = this.newElement('d-r-carousel-header'));
+            this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-left'));
+            this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-right'));
             this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').onExecute(function () {
                 if (this.offset > 0) {
                     this.scroll(-1);
@@ -5616,8 +5620,6 @@
                     }
                 }
             }, this).element);
-            this.element.appendChild(this.wrap = this.newElement('d-r-carousel-wrap'));
-            this.wrap.appendChild(this.container = this.newElement('d-r-carousel-container'));
             this.onLive(function () {
                 this.clear();
                 this.offset = 0;

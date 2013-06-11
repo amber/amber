@@ -1521,7 +1521,8 @@
 
 .d-r-splash-title,
 .d-r-splash-subtitle,
-.d-r-splash-links {
+.d-r-splash-links,
+.d-r-carousel-header {
     padding: 0 12px;
     margin: 0 auto;
     max-width: 600px;
@@ -1559,6 +1560,7 @@
 }
 .d-r-splash-footer {
     clear: both;
+    height: 24px;
 }
 
 .d-r-spinner,
@@ -1822,18 +1824,18 @@
 
 .d-r-carousel {
     position: relative;
-    height: 189pt;
+    height: 252px;
     margin-bottom: 12px;
 }
 .d-r-carousel-detail {
-    height: 216pt;
+    height: 288px;
 }
 .d-r-carousel-header {
     position: absolute;
-    top: 9pt;
-    left: 9pt;
-    right: 9pt;
-    height: 30pt;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: 40px;
     overflow: hidden;
     white-space: pre;
     text-overflow: ellipsis;
@@ -1844,27 +1846,35 @@
 .d-r-project-comments-title,
 .d-r-project-remixes-title,
 .d-r-title {
-    font: 24pt/30pt Georgia, serif;
+    font-size: 36px;
+    line-height: 40px;
     color: #000;
 }
 .d-r-subtitle {
-    margin: -9pt 0 0;
-    padding: 0 9pt 9pt;
+    margin: -12px 0 0;
+    padding: 0 12px 12px;
 }
-.d-r-carousel-button {
+.d-r-carousel-button,
+.d-r-carousel-shade {
     position: absolute;
-    top: 48pt;
+    top: 64px;
     bottom: 0;
     border: 0;
     outline: 0;
     margin: 0;
     padding: 0;
-    border-bottom: 36pt solid transparent;
     height: auto;
-    width: 27pt;
-    background: transparent no-repeat center center;
-    opacity: .3;
+    width: 48px;
+}
+.d-r-carousel-button {
+    border-bottom: 48px solid transparent;
+    background: no-repeat center center;
     cursor: pointer;
+    opacity: .3;
+    width: 36px;
+}
+.d-r-carousel-detail > .d-r-carousel-button {
+    border-bottom-width: 84px;
 }
 .d-r-carousel-button-left {
     left: 0;
@@ -1873,6 +1883,14 @@
 .d-r-carousel-button-right {
     right: 0;
     background-image: url(static/img/carousel/right.svg);
+}
+.d-r-carousel-shade-left {
+    left: 0;
+    background: linear-gradient(to right, #fff, rgba(255,255,255,0));
+}
+.d-r-carousel-shade-right {
+    right: 0;
+    background: linear-gradient(to left, #fff, rgba(255,255,255,0));
 }
 .d-r-carousel-button:hover,
 .d-r-carousel-button:focus,
@@ -1885,10 +1903,10 @@
 }
 .d-r-carousel-wrap {
     position: absolute;
-    top: 48pt;
-    left: 27pt;
-    right: 27pt;
-    bottom: 9pt;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 12px;
     overflow: hidden;
     white-space: nowrap;
 }
@@ -1896,6 +1914,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    padding: 0 36px;
     -webkit-transition: left .3s;
     -moz-transition: left .3s;
 }
