@@ -1517,7 +1517,10 @@
 .d-r-splash-links,
 .d-r-carousel-header,
 .d-r-paragraph,
-.d-r-title {
+.d-r-title,
+.d-r-subtitle,
+.d-r-forum-list,
+.d-r-topic-list {
     padding: 0 12px;
     margin: 0 auto;
     max-width: 600px;
@@ -1854,8 +1857,8 @@
     color: #000;
 }
 .d-r-subtitle {
-    margin: -12px 0 0;
-    padding: 0 12px 12px;
+    margin-top: -12px;
+    padding-bottom: 12px;
 }
 .d-r-carousel-button,
 .d-r-carousel-shade {
@@ -1989,10 +1992,11 @@
 }
 .d-r-list-up-button,
 .d-r-list-back-button {
-    width: 12pt;
-    height: 30pt;
-    padding: 9pt;
+    width: 16px;
+    height: 28px;
+    padding: 0 12px;
     border: 0;
+    border-bottom: 36px solid transparent;
     margin: 0;
     float: left;
     background: url('static/img/list-up.svg') center center no-repeat;
@@ -2017,14 +2021,13 @@
     opacity: 1;
 }
 .d-r-forum-list {
-    padding: 0 9pt;
-    margin-top: -4.5pt;
-    margin-bottom: 4.5pt;
+    margin-top: -6px;
+    margin-bottom: 6px;
 }
 .d-r-forum-list-item {
     display: block;
     cursor: pointer;
-    padding: 4.5pt 0;
+    padding: 6px 0;
     color: #000;
 }
 .d-r-forum-list-item-title {
@@ -2041,17 +2044,14 @@
     color: #028;
 }
 
-.d-r-topic-list {
-    padding: 0 9pt;
-}
 .d-r-topic-list-item {
     display: block;
-    padding-bottom: 9pt;
+    padding-bottom: 12px;
     color: #000;
 }
 .d-r-topic-list-item-title {
-    text-indent: -18pt;
-    padding-left: 18pt;
+    text-indent: -24px;
+    padding-left: 24px;
 }
 .d-r-topic-list-item-name,
 .d-r-topic-list-item-author {
@@ -2061,7 +2061,7 @@
     color: #05d;
 }
 .d-r-topic-list-item-author {
-    margin-left: 3pt;
+    margin-left: 4px;
 }
 .d-r-topic-list-item:hover .d-r-topic-list-item-name,
 .d-r-topic-list-item:focus .d-r-topic-list-item-name,

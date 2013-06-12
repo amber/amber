@@ -4920,8 +4920,9 @@
         'forums.forum.view': function (args) {
             var t = this, forumId = args[1], title, subtitle;
             this.page
-                .add(new d.r.Link('d-r-list-up-button').setURL(this.reverse('forums.index')))
-                .add(title = new d.Label('d-r-title'))
+                .add(new d.Container('d-r-title')
+                    .add(new d.r.Link('d-r-list-up-button').setURL(this.reverse('forums.index')))
+                    .add(title = new d.Label))
                 .add(new d.Container('d-r-subtitle')
                     .add(subtitle = new d.Label())
                     .add(new d.r.Separator())
@@ -4962,8 +4963,9 @@
         'forums.forum.newTopic': function (args) {
             var t = this, forumId = args[1], title, subtitle, topicName;
             this.page
-                .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
-                .add(title = new d.Label('d-r-title'))
+                .add(new d.Container('d-r-title')
+                    .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
+                    .add(title = new d.Label))
                 .add(subtitle = new d.Label('d-r-subtitle'))
                 .add(new d.Container('d-r-block-form')
                     .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
