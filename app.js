@@ -438,6 +438,21 @@
             }
         }
     });
+    d.Image = d.Class(d.Control, {
+        init: function (url) {
+            this.base(arguments);
+            this.element = this.container = this.newElement('d-image', 'image');
+            this.setURL(url);
+        },
+        '.URL': {
+            get: function () {
+                return this.element.src;
+            },
+            set: function (url) {
+                this.element.src = url;
+            }
+        }
+    });
     d.App = d.Class(d.Control, {
         MENU_CLICK_TIME: 250,
         acceptsClick: true,
@@ -4793,6 +4808,20 @@
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is viewing this week')))
                 .add(new d.r.ProjectCarousel().setRequestName('topViewed'));
         },
+        explore: function (args) {
+            this.page
+                .add(new d.r.LazyList('d-r-topic-list')
+                    .setLoader(function (offset, length, callback) {
+                        return this.request('projects.topLoved', {
+                            offset: offset,
+                            length: length
+                        }, callback);
+                    }.bind(this))
+                    .setTransformer(function (project) {
+                        return new d.r.Link('d-r-fluid-project').setView('project.view', project.id)
+                            .add(new d.Image(this.app().server().getAsset(info.project.thumbnail)));
+                    }));;
+        },
         notFound: function (args) {
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Page Not Found')))
@@ -5117,6 +5146,10 @@
         '.connected': {
             apply: function (connected) {
                 this.connectionWarning.setVisible(!connected);
+                if (!connected) {
+                    this.spinner.hide();
+                    this.pendingRequests = 0;
+                }
             }
         },
         '.user': {
