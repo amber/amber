@@ -4765,33 +4765,33 @@
                             .add(new d.Label('d-r-splash-link-title').setText(d.t('For Educators')))
                             .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How can I teach with it?')))))
                     .add(new d.Container('d-r-splash-footer'));
-                this.query('projects.count', {}, function (result) {
+                this.request('projects.count', {}, function (result) {
                     projectCount.setText(d.t('% projects', result));
                 });
             }
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Featured Projects')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('Selected projects from the community')))
-                .add(new d.r.ProjectCarousel().setQuery('featured'));
+                .add(new d.r.ProjectCarousel().setRequestName('featured'));
             if (this.user()) {
                 this.page
                     .add(new d.Label('d-r-title').setText(d.t('Made by People I\'m Following')))
                     .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their projects here')))
-                    .add(new d.r.ProjectCarousel().setQuery('user.byFollowing'))
+                    .add(new d.r.ProjectCarousel().setRequestName('user.byFollowing'))
                     .add(new d.Label('d-r-title').setText(d.t('Loved by People I\'m Following')))
                     .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their interests here')))
-                    .add(new d.r.ProjectCarousel().setQuery('user.lovedByFollowing'));
+                    .add(new d.r.ProjectCarousel().setRequestName('user.lovedByFollowing'));
             }
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Top Remixed')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is remixing this week')))
-                .add(new d.r.ProjectCarousel().setQuery('topRemixed'))
+                .add(new d.r.ProjectCarousel().setRequestName('topRemixed'))
                 .add(new d.Label('d-r-title').setText(d.t('Top Loved')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is loving this week')))
-                .add(new d.r.ProjectCarousel().setQuery('topLoved'))
+                .add(new d.r.ProjectCarousel().setRequestName('topLoved'))
                 .add(new d.Label('d-r-title').setText(d.t('Top Viewed')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is viewing this week')))
-                .add(new d.r.ProjectCarousel().setQuery('topViewed'));
+                .add(new d.r.ProjectCarousel().setRequestName('topViewed'));
         },
         notFound: function (args) {
             this.page
@@ -4862,7 +4862,7 @@
                 // .add(new d.Label('d-r-project-comments-title').setText(d.t('Comments')))
                 // .add(new d.Label('d-r-project-remixes-title').setText(d.t('Remixes')))
                 // .add(new d.Container('d-r-project-comments'));
-            this.query('project', { project$id: args[1] }, function (project) {
+            this.request('project', { project$id: args[1] }, function (project) {
                 console.log(project);
                 authors.setRichText(d.t('by %', d.t.list(project.authors.map(function (author) {
                     return '<a class=d-r-link href="' + d.htmle(this.abs(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
@@ -4938,7 +4938,7 @@
                     .add(new d.r.Carousel()));
         },
         'forums.index': function () {
-            this.query('forums.categories', {}, function (categories) {
+            this.request('forums.categories', {}, function (categories) {
                 categories.forEach(function (category) {
                     this.page
                         .add(new d.Label('d-r-title').setText(d.t.maybe(category.name)));
@@ -4967,7 +4967,7 @@
                         .setURL(this.reverse('forums.forum.newTopic', forumId))))
                 .add(new d.r.LazyList('d-r-topic-list')
                     .setLoader(function (offset, length, callback) {
-                        return this.query('forums.topics', {
+                        return this.request('forums.topics', {
                             forum$id: forumId,
                             offset: offset,
                             length: length
@@ -4989,7 +4989,7 @@
                         });
                         return link;
                     }));
-            this.query('forums.forum', {
+            this.request('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
                 title.setText(d.t.maybe(forum.name));
@@ -5010,7 +5010,7 @@
                             .add(new d.Container('d-r-post-editor-inner')
                                 .add(new d.Container('d-r-post-editor-inner-wrap')
                                     .add(new d.TextField.Multiline('d-textfield d-r-block-field d-r-post-editor')))))));
-            this.query('forums.forum', {
+            this.request('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
                 title.setText(d.t.maybe(forum.name));
@@ -5025,7 +5025,7 @@
                     .add(title = new d.Label('d-inline')))
                 .add(new d.r.LazyList('d-r-post-list')
                     .setLoader(function (offset, length, callback) {
-                        return this.query('forums.posts', {
+                        return this.request('forums.posts', {
                             topic$id: topicId,
                             offset: offset,
                             length: length
@@ -5045,7 +5045,7 @@
                         });
                         return container;
                     }));
-            this.query('forums.topic', {
+            this.request('forums.topic', {
                 topic$id: topicId
             }, function (topic) {
                 up.setURL(t.reverse('forums.forum.view', topic.forum$id));
@@ -5192,7 +5192,7 @@
                 this.signInError.show().setText(d.t(message));
             }.bind(this));
         },
-        request: function () {
+        requestStart: function () {
             ++this.pendingRequests;
             this.spinner.show();
         },
@@ -5202,17 +5202,17 @@
                 this.swapIfComplete();
             }
         },
-        query: function (name, options, callback) {
+        request: function (name, options, callback) {
             var t = this;
-            this.request();
-            this.server().query(name, options, function (result) {
+            this.requestStart();
+            this.server().request(name, options, function (result) {
                 t.requestEnd();
                 callback(result);
             });
         },
         getUser: function (id, callback, context) {
             var t = this;
-            this.request();
+            this.requestStart();
             this.server().getUser(id, function (result) {
                 t.requestEnd();
                 callback.call(context, result);
@@ -5322,8 +5322,216 @@
             return this;
         }
     });
+    d.r.PACKETS = {
+        /**
+         * Sent upon connection to the server.
+         *
+         * @param {unsigned?} sessionId  the session ID, or null if the client does not have a previous session
+         */
+        "Client:connect": ["sessionId"],
+
+        /**
+         * Re Client:connect.
+         *
+         * @param {User?}    user       the client’s current user or null if the client is not logged in
+         * @param {unsigned} sessionId  the client’s session ID
+         */
+        "Server:connect": ["user","sessionId"],
+
+        /**
+         * Initiates a log in attempt.
+         *
+         * @param {string} username  the username
+         */
+        "Client:auth.signIn": ["username","password"],
+
+        /**
+         * Re Client:auth.signIn.
+         *
+         * @param {string} message  the failure message
+         */
+        "Server:auth.signIn.failed": ["message"],
+
+        /**
+         * Re Client:auth.signIn.
+         *
+         * @param {User} user  the user for which the authentication succeeded
+         */
+        "Server:auth.signIn.succeeded": ["user"],
+
+        /**
+         * Initiates a log out attempt.
+         */
+        "Client:auth.signOut": [],
+
+        /**
+         * Re Client:auth.signOut.
+         */
+        "Server:auth.signOut.succeeded": [],
+
+        /**
+         * Sent to post a message in a topic.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} topic$id    the topic to post in
+         * @param {string}   body        the post body
+         */
+        "Client:forums.posts.post": ["request$id","topic$id","body"],
+
+        /**
+         * Queries information about a project.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} project$id  the project ID
+         *
+         * @return {Project}
+         */
+        "Client:request.project": ["request$id","project$id"],
+
+        /**
+         * Queries the total number of Amber projects.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         *
+         * @return {unsigned}
+         */
+        "Client:request.projects.count": ["request$id"],
+
+        /**
+         * Queries the list of featured projects, sorted by date.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {(subset of Project)[]}
+         */
+        "Client:request.projects.featured": ["request$id","offset","length"],
+
+        /**
+         * Queries the list of the most loved projects in the past week, sorted by loves.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {(subset of Project)[]}
+         */
+        "Client:request.projects.topLoved": ["request$id","offset","length"],
+
+        /**
+         * Queries the list of the most viewed projects in the past week, sorted by loves.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {(subset of Project)[]}
+         */
+        "Client:request.projects.topViewed": ["request$id","offset","length"],
+
+        /**
+         * Queries the list of the most remixed projects in the past week, sorted by loves.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {returns (subset of Project)[]}
+         */
+        "Client:request.projects.topRemixed": ["request$id","offset","length"],
+
+        /**
+         * Queries the list of projects recently loved by users the current user is following, sorted by date.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {(subset of Project)[]}
+         */
+        "Client:request.projects.user.lovedByFollowing": ["request$id","offset","length"],
+
+        /**
+         * Queries the list of projects by users the current user is following, sorted by date.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {(subset of Project)[]}
+         */
+        "Client:request.projects.user.byFollowing": ["request$id","offset","length"],
+
+        /**
+         * Queries the categories and forums in the Amber forums.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         *
+         * @return {ForumCategory[]}
+         */
+        "Client:request.forums.categories": ["request$id"],
+
+        /**
+         * Queries information about a forum.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} forum$id    the forum ID
+         *
+         * @return {Forum}
+         */
+        "Client:request.forums.forum": ["request$id","forum$id"],
+
+        /**
+         * Queries the list of topics in a forum.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} forum$id    the forum ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {Topic[]}
+         */
+        "Client:request.forums.topics": ["request$id","forum$id","offset","length"],
+
+        /**
+         * Queries information about a topic.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} topic$id    the forum ID
+         *
+         * @return {Topic}
+         */
+        "Client:request.forums.topic": ["request$id","topic$id"],
+
+        /**
+         * Queries the list of posts in a topic.
+         *
+         * @param {unsigned} request$id  a client-generated request ID
+         * @param {unsigned} topic$id    the topic ID
+         * @param {unsigned} offset      the index at which to start returning results
+         * @param {unsigned} length      the number of results to return
+         *
+         * @return {Post[]}
+         */
+        "Client:request.forums.posts": ["request$id","topic$id","offset","length"],
+
+        /**
+         * Re Client:request.*.
+         *
+         * @param {unsigned} request$id  the request ID
+         * @param {*}        result      the resultant data
+         */
+        "Server:request.result": ["request$id","result"],
+
+        /**
+         * Re Client:request.* if an error occurs.
+         *
+         * @param {unsigned} request$id  the request ID
+         */
+        "Server:request.error": ["request$id","code"]
+    }
     d.r.Server = d.Class(d.Base, {
-        PACKETS: {"Client:connect":["sessionId"],"Server:connect":["user","sessionId"],"Client:auth.signIn":["username","password"],"Server:auth.signIn.failed":["message"],"Server:auth.signIn.succeeded":["user"],"Client:auth.signOut":[],"Server:auth.signOut.succeeded":[],"Client:forums.posts.post":["request$id","topic$id","body"],"Client:query.project":["request$id","project$id"],"Client:query.projects.count":["request$id"],"Client:query.projects.featured":["request$id","offset","length"],"Client:query.projects.topLoved":["request$id","offset","length"],"Client:query.projects.topViewed":["request$id","offset","length"],"Client:query.projects.topRemixed":["request$id","offset","length"],"Client:query.projects.user.lovedByFollowing":["request$id","offset","length"],"Client:query.projects.user.byFollowing":["request$id","offset","length"],"Client:query.forums.categories":["request$id"],"Client:query.forums.forum":["request$id","forum$id"],"Client:query.forums.topics":["request$id","forum$id","offset","length"],"Client:query.forums.topic":["request$id","topic$id"],"Client:query.forums.posts":["request$id","topic$id","offset","length"],"Server:query.result":["request$id","result"],"Server:query.error":["request$id","code"]},
         INITIAL_REOPEN_DELAY: 100,
         init: function (socketURL, assetStoreURL) {
             this.socketURL = socketURL;
@@ -5372,7 +5580,7 @@
                 this.app().requestEnd();
                 this.app().setUser(null);
             },
-            'query.result': function (p) {
+            'request.result': function (p) {
                 var request = this.requests[p.request$id];
                 if (!request) {
                     console.warn('Invalid request id:', p);
@@ -5381,18 +5589,18 @@
                 request.callback(p.result);
                 delete this.requests[p.request$id];
             },
-            'query.error': function (p) {
+            'request.error': function (p) {
                 var request = this.requests[p.request$id];
                 if (!request) {
                     console.warn('Invalid request id:', p);
                     return;
                 }
-                console.error('QueryError: ' + this.queryErrors[p.code] + ' in ' + request.name, request.options);
+                console.error('RequestError: ' + this.requestErrors[p.code] + ' in ' + request.name, request.options);
                 delete this.requests[p.request$id];
             }
         },
-        queryErrors: {
-            0: 'Undefined query',
+        requestErrors: {
+            0: 'Undefined request type',
             1: 'Object not found'
         },
         listeners: {
@@ -5402,14 +5610,18 @@
                 };
                 this.app().setConnected(true);
                 this.reopenDelay = this.INITIAL_REOPEN_DELAY;
-                this.socket.send(JSON.stringify(this.encodePacket('Client', 'connect', packet)));
+                var raw = JSON.stringify(this.encodePacket('Client', 'connect', packet));
+                this.socket.send(raw);
                 packet.$type = 'connect';
                 packet.$time = new Date;
                 packet.$side = 'Client';
                 this.log.splice(this.log.length - socketQueue.length, 0, packet);
-                if (this.app().config().livePacketLog) this.logPacket(packet);
+                var config = this.app().config();
+                if (config.rawPacketLog) console.log('Client:', raw);
+                if (config.livePacketLog) this.logPacket(packet);
                 while (packet = socketQueue.pop()) {
-                    if (this.app().config().livePacketLog) this.logPacket(this.log[this.log.length - socketQueue.length - 1]);
+                    if (config.livePacketLog) this.logPacket(this.log[this.log.length - socketQueue.length - 1]);
+                    if (config.rawPacketLog) console.log('Client:', packet);
                     this.socket.send(packet);
                 }
             },
@@ -5426,16 +5638,18 @@
                 }
             },
             message: function (e) {
+                var config = this.app().config();
+                if (config.rawPacketLog) console.log('Server:', e.data);
                 var packet = this.decodePacket('Server', e.data);
                 if (!packet) return;
                 packet.$time = new Date;
                 packet.$side = 'Server';
                 this.log.push(packet);
-                if (this.app().config().livePacketLog) this.logPacket(packet);
+                if (config.livePacketLog) this.logPacket(packet);
                 if (this.on.hasOwnProperty(packet.$type)) {
                     this.on[packet.$type].call(this, packet);
                 } else {
-                    this.warn('Missed packet:', packet);
+                    console.warn('Missed packet:', packet);
                 }
             },
             error: function (e) {
@@ -5450,12 +5664,15 @@
                 console.warn('Packet syntax error:', packet);
                 return;
             }
-            if (!packet || !(packet instanceof Array)) {
+            if (!packet || typeof packet !== 'object') {
                 console.warn('Invalid packet:', e);
                 return;
             }
+            if (!(packet instanceof Array)) {
+                return packet;
+            }
             type = packet[0];
-            info = this.PACKETS[side + ':' + type];
+            info = d.r.PACKETS[side + ':' + type];
             if (!info) {
                 console.warn('Invalid packet type:', packet);
                 return;
@@ -5469,7 +5686,11 @@
             return result;
         },
         encodePacket: function (side, type, properties) {
-            var info = this.PACKETS[side + ':' + type], i, l, result;
+            if (this.app().config().verbosePackets) {
+                (properties || (properties = {})).$type = type;
+                return properties;
+            }
+            var info = d.r.PACKETS[side + ':' + type], i, l, result;
             if (!info) {
                 console.warn('Invalid packet type:', type, properties);
                 return;
@@ -5483,6 +5704,7 @@
             return result;
         },
         send: function (type, properties, censorFields) {
+            var config = this.app().config();
             var p = this.encodePacket('Client', type, properties), packet, log, key;
             log = {};
             log.$type = type;
@@ -5498,10 +5720,11 @@
                 this.socketQueue.push(packet);
                 return;
             }
-            if (this.app().config().livePacketLog) this.logPacket(log);
+            if (config.rawPacketLog) console.log('Client:', packet);
+            if (config.livePacketLog) this.logPacket(log);
             this.socket.send(packet);
         },
-        query: function (name, options, callback) {
+        request: function (name, options, callback) {
             var id = ++this.requestId;
             this.requests[id] = {
                 name: name,
@@ -5509,10 +5732,10 @@
                 callback: callback
             };
             options.request$id = id;
-            this.send('query.' + name, options);
+            this.send('request.' + name, options);
         },
         signIn: function (username, password, errorCallback) {
-            this.app().request();
+            this.app().requestStart();
             this.send('auth.signIn', {
                 username: username,
                 password: password
@@ -5520,7 +5743,7 @@
             this.signInErrorCallback = errorCallback;
         },
         signOut: function () {
-            this.app().request();
+            this.app().requestStart();
             this.send('auth.signOut');
         },
         getAsset: function (hash) {
@@ -5543,7 +5766,7 @@
                 callback: callback,
                 context: context
             }];
-            this.query('users.user', {
+            this.request('users.user', {
                 user$id: id
             }, function (result) {
                 var user = new d.r.User(t).fromJSON(result), i = callbacks.length;
@@ -5784,7 +6007,7 @@
     });
     d.r.ProjectCarousel = d.Class(d.r.Carousel, {
         _loader: function (offset, length, callback) {
-            this.app().query('projects.' + this.query(), {
+            this.app().request('projects.' + this.requestName(), {
                 offset: offset,
                 length: length
             }, function (result) {
@@ -5792,15 +6015,15 @@
             });
         },
         _transformer: function (project) {
-            var query = this.query();
+            var request = this.requestName();
             return new d.r.ProjectCarouselItem().setProject(project).setDetail(
-                query === 'topViewed' ? d.t.plural('% Views', '% View', project.views) :
-                query === 'topLoved' ? d.t.plural('% Loves', '% Love', project.loves) :
-                query === 'topRemixed' ? d.t.plural('% Remixes', '% Remix', project.remixes.length) : '');
+                request === 'topViewed' ? d.t.plural('% Views', '% View', project.views) :
+                request === 'topLoved' ? d.t.plural('% Loves', '% Love', project.loves) :
+                request === 'topRemixed' ? d.t.plural('% Remixes', '% Remix', project.remixes.length) : '');
         },
-        '.query': {
-            apply: function (query) {
-                this.setHasDetails(query === 'topViewed' || query === 'topLoved' || query === 'topRemixed');
+        '.requestName': {
+            apply: function (name) {
+                this.setHasDetails(name === 'topViewed' || name === 'topLoved' || name === 'topRemixed');
             }
         }
     });
