@@ -4763,23 +4763,35 @@
                             .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How can I use it?'))))
                         .add(new d.r.Link('d-r-splash-link').setURL(this.reverse('help.educators'))
                             .add(new d.Label('d-r-splash-link-title').setText(d.t('For Educators')))
-                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How should I use it?')))))
+                            .add(new d.Label('d-r-splash-link-subtitle').setText(d.t('How can I teach with it?')))))
                     .add(new d.Container('d-r-splash-footer'));
                 this.query('projects.count', {}, function (result) {
                     projectCount.setText(d.t('% projects', result));
                 });
             }
             this.page
-                .add(new d.r.ProjectCarousel().setTitle(d.t('Featured Projects')).setQuery('featured'));
+                .add(new d.Label('d-r-title').setText(d.t('Featured Projects')))
+                .add(new d.Label('d-r-subtitle').setText(d.t('Selected projects from the community')))
+                .add(new d.r.ProjectCarousel().setQuery('featured'));
             if (this.user()) {
                 this.page
-                    .add(new d.r.ProjectCarousel().setTitle(d.t('Projects by Users I\'m Following')).setQuery('user.byFollowing'))
-                    .add(new d.r.ProjectCarousel().setTitle(d.t('Projects Loved by Users I\'m Following')).setQuery('user.lovedByFollowing'))
+                    .add(new d.Label('d-r-title').setText(d.t('Made by People I\'m Following')))
+                    .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their projects here')))
+                    .add(new d.r.ProjectCarousel().setQuery('user.byFollowing'))
+                    .add(new d.Label('d-r-title').setText(d.t('Loved by People I\'m Following')))
+                    .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their interests here')))
+                    .add(new d.r.ProjectCarousel().setQuery('user.lovedByFollowing'));
             }
             this.page
-                .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Remixing')).setQuery('topRemixed'))
-                .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Loving')).setQuery('topLoved'))
-                .add(new d.r.ProjectCarousel().setTitle(d.t('What the Community is Viewing')).setQuery('topViewed'));
+                .add(new d.Label('d-r-title').setText(d.t('Top Remixed')))
+                .add(new d.Label('d-r-subtitle').setText(d.t('What the community is remixing this week')))
+                .add(new d.r.ProjectCarousel().setQuery('topRemixed'))
+                .add(new d.Label('d-r-title').setText(d.t('Top Loved')))
+                .add(new d.Label('d-r-subtitle').setText(d.t('What the community is loving this week')))
+                .add(new d.r.ProjectCarousel().setQuery('topLoved'))
+                .add(new d.Label('d-r-title').setText(d.t('Top Viewed')))
+                .add(new d.Label('d-r-subtitle').setText(d.t('What the community is viewing this week')))
+                .add(new d.r.ProjectCarousel().setQuery('topViewed'));
         },
         notFound: function (args) {
             this.page
@@ -4823,44 +4835,63 @@
         'project.view': function (args, isEdit) {
             var title, authors, player, notes, favorites, loves, views, remixes;
             this.page
-                .add(new d.Container('d-r-project-container')
-                    .add(title = new d.Label('d-r-project-title'))
-                    .add(new d.Label('d-r-project-notes-title').setText(d.t('Notes')))
-                    .add(new d.Container('d-r-project-player-wrap')
-                        .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
-                        .add(new d.Container('d-r-project-player')
-                            .add(player = new d.Amber().setProjectId(args[1])))
-                        .add(new d.Container('d-r-project-stats')
-                            .add(favorites = new d.Label('d-r-project-stat').setText(d.t.plural('% Favorites', '% Favorite', 0)))
-                            .add(loves = new d.Label('d-r-project-stat').setText(d.t.plural('% Loves', '% Love', 0)))
-                            .add(views = new d.Label('d-r-project-stat').setText(d.t.plural('% Views', '% View', 0)))
-                            .add(remixes = new d.Label('d-r-project-stat').setText(d.t.plural('% Remixes', '% Remix', 0)))))
-                    .add(notes = new d.Label('d-r-project-notes d-scrollable'))
-                    .add(new d.Label('d-r-project-comments-title').setText(d.t('Comments')))
-                    .add(new d.Label('d-r-project-remixes-title').setText(d.t('Remixes')))
-                    .add(new d.Container('d-r-project-comments')));
-            this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
-                title.setText(info.project.name);
-                authors.setRichText(d.t('by %', d.t.list(info.project.authors.map(function (author) {
-                    return '<a class=d-r-link href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
+                .add(title = new d.Label('d-r-title'))
+                .add(authors = new d.Label('d-r-subtitle'))
+                .add(new d.Container('d-r-project-player-wrap')
+                    .add(player = new d.Container('d-r-project-player')
+                        .add(new d.Label('d-r-project-player-title').setText('v234'))))
+                .add(new d.Container('d-r-paragraph d-r-project-stats')
+                    .add(favorites = new d.Label().setText(d.t.plural('% Favorites', '% Favorite', 0)))
+                    .add(new d.r.Separator)
+                    .add(loves = new d.Label().setText(d.t.plural('% Loves', '% Love', 0)))
+                    .add(new d.r.Separator)
+                    .add(views = new d.Label().setText(d.t.plural('% Views', '% View', 0)))
+                    .add(new d.r.Separator)
+                    .add(remixes = new d.Label().setText(d.t.plural('% Remixes', '% Remix', 0))))
+                .add(notes = new d.Label('d-r-paragraph d-r-project-notes'));
+                // .add(new d.Label('d-r-project-notes-title').setText(d.t('Notes')))
+                // .add(new d.Container('d-r-project-player-wrap')
+                //     .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
+                //     .add(new d.Container('d-r-project-player'))
+                //     .add(new d.Container('d-r-project-stats')
+                //         .add(favorites = new d.Label('d-r-project-stat').setText(d.t.plural('% Favorites', '% Favorite', 0)))
+                //         .add(loves = new d.Label('d-r-project-stat').setText(d.t.plural('% Loves', '% Love', 0)))
+                //         .add(views = new d.Label('d-r-project-stat').setText(d.t.plural('% Views', '% View', 0)))
+                //         .add(remixes = new d.Label('d-r-project-stat').setText(d.t.plural('% Remixes', '% Remix', 0)))))
+                // .add(notes = new d.Label('d-r-project-notes d-scrollable'))
+                // .add(new d.Label('d-r-project-comments-title').setText(d.t('Comments')))
+                // .add(new d.Label('d-r-project-remixes-title').setText(d.t('Remixes')))
+                // .add(new d.Container('d-r-project-comments'));
+            this.query('project', { project$id: args[1] }, function (project) {
+                console.log(project);
+                authors.setRichText(d.t('by %', d.t.list(project.authors.map(function (author) {
+                    return '<a class=d-r-link href="' + d.htmle(this.abs(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
                 }, this))));
-                notes.setText(info.project.notes);
-                favorites.setText(d.t.plural('% Favorites', '% Favorite', info.favorites));
-                loves.setText(d.t.plural('% Loves', '% Love', info.loves));
-                views.setText(d.t.plural('% Views', '% View', info.views));
-                remixes.setText(d.t.plural('% Remixes', '% Remix', info.remixes.length));
-                player.setProject(info.project);
-                if (isEdit) {
-                    player.setEditMode(true);
-                }
-            }, function (status) {
-                if (status === 404) {
-                    this.notFound();
-                }
-            });
-            this.onUnload(function () {
-                player.parent.remove(player);
-            });
+                title.setText(project.name);
+                notes.setText(project.notes);
+            }.bind(this));
+            // this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
+            //     title.setText(info.project.name);
+            //     authors.setRichText(d.t('by %', d.t.list(info.project.authors.map(function (author) {
+            //         return '<a class=d-r-link href="' + this.abs(d.htmle(this.reverse('user.profile', author))) + '">' + d.htmle(author) + '</a>';
+            //     }, this))));
+            //     notes.setText(info.project.notes);
+            //     favorites.setText(d.t.plural('% Favorites', '% Favorite', info.favorites));
+            //     loves.setText(d.t.plural('% Loves', '% Love', info.loves));
+            //     views.setText(d.t.plural('% Views', '% View', info.views));
+            //     remixes.setText(d.t.plural('% Remixes', '% Remix', info.remixes.length));
+            //     player.setProject(info.project);
+            //     if (isEdit) {
+            //         player.setEditMode(true);
+            //     }
+            // }, function (status) {
+            //     if (status === 404) {
+            //         this.notFound();
+            //     }
+            // });
+            // this.onUnload(function () {
+            //     player.parent.remove(player);
+            // });
         },
         'project.edit': function (args) {
             return d.r.views['project.view'].call(this, args, true);
@@ -4895,11 +4926,16 @@
                         .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="#">Awesome Projects</a>')))
                         .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago')))))
                 .add(new d.Container('d-r-user-carousels')
-                    .add(new d.r.Carousel().setTitle(d.t('Shared Projects')))
-                    .add(new d.r.Carousel().setTitle(d.t('Favorite Projects')))
-                    .add(new d.r.Carousel().setTitle(d.t('Collections')))
-                    .add(new d.r.Carousel().setTitle(d.t('Following')))
-                    .add(new d.r.Carousel().setTitle(d.t('Followers'))));
+                    .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
+                    .add(new d.r.Carousel())
+                    .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
+                    .add(new d.r.Carousel())
+                    .add(new d.Label('d-r-title').setText(d.t('Collections')))
+                    .add(new d.r.Carousel())
+                    .add(new d.Label('d-r-title').setText(d.t('Following')))
+                    .add(new d.r.Carousel())
+                    .add(new d.Label('d-r-title').setText(d.t('Followers')))
+                    .add(new d.r.Carousel()));
         },
         'forums.index': function () {
             this.query('forums.categories', {}, function (categories) {
@@ -4943,7 +4979,7 @@
                             .setURL(t.reverse('forums.topic.view', topic.id))
                             .add(new d.Container('d-r-topic-list-item-title')
                                 .add(new d.Label('d-r-topic-list-item-name').setText(topic.name))
-                                .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', ''))))
+                                .add(userLabel = new d.Label('d-r-topic-list-item-author').setText(d.t('by %', d.t.list(topic.authors)))))
                             .add(new d.Container('d-r-topic-list-item-description')
                                 .add(new d.Label().setText(d.t.plural('% posts', '% post', topic.posts)))
                                 .add(new d.r.Separator())
@@ -4963,13 +4999,17 @@
         'forums.forum.newTopic': function (args) {
             var t = this, forumId = args[1], title, subtitle, topicName;
             this.page
-                .add(new d.Container('d-r-title')
-                    .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
-                    .add(title = new d.Label))
-                .add(subtitle = new d.Label('d-r-subtitle'))
-                .add(new d.Container('d-r-block-form')
-                    .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
-                    .add(new d.TextField.Multiline('d-textfield d-r-block-field d-r-post-editor')));
+                .add(new d.Container('d-r-new-post-editor')
+                    .add(new d.Container('d-r-title')
+                        .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
+                        .add(title = new d.Label))
+                    .add(subtitle = new d.Label('d-r-subtitle'))
+                    .add(new d.Container('d-r-block-form')
+                        .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
+                        .add(new d.Container('d-r-post-editor-wrap')
+                            .add(new d.Container('d-r-post-editor-inner')
+                                .add(new d.Container('d-r-post-editor-inner-wrap')
+                                    .add(new d.TextField.Multiline('d-textfield d-r-block-field d-r-post-editor')))))));
             this.query('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
@@ -4980,8 +5020,9 @@
         'forums.topic.view': function (args) {
             var t = this, topicId = args[1], up, title;
             this.page
-                .add(up = new d.r.Link('d-r-list-up-button'))
-                .add(title = new d.Label('d-r-title d-r-topic-title'))
+                .add(new d.Container('d-r-title d-r-topic-title')
+                    .add(up = new d.r.Link('d-r-list-up-button'))
+                    .add(title = new d.Label('d-inline')))
                 .add(new d.r.LazyList('d-r-post-list')
                     .setLoader(function (offset, length, callback) {
                         return this.query('forums.posts', {
@@ -4991,14 +5032,16 @@
                         }, callback);
                     }.bind(this))
                     .setTransformer(function (post) {
-                        var userLabel, userLink, container;
+                        var users, container;
                         container = new d.Container('d-r-post')
-                            .add(userLink = new d.r.Link('d-r-link d-r-post-author')
-                                 .add(userLabel = new d.Label()))
+                            .add(users = new d.r.Link('d-r-link d-r-post-author'))
                             .add(new d.Label('d-r-post-body').setText(post.body));
-                        t.getUser(post.author$id, function (user) {
-                            userLink.setURL(t.reverse('user.profile', user.name()));
-                            userLabel.setText(user.name());
+                        post.authors.forEach(function (author) {
+                            if (users.children.length) {
+                                users.add(new d.Label().setText(', '));
+                            }
+                            users.add(new d.r.Link().setView('user.profile', author)
+                                .add(new d.Label().setText(author)));
                         });
                         return container;
                     }));
@@ -5291,7 +5334,7 @@
             this.usersById = {};
             this.userIdCallbacks = {};
             this.log = [];
-            this._sessionId = localStorage.getItem('d.r.sessionId');
+            this._sessionId = sessionStorage.getItem('d.r.sessionId');
             this.reopenDelay = this.INITIAL_REOPEN_DELAY;
             (this.open = this.open.bind(this))();
         },
@@ -5306,7 +5349,7 @@
         '.app': {},
         '.sessionId': {
             apply: function (sessionId) {
-                localStorage.setItem('d.r.sessionId', sessionId);
+                sessionStorage.setItem('d.r.sessionId', sessionId);
             }
         },
         on: {
@@ -5344,9 +5387,13 @@
                     console.warn('Invalid request id:', p);
                     return;
                 }
-                console.error('QueryError: ' + p.message + ' in ' + request.name, request.options);
+                console.error('QueryError: ' + this.queryErrors[p.code] + ' in ' + request.name, request.options);
                 delete this.requests[p.request$id];
             }
+        },
+        queryErrors: {
+            0: 'Undefined query',
+            1: 'Object not found'
         },
         listeners: {
             open: function () {
@@ -5374,7 +5421,9 @@
                     this.signInErrorCallback = undefined;
                 }
                 setTimeout(this.open, this.reopenDelay);
-                this.reopenDelay *= 2;
+                if (this.reopenDelay < 5 * 60 * 1000) {
+                    this.reopenDelay *= 2;
+                }
             },
             message: function (e) {
                 var packet = this.decodePacket('Server', e.data);
@@ -5607,7 +5656,6 @@
             this.initElements('d-r-carousel');
             this.element.appendChild(this.wrap = this.newElement('d-r-carousel-wrap'));
             this.wrap.appendChild(this.container = this.newElement('d-r-carousel-container'));
-            this.element.appendChild(this.header = this.newElement('d-r-carousel-header'));
             this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-left'));
             this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-right'));
             this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').onExecute(function () {
@@ -5630,11 +5678,6 @@
                 this.load();
             });
             this.onScrollWheel(this.scrollWheel);
-        },
-        '.title': {
-            apply: function (title) {
-                this.header.textContent = title;
-            }
         },
         '.hasDetails': {
             apply: function (hasDetails) {
