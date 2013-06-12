@@ -263,6 +263,12 @@
                 d.toggleClass(this.element, 'd-selectable', selectable);
             }
         },
+        '.tooltip': {
+            value: '',
+            apply: function (tooltip) {
+                this.element.title = tooltip;
+            }
+        },
         _hasScrollEvent: false,
         withScrollEvent: function () {
             var t = this;
@@ -439,10 +445,9 @@
         }
     });
     d.Image = d.Class(d.Control, {
-        init: function (url) {
+        init: function (className) {
             this.base(arguments);
-            this.element = this.container = this.newElement('d-image', 'image');
-            this.setURL(url);
+            this.element = this.container = this.newElement(className || 'd-image', 'image');
         },
         '.URL': {
             get: function () {
@@ -4810,17 +4815,18 @@
         },
         explore: function (args) {
             this.page
-                .add(new d.r.LazyList('d-r-topic-list')
+                .add(new d.r.LazyList('d-r-fluid-project-list')
                     .setLoader(function (offset, length, callback) {
                         return this.request('projects.topLoved', {
                             offset: offset,
                             length: length
                         }, callback);
                     }.bind(this))
-                    .setTransformer(function (project) {
-                        return new d.r.Link('d-r-fluid-project').setView('project.view', project.id)
-                            .add(new d.Image(this.app().server().getAsset(info.project.thumbnail)));
-                    }));;
+                    .setTransformer(function (info) {
+                        return new d.r.Link('d-r-fluid-project').setView('project.view', info.id)
+                            .add(new d.Image('d-r-fluid-project-thumbnail').setURL(this.app().server().getAsset(info.project.thumbnail)))
+                            .add(new d.Label('d-r-fluid-project-label').setText(info.project.name));
+                    }));
         },
         notFound: function (args) {
             this.page

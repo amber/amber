@@ -1946,7 +1946,8 @@
     -webkit-transition: left .3s;
     -moz-transition: left .3s;
 }
-.d-r-carousel-item {
+.d-r-carousel-item,
+.d-r-fluid-project {
     display: inline-block;
     margin: 1px 12px 1px 1px;
     padding: 11px;
@@ -1964,16 +1965,22 @@
 }
 .d-r-carousel-item:hover,
 .d-r-carousel-item:focus,
-.d-r-carousel-item:active {
+.d-r-carousel-item:active,
+.d-r-fluid-project:hover,
+.d-r-fluid-project:focus,
+.d-r-fluid-project:active {
     background: #f5f5f5;
     box-shadow: 0 0 0 1pt rgba(0, 0, 0, .1);
-}x
+}
 .d-r-carousel-item:hover:active,
-.d-r-carousel-item:focus:active {
+.d-r-carousel-item:focus:active,
+.d-r-fluid-project:hover:active,
+.d-r-fluid-project:focus:active {
     background: #eee;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), inset 0 2px 10px rgba(0, 0, 0, .1);
 }
-.d-r-carousel-item-thumbnail {
+.d-r-carousel-item-thumbnail,
+.d-r-fluid-project-thumbnail {
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
     background: #fff;
     height: 120px;
@@ -1981,7 +1988,8 @@
     width: 100%;
 }
 .d-r-carousel-item-label,
-.d-r-carousel-item-detail {
+.d-r-carousel-item-detail,
+.d-r-fluid-project-label {
     font-size: 16px;
     line-height: 24px;
     padding: 8px 0 4px;
@@ -2189,7 +2197,10 @@
     width: ;
 }
 
-.d-r-fluid-project {
-    float: left;
-    margin: 12px;
+.d-r-fluid-project-list {
+    overflow: hidden;
+    text-align: center;
 }
+/*.d-r-fluid-project {
+    margin: 12px;
+}*/
