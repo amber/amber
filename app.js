@@ -5125,7 +5125,7 @@
                         }
                     }, this))
                     .add(this.spinner = new d.Container('d-r-spinner').hide())
-                    .add(this.connectionWarning = new d.Container('d-r-connection-warning').hide()))
+                    .add(this.connectionWarning = new d.Container('d-r-connection-warning').setTooltip(d.t('Lost connection to server. Trying again\u2026')).hide()))
                 .add(this.wrap = new d.Container('d-r-wrap').addClass('d-scrollable').withScrollEvent()
                     .add(this.page = this.createPage())
                     .add(new d.Container('d-r-footer')
