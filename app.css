@@ -2120,6 +2120,7 @@
     margin-bottom: 12px;
 }
 .d-r-post-author {
+    display: block;
     float: left;
     font-size: 20px;
     line-height: 24px;
@@ -2135,6 +2136,13 @@
 }
 .d-r-post-author .d-r-link:active {
     color: #028;
+}
+@media (max-width: 888px) {
+    .d-r-post-author {
+        float: none;
+        margin: 0;
+        text-align: left;
+    }
 }
 .d-r-post-author .d-label {
     text-decoration: inherit;
