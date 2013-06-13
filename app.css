@@ -1742,15 +1742,29 @@
     box-shadow: none;
     cursor: pointer;
 }
+.d-r-app .d-button.light {
+    background: #ccc;
+    color: #000;
+}
 .d-r-app .d-button:hover,
 .d-r-app .d-button:focus,
 .d-r-app .d-button:active {
     background: #666;
     color: #fff;
 }
+.d-r-app .d-button.light:hover,
+.d-r-app .d-button.light:focus,
+.d-r-app .d-button.light:active {
+    background: #ddd;
+    color: #000;
+}
 .d-r-app .d-button:hover:active,
 .d-r-app .d-button:focus:active {
     background: #444;
+}
+.d-r-app .d-button.light:hover:active,
+.d-r-app .d-button.light:focus:active {
+    background: #aaa;
 }
 .d-r-header-sign-in .d-r-link {
     margin-left: 12px;
@@ -2158,9 +2172,37 @@
 .d-r-post-author .d-label {
     text-decoration: inherit;
 }
+.d-r-post-edit {
+    position: absolute;
+    top: 24px;
+    right: 100%;
+    width: 24px;
+    height: 24px;
+    background: url(static/img/edit.svg);
+    border: 0;
+    padding: 0;
+    margin: 0;
+    opacity: .3;
+    cursor: pointer;
+}
+.d-r-post-edit:hover,
+.d-r-post-edit:active,
+.d-r-post-edit:focus {
+    opacity: .6;
+}
+.d-r-post-edit:hover:active,
+.d-r-post-edit:focus:active {
+    opacity: 1;
+}
 .d-r-post-body {
     white-space: pre-wrap;
     margin-top: -12px;
+}
+.d-r-app .d-r-post-editor {
+    margin-top: 0;
+}
+.d-r-post .d-button {
+    margin-right: 12px;
 }
 .d-r-post-paragraph {
     margin: 12px 0;

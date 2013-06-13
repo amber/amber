@@ -960,11 +960,7 @@
             this.base(arguments);
             this.element = this.newElement(className || 'd-textfield', this.TAG_NAME);
             this._inputDone = this._inputDone.bind(this);
-            this.element.addEventListener('input', function (e) {
-                this.dispatch('Input', new d.ControlEvent().setControl(this));
-                if (this._inputDoneTimer) clearTimeout(this._inputDoneTimer);
-                this._inputDoneTimer = setTimeout(this._inputDone, this.INPUT_DONE_THRESHOLD);
-            }.bind(this));
+            this.element.addEventListener('input', this._input.bind(this));
             this.element.addEventListener('keydown', function (e) {
                 this.dispatch('KeyDown', new d.ControlEvent().setControl(this).withProperties({
                     keyCode: e.keyCode
@@ -972,6 +968,11 @@
             }.bind(this));
             this.element.addEventListener('focus', this.fireFocus.bind(this));
             this.element.addEventListener('blur', this.fireBlur.bind(this));
+        },
+        _input: function (e) {
+            this.dispatch('Input', new d.ControlEvent().setControl(this));
+            if (this._inputDoneTimer) clearTimeout(this._inputDoneTimer);
+            this._inputDoneTimer = setTimeout(this._inputDone, this.INPUT_DONE_THRESHOLD);
         },
         _inputDone: function () {
             this._inputDoneTimer = undefined;
@@ -1004,6 +1005,14 @@
             set: function (placeholder) {
                 this.element.placeholder = placeholder;
             }
+        },
+        '.readonly': {
+            get: function () {
+                return this.element.readonly;
+            },
+            set: function (readonly) {
+                this.element.readonly = readonly;
+            }
         }
     });
     d.TextField.Password = d.Class(d.TextField, {
@@ -1013,8 +1022,44 @@
         }
     });
     d.TextField.Multiline = d.Class(d.TextField, {
-        TAG_NAME: 'textarea'
+        init: function (className) {
+            this.base(arguments, className);
+            this.onLive(this._autoResize);
+        },
+        TAG_NAME: 'textarea',
+        '.autoSize': {
+            value: false,
+            apply: function () {
+                this._autoResize();
+            }
+        },
+        _autoResize: function () {
+            if (this.autoSize()) {
+                var div = d.TextField.metric;
+                var style = getComputedStyle(this.element);
+                div.style.font = style.font;
+                div.style.padding = style.padding;
+                div.style.margin = style.margin;
+                div.style.border = style.border;
+                div.style.width = style.width;
+                div.style.boxSizing = style.boxSizing;
+                div.textContent = this.element.value + 'M';
+                this.element.style.height = div.offsetHeight + 'px';
+            }
+        },
+        _input: function () {
+            this.base(arguments);
+            this._autoResize();
+        }
     });
+    (function () {
+        var div = d.TextField.metric = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.top = '-9999px';
+        div.style.left = '-9999px';
+        div.style.whiteSpace = 'pre-wrap';
+        document.body.appendChild(div);
+    })();
     d.Button = d.Class(d.FormControl, {
         acceptsClick: true,
         '@Execute': {},
@@ -5102,17 +5147,18 @@
                     forum$id: forumId,
                     name: name,
                     body: bodyText
-                }, function (id) {
+                }, function (info) {
                     self.page.clear();
-                    self.redirect(self.reverse('forums.topic.view', id), true);
-                    d.r.views['forums.topic.view'].call(self, [null, id], {
+                    self.redirect(self.reverse('forums.topic.view', info.topic$id), true);
+                    d.r.views['forums.topic.view'].call(self, [null, info.topic$id], {
                         topic: {
                             forum$id: forumId,
                             name: name
                         },
                         posts: [{
                             authors: [username],
-                            body: bodyText
+                            body: bodyText,
+                            id: info.post$id
                         }]
                     });
                 });
@@ -5144,26 +5190,27 @@
                 title.setText(d.t.maybe(topic.name));
             }
             function post() {
-                var username = self.user().name(), spinner;
+                var username = self.user().name(), spinner, container;
                 var newPost = new d.Container('d-r-post-list')
-                    .add(new d.Container('d-r-post pending')
-                        .add(new d.Label('d-r-post-author')
-                            .add(new d.r.Link().setView('user.profile', username)
-                                .add(new d.Label().setText(username))))
-                        .add(new d.Label('d-r-post-body').setRichText(d.r.parse(body.text()))))
+                    .add(container = self.template('post', {
+                        authors: [username],
+                        body: body.text()
+                    }).addClass('pending'))
                     .add(spinner = new d.Container('d-r-post-spinner'));
                 self.page.insert(newPost, postForm);
                 postForm.hide();
                 self.request('forums.post.add', {
                     topic$id: topicId,
                     body: body.text()
-                }, function () {
+                }, function (id) {
                     newPost.children[0].removeClass('pending');
                     newPost.remove(spinner);
                     body.setText('');
                     postForm.show();
+                    container.usePostId(id);
                 });
             }
+            this.reloadOnAuthentication = true;
             var self = this, topicId = args[1], up, title, postForm, body, list;
             this.page
                 .add(new d.Container('d-r-title d-r-topic-title')
@@ -5177,20 +5224,7 @@
                             length: length
                         }, callback);
                     }.bind(this))
-                    .setTransformer(function (post) {
-                        var users, container;
-                        container = new d.Container('d-r-post')
-                            .add(users = new d.Label('d-r-post-author'))
-                            .add(new d.Label('d-r-post-body').setRichText(d.r.parse(post.body)));
-                        post.authors.forEach(function (author) {
-                            if (users.children.length) {
-                                users.add(new d.Label().setText(', '));
-                            }
-                            users.add(new d.r.Link().setView('user.profile', author)
-                                .add(new d.Label().setText(author)));
-                        });
-                        return container;
-                    }))
+                    .setTransformer(d.r.template.post.bind(this)))
                 .add(postForm = new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
                     .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
                     .add(new d.Button('d-button').setText('Reply').onExecute(post)));
@@ -5203,6 +5237,54 @@
                 }, load);
             }
             this.request('forums.topic.view', { topic$id: topicId });;
+        }
+    };
+    d.r.template = {
+        post: function (post) {
+            function edit() {
+                function update() {
+                    var spinner;
+                    body.setRichText(d.r.parse(post.body = editor.text()));
+                    container.addClass('pending').add(spinner = new d.Container('d-r-post-spinner'));
+                    self.request('forums.post.edit', {
+                        post$id: post.id,
+                        body: editor.text()
+                    }, function () {
+                        container.removeClass('pending').remove(spinner);
+                    });
+                    cancel();
+                }
+                function cancel() {
+                    container.replace(editor, body).remove(updateButton).remove(cancelButton);
+                    editButton.show();
+                }
+                var editor, updateButton, cancelButton;
+                container.replace(body, editor = new d.TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
+                    .add(updateButton = new d.Button().setText(d.t('Update Post')).onExecute(update))
+                    .add(cancelButton = new d.Button('d-button light').setText(d.t('Cancel')).onExecute(cancel));
+                editButton.hide();
+                editor.select();
+            }
+            var self = this, username = this.user() && this.user().name(), users, container, body, editButton;
+            container = new d.Container('d-r-post');
+            if (post.authors.indexOf(username) !== -1 && post.id) {
+                container.add(editButton = new d.Button('d-r-post-edit').onExecute(edit));
+            }
+            container
+                .add(users = new d.Label('d-r-post-author'))
+                .add(body = new d.Label('d-r-post-body').setRichText(d.r.parse(post.body)));
+            post.authors.forEach(function (author) {
+                if (users.children.length) {
+                    users.add(new d.Label().setText(', '));
+                }
+                users.add(new d.r.Link().setView('user.profile', author)
+                    .add(new d.Label().setText(author)));
+            });
+            container.usePostId = function (id) {
+                post.id = id;
+                editButton.show();
+            };
+            return container;
         }
     };
     d.r.App = d.Class(d.App, {
@@ -5478,6 +5560,9 @@
             this.url = null;
             this.go(url);
             return this;
+        },
+        template: function (name) {
+            return d.r.template[name].apply(this, [].slice.call(arguments, 1));
         }
     });
     d.r.PACKETS = {
@@ -5873,7 +5958,7 @@
             this.log.push(log);
             if (!p) return;
             packet = JSON.stringify(p);
-            if (this.socket.readyState === 0) {
+            if (this.socket.readyState !== 1) {
                 this.socketQueue.push(packet);
                 return;
             }
@@ -6225,9 +6310,8 @@
         buffer: 200,
         loadItems: function (offset, length, callback) {
             var t = this, cached, delta;
-            if (!this._loader) return;
-            if (offset + length < this.loaded) {
-                callback.call(this, []);
+            if (!this._loader || !length) return;
+            if (offset + length <= this.loaded) {
                 return;
             }
             if (offset < this.loaded) {
@@ -6278,7 +6362,7 @@
             var wrap;
             if (this.max !== -1) return;
             wrap = this.app().wrap.element;
-            if (this.element.offsetHeight - this.buffer - wrap.scrollTop < wrap.offsetHeight) {
+            if (this.element.offsetHeight - this.buffer - wrap.scrollTop < wrap.offsetHeight * 2) {
                 this.load();
             }
         }
