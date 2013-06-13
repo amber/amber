@@ -6215,7 +6215,7 @@
                 this.app().wrap.onScroll(this.loadIfNecessary, this);
                 this.app().onUnload(function () {
                     this.app().wrap.unScroll(this.loadIfNecessary, this);
-                });
+                }, this);
             });
         },
         '.loader': {},
