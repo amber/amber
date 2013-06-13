@@ -5677,10 +5677,9 @@
                 delete this.requests[p.request$id];
             }
         },
-        requestErrors: {
-            0: 'Undefined request type',
-            1: 'Object not found'
-        },
+        requestErrors: [
+            'Object not found'
+        ],
         listeners: {
             open: function () {
                 var socketQueue = this.socketQueue, packet = {

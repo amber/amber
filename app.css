@@ -1867,7 +1867,7 @@
     border-radius: 0;
     border: 1px solid #ddd;
     margin: 12px 0;
-    padding: 4px 12px;
+    padding: 4px 6px;
 }
 .d-r-block-form .d-textfield:focus {
     border-color: #aaa;
