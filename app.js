@@ -21,11 +21,15 @@
         if (i !== -1) element.className = element.className.substr(0, i - 1) + element.className.substr(i + className.length);
     };
     d.toggleClass = function (element, className, on) {
+        if (on == null) on = !d.hasClass(element, className);
         if (on) {
             d.addClass(element, className);
         } else {
             d.removeClass(element, className);
         }
+    };
+    d.hasClass = function (element, className) {
+        return (' ' + element.className + ' ').indexOf(' ' + className + ' ') !== -1;
     };
     d.format = function (format) {
         var args = arguments,
@@ -320,6 +324,10 @@
         },
         toggleClass: function (className, on) {
             d.toggleClass(this.element, className, on);
+            return this;
+        },
+        hasClass: function (className) {
+            return d.hasClass(this.element, className);
         },
         remove: function (child) {
             this.children.splice(this.children.indexOf(child), 1);
@@ -4868,7 +4876,31 @@
                     .addField(d.t('What I\'m Working On: (demo)'), new d.TextField.Multiline));
         },
         'project.view': function (args, isEdit) {
-            var title, authors, player, notes, favorites, loves, views, remixes;
+            function toggleNotes() {
+                notes.element.style.height = 'auto';
+                var height = notes.element.offsetHeight + 'px';
+                var open = !notes.hasClass('open');
+                notes.element.style.height = open ? fixedHeight : height;
+                notes.toggleClass('open');
+                notesDisclosure.setText(open ? d.t('Show less') : d.t('Show more'));
+                setTimeout(function () {
+                    notes.element.style.WebkitTransition =
+                        notes.element.style.MozTransition =
+                        notes.element.style.MSTransition =
+                        notes.element.style.OTransition =
+                        notes.element.style.transition = 'height .3s';
+                    notes.element.style.height = open ? height : fixedHeight;
+                    setTimeout(function () {
+                        notes.element.style.WebkitTransition =
+                            notes.element.style.MozTransition =
+                            notes.element.style.MSTransition =
+                            notes.element.style.OTransition =
+                            notes.element.style.transition = 'none';
+                    }, 300);
+                });
+            }
+            var fixedHeight = '6em';
+            var title, authors, player, notes, notesDisclosure, favorites, loves, views, remixes;
             this.page
                 .add(title = new d.Label('d-r-title'))
                 .add(authors = new d.Label('d-r-subtitle'))
@@ -4883,8 +4915,9 @@
                     .add(views = new d.Label().setText(d.t.plural('% Views', '% View', 0)))
                     .add(new d.r.Separator)
                     .add(remixes = new d.Label().setText(d.t.plural('% Remixes', '% Remix', 0))))
-                .add(notes = new d.Label('d-r-paragraph d-r-project-notes'));
-                // .add(new d.Label('d-r-project-notes-title').setText(d.t('Notes')))
+                .add(notes = new d.Label('d-r-paragraph d-r-project-notes'))
+                .add(new d.Container('d-r-paragraph d-r-project-notes-disclosure')
+                    .add(notesDisclosure = new d.Button('d-r-link').setText(d.t('Show more')).onExecute(toggleNotes).hide()));
                 // .add(new d.Container('d-r-project-player-wrap')
                 //     .add(authors = new d.Label('d-r-project-authors').setText(d.t('by %', '')))
                 //     .add(new d.Container('d-r-project-player'))
@@ -4904,6 +4937,14 @@
                 }, this))));
                 title.setText(project.name);
                 notes.setText(project.notes);
+                if (project.notes.split('\n').length > 4) {
+                    notes.element.style.height = fixedHeight;
+                    notesDisclosure.show();
+                }
+                favorites.setText(d.t.plural('% Favorites', '% Favorite', project.favorites));
+                loves.setText(d.t.plural('% Loves', '% Love', project.loves));
+                views.setText(d.t.plural('% Views', '% View', project.views));
+                remixes.setText(d.t.plural('% Remixes', '% Remix', project.remixes.length));
             }.bind(this));
             // this.request('GET', 'projects/' + args[1] + '/', null, function (info) {
             //     title.setText(info.project.name);

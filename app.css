@@ -2165,6 +2165,27 @@
 .d-r-project-stats {
     margin: 12px auto;
 }
+.d-r-project-notes {
+    white-space: pre-wrap;
+    overflow: hidden;
+}
+.d-r-project-notes.open {
+    max-height: none;
+}
+.d-r-project-notes-disclosure {
+    margin-top: -12px;
+}
+.d-r-project-notes-disclosure .d-r-link {
+    font: inherit;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: 0;
+}
+.d-r-project-notes,
+.d-r-project-notes-disclosure {
+    font-size: 14px;
+}
 
 .d-r-user-about {
     padding: 0 9pt 9pt;
