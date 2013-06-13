@@ -5202,6 +5202,7 @@
                     topic$id: topicId
                 }, load);
             }
+            this.request('forums.topic.view', { topic$id: topicId });;
         }
     };
     d.r.App = d.Class(d.App, {
@@ -5364,7 +5365,7 @@
             this.requestStart();
             this.server().request(name, options, function (result) {
                 t.requestEnd();
-                callback(result);
+                if (callback) callback(result);
             });
         },
         getUser: function (id, callback, context) {
