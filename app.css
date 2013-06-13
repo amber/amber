@@ -1535,7 +1535,7 @@
 .d-r-forum-list,
 .d-r-topic-list,
 .d-r-post-list,
-.d-r-project-player-wrap,
+.d-r-project-player-section,
 .d-r-project-stats,
 .d-r-project-notes {
     padding: 0 12px;
@@ -1606,10 +1606,6 @@
 .d-r-splash-link:hover:active .d-r-splash-link-title,
 .d-r-splash-link:focus:active .d-r-splash-link-title {
     color: #028;
-}
-.d-r-splash-footer {
-    clear: both;
-    height: 48px;
 }
 
 .d-r-spinner,
@@ -1804,7 +1800,8 @@
 
 .d-r-footer {
     position: relative;
-    margin: 0 0 -33px;
+    margin: 0 0 -45px;
+    padding: 12px;
     z-index: 1;
     clear: both;
     text-align: center;
@@ -1812,7 +1809,8 @@
 }
 .d-r-footer .d-r-panel-button {
     display: inline-block;
-    padding: 0 12px;
+    padding: 12px;
+    margin: -12px;
     margin: 0;
     color: #555;
     outline: 0;
@@ -2151,6 +2149,16 @@
     white-space: pre-wrap;
 }
 
+.d-r-project-player-section {
+    max-width: 732px;
+}
+.d-r-project-player-column {
+    width: 240px;
+    margin: 12px;
+    float: right;
+    box-shadow: 0 0 0 1px #aaa;
+    height: 100%;
+}
 .d-r-project-player-wrap {
     max-width: 480px;
 }
