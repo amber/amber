@@ -5110,7 +5110,7 @@
                         var users, container;
                         container = new d.Container('d-r-post')
                             .add(users = new d.r.Link('d-r-link d-r-post-author'))
-                            .add(new d.Label('d-r-post-body').setText(post.body));
+                            .add(new d.Label('d-r-post-body').setText(post.body.trim()));
                         post.authors.forEach(function (author) {
                             if (users.children.length) {
                                 users.add(new d.Label().setText(', '));
