@@ -4870,10 +4870,13 @@
             this.requireAuthentication();
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Settings')))
-                .add(new d.FormGrid('d-form-grid d-r-form')
-                    .addField(d.t('Username:'), new d.TextField().setText(this.user().name()))
-                    .addField(d.t('About Me: (demo)'), new d.TextField.Multiline)
-                    .addField(d.t('What I\'m Working On: (demo)'), new d.TextField.Multiline));
+                .add(new d.Container('d-r-block-form')
+                    .add(new d.Label('d-r-form-label').setText(d.t('Username')))
+                    .add(new d.TextField().setText(this.user().name()))
+                    .add(new d.Label('d-r-form-label').setText(d.t('About Me')))
+                    .add(new d.TextField.Multiline())
+                    .add(new d.Label('d-r-form-label').setText(d.t('What I\'m Working On')))
+                    .add(new d.TextField.Multiline()));
         },
         'project.view': function (args, isEdit) {
             function toggleNotes() {
@@ -5093,7 +5096,35 @@
             });
         },
         'forums.topic.view': function (args) {
-            var t = this, topicId = args[1], up, title;
+            function parse(text) {
+                return text.trim().split('\n').filter(function (p) {
+                    return !!p;
+                }).map(function (p) {
+                    return '<div class=d-r-post-paragraph>' + d.htmle(p) + '</div>';
+                }).join('');
+            }
+            function post() {
+                var username = self.user().name(), spinner;
+                var newPost = new d.Container('d-r-post-list')
+                    .add(new d.Container('d-r-post pending')
+                        .add(new d.Label('d-r-post-author')
+                            .add(new d.r.Link().setView('user.profile', username)
+                                .add(new d.Label().setText(username))))
+                        .add(new d.Label('d-r-post-body').setRichText(parse(body.text()))))
+                    .add(spinner = new d.Container('d-r-post-spinner'));
+                self.page.insert(newPost, postForm);
+                postForm.hide();
+                self.request('forums.post.add', {
+                    topic$id: topicId,
+                    body: body.text()
+                }, function () {
+                    newPost.children[0].removeClass('pending');
+                    newPost.remove(spinner);
+                    body.setText('');
+                    postForm.show();
+                });
+            }
+            var self = this, topicId = args[1], up, title, postForm, body;
             this.page
                 .add(new d.Container('d-r-title d-r-topic-title')
                     .add(up = new d.r.Link('d-r-list-up-button'))
@@ -5109,8 +5140,8 @@
                     .setTransformer(function (post) {
                         var users, container;
                         container = new d.Container('d-r-post')
-                            .add(users = new d.r.Link('d-r-link d-r-post-author'))
-                            .add(new d.Label('d-r-post-body').setText(post.body.trim()));
+                            .add(users = new d.Label('d-r-post-author'))
+                            .add(new d.Label('d-r-post-body').setRichText(parse(post.body)));
                         post.authors.forEach(function (author) {
                             if (users.children.length) {
                                 users.add(new d.Label().setText(', '));
@@ -5119,11 +5150,14 @@
                                 .add(new d.Label().setText(author)));
                         });
                         return container;
-                    }));
+                    }))
+                .add(postForm = new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
+                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
+                    .add(new d.Button('d-button').setText('Reply').onExecute(post)));
             this.request('forums.topic', {
                 topic$id: topicId
             }, function (topic) {
-                up.setURL(t.reverse('forums.forum.view', topic.forum$id));
+                up.setURL(self.reverse('forums.forum.view', topic.forum$id));
                 title.setText(d.t.maybe(topic.name));
             });
         }
@@ -5137,7 +5171,7 @@
             this.pendingRequests = 0;
         },
         setElement: function (element) {
-            d.addClass(element, 'd-r-app');
+            d.addClass(element, 'd-r-app unauthenticated');
             this.base(arguments, element)
                 .add((this.signInForm = new d.Form('d-r-header-sign-in'))
                     .hide()
@@ -5209,6 +5243,8 @@
                 } else {
                     this.userLabel.setText(d.t('Sign In'));
                 }
+                this.toggleClass('authenticated', user);
+                this.toggleClass('unauthenticated', !user);
                 if (this.reloadOnAuthentication) {
                     this.reload();
                 }

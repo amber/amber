@@ -224,11 +224,11 @@
     text-align: right;
 }
 .d-form-grid-input {
-    padding: 0 0 6px;
+    padding: 0 0 12px;
     width: 70%;
 }
 .d-form-grid .d-textfield {
-    margin: 0;
+    margin: 0 !important;
     vertical-align: top;
     width: 100%;
 }
@@ -1505,6 +1505,12 @@
 .d-r-app a {
     text-decoration: none;
 }
+.d-r-app.unauthenticated .d-r-authenticated {
+    display: none;
+}
+.d-r-app.authenticated .d-r-hide-authenticated {
+    display: none;
+}
 .d-r-wrap {
     position: absolute;
     top: 32px;
@@ -1576,10 +1582,6 @@
     box-shadow: none;
 }
 
-.d-r-page .d-button {
-
-}
-
 .d-r-splash-title {
     font-size: 96px;
     line-height: 96px;
@@ -1627,6 +1629,10 @@
 .d-r-splash-link:hover:active .d-r-splash-link-title,
 .d-r-splash-link:focus:active .d-r-splash-link-title {
     color: #028;
+}
+.d-r-splash-footer {
+    clear: both;
+    height: 48px;
 }
 
 .d-r-spinner,
@@ -2091,7 +2097,7 @@
 }
 
 .d-r-new-topic-editor {
-    min-height: 412px;
+    min-height: 386px;
 }
 .d-r-new-topic-editor-wrap {
     position: absolute;
@@ -2111,26 +2117,28 @@
     position: absolute;
     top: 0;
     bottom: 28px;
+    resize: none;
 }
 .d-r-new-topic-button {
     position: absolute;
     bottom: 0;
 }
 
+.d-r-post-list {
+    position: relative;
+}
 .d-r-topic-title {
     padding-bottom: 0;
 }
 .d-r-post {
-    margin-bottom: 12px;
+    margin: 0 0 24px;
+    position: relative;
 }
 .d-r-post-author {
     display: block;
-    float: left;
     font-size: 20px;
     line-height: 24px;
-    margin: 0 0 0 -132px;
-    width: 120px;
-    text-align: right;
+    margin: 0 0 0 -24px;
 }
 .d-r-post-author .d-r-link {
     color: #000;
@@ -2141,11 +2149,10 @@
 .d-r-post-author .d-r-link:active {
     color: #028;
 }
-@media (max-width: 888px) {
+@media (max-width: 672px) {
     .d-r-post-author {
-        float: none;
+        position: static;
         margin: 0;
-        text-align: left;
     }
 }
 .d-r-post-author .d-label {
@@ -2153,6 +2160,27 @@
 }
 .d-r-post-body {
     white-space: pre-wrap;
+    margin-top: -12px;
+}
+.d-r-post-paragraph {
+    margin: 12px 0;
+}
+
+.d-r-post.pending {
+    opacity: .3;
+    min-height: 48px;
+}
+.d-r-post-spinner {
+    width: 48px;
+    height: 48px;
+    background: url(static/img/large-spinner.svg) no-repeat center center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -24px;
+}
+.d-r-new-post-editor-body {
+    height: 240px;
 }
 
 .d-r-project-player-wrap {
