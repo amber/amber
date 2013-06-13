@@ -5060,9 +5060,7 @@
                                 .add(new d.Label().setText(d.t.plural('% posts', '% post', topic.posts)))
                                 .add(new d.r.Separator())
                                 .add(new d.Label().setText(d.t.plural('% views', '% view', topic.views))))
-                        t.getUser(topic.author$id, function (user) {
-                            userLabel.setText(d.t('by %', user.name()));
-                        });
+                        userLabel.setText(d.t('by %', d.t.list(topic.authors)));
                         return link;
                     }));
             this.request('forums.forum', {
