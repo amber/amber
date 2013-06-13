@@ -1531,11 +1531,11 @@
 .d-r-title,
 .d-r-subtitle,
 .d-r-block-form,
-.d-r-post-editor-inner,
+.d-r-new-topic-editor-inner,
 .d-r-forum-list,
 .d-r-topic-list,
 .d-r-post-list,
-.d-r-project-player-section,
+.d-r-project-player-wrap,
 .d-r-project-stats,
 .d-r-project-notes {
     padding: 0 12px;
@@ -1557,6 +1557,27 @@
     padding: 0 12px 0;
     margin: 0 auto;
     max-width: 600px;
+}
+
+.d-r-page .d-textfield {
+    font: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    display: block;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    border: 1px solid #ddd;
+    margin: 12px 0;
+    padding: 4px 6px;
+}
+.d-r-page .d-textfield:focus {
+    border-color: #aaa;
+    box-shadow: none;
+}
+
+.d-r-page .d-button {
+
 }
 
 .d-r-splash-title {
@@ -1696,29 +1717,33 @@
     background: #222;
     z-index: 2;
     width: 150px;
-    font-size: 14px;
 }
 .d-r-header-sign-in .d-textfield {
     box-shadow: none;
     border-radius: 0;
     padding: 4px 6px;
     font: inherit;
+    font-size: 14px;
 }
-.d-r-header-sign-in .d-button {
+.d-r-app .d-button {
     background: #555;
     color: #fff;
     border-radius: 0;
     font: inherit;
+    font-size: 16px;
+    line-height: 20px;
     padding: 4px 6px;
+    box-shadow: none;
+    cursor: pointer;
 }
-.d-r-header-sign-in .d-button:hover,
-.d-r-header-sign-in .d-button:focus,
-.d-r-header-sign-in .d-button:active {
+.d-r-app .d-button:hover,
+.d-r-app .d-button:focus,
+.d-r-app .d-button:active {
     background: #666;
     color: #fff;
 }
-.d-r-header-sign-in .d-button:hover:active,
-.d-r-header-sign-in .d-button:focus:active {
+.d-r-app .d-button:hover:active,
+.d-r-app .d-button:focus:active {
     background: #444;
 }
 .d-r-header-sign-in .d-r-link {
@@ -1809,9 +1834,8 @@
 }
 .d-r-footer .d-r-panel-button {
     display: inline-block;
-    padding: 12px;
-    margin: -12px;
-    margin: 0;
+    padding: 4px 12px;
+    margin: -4px 0;
     color: #555;
     outline: 0;
 }
@@ -1847,30 +1871,8 @@
     margin: 0 3pt;
 }
 
-.d-r-page .d-textfield {
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .3), inset 0 1px 2px rgba(0, 0, 0, .1);
-}
-.d-r-page .d-textfield:focus {
-    box-shadow:
-        0 0 0 1px rgba(0, 0, 0, .5),
-        inset 0 1px 2px rgba(0, 0, 0, .2);
-}
-
 .d-r-block-form {
     margin: 12px auto;
-}
-.d-r-block-form .d-textfield {
-    display: block;
-    width: 100%;
-    box-shadow: none;
-    border-radius: 0;
-    border: 1px solid #ddd;
-    margin: 12px 0;
-    padding: 4px 6px;
-}
-.d-r-block-form .d-textfield:focus {
-    border-color: #aaa;
-    box-shadow: none;
 }
 
 .d-r-carousel {
@@ -2088,26 +2090,30 @@
     color: #028;
 }
 
-.d-r-new-post-editor {
-    min-height: 376px;
+.d-r-new-topic-editor {
+    min-height: 412px;
 }
-.d-r-post-editor-wrap {
+.d-r-new-topic-editor-wrap {
     position: absolute;
-    top: 112px;
+    top: 118px;
     bottom: 0;
     left: 0;
     right: 0;
 }
-.d-r-post-editor-inner {
+.d-r-new-topic-editor-inner {
     height: 100%;
 }
-.d-r-post-editor-inner-wrap {
+.d-r-new-topic-editor-inner-wrap {
     position: relative;
     height: 100%;
 }
-.d-r-post-editor {
+.d-r-new-topic-editor-body {
     position: absolute;
     top: 0;
+    bottom: 28px;
+}
+.d-r-new-topic-button {
+    position: absolute;
     bottom: 0;
 }
 
@@ -2149,16 +2155,6 @@
     white-space: pre-wrap;
 }
 
-.d-r-project-player-section {
-    max-width: 732px;
-}
-.d-r-project-player-column {
-    width: 240px;
-    margin: 12px;
-    float: right;
-    box-shadow: 0 0 0 1px #aaa;
-    height: 100%;
-}
 .d-r-project-player-wrap {
     max-width: 480px;
 }

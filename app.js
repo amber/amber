@@ -4904,11 +4904,9 @@
             this.page
                 .add(title = new d.Label('d-r-title'))
                 .add(authors = new d.Label('d-r-subtitle'))
-                .add(new d.Container('d-r-project-player-section')
-                    .add(new d.Container('d-r-project-player-wrap')
-                        .add(player = new d.Container('d-r-project-player')
-                            .add(new d.Label('d-r-project-player-title').setText('v234'))))
-                    .add(new d.Container('d-r-project-player-column')))
+                .add(new d.Container('d-r-project-player-wrap')
+                    .add(player = new d.Container('d-r-project-player')
+                        .add(new d.Label('d-r-project-player-title').setText('v234'))))
                 .add(new d.Container('d-r-paragraph d-r-project-stats')
                     .add(favorites = new d.Label().setText(d.t.plural('% Favorites', '% Favorite', 0)))
                     .add(new d.r.Separator)
@@ -5075,17 +5073,18 @@
         'forums.forum.newTopic': function (args) {
             var t = this, forumId = args[1], title, subtitle, topicName;
             this.page
-                .add(new d.Container('d-r-new-post-editor')
+                .add(new d.Container('d-r-new-topic-editor')
                     .add(new d.Container('d-r-title')
                         .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
                         .add(title = new d.Label))
                     .add(subtitle = new d.Label('d-r-subtitle'))
                     .add(new d.Container('d-r-block-form')
                         .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
-                        .add(new d.Container('d-r-post-editor-wrap')
-                            .add(new d.Container('d-r-post-editor-inner')
-                                .add(new d.Container('d-r-post-editor-inner-wrap')
-                                    .add(new d.TextField.Multiline('d-textfield d-r-block-field d-r-post-editor')))))));
+                        .add(new d.Container('d-r-new-topic-editor-wrap')
+                            .add(new d.Container('d-r-new-topic-editor-inner')
+                                .add(new d.Container('d-r-new-topic-editor-inner-wrap')
+                                    .add(new d.TextField.Multiline('d-textfield d-r-new-topic-editor-body')))))
+                        .add(new d.Button('d-button d-r-new-topic-button').setText(d.t('Create Topic')))));
             this.request('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
