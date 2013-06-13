@@ -982,7 +982,12 @@
             return this;
         },
         clear: function () {
-            this.setText('');
+            return this.setText('');
+        },
+        autofocus: function () {
+            return this.onLive(function () {
+                this.select();
+            });
         },
         '.text': {
             get: function () {
@@ -5074,20 +5079,58 @@
             });
         },
         'forums.forum.newTopic': function (args) {
-            var t = this, forumId = args[1], title, subtitle, topicName;
+            function post() {
+                var username = self.user().name();
+                var bodyText = body.text();
+                var name = topicName.text();
+                self.page
+                    .clear()
+                    .add(new d.Container('d-r-title d-r-topic-title')
+                        .add(new d.r.Link('d-r-list-up-button').setView('forums.forum.view', forumId))
+                        .add(new d.Label('d-inline').setText(name)))
+                    .add(new d.Container('d-r-post-list')
+                        .add(new d.Container('d-r-post pending')
+                            .add(new d.Label('d-r-post-author')
+                                .add(new d.r.Link().setView('user.profile', username)
+                                    .add(new d.Label().setText(username))))
+                            .add(new d.Label('d-r-post-body').setRichText(d.r.parse(bodyText))))
+                        .add(new d.Container('d-r-post-spinner')))
+                    .add(new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
+                        .add(new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
+                        .add(new d.Button('d-button').setText('Reply').onExecute(post)));
+                self.request('forums.topic.add', {
+                    forum$id: forumId,
+                    name: name,
+                    body: bodyText
+                }, function (id) {
+                    self.page.clear();
+                    self.redirect(self.reverse('forums.topic.view', id), true);
+                    d.r.views['forums.topic.view'].call(self, [null, id], {
+                        topic: {
+                            forum$id: forumId,
+                            name: name
+                        },
+                        posts: [{
+                            authors: [username],
+                            body: bodyText
+                        }]
+                    });
+                });
+            }
+            var self = this, forumId = args[1], title, subtitle, base, postForm, topicName, body;
             this.page
-                .add(new d.Container('d-r-new-topic-editor')
+                .add(base = new d.Container('d-r-new-topic-editor')
                     .add(new d.Container('d-r-title')
-                        .add(new d.r.Link('d-r-list-back-button').setURL(this.reverse('forums.forum.view', forumId)))
+                        .add(new d.r.Link('d-r-list-back-button').setView('forums.forum.view', forumId))
                         .add(title = new d.Label))
                     .add(subtitle = new d.Label('d-r-subtitle'))
-                    .add(new d.Container('d-r-block-form')
-                        .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')))
+                    .add(postForm = new d.Container('d-r-block-form')
+                        .add(topicName = new d.TextField('d-textfield d-r-block-field').setPlaceholder(d.t('Topic Name')).autofocus())
                         .add(new d.Container('d-r-new-topic-editor-wrap')
                             .add(new d.Container('d-r-new-topic-editor-inner')
                                 .add(new d.Container('d-r-new-topic-editor-inner-wrap')
-                                    .add(new d.TextField.Multiline('d-textfield d-r-new-topic-editor-body')))))
-                        .add(new d.Button('d-button d-r-new-topic-button').setText(d.t('Create Topic')))));
+                                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-topic-editor-body').setPlaceholder(d.t('Post Body'))))))
+                        .add(new d.Button('d-button d-r-new-topic-button').setText(d.t('Create Topic')).onExecute(post))));
             this.request('forums.forum', {
                 forum$id: forumId
             }, function (forum) {
@@ -5095,13 +5138,10 @@
                 subtitle.setText(d.t.maybe(forum.description));
             });
         },
-        'forums.topic.view': function (args) {
-            function parse(text) {
-                return text.trim().split('\n').filter(function (p) {
-                    return !!p;
-                }).map(function (p) {
-                    return '<div class=d-r-post-paragraph>' + d.htmle(p) + '</div>';
-                }).join('');
+        'forums.topic.view': function (args, info) {
+            function load(topic) {
+                up.setURL(self.reverse('forums.forum.view', topic.forum$id));
+                title.setText(d.t.maybe(topic.name));
             }
             function post() {
                 var username = self.user().name(), spinner;
@@ -5110,7 +5150,7 @@
                         .add(new d.Label('d-r-post-author')
                             .add(new d.r.Link().setView('user.profile', username)
                                 .add(new d.Label().setText(username))))
-                        .add(new d.Label('d-r-post-body').setRichText(parse(body.text()))))
+                        .add(new d.Label('d-r-post-body').setRichText(d.r.parse(body.text()))))
                     .add(spinner = new d.Container('d-r-post-spinner'));
                 self.page.insert(newPost, postForm);
                 postForm.hide();
@@ -5124,12 +5164,12 @@
                     postForm.show();
                 });
             }
-            var self = this, topicId = args[1], up, title, postForm, body;
+            var self = this, topicId = args[1], up, title, postForm, body, list;
             this.page
                 .add(new d.Container('d-r-title d-r-topic-title')
                     .add(up = new d.r.Link('d-r-list-up-button'))
                     .add(title = new d.Label('d-inline')))
-                .add(new d.r.LazyList('d-r-post-list')
+                .add(list = new d.r.LazyList('d-r-post-list')
                     .setLoader(function (offset, length, callback) {
                         return this.request('forums.posts', {
                             topic$id: topicId,
@@ -5141,7 +5181,7 @@
                         var users, container;
                         container = new d.Container('d-r-post')
                             .add(users = new d.Label('d-r-post-author'))
-                            .add(new d.Label('d-r-post-body').setRichText(parse(post.body)));
+                            .add(new d.Label('d-r-post-body').setRichText(d.r.parse(post.body)));
                         post.authors.forEach(function (author) {
                             if (users.children.length) {
                                 users.add(new d.Label().setText(', '));
@@ -5154,12 +5194,14 @@
                 .add(postForm = new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
                     .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
                     .add(new d.Button('d-button').setText('Reply').onExecute(post)));
-            this.request('forums.topic', {
-                topic$id: topicId
-            }, function (topic) {
-                up.setURL(self.reverse('forums.forum.view', topic.forum$id));
-                title.setText(d.t.maybe(topic.name));
-            });
+            if (info) {
+                load(info.topic);
+                list.setItems(info.posts);
+            } else {
+                this.request('forums.topic', {
+                    topic$id: topicId
+                }, load);
+            }
         }
     };
     d.r.App = d.Class(d.App, {
@@ -5915,6 +5957,13 @@
             }
         }
     });
+    d.r.parse = function (text) {
+        return text.trim().split('\n').filter(function (p) {
+            return !!p;
+        }).map(function (p) {
+            return '<div class=d-r-post-paragraph>' + d.htmle(p) + '</div>';
+        }).join('');
+    };
     d.r.User = d.Class(d.Base, {
         init: function (server) {
             this.base(arguments);
@@ -6160,7 +6209,6 @@
             this.element.style.paddingBottom = this.buffer + 'px';
             this.onLive(function () {
                 this.offset = 0;
-                this.scrollX = 0;
                 this.max = -1;
                 this.loadIfNecessary();
                 this.app().wrap.onScroll(this.loadIfNecessary, this);
@@ -6201,17 +6249,28 @@
             }
             this.loaded = offset + length;
         },
+        setItems: function (items) {
+            this.clear();
+            this.offset = items.length;
+            this.max = items.length;
+            this.addItems(items);
+            this.element.style.paddingBottom = '';
+        },
+        addItems: function (items) {
+            var i = 0, item;
+            while (item = items[i++]) {
+                this.add(this.items[this.offset + i - 1] = this._transformer(item));
+            }
+            this.offset += items.length;
+            this.loadIfNecessary();
+        },
         load: function () {
-            var t = this, offset;
             if (this.max !== -1) return;
-            offset = this.offset;
+            var offset = this.offset;
             this.loadItems(offset, this.loadAmount, function (items) {
-                var i = 0, item;
-                while (item = items[i++]) {
-                    t.add(t.items[offset + i - 1] = t._transformer(item));
+                if (offset === this.offset) {
+                    this.addItems(items);
                 }
-                this.offset += this.loadAmount;
-                this.loadIfNecessary();
             });
         },
         loadIfNecessary: function () {
