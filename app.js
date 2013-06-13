@@ -5958,12 +5958,12 @@
             this.wrap.appendChild(this.container = this.newElement('d-r-carousel-container'));
             this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-left'));
             this.element.appendChild(this.newElement('d-r-carousel-shade d-r-carousel-shade-right'));
-            this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-left').onExecute(function () {
+            this.element.appendChild(this.leftButton = new d.Button('d-r-carousel-button d-r-carousel-button-left').onExecute(function () {
                 if (this.offset > 0) {
                     this.scroll(-1);
                 }
             }, this).element);
-            this.element.appendChild(new d.Button('d-r-carousel-button d-r-carousel-button-right').onExecute(function () {
+            this.element.appendChild(this.rightButton = new d.Button('d-r-carousel-button d-r-carousel-button-right').onExecute(function () {
                 if (this.loaded === this.items.length || this.offset + this.maxVisibleItemCount() !== this.loaded) {
                     if (this.scroll(1)) {
                         this.load();
@@ -5989,7 +5989,7 @@
         ITEM_WIDTH: 194.6458333731,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
-            var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.wrap.offsetWidth) : this.container.offsetWidth;
+            var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.wrap.offsetWidth + this.leftButton.offsetWidth * 2) : this.container.offsetWidth;
             this.scrollX += e.x;
             if (this.scrollX < 0) this.scrollX = 0;
             if (this.scrollX > max) this.scrollX = max;

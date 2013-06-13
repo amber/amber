@@ -1511,7 +1511,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 0 0 21px;
+    padding: 0 0 45px;
     overflow: auto;
 }
 .d-r-lightbox {
@@ -1804,7 +1804,7 @@
 
 .d-r-footer {
     position: relative;
-    margin: 0 0 -21px;
+    margin: 0 0 -33px;
     z-index: 1;
     clear: both;
     text-align: center;
@@ -1813,6 +1813,7 @@
 .d-r-footer .d-r-panel-button {
     display: inline-block;
     padding: 0 12px;
+    margin: 0;
     color: #555;
     outline: 0;
 }
