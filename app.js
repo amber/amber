@@ -5267,8 +5267,11 @@
             }
             var self = this, username = this.user() && this.user().name(), users, container, body, editButton;
             container = new d.Container('d-r-post');
-            if (post.authors.indexOf(username) !== -1 && post.id) {
+            if (post.authors.indexOf(username) !== -1) {
                 container.add(editButton = new d.Button('d-r-post-edit').onExecute(edit));
+                if (!post.id) {
+                    editButton.hide();
+                }
             }
             container
                 .add(users = new d.Label('d-r-post-author'))
@@ -5282,7 +5285,7 @@
             });
             container.usePostId = function (id) {
                 post.id = id;
-                editButton.show();
+                if (editButton) editButton.show();
             };
             return container;
         }
