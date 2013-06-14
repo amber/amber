@@ -1905,6 +1905,9 @@
 .d-r-block-form {
     margin: 12px auto;
 }
+.d-r-block-form .d-r-form-label {
+    margin-bottom: -12px;
+}
 
 .d-r-carousel {
     position: relative;

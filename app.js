@@ -4951,9 +4951,9 @@
                     .add(new d.Label('d-r-form-label').setText(d.t('Username')))
                     .add(new d.TextField().setText(this.user().name()))
                     .add(new d.Label('d-r-form-label').setText(d.t('About Me')))
-                    .add(new d.TextField.Multiline())
+                    .add(new d.TextField.Multiline().setAutoSize(true))
                     .add(new d.Label('d-r-form-label').setText(d.t('What I\'m Working On')))
-                    .add(new d.TextField.Multiline()));
+                    .add(new d.TextField.Multiline().setAutoSize(true)));
         },
         'project.view': function (args, isEdit) {
             function toggleNotes() {
