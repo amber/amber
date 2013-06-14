@@ -2302,9 +2302,7 @@
 }
 
 .d-r-fluid-project-list {
+    padding: 12px 0 0;
     overflow: hidden;
     text-align: center;
 }
-/*.d-r-fluid-project {
-    margin: 12px;
-}*/
