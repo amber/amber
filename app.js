@@ -4827,10 +4827,25 @@
     ];
     d.r.views = {
         index: function () {
-            var projectCount;
+            var projectCount, self = this;
             this.reloadOnAuthentication = true;
             if (this.user()) {
-
+                this.page
+                    .add(new d.Label('d-r-title').setText(d.t('News Feed')))
+                    .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their activity here.')))
+                    .add(new d.r.ActivityCarousel().setLoader(function (offset, length, callback) {
+                        var array = [];
+                        var i = offset;
+                        while (i < 100 && i < offset + length) {
+                            array.push({
+                                icon: self.server().getAsset(''),
+                                description: '<a href=# class="d-r-link black">Someone</a> did <a href=# class=d-r-link>something</a>',
+                                time: new Date
+                            });
+                            ++i;
+                        }
+                        callback(array);
+                    }));
             } else {
                 this.page
                     .add(new d.Label('d-r-splash-title').setText(d.t('Amber')))
@@ -6180,14 +6195,20 @@
             this.scrollX += e.x;
             if (this.scrollX < 0) this.scrollX = 0;
             if (this.scrollX > max) this.scrollX = max;
-            if ((offset = Math.ceil(this.scrollX / this.ITEM_WIDTH)) !== this.offset) {
+            if ((offset = this.getOffset()) !== this.offset) {
                 this.offset = offset;
-                this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
+                this.container.style.left = this.getX() + 'px';
                 if (this.offset + this.maxVisibleItemCount() > this.loaded) {
                     this.load();
                 }
             }
             e.setAllowDefault(true);
+        },
+        getOffset: function () {
+            return Math.ceil(this.scrollX / this.ITEM_WIDTH);
+        },
+        getX: function () {
+            return -this.offset * this.ITEM_WIDTH;
         },
         visibleItemCount: function () {
             return Math.max(1, Math.floor(this.wrap.offsetWidth / this.ITEM_WIDTH));
@@ -6202,8 +6223,8 @@
             }
             this.offset += screens * length;
             if (this.offset < 0) this.offset = 0;
-            this.scrollX = this.offset * this.ITEM_WIDTH;
-            this.container.style.left = -this.offset * this.ITEM_WIDTH + 'px';
+            this.scrollX = -this.getX();
+            this.container.style.left = -this.scrollX + 'px';
             return true;
         },
         loaded: 0,
@@ -6299,6 +6320,69 @@
                 this.onLive(function () {
                     this.setThumbnail(this.app().server().getAsset(info.project.thumbnail));
                 });
+            }
+        }
+    });
+    d.r.ActivityCarousel = d.Class(d.r.Carousel, {
+        init: function () {
+            this.base(arguments);
+            this.addClass('d-r-activity-carousel');
+        },
+        _transformer: function (item) {
+            return new d.r.ActivityCarouselItem()
+                .setIcon(item.icon)
+                .setDescription(item.description)
+                .setTime(item.time);
+        },
+        load: function () {
+            var t = this, offset, length;
+            if (this.max !== -1) return;
+            offset = this.offset;
+            length = this.maxVisibleItemCount() * 2;
+            this.loadItems(offset, length, function (items) {
+                var i = 0, item;
+                while (item = items[i++]) {
+                    if ((offset + i - 1) % 3 === 0) {
+                        t.add(t.column = new d.Container('d-r-activity-carousel-column'));
+                    }
+                    t.column.add(t.items[offset + i - 1] = t._transformer(item));
+                }
+            });
+        },
+        ITEM_WIDTH: 400,
+        getOffset: function () {
+            return Math.ceil(this.scrollX / this.ITEM_WIDTH) * 3;
+        },
+        getX: function () {
+            return -this.offset / 3 * this.ITEM_WIDTH;
+        },
+        maxVisibleItemCount: function () {
+            return this.base(arguments) * 3;
+        },
+        visibleItemCount: function () {
+            return this.base(arguments) * 3;
+        },
+    });
+    d.r.ActivityCarouselItem = d.Class(d.Container, {
+        init: function () {
+            this.base(arguments, 'd-r-activity-carousel-item');
+            this.element.appendChild(this.iconElement = this.newElement('d-r-activity-carousel-item-icon', 'img'));
+            this.element.appendChild(this.descriptionElement = this.newElement('d-r-activity-carousel-item-description'));
+            this.element.appendChild(this.timeElement = this.newElement('d-r-activity-carousel-item-time'));
+        },
+        '.description': {
+            apply: function (description) {
+                this.descriptionElement.innerHTML = description;
+            }
+        },
+        '.time': {
+            apply: function (time) {
+                this.timeElement.textContent = time.toLocaleString();
+            }
+        },
+        '.icon': {
+            apply: function (url) {
+                this.iconElement.src = url;
             }
         }
     });

@@ -1882,10 +1882,15 @@
     text-decoration: none;
     cursor: pointer;
 }
+.d-r-link.black {
+    color: #000;
+    font-weight: bold;
+}
 .d-r-link:hover,
 .d-r-link:focus,
 .d-r-link:active {
     text-decoration: underline;
+    color: #05d;
 }
 .d-r-link:hover:active,
 .d-r-link:focus:active {
@@ -2040,6 +2045,38 @@
 .d-r-carousel-item-detail {
     display: none;
     padding: 0 0 4px;
+}
+
+.d-r-activity-carousel {
+    height: 168px;
+}
+.d-r-activity-carousel-column {
+    display: inline-block;
+    vertical-align: top;
+}
+.d-r-activity-carousel-item {
+    display: block;
+    width: 400px;
+    height: 40px;
+    margin-bottom: 12px;
+}
+.d-r-activity-carousel-item-icon {
+    float: left;
+    border: 1px solid #ccc;
+    width: 38px;
+    height: 38px;
+    margin: 0 12px;
+}
+.d-r-activity-carousel-item-time {
+    color: #888;
+    font-size: 12px;
+    line-height: 12px;
+}
+.d-r-activity-carousel-item-description,
+.d-r-activity-carousel-item-time {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .d-r-list-up-button,
