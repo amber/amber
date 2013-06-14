@@ -42,21 +42,18 @@
 }
 
 .d-scrollable::-webkit-scrollbar {
-    background: #ccc;
-    width: 4px;
-    height: 4px;
+    background: #ddd;
+    width: 10px;
+    height: 10px;
 }
 .d-scrollable::-webkit-scrollbar-thumb {
-    background: #555;
-}
-.d-scrollable::-webkit-scrollbar-thumb:hover {
-    background: #444;
+    background: #aaa;
 }
 .d-scrollable::-webkit-scrollbar-thumb:active {
-    background: #222;
+    background: #888;
 }
 .d-scrollable::-webkit-scrollbar-corner {
-    background: #ccc;
+    background: #ddd;
 }
 
 .d-label {
