@@ -36,7 +36,7 @@
         return words[Math.random() * words.length | 0];
     }
     function rclause(min, max) {
-        return clauses[Math.random() * clauses.length | 0];
+        return clauses[Math.random() * clauses.length | 0].split(' ').slice(0, rint(min, max)).join(' ');
     }
     function rsentencep(min, max) {
         var r = Math.random();
@@ -61,7 +61,7 @@
 
     d.r.OfflineServer = d.Class(d.r.Server, {
         openTime: 0,
-        latency: 10,
+        latency: 200,
         userRank: 'default',
         acceptSignIn: true,
         _postId: 0,
@@ -165,7 +165,7 @@
                 },
                 'forums.topics': function (options) {
                     return this.data.forums[options.forum$id].topics.slice(options.offset, options.offset + options.length).map(function (topic) {
-                        return this.requests['forums.topic'].call(this, {
+                        return this.onServer.request['forums.topic'].call(this, {
                             topic$id: topic.id
                         });
                     }, this);
@@ -176,25 +176,42 @@
                         forum$id: topic.forum$id,
                         id: topic.id,
                         name: topic.name,
-                        author$id: topic.author$id,
+                        authors: topic.authors,
                         isUnread: false,
                         views: topic.viewCount,
                         posts: topic.postCount
                     };
                 },
+                'forums.topic.view': function (options) {
+                    ++this.data.topics[options.topic$id].views;
+                    return null;
+                },
                 'forums.posts': function (options) {
-                    var posts = this.data.topics[options.topic$id].posts, i;
+                    var topic = this.data.topics[options.topic$id];
+                    var posts = topic.posts, i;
                     if (!posts.length) {
-                        i = 100;
+                        i = topic.postCount;
                         while (i--) {
                             posts.push(this.data.posts[++this._postId] = {
                                 id: this._postId,
-                                author$id: 1,
+                                authors: rclause(1, rint(2, 5)).split(' '),
                                 body: ressay(1, 4, 1, 8, 3, 24)
                             });
                         }
                     }
                     return posts.slice(options.offset, options.offset + options.length);
+                },
+                'forums.post.add': function (options) {
+                    this.data.topics[options.topic$id].posts.push(this.data.posts[++this._postId] = {
+                        id: this._postId,
+                        authors: [this.app().user().name()],
+                        body: options.body
+                    });
+                    return this._postId;
+                },
+                'forums.post.edit': function (options) {
+                    var post = this.data.posts[options.post$id];
+                    post.body = options.body;
                 }
             }
         },
@@ -245,7 +262,7 @@
                     remixes: [],
                     project: {
                         created: +new Date,
-                        authors: rclause(1, rint(2, 5)).split(' '),
+                        authors: rclause(1, rint(1, 3)).split(' '),
                         name: capitalize(rclause(1, rint(5, 10))),
                         notes: ressay(1, 8, 1, 10, 3, 24),
                         thumbnail: 'project:' + rint(10000, 3000000)
@@ -267,9 +284,9 @@
                             forum$id: forum.id,
                             id: ++topicId,
                             name: capitalize(rclause(3, 10)),
-                            author$id: 1,
+                            authors: rclause(1, rint(1, 3)).split(' '),
                             viewCount: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
-                            postCount: 0,
+                            postCount: rint(1, rint(5, 100)),
                             posts: []
                         });
                         data.topics[topicId] = topic;
@@ -312,7 +329,12 @@
             return 'data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
         },
         sendServer: function (type, properties) {
-            var p = this.encodePacket('Server', type, properties);
+            if (this.app().config().verbosePackets) {
+                var p = properties || {};
+                p.$type = type;
+            } else {
+                p = this.encodePacket('Server', type, properties);
+            }
             if (!p) return;
             setTimeout(function () {
                 this.listeners.message.call(this, {
