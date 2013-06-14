@@ -1540,6 +1540,7 @@
 .d-r-splash-subtitle,
 .d-r-splash-links,
 .d-r-paragraph,
+.d-r-section,
 .d-r-title,
 .d-r-subtitle,
 .d-r-block-form,
@@ -1564,6 +1565,10 @@
 }
 .d-r-paragraph {
     margin: 12px auto;
+}
+.d-r-section {
+    position: relative;
+    margin: 12px auto 60px;
 }
 .d-r-form {
     padding: 0 12px 0;
@@ -2226,9 +2231,9 @@
 .d-r-post-author .d-label {
     text-decoration: inherit;
 }
-.d-r-post-edit {
+.d-r-edit-button {
     position: absolute;
-    top: 24px;
+    top: 0;
     right: 100%;
     width: 24px;
     height: 24px;
@@ -2239,13 +2244,19 @@
     opacity: .3;
     cursor: pointer;
 }
-.d-r-post-edit:hover,
-.d-r-post-edit:active,
-.d-r-post-edit:focus {
+.d-r-post-edit {
+    top: 24px;
+}
+.d-r-section-edit {
+    margin-right: -12px;
+}
+.d-r-edit-button:hover,
+.d-r-edit-button:active,
+.d-r-edit-button:focus {
     opacity: .6;
 }
-.d-r-post-edit:hover:active,
-.d-r-post-edit:focus:active {
+.d-r-edit-button:hover:active,
+.d-r-edit-button:focus:active {
     opacity: 1;
 }
 .d-r-post-body {

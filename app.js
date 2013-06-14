@@ -4840,11 +4840,11 @@
                             array.push({
                                 icon: self.server().getAsset(''),
                                 description: [
-                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=# class=d-r-link>Summer</a>',
-                                    '<a href=#users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
-                                    '<a href=#users/MathWizzFade class="d-r-link black">MathWizzFade</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
-                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
-                                    '<a href=#users/MathWizz class="d-r-link black">MathWizz</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
+                                    '<a href=#/users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=#/ class=d-r-link>Summer</a>',
+                                    '<a href=#/users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#/users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#/users/MathWizzFade class="d-r-link black">MathWizzFade</a> loved <a href=#/ class=d-r-link>Amber is Cool</a>',
+                                    '<a href=#/users/nXIII class="d-r-link black">nXIII</a> followed <a href=#/users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#/users/MathWizz class="d-r-link black">MathWizz</a> shared the project <a href=#/ class=d-r-link>Custom Blocks</a>'
                                 ][i % 5],
                                 time: new Date
                             });
@@ -5059,45 +5059,46 @@
             return d.r.views['project.view'].call(this, args, true);
         },
         'user.profile': function (args) {
+            var self = this;
             this.page
                 .add(new d.Container('d-r-user-icon'))
-                .add(new d.Label('d-r-title d-r-user-title').setText(args[1]))
+                .add(new d.Label('d-r-title').setText(args[1]))
                 .add(new d.Container('d-r-user-icon'))
-                .add(new d.Container('d-r-user-activity')
-                    .add(new d.Label('d-r-title').setText('About Me'))
-                    .add(new d.Label('d-r-user-about').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'))
-                    .add(new d.Label('d-r-title d-r-user-title-alternate').setText('What I\'m Working On'))
-                    .add(new d.Label('d-r-user-about d-r-user-about-alternate').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
-                    .add(new d.Label('d-r-title d-r-user-activity-title').setText('What I\'ve Been Doing'))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Some Project</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('2 days, 8 hours ago'))))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% shared the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Summer</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% favorited the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">Another Project</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% loved the project %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('project.view', 3)) + '">This Project</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% followed %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="' + this.abs(this.reverse('user.profile', 'MathWizz')) + '">MathWizz</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago'))))
-                    .add(new d.Container('d-r-user-activity-item')
-                        .add(new d.Label('d-r-activity-message').setRichText(d.t('% subscribed to %', '<strong>' + d.htmle(args[1]) + '</strong>', '<a class=d-r-link href="#">Awesome Projects</a>')))
-                        .add(new d.Label('d-r-activity-date').setText(d.t('4 days, 1 hour ago')))))
-                .add(new d.Container('d-r-user-carousels')
-                    .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
-                    .add(new d.r.Carousel())
-                    .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
-                    .add(new d.r.Carousel())
-                    .add(new d.Label('d-r-title').setText(d.t('Collections')))
-                    .add(new d.r.Carousel())
-                    .add(new d.Label('d-r-title').setText(d.t('Following')))
-                    .add(new d.r.Carousel())
-                    .add(new d.Label('d-r-title').setText(d.t('Followers')))
-                    .add(new d.r.Carousel()));
+                .add(new d.r.ActivityCarousel().setLoader(function (offset, length, callback) {
+                        var array = [];
+                        var i = offset;
+                        while (i < 100 && i < offset + length) {
+                            array.push({
+                                icon: self.server().getAsset(''),
+                                description: [
+                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=#/ class=d-r-link>Summer</a>',
+                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#/users/MathIncognito class=d-r-link>MathIncognito</a>',
+                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=#/ class=d-r-link>Amber is Cool</a>',
+                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#/users/nXIII- class=d-r-link>nXIII-</a>',
+                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=#/ class=d-r-link>Custom Blocks</a>'
+                                ][i % 5],
+                                time: new Date
+                            });
+                            ++i;
+                        }
+                        callback(array);
+                    }))
+                .add(new d.Label('d-r-title').setText('About Me'))
+                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.')
+                    .add(new d.Button('d-r-edit-button d-r-section-edit')))
+                .add(new d.Label('d-r-title').setText('What I\'m Working On'))
+                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.')
+                     .add(new d.Button('d-r-edit-button d-r-section-edit')))
+                .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
+                .add(new d.r.ProjectCarousel().setRequestName('topViewed'))
+                .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
+                .add(new d.r.ProjectCarousel().setRequestName('topLoved'))
+                .add(new d.Label('d-r-title').setText(d.t('Collections')))
+                .add(new d.r.Carousel())
+                .add(new d.Label('d-r-title').setText(d.t('Following')))
+                .add(new d.r.Carousel())
+                .add(new d.Label('d-r-title').setText(d.t('Followers')))
+                .add(new d.r.Carousel());
         },
         'forums.index': function () {
             this.request('forums.categories', {}, function (categories) {
@@ -5301,7 +5302,7 @@
             var self = this, username = this.user() && this.user().name(), users, container, body, editButton;
             container = new d.Container('d-r-post');
             if (post.authors.indexOf(username) !== -1) {
-                container.add(editButton = new d.Button('d-r-post-edit').onExecute(edit));
+                container.add(editButton = new d.Button('d-r-edit-button d-r-post-edit').onExecute(edit));
                 if (!post.id) {
                     editButton.hide();
                 }
