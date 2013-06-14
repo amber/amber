@@ -81,6 +81,9 @@
     padding: 12px;
     background: -webkit-linear-gradient(#777, #555);
     background: -moz-linear-gradient(#777, #555);
+    background: -ms-linear-gradient(#777, #555);
+    background: -o-linear-gradient(#777, #555);
+    background: linear-gradient(#777, #555);
     box-shadow: 0 3px 20px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .1);
     border-radius: 4px;
     z-index: 4;
@@ -138,6 +141,9 @@
     padding: 2px 6px 4px;
     background: -webkit-linear-gradient(#eee, #ccc);
     background: -moz-linear-gradient(#eee, #ccc);
+    background: -ms-linear-gradient(#eee, #ccc);
+    background: -o-linear-gradient(#eee, #ccc);
+    background: linear-gradient(#eee, #ccc);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2);
     color: #222;
     outline: 0;
@@ -165,6 +171,9 @@
     color: #000;
     background: -webkit-linear-gradient(#aaa, #bbb);
     background: -moz-linear-gradient(#aaa, #bbb);
+    background: -ms-linear-gradient(#aaa, #bbb);
+    background: -o-linear-gradient(#aaa, #bbb);
+    background: linear-gradient(#aaa, #bbb);
 }
 .d-checkbox-button {
     padding: 0;
@@ -1935,10 +1944,18 @@
 }
 .d-r-carousel-shade-left {
     left: 0;
+    background: -webkit-linear-gradient(to right, #fff, rgba(255,255,255,0));
+    background: -moz-linear-gradient(to right, #fff, rgba(255,255,255,0));
+    background: -ms-linear-gradient(to right, #fff, rgba(255,255,255,0));
+    background: -o-linear-gradient(to right, #fff, rgba(255,255,255,0));
     background: linear-gradient(to right, #fff, rgba(255,255,255,0));
 }
 .d-r-carousel-shade-right {
     right: 0;
+    background: -webkit-linear-gradient(to left, #fff, rgba(255,255,255,0));
+    background: -moz-linear-gradient(to left, #fff, rgba(255,255,255,0));
+    background: -ms-linear-gradient(to left, #fff, rgba(255,255,255,0));
+    background: -o-linear-gradient(to left, #fff, rgba(255,255,255,0));
     background: linear-gradient(to left, #fff, rgba(255,255,255,0));
 }
 .d-r-carousel-button:hover,
