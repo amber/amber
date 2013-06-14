@@ -2222,12 +2222,6 @@
 .d-r-post-author .d-r-link:active {
     color: #028;
 }
-@media (max-width: 672px) {
-    .d-r-post-author {
-        position: static;
-        margin: 0;
-    }
-}
 .d-r-post-author .d-label {
     text-decoration: inherit;
 }
@@ -2271,6 +2265,17 @@
 }
 .d-r-post-paragraph {
     margin: 12px 0;
+}
+
+@media (max-width: 672px) {
+    .d-r-post-author {
+        position: static;
+        margin: 0;
+    }
+    .d-r-post-edit {
+        position: static;
+        float: right;
+    }
 }
 
 .d-r-post.pending {
