@@ -4839,7 +4839,13 @@
                         while (i < 100 && i < offset + length) {
                             array.push({
                                 icon: self.server().getAsset(''),
-                                description: '<a href=# class="d-r-link black">Someone</a> did <a href=# class=d-r-link>something</a>',
+                                description: [
+                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=# class=d-r-link>Summer</a>',
+                                    '<a href=#users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#users/MathWizzFade class="d-r-link black">MathWizzFade</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
+                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#users/MathWizz class="d-r-link black">MathWizz</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
+                                ][i % 5],
                                 time: new Date
                             });
                             ++i;
