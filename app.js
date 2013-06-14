@@ -1029,20 +1029,23 @@
         TAG_NAME: 'textarea',
         '.autoSize': {
             value: false,
-            apply: function () {
+            apply: function (autoSize) {
+                if (autoSize) {
+                    this.element.style.resize = 'none';
+                }
                 this._autoResize();
             }
         },
+        _styleProperties: ['font', 'lineHeight', 'paddingTop', 'paddingRight', 'paddingLeft', 'paddingBottom', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'borderTopWidth', 'borderTopStyle', 'borderTopColor', 'borderRightWidth', 'borderRightStyle', 'borderRightColor', 'borderBottomWidth', 'borderBottomStyle', 'borderBottomColor', 'borderLeftWidth', 'borderLeftStyle', 'borderLeftColor', 'width', 'boxSizing', 'MozBoxSizing'],
         _autoResize: function () {
             if (this.autoSize()) {
                 var div = d.TextField.metric;
                 var style = getComputedStyle(this.element);
-                div.style.font = style.font;
-                div.style.padding = style.padding;
-                div.style.margin = style.margin;
-                div.style.border = style.border;
-                div.style.width = style.width;
-                div.style.boxSizing = style.boxSizing;
+                var properties = this._styleProperties;
+                var i = properties.length;
+                while (i--) {
+                    div.style[properties[i]] = style[properties[i]];
+                }
                 div.textContent = this.element.value + 'M';
                 this.element.style.height = div.offsetHeight + 'px';
             }
@@ -5141,7 +5144,7 @@
                             .add(new d.Label('d-r-post-body').setRichText(d.r.parse(bodyText))))
                         .add(new d.Container('d-r-post-spinner')))
                     .add(new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
-                        .add(new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
+                        .add(new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true))
                         .add(new d.Button('d-button').setText('Reply').onExecute(post)));
                 self.request('forums.topic.add', {
                     forum$id: forumId,
@@ -5226,7 +5229,7 @@
                     }.bind(this))
                     .setTransformer(d.r.template.post.bind(this)))
                 .add(postForm = new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
-                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body'))
+                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(d.t('Write something\u2026')))
                     .add(new d.Button('d-button').setText('Reply').onExecute(post)));
             if (info) {
                 load(info.topic);
