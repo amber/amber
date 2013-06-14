@@ -40,14 +40,16 @@
     }
     function rsentencep(min, max) {
         var r = Math.random();
-        return r < .1 ? rsentencep(min, max) + ', ' + rsentencep(min, max) :
-            r < .2 ? rsentencep(min, max) + ';  ' + rsentencep(min, max) : rclause(min, max);
+        return r < .03 ? rsentencep(min, max) + ', ' + rsentencep(min, max) :
+            r < .01 ? rsentencep(min, max) + ';  ' + rsentencep(min, max) : rclause(min, max);
     }
     function rsentence(min, max) {
-        return rparagraph()[0];
+        return rparagraph(1, 1, min, max);
     }
     function rparagraph(min, max, mins, maxs) {
-        return paragraphs[Math.random() * paragraphs.length | 0];
+        return paragraphs[Math.random() * paragraphs.length | 0].split('.').slice(0, rint(min, max)).map(function (sentence) {
+            return sentence.split(' ').slice(0, rint(mins, maxs)).join(' ');
+        }).join('.') + '.';
     }
     function ressay(min, max, minp, maxp, mins, maxs) {
         return Array(Math.random() * (max - min + 1) + min | 0).join(',').split(',').map(function () {
@@ -65,6 +67,7 @@
         userRank: 'default',
         acceptSignIn: true,
         _postId: 0,
+        _topicId: 0,
         onServer: {
             connect: function (p) {
                 this.sendServer('connect', {
@@ -87,7 +90,7 @@
                 this.sendServer('auth.signOut.succeeded', {});
             },
             clientRequest: function (p) {
-                var f = this.onServer.request[p.name];
+                var f = this.onServer.request[p.$name];
                 if (f) {
                     setTimeout(function () {
                         try {
@@ -107,7 +110,7 @@
                         }
                     }.bind(this), this.latency);
                 } else {
-                    console.error('RequestError: Undefined request in', p.name);
+                    console.error('RequestError: Undefined request in', p.$name);
                 }
             },
             request: {
@@ -186,27 +189,51 @@
                     ++this.data.topics[options.topic$id].views;
                     return null;
                 },
+                'forums.topic.add': function (options) {
+                    this.data.forums[options.forum$id].topics.push(this.data.topics[++this._topicId] = {
+                        forum$id: options.forum$id,
+                        id: this._topicId,
+                        name: options.name,
+                        authors: [this.app().user().name()],
+                        isUnread: false,
+                        viewCount: 0,
+                        postCount: 1,
+                        posts: [this.data.posts[++this._postId] = {
+                            topic$id: this._topicId,
+                            id: this._postId,
+                            authors: [this.app().user().name()],
+                            body: options.body
+                        }]
+                    });
+                    return {
+                        topic$id: this._topicId,
+                        post$id: this._postId
+                    };
+                },
                 'forums.posts': function (options) {
                     var topic = this.data.topics[options.topic$id];
                     var posts = topic.posts, i;
-                    if (!posts.length) {
+                    if (!posts) {
                         i = topic.postCount;
+                        topic.posts = posts = [];
                         while (i--) {
                             posts.push(this.data.posts[++this._postId] = {
                                 id: this._postId,
                                 authors: rclause(1, rint(2, 5)).split(' '),
-                                body: ressay(1, 4, 1, 8, 3, 24)
+                                body: ressay(1, rint(1, 4), 1, rint(2, 8), 3, 24)
                             });
                         }
                     }
                     return posts.slice(options.offset, options.offset + options.length);
                 },
                 'forums.post.add': function (options) {
-                    this.data.topics[options.topic$id].posts.push(this.data.posts[++this._postId] = {
+                    var topic = this.data.topics[options.topic$id];
+                    topic.posts.push(this.data.posts[++this._postId] = {
                         id: this._postId,
                         authors: [this.app().user().name()],
                         body: options.body
                     });
+                    ++topic.postCount;
                     return this._postId;
                 },
                 'forums.post.edit': function (options) {
@@ -216,7 +243,7 @@
             }
         },
         init: function () {
-            var i, id, topicId, postId, data;
+            var i, id, data;
             this.base(arguments);
             this.data = data = {
                 categories: [
@@ -270,8 +297,7 @@
                 });
             }
             id = 0;
-            topicId = 0;
-            postId = 0;
+            this._topicId = 0;
             data.categories.forEach(function (category) {
                 category.forums.forEach(function (forum) {
                     var topic;
@@ -282,18 +308,17 @@
                     while (i--) {
                         forum.topics.push(topic = {
                             forum$id: forum.id,
-                            id: ++topicId,
+                            id: ++this._topicId,
                             name: capitalize(rclause(3, 10)),
                             authors: rclause(1, rint(1, 3)).split(' '),
                             viewCount: rfloat(0, 10) * rfloat(0, 10) * rfloat(0, 10) | 0,
-                            postCount: rint(1, rint(5, 100)),
-                            posts: []
+                            postCount: rint(1, rint(5, 100))
                         });
-                        data.topics[topicId] = topic;
+                        data.topics[this._topicId] = topic;
                     }
                     forum.topicCount = forum.topics.length;
-                });
-            });
+                }, this);
+            }, this);
             this.socket.send = this.socket.send.bind(this);
         },
         socket: {
@@ -304,7 +329,7 @@
                 packet.$time = new Date;
                 packet.$side = 'Client';
                 if (packet.$type.substr(0, 8) === 'request.') {
-                    packet.name = packet.$type.substr(8);
+                    packet.$name = packet.$type.substr(8);
                     return this.onServer.clientRequest.call(this, packet);
                 }
                 if (this.onServer.hasOwnProperty(packet.$type)) {
