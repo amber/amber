@@ -5124,8 +5124,8 @@
                     .add(title = new d.Label))
                 .add(new d.Container('d-r-subtitle')
                     .add(subtitle = new d.Label())
-                    .add(new d.r.Separator())
-                    .add(new d.r.Link()
+                    .add(new d.r.Separator('d-r-authenticated'))
+                    .add(new d.r.Link('d-r-link d-r-authenticated')
                         .setText(d.t('New Topic'))
                         .setURL(this.reverse('forums.forum.newTopic', forumId))))
                 .add(new d.r.LazyList('d-r-topic-list')
@@ -5198,6 +5198,7 @@
                 });
             }
             var self = this, forumId = args[1], title, subtitle, base, postForm, topicName, body;
+            this.requireAuthentication();
             this.page
                 .add(base = new d.Container('d-r-new-topic-editor')
                     .add(new d.Container('d-r-title')
@@ -5244,7 +5245,6 @@
                     container.usePostId(id);
                 });
             }
-            this.reloadOnAuthentication = true;
             var self = this, topicId = args[1], up, title, postForm, body, list;
             this.page
                 .add(new d.Container('d-r-title d-r-topic-title')
@@ -5292,6 +5292,7 @@
                     container.replace(editor, body).remove(updateButton).remove(cancelButton);
                     editButton.show();
                 }
+                if (!post.id) return;
                 var editor, updateButton, cancelButton;
                 container.replace(body, editor = new d.TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
                     .add(updateButton = new d.Button().setText(d.t('Update Post')).onExecute(update))
@@ -5301,12 +5302,8 @@
             }
             var self = this, username = this.user() && this.user().name(), users, container, body, editButton;
             container = new d.Container('d-r-post');
-            if (post.authors.indexOf(username) !== -1) {
-                container.add(editButton = new d.Button('d-r-edit-button d-r-post-edit').onExecute(edit));
-                if (!post.id) {
-                    editButton.hide();
-                }
-            }
+            container.add(editButton = new d.Button('d-r-edit-button d-r-post-edit').onExecute(edit));
+            this.authenticate(post.authors, editButton);
             container
                 .add(users = new d.Label('d-r-post-author'))
                 .add(body = new d.Label('d-r-post-body').setRichText(d.r.parse(post.body)));
@@ -5319,7 +5316,6 @@
             });
             container.usePostId = function (id) {
                 post.id = id;
-                if (editButton) editButton.show();
             };
             return container;
         }
@@ -5410,6 +5406,9 @@
                 if (this.reloadOnAuthentication) {
                     this.reload();
                 }
+                this.authenticators.forEach(function (a) {
+                    a.call(this);
+                }, this);
             }
         },
         createPage: function () {
@@ -5457,6 +5456,29 @@
                 this.showSignIn(true);
                 throw this.authenticationError;
             }
+        },
+        authenticate: function (users, controls) {
+            function authenticator() {
+                var user = this.user();
+                var visible = false;
+                if (user) {
+                    var username = user.name();
+                    var i = users.length;
+                    while (i--) {
+                        if (typeof users[i] === 'string' ? users[i] === username : users[i] === user) {
+                            visible = true;
+                            break;
+                        }
+                    }
+                }
+                controls.forEach(function (control) {
+                    control.setVisible(visible);
+                });
+            }
+            if (!(users instanceof Array)) users = [users];
+            if (!(controls instanceof Array)) controls = [controls];
+            this.authenticators.push(authenticator);
+            authenticator.call(this);
         },
         signOut: function () {
             if (!this.user()) return;
@@ -5551,6 +5573,7 @@
             if (this.signInForm.visible() && this.signInAutohide) {
                 this.hideSignIn();
             }
+            this.authenticators = [];
             this.dispatch('Unload', new d.ControlEvent().setControl(this));
             this.clearListeners('Unload');
             this.pendingRequests = 0;
@@ -6151,8 +6174,8 @@
         }
     });
     d.r.Separator = d.Class(d.Label, {
-        init: function () {
-            this.base(arguments, 'd-r-separator');
+        init: function (className) {
+            this.base(arguments, 'd-r-separator' + (className ? ' ' + className : ''));
             this.setText('\xb7');
         }
     });
