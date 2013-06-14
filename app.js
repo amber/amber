@@ -5083,12 +5083,14 @@
                         }
                         callback(array);
                     }))
-                .add(new d.Label('d-r-title').setText('About Me'))
-                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.')
+                .add(new d.Container('d-r-title')
+                    .add(new d.Label().setText('About Me'))
                     .add(new d.Button('d-r-edit-button d-r-section-edit')))
-                .add(new d.Label('d-r-title').setText('What I\'m Working On'))
-                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.')
-                     .add(new d.Button('d-r-edit-button d-r-section-edit')))
+                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'))
+                .add(new d.Container('d-r-title')
+                    .add(new d.Label().setText('What I\'m Working On'))
+                    .add(new d.Button('d-r-edit-button d-r-section-edit')))
+                .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
                 .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
                 .add(new d.r.ProjectCarousel().setRequestName('topViewed'))
                 .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
@@ -6221,7 +6223,7 @@
         ITEM_WIDTH: 194.6458333731,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
-            var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.wrap.offsetWidth + this.leftButton.offsetWidth * 2) : this.container.offsetWidth;
+            var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.visibleWidth()) : this.container.offsetWidth;
             this.scrollX += e.x;
             if (this.scrollX < 0) this.scrollX = 0;
             if (this.scrollX > max) this.scrollX = max;
@@ -6234,6 +6236,9 @@
             }
             e.setAllowDefault(true);
         },
+        visibleWidth: function () {
+            return this.wrap.offsetWidth - this.leftButton.offsetWidth * 2;
+        },
         getOffset: function () {
             return Math.ceil(this.scrollX / this.ITEM_WIDTH);
         },
@@ -6241,10 +6246,10 @@
             return -this.offset * this.ITEM_WIDTH;
         },
         visibleItemCount: function () {
-            return Math.max(1, Math.floor(this.wrap.offsetWidth / this.ITEM_WIDTH));
+            return Math.max(1, Math.floor(this.visibleWidth() / this.ITEM_WIDTH));
         },
         maxVisibleItemCount: function () {
-            return Math.max(1, Math.ceil(this.wrap.offsetWidth / this.ITEM_WIDTH));
+            return Math.max(1, Math.ceil(this.visibleWidth() / this.ITEM_WIDTH));
         },
         scroll: function (screens) {
             var length = this.visibleItemCount();
