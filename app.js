@@ -1036,6 +1036,15 @@
                 this._autoResize();
             }
         },
+        '.text': {
+            get: function () {
+                return this.element.value;
+            },
+            set: function (text) {
+                this.element.value = text;
+                this._autoResize();
+            }
+        },
         _styleProperties: ['font', 'lineHeight', 'paddingTop', 'paddingRight', 'paddingLeft', 'paddingBottom', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'borderTopWidth', 'borderTopStyle', 'borderTopColor', 'borderRightWidth', 'borderRightStyle', 'borderRightColor', 'borderBottomWidth', 'borderBottomStyle', 'borderBottomColor', 'borderLeftWidth', 'borderLeftStyle', 'borderLeftColor', 'width', 'boxSizing', 'MozBoxSizing'],
         _autoResize: function () {
             if (this.autoSize()) {
