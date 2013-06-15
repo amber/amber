@@ -280,6 +280,7 @@
                 this.element.addEventListener('scroll', function () {
                     t.dispatch('Scroll', new d.ControlEvent().setControl(this));
                 });
+                this._hasScrollEvent = true;
             }
             return this;
         },
