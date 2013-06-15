@@ -5193,9 +5193,7 @@
                                     .add(new d.Label().setText(username))))
                             .add(new d.Label('d-r-post-body').setRichText(d.r.parse(bodyText))))
                         .add(new d.Container('d-r-post-spinner')))
-                    .add(new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
-                        .add(new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true))
-                        .add(new d.Button('d-button').setText('Reply').onExecute(post)));
+                    .add(self.template('replyForm'));
                 self.request('forums.topic.add', {
                     forum$id: forumId,
                     name: name,
@@ -5243,30 +5241,7 @@
                 up.setURL(self.reverse('forums.forum.view', topic.forum$id));
                 title.setText(d.t.maybe(topic.name));
             }
-            function post() {
-                var username = self.user().name(), spinner, container;
-                var newPost = new d.Container('d-r-post-list')
-                    .add(container = self.template('post', {
-                        authors: [username],
-                        body: body.text()
-                    }).addClass('pending'))
-                    .add(spinner = new d.Container('d-r-post-spinner'));
-                self.page.insert(newPost, postForm);
-                postForm.hide();
-                self.wrap.setScrollTop('max');
-                self.request('forums.post.add', {
-                    topic$id: topicId,
-                    body: body.text()
-                }, function (id) {
-                    newPost.children[0].removeClass('pending');
-                    newPost.remove(spinner);
-                    body.setText('');
-                    postForm.show();
-                    container.usePostId(id);
-                    self.wrap.setScrollTop('max');
-                });
-            }
-            var self = this, topicId = args[1], up, title, postForm, body, list;
+            var self = this, topicId = args[1], up, title, list;
             this.page
                 .add(new d.Container('d-r-title d-r-topic-title')
                     .add(up = new d.r.Link('d-r-list-up-button'))
@@ -5280,9 +5255,7 @@
                         }, callback);
                     }.bind(this))
                     .setTransformer(d.r.template.post.bind(this)))
-                .add(postForm = new d.Container('d-r-authenticated d-r-block-form d-r-new-post-editor')
-                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(d.t('Write something\u2026')))
-                    .add(new d.Button('d-button').setText('Reply').onExecute(post)));
+                .add(this.template('replyForm', topicId));
             if (info) {
                 load(info.topic);
                 list.setItems(info.posts);
@@ -5339,6 +5312,37 @@
                 post.id = id;
             };
             return container;
+        },
+        replyForm: function (topicId) {
+            function post() {
+                if (!topicId) return;
+                var username = self.user().name(), spinner, container;
+                var newPost = new d.Container('d-r-post-list')
+                    .add(container = self.template('post', {
+                        authors: [username],
+                        body: body.text()
+                    }).addClass('pending'))
+                    .add(spinner = new d.Container('d-r-post-spinner'));
+                postForm.parent.insert(newPost, postForm);
+                postForm.hide();
+                self.wrap.setScrollTop('max');
+                self.request('forums.post.add', {
+                    topic$id: topicId,
+                    body: body.text()
+                }, function (id) {
+                    newPost.children[0].removeClass('pending');
+                    newPost.remove(spinner);
+                    body.setText('');
+                    postForm.show();
+                    container.usePostId(id);
+                    self.wrap.setScrollTop('max');
+                });
+            }
+            var self = this, postForm, body;
+            return postForm = new d.Container('d-r-block-form d-r-new-post-editor')
+                    .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(d.t('Write something\u2026')))
+                    .add(new d.Button('d-button d-r-authenticated').setText('Reply').onExecute(post))
+                    .add(new d.Button('d-button d-r-hide-authenticated').setText('Sign In to Reply'));
         }
     };
     d.r.App = d.Class(d.App, {
