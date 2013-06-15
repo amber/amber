@@ -190,7 +190,7 @@
                     return null;
                 },
                 'forums.topic.add': function (options) {
-                    this.data.forums[options.forum$id].topics.push(this.data.topics[++this._topicId] = {
+                    this.data.forums[options.forum$id].topics.unshift(this.data.topics[++this._topicId] = {
                         forum$id: options.forum$id,
                         id: this._topicId,
                         name: options.name,
