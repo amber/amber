@@ -186,7 +186,7 @@
                     };
                 },
                 'forums.topic.view': function (options) {
-                    ++this.data.topics[options.topic$id].views;
+                    ++this.data.topics[options.topic$id].viewCount;
                     return null;
                 },
                 'forums.topic.add': function (options) {
