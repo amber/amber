@@ -273,6 +273,22 @@
                 this.element.title = tooltip;
             }
         },
+        '.scrollLeft': {
+            get: function () {
+                return this.container.scrollLeft;
+            },
+            set: function (scrollLeft) {
+                this.container.scrollLeft = scrollLeft === 'max' ? this.container.scrollWidth : scrollLeft;
+            }
+        },
+        '.scrollTop': {
+            get: function () {
+                return this.container.scrollTop;
+            },
+            set: function (scrollTop) {
+                this.container.scrollTop = scrollTop === 'max' ? this.container.scrollHeight : scrollTop;
+            }
+        },
         _hasScrollEvent: false,
         withScrollEvent: function () {
             var t = this;
@@ -5237,6 +5253,7 @@
                     .add(spinner = new d.Container('d-r-post-spinner'));
                 self.page.insert(newPost, postForm);
                 postForm.hide();
+                self.wrap.setScrollTop('max');
                 self.request('forums.post.add', {
                     topic$id: topicId,
                     body: body.text()
@@ -5246,6 +5263,7 @@
                     body.setText('');
                     postForm.show();
                     container.usePostId(id);
+                    self.wrap.setScrollTop('max');
                 });
             }
             var self = this, topicId = args[1], up, title, postForm, body, list;
