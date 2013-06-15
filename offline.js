@@ -63,7 +63,6 @@
 
     d.r.OfflineServer = d.Class(d.r.Server, {
         openTime: 0,
-        latency: 200,
         userRank: 'default',
         acceptSignIn: true,
         _postId: 0,
@@ -108,7 +107,7 @@
                                 throw e;
                             }
                         }
-                    }.bind(this), this.latency);
+                    }.bind(this), this.app().config().latency);
                 } else {
                     console.error('RequestError: Undefined request in', p.$name);
                 }
@@ -365,7 +364,7 @@
                 this.listeners.message.call(this, {
                     data: JSON.stringify(p)
                 });
-            }.bind(this), this.latency);
+            }.bind(this), this.app().config().latency);
         },
         fetch: function (config, offset, length) {
             var order = config.order || 'id',
