@@ -4900,26 +4900,26 @@
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Featured Projects')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('Selected projects from the community')))
-                .add(new d.r.ProjectCarousel().setRequestName('featured'));
+                .add(new d.r.ProjectCarousel(this).setRequestName('featured'));
             if (this.user()) {
                 this.page
                     .add(new d.Label('d-r-title').setText(d.t('Made by People I\'m Following')))
                     .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their projects here')))
-                    .add(new d.r.ProjectCarousel().setRequestName('user.byFollowing'))
+                    .add(new d.r.ProjectCarousel(this).setRequestName('user.byFollowing'))
                     .add(new d.Label('d-r-title').setText(d.t('Loved by People I\'m Following')))
                     .add(new d.Label('d-r-subtitle').setText(d.t('Follow people to see their interests here')))
-                    .add(new d.r.ProjectCarousel().setRequestName('user.lovedByFollowing'));
+                    .add(new d.r.ProjectCarousel(this).setRequestName('user.lovedByFollowing'));
             }
             this.page
                 .add(new d.Label('d-r-title').setText(d.t('Top Remixed')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is remixing this week')))
-                .add(new d.r.ProjectCarousel().setRequestName('topRemixed'))
+                .add(new d.r.ProjectCarousel(this).setRequestName('topRemixed'))
                 .add(new d.Label('d-r-title').setText(d.t('Top Loved')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is loving this week')))
-                .add(new d.r.ProjectCarousel().setRequestName('topLoved'))
+                .add(new d.r.ProjectCarousel(this).setRequestName('topLoved'))
                 .add(new d.Label('d-r-title').setText(d.t('Top Viewed')))
                 .add(new d.Label('d-r-subtitle').setText(d.t('What the community is viewing this week')))
-                .add(new d.r.ProjectCarousel().setRequestName('topViewed'));
+                .add(new d.r.ProjectCarousel(this).setRequestName('topViewed'));
         },
         explore: function (args) {
             this.page
@@ -5109,9 +5109,9 @@
                     .add(new d.Button('d-r-edit-button d-r-section-edit')))
                 .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
                 .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
-                .add(new d.r.ProjectCarousel().setRequestName('topViewed'))
+                .add(new d.r.ProjectCarousel(this).setRequestName('topViewed'))
                 .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
-                .add(new d.r.ProjectCarousel().setRequestName('topLoved'))
+                .add(new d.r.ProjectCarousel(this).setRequestName('topLoved'))
                 .add(new d.Label('d-r-title').setText(d.t('Collections')))
                 .add(new d.r.Carousel())
                 .add(new d.Label('d-r-title').setText(d.t('Following')))
@@ -6203,6 +6203,7 @@
     d.r.Carousel = d.Class(d.Control, {
         acceptsScrollWheel: true,
         init: function () {
+            var self = this;
             this.items = [];
             this.visibleItems = [];
             this.base(arguments);
@@ -6223,11 +6224,13 @@
                     }
                 }
             }, this).element);
+            this.offset = 0;
+            this.scrollX = 0;
+            this.max = -1;
+            setTimeout(function () {
+                self.load(self.INITIAL_LOAD);
+            });
             this.onLive(function () {
-                this.clear();
-                this.offset = 0;
-                this.scrollX = 0;
-                this.max = -1;
                 this.load();
             });
             this.onScrollWheel(this.scrollWheel);
@@ -6240,6 +6243,7 @@
         '.loader': {},
         '.transformer': {},
         ITEM_WIDTH: 194.6458333731,
+        INITIAL_LOAD: 10,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
             var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.visibleWidth()) : this.container.offsetWidth;
@@ -6249,7 +6253,7 @@
             if ((offset = this.getOffset()) !== this.offset) {
                 this.offset = offset;
                 this.container.style.left = this.getX() + 'px';
-                if (this.offset + this.maxVisibleItemCount() > this.loaded) {
+                if (this.offset + this.maxVisibleItemCount() * 2 > this.loaded) {
                     this.load();
                 }
             }
@@ -6307,11 +6311,11 @@
             }
             this.loaded = offset + length;
         },
-        load: function () {
-            var t = this, offset, length;
+        load: function (length) {
+            var t = this, offset;
             if (this.max !== -1) return;
-            offset = this.offset;
-            length = this.maxVisibleItemCount() * 2;
+            offset = this.offset + this.maxVisibleItemCount();
+            if (length == null) length = this.maxVisibleItemCount() * 2;
             this.loadItems(offset, length, function (items) {
                 var i = 0, item;
                 while (item = items[i++]) {
@@ -6345,8 +6349,12 @@
         }
     });
     d.r.ProjectCarousel = d.Class(d.r.Carousel, {
+        init: function (app) {
+            this._initApp = app;
+            this.base(arguments);
+        },
         _loader: function (offset, length, callback) {
-            this.app().request('projects.' + this.requestName(), {
+            this._initApp.request('projects.' + this.requestName(), {
                 offset: offset,
                 length: length
             }, function (result) {
@@ -6388,11 +6396,11 @@
                 .setDescription(item.description)
                 .setTime(item.time);
         },
-        load: function () {
-            var t = this, offset, length;
+        load: function (length) {
+            var t = this, offset;
             if (this.max !== -1) return;
             offset = this.offset;
-            length = this.maxVisibleItemCount() * 2;
+            if (length == null) length = this.maxVisibleItemCount() * 2;
             this.loadItems(offset, length, function (items) {
                 var i = 0, item;
                 while (item = items[i++]) {
@@ -6415,7 +6423,7 @@
         },
         visibleItemCount: function () {
             return this.base(arguments) * 3;
-        },
+        }
     });
     d.r.ActivityCarouselItem = d.Class(d.Container, {
         init: function () {
@@ -6442,18 +6450,21 @@
     });
     d.r.LazyList = d.Class(d.Container, {
         init: function (className) {
+            var self = this;
             this.items = [];
             this.visibleItems = [];
             this.base(arguments, className || 'd-r-list');
             this.element.style.paddingBottom = this.buffer + 'px';
+            this.offset = 0;
+            this.max = -1;
             this.onLive(function () {
-                this.offset = 0;
-                this.max = -1;
-                this.loadIfNecessary();
                 this.app().wrap.onScroll(this.loadIfNecessary, this);
                 this.app().onUnload(function () {
                     this.app().wrap.unScroll(this.loadIfNecessary, this);
                 }, this);
+            });
+            setTimeout(function () {
+                self.load();
             });
         },
         '.loader': {},
