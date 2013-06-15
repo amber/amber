@@ -5342,7 +5342,7 @@
             return postForm = new d.Container('d-r-block-form d-r-new-post-editor')
                     .add(body = new d.TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(d.t('Write something\u2026')))
                     .add(new d.Button('d-button d-r-authenticated').setText('Reply').onExecute(post))
-                    .add(new d.Button('d-button d-r-hide-authenticated').setText('Sign In to Reply'));
+                    .add(new d.Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(this.showSignIn, this));
         }
     };
     d.r.App = d.Class(d.App, {
