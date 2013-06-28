@@ -13,6 +13,12 @@
         };
     }
 
+    d.extend = function (o, p) {
+        for (var key in p) if (Object.prototype.hasOwnProperty.call(p, key)) {
+            o[key] = p[key];
+        }
+        return o;
+    };
     d.addClass = function (element, className) {
         if ((' ' + element.className + ' ').indexOf(' ' + className + ' ') === -1) element.className += (element.className ? ' ' : '') + className;
     };
@@ -5109,7 +5115,7 @@
                     .add(new d.Button('d-r-edit-button d-r-section-edit')))
                 .add(new d.Label('d-r-section').setText('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
                 .add(new d.Label('d-r-title').setText(d.t('Shared Projects')))
-                .add(new d.r.ProjectCarousel(this).setRequestName('topViewed'))
+                .add(new d.r.ProjectCarousel(this).setRequestName('byUser').setRequestArguments({ user: args[1] }))
                 .add(new d.Label('d-r-title').setText(d.t('Favorite Projects')))
                 .add(new d.r.ProjectCarousel(this).setRequestName('topLoved'))
                 .add(new d.Label('d-r-title').setText(d.t('Collections')))
@@ -6355,13 +6361,14 @@
     d.r.ProjectCarousel = d.Class(d.r.Carousel, {
         init: function (app) {
             this._initApp = app;
+            this._requestArguments = {};
             this.base(arguments);
         },
         _loader: function (offset, length, callback) {
-            this._initApp.request('projects.' + this.requestName(), {
+            this._initApp.request('projects.' + this.requestName(), d.extend({
                 offset: offset,
                 length: length
-            }, function (result) {
+            }, this.requestArguments()), function (result) {
                 callback(result);
             });
         },
@@ -6376,7 +6383,8 @@
             apply: function (name) {
                 this.setHasDetails(name === 'topViewed' || name === 'topLoved' || name === 'topRemixed');
             }
-        }
+        },
+        '.requestArguments': {}
     });
     d.r.ProjectCarouselItem = d.Class(d.r.CarouselItem, {
         '.project': {
