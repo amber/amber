@@ -1954,18 +1954,18 @@
 }
 .d-r-carousel-shade-left {
     left: 0;
-    background: -webkit-linear-gradient(to right, #fff, rgba(255,255,255,0));
-    background: -moz-linear-gradient(to right, #fff, rgba(255,255,255,0));
-    background: -ms-linear-gradient(to right, #fff, rgba(255,255,255,0));
-    background: -o-linear-gradient(to right, #fff, rgba(255,255,255,0));
+    background: -webkit-linear-gradient(left, #fff, rgba(255,255,255,0));
+    background: -moz-linear-gradient(left, #fff, rgba(255,255,255,0));
+    background: -ms-linear-gradient(left, #fff, rgba(255,255,255,0));
+    background: -o-linear-gradient(left, #fff, rgba(255,255,255,0));
     background: linear-gradient(to right, #fff, rgba(255,255,255,0));
 }
 .d-r-carousel-shade-right {
     right: 0;
-    background: -webkit-linear-gradient(to left, #fff, rgba(255,255,255,0));
-    background: -moz-linear-gradient(to left, #fff, rgba(255,255,255,0));
-    background: -ms-linear-gradient(to left, #fff, rgba(255,255,255,0));
-    background: -o-linear-gradient(to left, #fff, rgba(255,255,255,0));
+    background: -webkit-linear-gradient(right, #fff, rgba(255,255,255,0));
+    background: -moz-linear-gradient(right, #fff, rgba(255,255,255,0));
+    background: -ms-linear-gradient(right, #fff, rgba(255,255,255,0));
+    background: -o-linear-gradient(right, #fff, rgba(255,255,255,0));
     background: linear-gradient(to left, #fff, rgba(255,255,255,0));
 }
 .d-r-carousel-button:hover,
@@ -2365,7 +2365,6 @@
 }
 .d-r-user-icon {
     float: left;
-    width: ;
 }
 
 .d-r-fluid-project-list {
