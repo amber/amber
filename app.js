@@ -5513,14 +5513,26 @@
         },
         signOut: function () {
             if (!this.user()) return;
-            this.server().signOut();
+            this.request('auth.signOut', {}, function () {
+                this.setUser(null);
+            });
         },
         signIn: function () {
+            function enable() {
+                self.signInButton.removeClass('d-button-pressed').setEnabled(true);
+            }
+            var self = this;
             this.signInButton.addClass('d-button-pressed').setEnabled(false);
-            this.server().signIn(this.signInUsername.text(), this.signInPassword.text(), function (message) {
-                this.signInButton.removeClass('d-button-pressed').setEnabled(true);
-                this.signInError.show().setText(d.t(message));
-            }.bind(this));
+            this.request('auth.signIn', {
+                username: this.signInUsername.text(),
+                password: this.signInPassword.text()
+            }, function (user) {
+                enable();
+                this.setUser(new d.r.User(this.server()).fromJSON(user));
+            }, function () {
+                enable();
+                this.signInError.show().setText(d.t('Incorrect username or password.'));
+            });
         },
         requestStart: function () {
             ++this.pendingRequests;
@@ -5532,12 +5544,15 @@
                 this.swapIfComplete();
             }
         },
-        request: function (name, options, callback) {
+        request: function (name, options, callback, error) {
             var t = this;
             this.requestStart();
             this.server().request(name, options, function (result) {
                 t.requestEnd();
-                if (callback) callback(result);
+                if (callback) callback.call(t, result);
+            }, function (e) {
+                t.requestEnd();
+                if (error) error.call(t, e);
             });
         },
         getUser: function (id, callback, context) {
@@ -5656,6 +5671,10 @@
             return d.r.template[name].apply(this, [].slice.call(arguments, 1));
         }
     });
+    d.r.RequestError = {
+        notFound: 0,
+        auth$incorrectCredentials: 1
+    };
     d.r.PACKETS = {
         /**
          * Sent upon connection to the server.
@@ -5899,21 +5918,6 @@
                 this.app().setUser(p.user ? new d.r.User(this).fromJSON(p.user) : null);
                 this.setSessionId(p.sessionId);
             },
-            'auth.signIn.failed': function (p) {
-                this.app().requestEnd();
-                if (this.signInErrorCallback) {
-                    this.signInErrorCallback(p.message);
-                    this.signInErrorCallback = undefined;
-                }
-            },
-            'auth.signIn.succeeded': function (p) {
-                this.app().requestEnd();
-                this.app().setUser(new d.r.User(this).fromJSON(p.user));
-            },
-            'auth.signOut.succeeded': function () {
-                this.app().requestEnd();
-                this.app().setUser(null);
-            },
             'request.result': function (p) {
                 var request = this.requests[p.request$id];
                 if (!request) {
@@ -5929,12 +5933,17 @@
                     console.warn('Invalid request id:', p);
                     return;
                 }
-                console.error('RequestError: ' + this.requestErrors[p.code] + ' in ' + request.name, request.options);
+                if (request.error) {
+                    request.error(p.code);
+                } else {
+                    console.error('RequestError: ' + this.requestErrors[p.code] + ' in ' + request.name, request.options);
+                }
                 delete this.requests[p.request$id];
             }
         },
         requestErrors: [
-            'Object not found'
+            'Not found',
+            'Incorrect credentials'
         ],
         listeners: {
             open: function () {
@@ -6057,27 +6066,16 @@
             if (config.livePacketLog) this.logPacket(log);
             this.socket.send(packet);
         },
-        request: function (name, options, callback) {
+        request: function (name, options, callback, error) {
             var id = ++this.requestId;
             this.requests[id] = {
                 name: name,
                 options: options,
-                callback: callback
+                callback: callback,
+                error: error
             };
             options.request$id = id;
             this.send('request.' + name, options);
-        },
-        signIn: function (username, password, errorCallback) {
-            this.app().requestStart();
-            this.send('auth.signIn', {
-                username: username,
-                password: password
-            }, {password: true});
-            this.signInErrorCallback = errorCallback;
-        },
-        signOut: function () {
-            this.app().requestStart();
-            this.send('auth.signOut');
         },
         getAsset: function (hash) {
             return this.assetStoreURL + hash + '/';

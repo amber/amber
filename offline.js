@@ -74,20 +74,6 @@
                     user: null
                 });
             },
-            'auth.signIn': function (p) {
-                if (this.acceptSignIn) {
-                    this.sendServer('auth.signIn.succeeded', {
-                        user: { name: p.username, id: 1, rank: this.userRank }
-                    });
-                } else {
-                    this.sendServer('auth.signIn.failed', {
-                        message: 'acceptSignIn is disabled'
-                    });
-                }
-            },
-            'auth.signOut': function () {
-                this.sendServer('auth.signOut.succeeded', {});
-            },
             clientRequest: function (p) {
                 var f = this.onServer.request[p.$name];
                 if (f) {
@@ -113,6 +99,20 @@
                 }
             },
             request: {
+                'auth.signIn': function (p) {
+                    if (this.acceptSignIn) {
+                        return {
+                            name: p.username,
+                            id: 1,
+                            rank: this.userRank === 'default' ? undefined : this.userRank
+                        };
+                    } else {
+                        throw d.r.RequestError.auth$incorrectCredentials;
+                    }
+                },
+                'auth.signOut': function () {
+                    return null;
+                },
                 'users.user': function (id) {
                     return {
                         name: 'nXIII'
