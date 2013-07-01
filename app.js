@@ -6483,7 +6483,7 @@
         },
         '.loader': {},
         '.transformer': {},
-        loadAmount: 20,
+        LOAD_AMOUNT: 20,
         loaded: 0,
         buffer: 200,
         loadItems: function (offset, length, callback) {
@@ -6530,7 +6530,7 @@
         load: function () {
             if (this.max !== -1) return;
             var offset = this.offset;
-            this.loadItems(offset, this.loadAmount, function (items) {
+            this.loadItems(offset, this.LOAD_AMOUNT, function (items) {
                 if (offset === this.offset) {
                     this.addItems(items);
                 }
