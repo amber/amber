@@ -6255,7 +6255,7 @@
         '.loader': {},
         '.transformer': {},
         ITEM_WIDTH: 195,
-        INITIAL_LOAD: 10,
+        INITIAL_LOAD: 20,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
             var t = this, offset, max = this.max > -1 ? Math.max(0, this.max * this.ITEM_WIDTH - this.visibleWidth()) : this.container.offsetWidth;
@@ -6483,7 +6483,7 @@
         },
         '.loader': {},
         '.transformer': {},
-        loadAmount: 10,
+        loadAmount: 20,
         loaded: 0,
         buffer: 200,
         loadItems: function (offset, length, callback) {
