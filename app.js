@@ -6254,7 +6254,7 @@
         },
         '.loader': {},
         '.transformer': {},
-        ITEM_WIDTH: 194.6458333731,
+        ITEM_WIDTH: 195,
         INITIAL_LOAD: 10,
         scrollLoadAmount: 10,
         scrollWheel: function (e) {
