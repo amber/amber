@@ -8,7 +8,7 @@ d.locale['en-PT'] = {
     'Sign In': 'Sail',
     'Register': 'New Pirate',
     'Offline': 'Lonely Voyage',
-    
+
     'x position': 'longitude',
     'y position': 'latitude',
     'direction': 'heading',
@@ -39,22 +39,22 @@ d.locale['en-PT'] = {
     'loudness': 'voice level',
     'loud?': 'shouting?',
     'backdrop name': 'sea name',
-    
+
     'all': 'every one',
     'last': 'last one',
     'mouse': 'hand',
     'myself': 'myself',
-    
+
     'this sprite': 'myself',
     'Stage': 'Ocean',
-    
+
     'all around': 'all around',
     'left to right': 'port and starboard',
     'don\'t rotate': 'halt',
-    
+
     'motion': 'motion',
     'direction': 'heading',
-    
+
     'year': 'year',
     'month': 'month',
     'day of year': 'day of year',
@@ -63,17 +63,17 @@ d.locale['en-PT'] = {
     'hour': 'hour',
     'minute': 'minute',
     'second': 'second',
-    
+
     'all': 'everything',
     'this script': 'these directions',
     'other scripts in sprite': 'other directions for crew member',
-    
+
     'up arrow': 'fore',
     'down arrow': 'aft',
     'left arrow': 'port',
     'right arrow': 'starboard',
     'space': 'blank',
-    
+
     'move %f steps': 'sail %f knots',
     'turn %icon:right %f degrees': 'turn starboard %f degrees',
     'turn %icon:left %f degrees': 'turn port %f degrees',
@@ -182,5 +182,5 @@ d.locale['en-PT'] = {
     'ln': 'natural logarithm',
     'log': 'logarithm',
     'e ^': 'e ^',
-    '10 ^': 'e ^'
+    '10 ^': '10 ^'
 };
