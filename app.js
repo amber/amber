@@ -1840,7 +1840,7 @@
                 } else if (this.originalParent) {
                     this.originalParent.add(this);
                 }
-                app.redirect(app.reverse(editMode ? 'project.edit' : 'project.view', this.projectId()));
+                app.redirect(app.reverse(editMode ? 'project.edit' : 'project.view', this.projectId()), true);
                 d.toggleClass(this.element, 'd-app-edit', editMode);
                 document.body.style.overflow = editMode ? 'hidden' : '';
                 if (t.editorLoaded) {
@@ -4829,24 +4829,24 @@
     d.r = {};
     d.r.urls = [
         [/^$/, 'index'],
-        [/^search\/$/, 'search'],
-        [/^search\/(.+)\/$/, 'search'],
-        [/^projects\/new\/$/, 'project.new'],
-        [/^projects\/(\w+)\/$/, 'project.view'],
-        [/^projects\/(\w+)\/edit\/$/, 'project.edit'],
-        [/^users\/([\w-]+)\/$/, 'user.profile'],
-        [/^settings\/$/, 'settings'],
-        [/^help\/$/, 'help'],
-        [/^help\/about\/$/, 'help.about'],
-        [/^help\/tos\/$/, 'help.tos'],
-        [/^help\/educators\/$/, 'help.educators'],
-        [/^help\/contact\/$/, 'contact'],
-        [/^explore\/$/, 'explore'],
-        [/^forums\/$/, 'forums.index'],
-        [/^forums\/(\w+)\/$/, 'forums.forum.view'],
-        [/^forums\/(\w+)\/add-topic\/$/, 'forums.forum.newTopic'],
-        [/^forums\/t\/(\w+)\/$/, 'forums.topic.view'],
-        [/^forums\/p\/(\w+)\/$/, 'forums.post.link']
+        [/^search$/, 'search'],
+        [/^search\/(.+)$/, 'search'],
+        [/^projects\/new$/, 'project.new'],
+        [/^projects\/(\w+)$/, 'project.view'],
+        [/^projects\/(\w+)\/edit$/, 'project.edit'],
+        [/^users\/([\w-]+)$/, 'user.profile'],
+        [/^settings$/, 'settings'],
+        [/^help$/, 'help'],
+        [/^help\/about$/, 'help.about'],
+        [/^help\/tos$/, 'help.tos'],
+        [/^help\/educators$/, 'help.educators'],
+        [/^help\/contact$/, 'contact'],
+        [/^explore$/, 'explore'],
+        [/^forums$/, 'forums.index'],
+        [/^forums\/(\w+)$/, 'forums.forum.view'],
+        [/^forums\/(\w+)\/add-topic$/, 'forums.forum.newTopic'],
+        [/^forums\/t\/(\w+)$/, 'forums.topic.view'],
+        [/^forums\/p\/(\w+)$/, 'forums.post.link']
     ];
     d.r.views = {
         index: function () {
@@ -4863,11 +4863,11 @@
                             array.push({
                                 icon: self.server().getAsset(''),
                                 description: [
-                                    '<a href=#/users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=#/ class=d-r-link>Summer</a>',
-                                    '<a href=#/users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#/users/MathWizz class=d-r-link>MathWizz</a>',
-                                    '<a href=#/users/MathWizzFade class="d-r-link black">MathWizzFade</a> loved <a href=#/ class=d-r-link>Amber is Cool</a>',
-                                    '<a href=#/users/nXIII class="d-r-link black">nXIII</a> followed <a href=#/users/MathWizz class=d-r-link>MathWizz</a>',
-                                    '<a href=#/users/MathWizz class="d-r-link black">MathWizz</a> shared the project <a href=#/ class=d-r-link>Custom Blocks</a>'
+                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=# class=d-r-link>Summer</a>',
+                                    '<a href=#users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#users/MathWizzFade class="d-r-link black">MathWizzFade</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
+                                    '<a href=#users/nXIII class="d-r-link black">nXIII</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
+                                    '<a href=#users/MathWizz class="d-r-link black">MathWizz</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
                                 ][i % 5],
                                 time: new Date
                             });
@@ -5094,11 +5094,11 @@
                             array.push({
                                 icon: self.server().getAsset(''),
                                 description: [
-                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=#/ class=d-r-link>Summer</a>',
-                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#/users/MathIncognito class=d-r-link>MathIncognito</a>',
-                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=#/ class=d-r-link>Amber is Cool</a>',
-                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#/users/nXIII- class=d-r-link>nXIII-</a>',
-                                    '<a href=#/users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=#/ class=d-r-link>Custom Blocks</a>'
+                                    '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Summer</a>',
+                                    '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/MathIncognito class=d-r-link>MathIncognito</a>',
+                                    '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
+                                    '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/nXIII- class=d-r-link>nXIII-</a>',
+                                    '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
                                 ][i % 5],
                                 time: new Date
                             });
@@ -5572,7 +5572,7 @@
             return this;
         },
         abs: function (url) {
-            return '#/' + url;
+            return '#' + url;
         },
         reverse: function (view) {
             var urls = d.r.urls, i = 0, url, args = [].slice.call(arguments, 1), arg, source, out;
@@ -5593,28 +5593,32 @@
         show: function (view) {
             return this.go(this.reverse.apply(this, arguments));
         },
-        redirect: function (loc) {
-            if (loc[loc.length - 1] !== '/') {
-                loc = loc + '/';
+        redirect: function (loc, keep) {
+            while (loc[loc.length - 1] === '/') {
+                loc = loc.substr(0, loc.length - 1);
             }
-            if (loc[0] !== '/') {
-                loc = '/' + loc;
+            while (loc[0] === '/') {
+                loc = loc.substr(1);
             }
-            if (loc === this.url) return;
-            this.isRedirect = true;
+            if (keep) {
+                if (this.url === loc) return this;
+                this.isRedirect = true;
+                location.hash = '#' + loc;
+            } else {
+                location.replace(('' + location).split('#')[0] + '#' + loc);
+            }
             this.url = loc;
-            location.hash = '#' + loc;
             return this;
         },
-        go: function (loc, soft) {
+        go: function (loc) {
             var urls = d.r.urls, i = 0, url, request, match;
-            if (loc[loc.length - 1] !== '/') {
-                return this.go(loc + '/', soft);
+            while (loc[loc.length - 1] === '/') {
+                loc = loc.substr(0, loc.length - 1)
             }
-            if (loc[0] !== '/') {
-                return this.go('/' + loc, soft);
+            while (loc[0] === '/') {
+                loc = loc.substr(1);
             }
-            if (!soft) location.hash = loc;
+            location.hash = loc;
             if (this.url === loc) return;
             if (this.signInForm.visible() && this.signInAutohide) {
                 this.hideSignIn();
@@ -5631,7 +5635,7 @@
             this.page = this.createPage();
             try {
                 while (url = urls[i++]) {
-                    if (match = url[0].exec(loc.substr(1))) {
+                    if (match = url[0].exec(loc)) {
                         if (!d.r.views[url[1]]) {
                             console.error('Undefined view ' + url[1]);
                             break;
