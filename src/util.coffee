@@ -13,7 +13,7 @@ addClass = (element, name) ->
         element.className += (if element.className then ' ' else '') + name
 
 removeClass = (element, name) ->
-    i = (' ' + element.name + ' ').indexOf ' ' + name + ' '
+    i = (' ' + element.className + ' ').indexOf ' ' + name + ' '
     element.className = (element.className.substr 0, i - 1) + (element.className.substr i + name.length) if -1 isnt i
 
 toggleClass = (element, name, active = (not hasClass element, name)) ->

@@ -1614,19 +1614,19 @@ class SiteApp extends App
         return new Container('d-r-page').setSelectable(true)
 
     showSignIn: (autohide) ->
-        return if @signInForm.visible()
+        return if @signInForm.visible
         @signInAutohide = autohide
         @signInForm.show()
         @signInUsername.clear()
         @signInPassword.clear()
         @signInError.hide()
-        @signInButton.setEnabled(true)
-        @signInButton.removeClass('d-button-pressed')
+        @signInButton.setEnabled true
+        @signInButton.removeClass 'd-button-pressed'
         @signInUsername.focus()
-        @userButton.addClass('d-r-panel-button-pressed')
+        @userButton.addClass 'd-r-panel-button-pressed'
 
     hideSignIn: ->
-        @userButton.removeClass('d-r-panel-button-pressed')
+        @userButton.removeClass 'd-r-panel-button-pressed'
         @signInForm.hide()
 
     toggleUserPanel: ->
