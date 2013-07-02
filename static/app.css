@@ -1651,10 +1651,10 @@
     float: right;
     width: 28px;
     height: 28px;
-    background: url(static/img/spinner.svg) no-repeat center center;
+    background: url(img/spinner.svg) no-repeat center center;
 }
 .d-r-connection-warning {
-    background-image: url(static/img/warning.svg);
+    background-image: url(img/warning.svg);
 }
 
 .d-r-header {
@@ -1946,11 +1946,11 @@
 }
 .d-r-carousel-button-left {
     left: 0;
-    background-image: url(static/img/carousel/left.svg);
+    background-image: url(img/carousel/left.svg);
 }
 .d-r-carousel-button-right {
     right: 0;
-    background-image: url(static/img/carousel/right.svg);
+    background-image: url(img/carousel/right.svg);
 }
 .d-r-carousel-shade-left {
     left: 0;
@@ -2095,7 +2095,7 @@
     border: 0;
     margin: -12px 0 -12px -48px;
     float: left;
-    background: url('static/img/list-up.svg') center center no-repeat;
+    background: url('img/list-up.svg') center center no-repeat;
     cursor: pointer;
     opacity: .3;
 }
@@ -2106,7 +2106,7 @@
     }
 }
 .d-r-list-back-button {
-    background: url('static/img/list-back.svg') center center no-repeat;
+    background: url('img/list-back.svg') center center no-repeat;
 }
 .d-r-list-up-button:focus,
 .d-r-list-up-button:hover,
@@ -2231,7 +2231,7 @@
     right: 100%;
     width: 24px;
     height: 24px;
-    background: url(static/img/edit.svg);
+    background: url(img/edit.svg);
     border: 0;
     padding: 0;
     margin: 0;
@@ -2285,7 +2285,7 @@
 .d-r-post-spinner {
     width: 48px;
     height: 48px;
-    background: url(static/img/large-spinner.svg) no-repeat center center;
+    background: url(img/large-spinner.svg) no-repeat center center;
     position: absolute;
     top: 50%;
     left: 50%;
