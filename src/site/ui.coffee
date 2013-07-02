@@ -828,7 +828,7 @@ class Server extends Base
             request.callback p.result
             delete @requests[p.request$id]
 
-        'error': (p) ->
+        'requestError': (p) ->
             request = @requests[p.request$id]
             unless request
                 console.warn 'Invalid request id:', p
