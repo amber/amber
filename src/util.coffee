@@ -33,17 +33,17 @@ format = (format) ->
 
 htmle = (string) ->
     string
-        .replace(/&/g, '&amp')
-        .replace(/</, '&lt')
-        .replace(/>/, '&gt')
-        .replace(/"/, '&quot')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
 
 htmlu = (string) ->
     string
-        .replace(/&lt/, '<')
-        .replace(/&gt/, '>')
-        .replace(/&quot/, '"')
-        .replace(/&amp/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
 
 bbTouch = (element, e) ->
     bb = element.getBoundingClientRect()
