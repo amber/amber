@@ -28,13 +28,13 @@ getText = (id) ->
         format.apply null, [result].concat [].slice.call arguments, 1
 
 maybeGetText = (trans) ->
-    if trans and trans.$ then tr(trans.$) else trans
+    if trans and trans.$ then getText trans.$ else trans
 
 getList = (list) ->
-    (locales[currentLocale].__list or locales['en-US'].__list)(list)
+    (locales[currentLocale].__list or locales['en-US'].__list) list
 
 getPlural = (a, b, n) ->
-    if n is 1 then tr(b, n) else tr(a, n)
+    if n is 1 then getText b, n else getText a, n
 
 module 'amber', {
     locales
