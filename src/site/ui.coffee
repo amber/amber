@@ -741,7 +741,7 @@ class App extends amber.ui.App
 
         @hideSignIn() if @signInForm.visible and @signInAutohide
 
-        @resetPage()
+        @_resetPage()
         @url = loc
 
         try
@@ -765,7 +765,7 @@ class App extends amber.ui.App
         @swapIfComplete()
         @
 
-    resetPage: ->
+    _resetPage: ->
         @authenticators = []
         @dispatch 'Unload', new ControlEvent @
         @clearListeners 'Unload'
@@ -775,9 +775,10 @@ class App extends amber.ui.App
         @page = @createPage()
 
     load: (view, args...) ->
-        @resetPage()
+        @_resetPage()
         views[view].call @, [this.url].concat args
         @swapIfComplete()
+        @
 
     swapIfComplete: ->
         return @ unless @oldPage
