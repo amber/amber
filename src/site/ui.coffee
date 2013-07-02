@@ -782,7 +782,7 @@ class App extends amber.ui.App
 
     swapIfComplete: ->
         return @ unless @oldPage
-        if @pendingRequests == 0
+        if @pendingRequests is 0
             @wrap.replace @oldPage, @page
             @wrap.element.scrollTop = 0
             @oldPage = undefined
