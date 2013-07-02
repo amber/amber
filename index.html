@@ -6,9 +6,9 @@
 <script src=app.js></script>
 <script src=locale/en-US.js></script>
 <script>
-var app = new d.r.App().setConfig({
+var app = new amber.SiteApp().setConfig({
     livePacketLog: true,
     verbosePackets: true
-}).setElement(document.body).setServer(new d.r.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
+}).setElement(document.body).setServer(new amber.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
 </script>
 </body>
