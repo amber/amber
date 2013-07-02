@@ -5,7 +5,7 @@ unless Function.prototype.bind
         => this.apply context, arguments
 
 extend = (o, p) ->
-    o[key] = value for key, value of o
+    o[key] = value for key, value of p
     o
 
 addClass = (element, name) ->
