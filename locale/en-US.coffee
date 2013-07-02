@@ -1,4 +1,4 @@
-amber.locale['en-US'] =
+module 'amber.locales.en-US',
     __list: (list) =>
         if list.length is 1
             list[0]

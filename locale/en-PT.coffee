@@ -1,4 +1,4 @@
-amber.locale['en-PT'] =
+module 'amber.locales.en-PT',
     'Chat': 'Talk'
     'Sprites': 'Mates'
     'Server': 'Ship'

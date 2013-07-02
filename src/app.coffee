@@ -1,40 +1,7 @@
 { Base, extend, addClass, removeClass, toggleClass, hasClass, format, htmle, htmlu, bbTouch, inBB } = amber.util
 { Event, PropertyEvent, ControlEvent, TouchEvent, WheelEvent } = amber.event
+{ getText: tr, maybeGetText: tr.maybe, getList: tr.list, getPlural: tr.plural } = amber.locale
 { Control, Label, Image, App, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
-
-class Locale extends Base
-    constructor: (@id, @name) -> super()
-    @property 'id'
-    @property 'name'
-
-locale = {}
-currentLocale = 'en-US'
-locales = [
-    new Locale 'en-US', 'English (US)'
-    new Locale 'en-PT', 'Pirate-speak'
-]
-tr = (id) ->
-    l = locale[currentLocale]
-    if hasOwnProperty.call l, id
-        result = l[id]
-    else
-        if currentLocale isnt 'en-US'
-            console.warn 'missing translation key "' + id + '"'
-        result = id
-
-    if arguments.length is 1
-        result
-    else
-        format.apply null, [result].concat [].slice.call arguments, 1
-
-tr.maybe = (trans) ->
-    if trans and trans.$ then tr(trans.$) else trans
-
-tr.list = (list) ->
-    (locale[currentLocale].__list or locale['en-US'].__list)(list)
-
-tr.plural = (a, b, n) ->
-    if n is 1 then tr(b, n) else tr(a, n)
 
 urls = [
     [/^$/, 'index']
@@ -1441,7 +1408,6 @@ class LazyList extends Container
             @load()
 
 module 'amber', {
-    locale
     Server
     SiteApp
 }
