@@ -1219,10 +1219,9 @@ class Carousel extends Control
             @add control = @_transformer item
             @items.push control
 
-    load: (length) ->
+    load: (length = @maxVisibleItemCount() * 2) ->
         return unless @max is -1
         offset = @offset + @maxVisibleItemCount()
-        length = @maxVisibleItemCount() * 2 if length == null
         @loadItems offset, length, @addItems
 
     start: (items) ->
