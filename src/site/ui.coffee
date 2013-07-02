@@ -98,6 +98,14 @@ views =
             .add(new Label('d-r-title', tr 'Page Not Found'))
             .add(new Label('d-r-paragraph', tr('The page at the URL "%" could not be found.', args[0])))
 
+    error: (args) ->
+        @page
+            .add(new Label('d-r-title', args[1]))
+            .add(new Label('d-r-paragraph', args[2]))
+        if args[3]?
+            @page
+                .add(new Label('d-r-error-stack', args[3]))
+
     forbidden: (args) ->
         @page
             .add(new Label('d-r-title', tr 'Authentication Required'))
@@ -733,15 +741,9 @@ class App extends amber.ui.App
 
         @hideSignIn() if @signInForm.visible and @signInAutohide
 
-        @authenticators = []
-        @dispatch 'Unload', new ControlEvent @
-        @clearListeners 'Unload'
-        @pendingRequests = 0
-        @reloadOnAuthentication = false
+        @resetPage()
         @url = loc
-        @oldPage = @page if @page.parent
 
-        @page = @createPage()
         try
             for url in urls
                 if match = url[0].exec loc
@@ -762,6 +764,20 @@ class App extends amber.ui.App
 
         @swapIfComplete()
         @
+
+    resetPage: ->
+        @authenticators = []
+        @dispatch 'Unload', new ControlEvent @
+        @clearListeners 'Unload'
+        @pendingRequests = 0
+        @reloadOnAuthentication = false
+        @oldPage = @page if @page.parent
+        @page = @createPage()
+
+    load: (view, args...) ->
+        @resetPage()
+        views[view].call @, [this.url].concat args
+        @swapIfComplete()
 
     swapIfComplete: ->
         return @ unless @oldPage
@@ -815,11 +831,11 @@ class Server extends Base
         sessionStorage.setItem('sessionId', sessionId)
 
     on:
-        'connect': (p) ->
+        connect: (p) ->
             @app.user = if p.user then (new User @).fromJSON p.user else null
             @setSessionId p.sessionId
 
-        'result': (p) ->
+        result: (p) ->
             request = @requests[p.request$id]
             unless request
                 console.warn 'Invalid request id:', p
@@ -828,7 +844,7 @@ class Server extends Base
             request.callback p.result
             delete @requests[p.request$id]
 
-        'requestError': (p) ->
+        requestError: (p) ->
             request = @requests[p.request$id]
             unless request
                 console.warn 'Invalid request id:', p
@@ -840,6 +856,9 @@ class Server extends Base
                 console.error 'RequestError: ' + @requestErrors[p.code] + ' in ' + request.name, request.options
 
             delete @requests[p.request$id]
+
+        error: (p) ->
+            @app.load 'error', p.name, p.message, p.stack
 
     requestErrors: [
         'Not found',

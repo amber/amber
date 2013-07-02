@@ -1576,6 +1576,14 @@
     max-width: 600px;
 }
 
+.d-r-error-stack {
+    font: 13px Menlo, Monaco, Consolas, Courier New, monospace;
+    white-space: pre;
+    overflow: auto;
+    background: #eee;
+    padding: 12px;
+}
+
 .d-r-page .d-textfield {
     font: inherit;
     font-size: 14px;
