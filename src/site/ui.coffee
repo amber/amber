@@ -284,7 +284,7 @@ views =
                                  .setView('forums.forum.view', forum.id)))
 
     'forums.forum.view': (args) ->
-        forumId = args[1]
+        id = args[1]
         @page
             .add(new Container('d-r-title')
                 .add(new Link('d-r-list-up-button').setView('forums.index'))
@@ -294,11 +294,11 @@ views =
                 .add(new Separator('d-r-authenticated'))
                 .add(new Link('d-r-link d-r-authenticated')
                     .setText(tr 'New Topic')
-                    .setURL(@reverse('forums.forum.newTopic', forumId))))
-            .add(new LazyList('d-r-topic-list')
+                    .setURL(@reverse('forums.forum.newTopic', id))))
+            .add(topics = new LazyList('d-r-topic-list')
                 .setLoader((offset, length, callback) =>
                     return @request('forums.topics',
-                        forum$id: forumId,
+                        forum$id: id,
                         offset: offset,
                         length: length
                     , callback))
@@ -314,9 +314,13 @@ views =
                             .add(new Label().setText(tr.plural('% views', '% view', topic.views))))
                     userLabel.text = tr 'by %', tr.list topic.authors
                     return link))
-        @request 'forums.forum', forum$id: forumId, (forum) =>
+        @request 'forums.forum', forum$id: id, (forum) =>
             title.text = tr.maybe forum.name
             subtitle.text = tr.maybe forum.description
+
+        @watch 'forum', forum$id: id, {
+            topics
+        }
 
     'forums.forum.newTopic': (args) ->
         post = =>
