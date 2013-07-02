@@ -1,4 +1,4 @@
-{ Function, Array, hasOwnProperty } = @
+{ Function, hasOwnProperty } = @
 
 unless Function.prototype.bind
     Function.prototype.bind = (context) ->
