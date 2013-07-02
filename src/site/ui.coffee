@@ -399,7 +399,7 @@ views =
 
         @request 'forums.topic.view',topic$id: topicId, ->
 
-templates:
+templates =
     post: (post) ->
         edit = =>
             update = =>
