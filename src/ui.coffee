@@ -773,10 +773,10 @@ class Button extends FormControl
     constructor: (className = 'd-button') ->
         super()
         @element = @container = @newElement className, 'button'
-        @onTouchEnd (e) ->
+        @onTouchEnd (e) =>
             if inBB e, @element.getBoundingClientRect()
                 @dispatch 'Execute', new ControlEvent @
-        @element.addEventListener 'keyup', (e) ->
+        @element.addEventListener 'keyup', (e) =>
             if e.keyCode is 32 or e.keyCode is 13
                 @dispatch 'Execute', new ControlEvent @
         @element.addEventListener 'focus', @fireFocus

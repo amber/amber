@@ -54,7 +54,7 @@ inBB = (e, bb) ->
         e.y + e.radiusY >= bb.top and e.y - e.radiusY <= bb.bottom
 
 class Base
-    @property: (name, options) ->
+    @property: (name, options = {}) ->
         if typeof options is 'function'
             options =
                 readonly: true
@@ -63,21 +63,21 @@ class Base
         setName = 'set' + name[0].toUpperCase() + name.substr 1
         _name = '_' + name
 
-        if options
-            event = options.event
-            setter = options.set ? (value) -> @[_name] = value
-            getter = options.get ? -> @[_name]
-            apply = options.apply
+        event = options.event
+        setter = options.set ? (value) -> @[_name] = value
+        getter = options.get ? -> @[_name]
+        apply = options.apply
 
-            @::[_name] = options.value ? null
-            Object.defineProperty @::, name,
-                set: if options.readonly then undefined else (value) ->
-                    old = @[_name]
-                    setter.call @, value
-                    apply.call @, value, old if apply and old isnt value
-                    @dispatch event, new d.PropertyEvent().setObject @ if event
-                get: getter
-                readonly: options.readonly
+        @::[_name] = options.value ? null
+
+        Object.defineProperty @::, name,
+            set: if options.readonly then undefined else (value) ->
+                old = @[_name]
+                setter.call @, value
+                apply.call @, value, old if apply and old isnt value
+                @dispatch event, new d.PropertyEvent().setObject @ if event
+            get: getter
+            readonly: options.readonly
 
         @::[setName] = (value) ->
             @[name] = value
