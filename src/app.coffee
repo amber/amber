@@ -1,73 +1,4 @@
-{ extend, addClass, removeClass, toggleClass, hasClass, format, htmle, htmlu, bbTouch, inBB } = amber.util
-
-class Base
-    @property: (name, options) ->
-        if typeof options is 'function'
-            options =
-                readonly: true
-                get: options
-
-        setName = 'set' + name[0].toUpperCase() + name.substr 1
-        _name = '_' + name
-
-        if options
-            event = options.event
-            setter = options.set ? (value) -> @[_name] = value
-            getter = options.get ? -> @[_name]
-            apply = options.apply
-
-            @::[_name] = options.value ? null
-            Object.defineProperty @::, name,
-                set: if options.readonly then undefined else (value) ->
-                    old = @[_name]
-                    setter.call @, value
-                    apply.call @, value, old if apply and old isnt value
-                    @dispatch event, new d.PropertyEvent().setObject @ if event
-                get: getter
-                readonly: options.readonly
-
-        @::[setName] = (value) ->
-            @[name] = value
-            @
-
-    @event: (name) ->
-        low = name[0].toLowerCase() + name.substr 1
-        @::['on' + name] = (listener, context) -> @listen name, listener, context
-        @::['un' + name] = (listener) -> @unlisten name, listener
-        @::[low + 'Listeners'] = -> @listeners name
-
-    listen: (name, handler, context = @) ->
-        (@['$listeners_' + name] ?= []).push
-            listener: handler
-            context: context
-        @
-
-    unlisten: (name, handler) ->
-        a = @['$listeners_' + name] ? []
-        if a
-            for o in a
-                if o.listener is handler
-                    a.splice i, 1
-                    break
-        @
-
-    listeners: (name) ->
-        @['$listeners_' + name] ? []
-
-    clearListeners: (name) ->
-        delete @['$listeners_' + name]
-        @
-
-    dispatch: (name, event) ->
-        a = @[key = '$listeners_' + name]
-        if a
-            for o in a
-                o.listener.call o.context, event
-        @
-
-    set: (properties) ->
-        @[key] = value for key, value of properties
-        @
+{ Base, extend, addClass, removeClass, toggleClass, hasClass, format, htmle, htmlu, bbTouch, inBB } = amber.util
 
 class Event extends Base
     setEvent: (e) ->
@@ -2449,7 +2380,7 @@ class LazyList extends Container
         if @element.offsetHeight - @buffer - wrap.scrollTop < wrap.offsetHeight * 2
             @load()
 
-@amber = {
+module 'amber', {
     locale
     Server
     SiteApp
