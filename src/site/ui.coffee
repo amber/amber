@@ -770,6 +770,7 @@ class App extends amber.ui.App
         @dispatch 'Unload', new ControlEvent @
         @clearListeners 'Unload'
         @pendingRequests = 0
+        @spinner.hide()
         @reloadOnAuthentication = false
         @oldPage = @page if @page.parent
         @page = @createPage()
