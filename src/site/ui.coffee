@@ -241,17 +241,17 @@ views =
             .add(new Label('d-r-title', args[1]))
             .add(new Container('d-r-user-icon'))
             .add(new ActivityCarousel().setLoader (offset, length, callback) =>
-                    callback({
-                        icon: @server.getAsset('')
-                        description: [
-                            '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Summer</a>',
-                            '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/MathIncognito class=d-r-link>MathIncognito</a>',
-                            '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
-                            '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/nXIII- class=d-r-link>nXIII-</a>',
-                            '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
-                        ][i % 5]
-                        time: new Date
-                    } for i in [offset..Math.min offset + length, 100]))
+                callback({
+                    icon: @server.getAsset ''
+                    description: [
+                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Summer</a>',
+                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/MathIncognito class=d-r-link>MathIncognito</a>',
+                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
+                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/nXIII- class=d-r-link>nXIII-</a>',
+                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
+                    ][i % 5]
+                    time: new Date
+                } for i in [offset..Math.min offset + length, 100]))
             .add(new Container('d-r-title')
                 .add(new Label().setText('About Me'))
                 .add(new Button('d-r-edit-button d-r-section-edit')))
