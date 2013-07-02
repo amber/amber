@@ -18,6 +18,7 @@ urls = [
     [/^forums\/(\w+)\/add-topic$/, 'forums.forum.newTopic']
     [/^forums\/t\/(\w+)$/, 'forums.topic.view']
     [/^forums\/p\/(\w+)$/, 'forums.post.link']
+    [/^mdtest$/, 'mdtest']
 ]
 
 @module 'amber.site', {

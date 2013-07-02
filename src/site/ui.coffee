@@ -399,6 +399,14 @@ views =
 
         @request 'forums.topic.view',topic$id: topicId, ->
 
+    mdtest: ->
+        xhr = new XMLHttpRequest
+        xhr.open 'GET', 'static/test.md', false
+        xhr.send()
+        @page
+            .add(new Label('d-r-title', tr 'Markdown Test'))
+            .add(new Label('d-r-post-list').setRichText(parse xhr.responseText))
+
 templates =
     post: (post) ->
         edit = =>
@@ -1041,13 +1049,225 @@ class Server extends Base
             @logPacket log
 
 parse = (text) ->
-    text
-        .trim()
-        .split('\n')
-        .filter((p) -> p.length)
-        .map((p) ->
-            '<div class=d-r-post-paragraph>' + (htmle p) + '</div>')
-        .join('')
+    REFERENCE = /^ {0,3}\[([^[\]]+)\]:\s*(.+?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\s*$/gm
+    VALID_LINK = /^\w+:|^#/
+
+    HORIZONTAL_RULE = /^\s*(?:\*(?:\s*\*){2,}|-(?:\s*-){2,})\s*\n\n+/
+    HEADING = /^(#{1,6})([^#][^\n]*?)#{0,6}\n/
+
+    ESCAPE = /^\\([\\`*_{}[\]()#+\-.!])/
+    CODE = /^`+/
+    EMPHASIS = /^[_*]/
+    STRONG = /^(?:__|\*\*)/
+    DASH_SEQUENCE = /^---+/
+    EM_DASH = /^(\s*)--(?!-)(\s*)/
+    EN_DASH = /^\s+-\s+/
+    SPACE = /^\s+('(?:"')*"?|"(?:'")*'?)/
+    WORD = /^(['"]*)([a-z0-9][a-z0-9'"]*)/i
+    QUOTE = /^['"]+/
+    NON_EMPHASIS = /^\s+(?:\*+|_+)\s+/
+    LINK = /^\[([^[\]]+)\]\s*\(([^(\)]*?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\)/
+    REFERENCE_LINK = /^\[([^[\]]+)\]\s*\[([^[\]]*)\]/
+    AUTOMATIC_LINK = /^<((?:https?|s?ftp|data|file|wss?|about|irc):[^>]*|[0-9a-z-]+(\.[0-9a-z\-]+)+\.*(?::\d+)?(?:\/[^>]*)?)>/
+    EMAIL_ADDRESS = /^<((?:[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+)*|"(?:[^\\"]|\\.)+")@(?:[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+)*|\[[^[\]\\]*\]))>/i
+
+    references = {}
+
+    parseTitle = (title) ->
+        switch title[0]
+            when '"' then title.substr(1, title.length - 2).replace /\\([\\"])/g, '$1'
+            when "'" then title.substr(1, title.length - 2).replace /\\([\\'])/g, '$1'
+            when "(" then title.substr(1, title.length - 2).replace /\\([\\()])/g, '$1'
+            else ''
+
+    parseBlock = ->
+        p = text.substr index
+        if e = /^\n+/.exec p
+            index += e[0].length
+        else if e = HEADING.exec p
+            n = e[1].length
+            title = parseParagraph e[2].trim()
+            content += "<h#{n}>#{title}</h#{n}>"
+            index += e[0].length
+        else if e = /^```/.exec p
+            index += e[0].length
+            p = text.substr index
+            i = p.search /```/
+            if i is -1
+                content += "```"
+            else
+                code = htmle p.substr 0, i
+                content += "<pre class=d-scrollable>#{code}</pre>\n"
+                index += i + 3
+        else if e = HORIZONTAL_RULE.exec p
+            content += '<hr>\n'
+            index += e[0].length
+        else if /^    /.test p
+            i = p.search /\n\n+(?!    )/
+            i = p.length if i is -1
+            code = p.substr 0, i
+            code = htmle code.replace /^    /gm, ''
+            content += "<pre class=d-scrollable>#{code}</pre>\n"
+            index += i
+        else
+            i = p.search /\n\n+/
+            i = p.length if i is -1
+            s = parseParagraph p.substr 0, i
+            content += "<div class=d-r-md-paragraph>#{s}</div>\n"
+            index += i
+
+    parseParagraph = (p) ->
+        stack = []
+
+        find = (kind) ->
+            for entry, j in stack
+                if entry.kind is kind
+                    return j
+            -1
+
+        pop = (kind) ->
+            return if -1 is i = find kind
+            entries = []
+            while stack.length > i + 1
+                entry = stack.pop()
+                s += "</#{entry.kind}>"
+                entries.push entry
+            entry = stack.pop()
+            s += "</#{entry.kind}>"
+            for entry in entries
+                s += "<#{entry.kind}>"
+                stack.push entry
+
+        push = (kind, original) ->
+            stack.push {
+                kind
+                index: s.length
+                original: original
+            }
+            s += "<#{kind}>"
+
+        toggle = (kind, original) ->
+            if -1 is find kind
+                push kind, original
+            else
+                pop kind
+
+        leftQuote = (s) -> s.replace(/'/g, "&lsquo;").replace(/"/g, "&ldquo;")
+        rightQuote = (s) -> s.replace(/'/g, "&rsquo;").replace(/"/g, "&rdquo;")
+
+        i = 0
+        length = p.length
+        s = ''
+        while i < length
+            sub = p.substr i
+            if e = ESCAPE.exec sub
+                s += e[1]
+                i += e[0].length
+            else if e = STRONG.exec sub
+                toggle 'strong', e[0]
+                i += e[0].length
+            else if e = EMPHASIS.exec sub
+                toggle 'em', e[0]
+                i += e[0].length
+            else if e = DASH_SEQUENCE.exec sub
+                s += e[0]
+                i += e[0].length
+            else if e = EM_DASH.exec sub
+                s += if e[1] then " " else ""
+                s += "&mdash;"
+                s += if e[2] then " " else ""
+                i += e[0].length
+            else if e = EN_DASH.exec sub
+                s += " &ndash; "
+                i += e[0].length
+            else if e = CODE.exec sub
+                i += e[0].length
+                j = p.indexOf e[0], i
+                if j is -1
+                    s += '`'
+                else
+                    code = htmle p.substring i, j
+                    code = code.trim()
+                    s += "<code>#{code}</code>"
+                    i = j + e[0].length
+            else if e = WORD.exec sub
+                s += leftQuote e[1]
+                s += rightQuote e[2]
+                i += e[0].length
+            else if e = QUOTE.exec sub
+                s += rightQuote e[0]
+                i += e[0].length
+            else if e = NON_EMPHASIS.exec sub
+                s += e[0]
+                i += e[0].length
+            else if e = SPACE.exec sub
+                s += ' '
+                s += leftQuote e[1]
+                i += e[0].length
+            else if e = EMAIL_ADDRESS.exec sub
+                chunked = ''
+                left = e[1]
+                while left
+                    obfuscator = ''
+                    for x in [1..3]
+                        obfuscator += String.fromCharCode Math.floor Math.random() * 26 + 97
+                    chunked += htmle left.substr 0, 6
+                    chunked += "<span class=d-r-md-email>#{obfuscator}</span>"
+                    left = left.substr 6
+                url = htmle e[1].split('').reverse().join('').replace(/\\/g, '\\\\').replace(/'/g, '\\\'')
+                s += "<a class=d-r-link href=\"javascript:window.open('mailto:'+'#{url}'.split('').reverse().join(''))\">#{chunked}</a>"
+                i += e[0].length
+            else if e = LINK.exec sub
+                label = htmle e[1]
+                href = e[2]
+                title = parseTitle e[3]
+                if not VALID_LINK.test href
+                    href = 'http://' + href
+                title = htmle title
+                href = htmle href
+                s += "<a class=d-r-link title=\"#{title}\" href=\"#{href}\">#{label}</a>"
+                i += e[0].length
+            else if e = REFERENCE_LINK.exec sub
+                label = htmle e[1]
+                href = e[2] or e[1]
+                if ref = references[href]
+                    href = htmle ref.href
+                    title = htmle ref.title
+                    s += "<a class=d-r-link title=\"#{title}\" href=\"#{href}\">#{label}</a>"
+                else
+                    s += "<span class=error>#{label}</span>"
+                i += e[0].length
+            else if e = AUTOMATIC_LINK.exec sub
+                url = e[1]
+                href = url
+                if not VALID_LINK.test href
+                    href = 'http://' + url
+                url = htmle url
+                href = htmle href
+                s += "<a class=d-r-link href=\"#{href}\">#{url}</a>"
+                i += e[0].length
+            else
+                s += htmle p[i]
+                i += 1
+        while entry = stack.pop()
+            s = s.substr(0, entry.index) + entry.original + s.substr entry.index + entry.kind.length + 2
+        s
+
+    text = text.trim()
+    text = text.replace REFERENCE, ({}, name, href, title) ->
+        if not VALID_LINK.test href
+            href = 'http://' + href
+        references[name.toLowerCase()] =
+            href: href
+            title: parseTitle title
+        ''
+
+    textLength = text.length
+    content = ''
+    index = 0
+    while index < textLength
+        parseBlock()
+    "<div class=d-r-md>#{content}</div>"
 
 class User extends Base
     constructor: (server) ->

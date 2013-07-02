@@ -2271,9 +2271,6 @@
 .d-r-post .d-button {
     margin-right: 12px;
 }
-.d-r-post-paragraph {
-    margin: 12px 0;
-}
 
 @media (max-width: 672px) {
     .d-r-post-author {
@@ -2298,6 +2295,66 @@
     top: 50%;
     left: 50%;
     margin: -24px;
+}
+
+.d-r-md-paragraph {
+    margin: 12px 0;
+}
+.d-r-md h1,
+.d-r-md h2,
+.d-r-md h3,
+.d-r-md h4,
+.d-r-md h5,
+.d-r-md h6 {
+    font: inherit;
+    margin: 12px 0;
+}
+.d-r-md h1 {
+    font-size: 36px;
+    line-height: 40px;
+}
+.d-r-md h2 {
+    font-size: 30px;
+    line-height: 36px;
+}
+.d-r-md h3 {
+    font-size: 24px;
+    line-height: 32px;
+}
+.d-r-md h4 {
+    font-size: 20px;
+    line-height: 28px;
+}
+.d-r-md h5 {
+    font-weight: 500;
+    font-size: 14px;
+}
+.d-r-md h6 {
+    font-weight: 500;
+    font-size: 12px;
+}
+.d-r-md hr {
+    height: 0;
+    border: 0;
+    border-bottom: 1px solid;
+    width: 20%;
+    margin: 24px 0;
+}
+.d-r-md code,
+.d-r-md pre {
+    font: 13px Menlo, Monaco, Consolas, Courier New, monospace;
+}
+.d-r-md code {
+    white-space: pre-wrap;
+}
+.d-r-md pre {
+    max-height: 300px;
+    overflow: auto;
+    background: #eee;
+    padding: 12px;
+}
+.d-r-md-email {
+    display: none;
 }
 
 .d-r-project-player-wrap {
