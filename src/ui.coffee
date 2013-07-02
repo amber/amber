@@ -361,7 +361,7 @@ class App extends Control
                 return unless t
 
             t.dispatch 'ScrollWheel', event = new WheelEvent()[f](e)
-            e.preventDefault() unless event.allowDefault()
+            e.preventDefault() unless event.allowDefault
 
 
         element.addEventListener 'mousewheel', (mousewheel 'setWebkitEvent'), true
