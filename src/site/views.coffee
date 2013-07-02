@@ -1,4 +1,4 @@
-@module 'amber.views',
+@module 'amber.site.views',
     index: ->
         @reloadOnAuthentication = true
         if @user

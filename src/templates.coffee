@@ -67,7 +67,7 @@ replyForm = (topicId) ->
             .add(new Button('d-button d-r-authenticated').setText('Reply').onExecute(post))
             .add(new Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(@showSignIn, @))
 
-@module 'amber.templates', {
+@module 'amber.site.templates', {
     post
     replyForm
 }
