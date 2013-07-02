@@ -1535,11 +1535,12 @@ class ActivityCarousel extends Carousel
         return unless @max is -1
         offset = @offset
         @loadItems offset, length, (items) =>
-            for item in items
-                if (offset + i - 1) % 3 is 0
+            for item, i in items
+                if (offset + i) % 3 is 0
                     @add @column = new Container 'd-r-activity-carousel-column'
 
-                @column.add @items[offset + i - 1] = @_transformer item
+                @column.add control = @_transformer item
+                @items.push control
 
     ITEM_WIDTH: 400
 
