@@ -389,7 +389,7 @@ views =
                         offset: offset,
                         length: length
                     , callback)
-                .setTransformer(template.post.bind(@)))
+                .setTransformer(templates.post.bind(@)))
             .add(@template 'replyForm', topicId)
         if info
             load info.topic
