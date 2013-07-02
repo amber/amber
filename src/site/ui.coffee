@@ -39,7 +39,7 @@ views =
                         .add(new Label('d-r-splash-link-subtitle', tr 'With a Scratch account')))
                     .add(new Link('d-r-splash-link').setView('help.about')
                         .add(new Label('d-r-splash-link-title', tr 'About Amber'))
-                        .add(new Label('d-r-splash-link-subtitle', tr 'What is @ thing?')))
+                        .add(new Label('d-r-splash-link-subtitle', tr 'What is this thing?')))
                     .add(new Link('d-r-splash-link').setView('help.tos')
                         .add(new Label('d-r-splash-link-title', tr 'Terms of Service'))
                         .add(new Label('d-r-splash-link-subtitle', tr 'How can I use it?')))
@@ -61,13 +61,13 @@ views =
                 .add(lovedByFollowing = new ProjectCarousel(@).setRequestName('user.lovedByFollowing'))
         @page
             .add(new Label('d-r-title', tr 'Top Remixed'))
-            .add(new Label('d-r-subtitle', tr 'What the community is remixing @ week'))
+            .add(new Label('d-r-subtitle', tr 'What the community is remixing this week'))
             .add(topRemixed = new ProjectCarousel(@).setRequestName('topRemixed'))
             .add(new Label('d-r-title', tr 'Top Loved'))
-            .add(new Label('d-r-subtitle', tr 'What the community is loving @ week'))
+            .add(new Label('d-r-subtitle', tr 'What the community is loving this week'))
             .add(topLoved = new ProjectCarousel(@).setRequestName('topLoved'))
             .add(new Label('d-r-title', tr 'Top Viewed'))
-            .add(new Label('d-r-subtitle', tr 'What the community is viewing @ week'))
+            .add(new Label('d-r-subtitle', tr 'What the community is viewing this week'))
             .add(topViewed = new ProjectCarousel(@).setRequestName('topViewed'))
 
         @watch (if @user then 'home.signedIn' else 'home.signedOut'),
@@ -101,7 +101,7 @@ views =
     forbidden: (args) ->
         @page
             .add(new Label('d-r-title', tr 'Authentication Required'))
-            .add(new Label('d-r-paragraph', tr 'You need to log in to see @ page.'))
+            .add(new Label('d-r-paragraph', tr 'You need to log in to see this page.'))
 
     help: (args) ->
         @page
