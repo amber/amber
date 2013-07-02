@@ -11,7 +11,7 @@ views =
             @page
                 .add(new Label('d-r-title', tr 'News Feed'))
                 .add(new Label('d-r-subtitle', tr 'Follow people to see their activity here.'))
-                .add(new ActivityCarousel().setLoader (offset, length, callback) ->
+                .add(new ActivityCarousel().setLoader (offset, length, callback) =>
                     callback({
                         icon: @server.getAsset('')
                         description: [
@@ -70,15 +70,16 @@ views =
             .add(new Label('d-r-subtitle', tr 'What the community is viewing this week'))
             .add(topViewed = new ProjectCarousel(@).setRequestName('topViewed'))
 
-        @watch (if @user then 'home.signedIn' else 'home.signedOut'),
+        @watch (if @user then 'home.signedIn' else 'home.signedOut'), {
             projectCount: (x) ->
                 projectCount.setText(tr('% projects', x))
-            featured: featured,
-            byFollowing: byFollowing,
-            lovedByFollowing: lovedByFollowing,
-            topRemixed: topRemixed,
-            topLoved: topLoved,
-            topViewed: topViewed
+            featured
+            byFollowing
+            lovedByFollowing
+            topRemixed
+            topLoved
+            topViewed
+        }
 
     explore: (args) ->
         @page
@@ -239,7 +240,7 @@ views =
             .add(new Container('d-r-user-icon'))
             .add(new Label('d-r-title', args[1]))
             .add(new Container('d-r-user-icon'))
-            .add(new ActivityCarousel().setLoader (offset, length, callback) ->
+            .add(new ActivityCarousel().setLoader (offset, length, callback) =>
                     callback({
                         icon: @server.getAsset('')
                         description: [
