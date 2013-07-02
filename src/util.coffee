@@ -56,10 +56,9 @@ inBB = (e, bb) ->
 @module = (name, content = {}) ->
     m = window
     parts = name.split '.'
-    last = parts.pop()
     while part = parts.shift()
         m = m[part] ?= {}
-    m[last] = content
+    extend m, content
 
 module 'amber.util', {
     extend
