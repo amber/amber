@@ -304,7 +304,7 @@ views =
                     , callback))
                 .setTransformer((topic) =>
                     link = new Link('d-r-topic-list-item')
-                        .setURL(t.reverse('forums.topic.view', topic.id))
+                        .setView('forums.topic.view', topic.id)
                         .add(new Container('d-r-topic-list-item-title')
                             .add(new Label('d-r-topic-list-item-name', topic.name))
                             .add(userLabel = new Label('d-r-topic-list-item-author', tr('by %', tr.list(topic.authors)))))
@@ -674,7 +674,7 @@ class App extends amber.ui.App
                 callback.call @, result if callback
             (e) =>
                 @requestEnd()
-                error.call t, e if error)
+                error.call @, e if error)
 
     watch: (name, params, config) ->
         initial = true
