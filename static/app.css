@@ -2353,6 +2353,12 @@
     background: #eee;
     padding: 12px;
 }
+.d-r-md img {
+    max-width: 100%;
+}
+.d-r-md-error {
+    color: #f00;
+}
 .d-r-md-email {
     display: none;
 }

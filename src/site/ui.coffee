@@ -1066,12 +1066,18 @@ parse = (text) ->
     WORD = /^(['"]*)([a-z0-9][a-z0-9'"]*)/i
     QUOTE = /^['"]+/
     NON_EMPHASIS = /^\s+(?:\*+|_+)\s+/
-    LINK = /^\[([^[\]]+)\]\s*\(([^(\)]*?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\)/
-    REFERENCE_LINK = /^\[([^[\]]+)\]\s*\[([^[\]]*)\]/
+    LINK = /^(!?)\[([^[\]]+)\]\s*\(([^(\)]*?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\)/
+    REFERENCE_LINK = /^(!?)\[([^[\]]+)\]\s*\[([^[\]]*)\]/
     AUTOMATIC_LINK = /^<((?:https?|s?ftp|data|file|wss?|about|irc):[^>]*|[0-9a-z-]+(\.[0-9a-z\-]+)+\.*(?::\d+)?(?:\/[^>]*)?)>/
     EMAIL_ADDRESS = /^<((?:[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+)*|"(?:[^\\"]|\\.)+")@(?:[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+\-\/=?^_`{|}~]+)*|\[[^[\]\\]*\]))>/i
 
     references = {}
+
+    link = (image, label, href, title) ->
+        if image
+            "<img title=\"#{title}\" src=\"#{href}\" alt=\"#{label}\">"
+        else
+            "<a class=d-r-link title=\"#{title}\" href=\"#{href}\">#{label}</a>"
 
     parseTitle = (title) ->
         switch title[0]
@@ -1218,24 +1224,24 @@ parse = (text) ->
                 s += "<a class=d-r-link href=\"javascript:window.open('mailto:'+'#{url}'.split('').reverse().join(''))\">#{chunked}</a>"
                 i += e[0].length
             else if e = LINK.exec sub
-                label = htmle e[1]
-                href = e[2]
-                title = parseTitle e[3]
+                label = htmle e[2]
+                href = e[3]
+                title = parseTitle e[4]
                 if not VALID_LINK.test href
                     href = 'http://' + href
                 title = htmle title
                 href = htmle href
-                s += "<a class=d-r-link title=\"#{title}\" href=\"#{href}\">#{label}</a>"
+                s += link e[1], label, href, title
                 i += e[0].length
             else if e = REFERENCE_LINK.exec sub
-                label = htmle e[1]
-                href = e[2] or e[1]
+                label = htmle e[2]
+                href = e[3] or e[2]
                 if ref = references[href]
                     href = htmle ref.href
                     title = htmle ref.title
-                    s += "<a class=d-r-link title=\"#{title}\" href=\"#{href}\">#{label}</a>"
+                    s += link e[1], label, href, title
                 else
-                    s += "<span class=error>#{label}</span>"
+                    s += "<span class=d-r-md-error title=\"#{htmle tr 'Missing reference "%"', href}\">#{label}</span>"
                 i += e[0].length
             else if e = AUTOMATIC_LINK.exec sub
                 url = e[1]
