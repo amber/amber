@@ -407,7 +407,7 @@ views =
         if info
             watcher.forum$id info.topic.forum$id
             watcher.name info.topic.name
-            list.items = info.posts
+            posts.items = info.posts
         else
             @watch 'topic', topic$id: id, watcher
 
