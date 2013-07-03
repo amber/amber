@@ -361,7 +361,9 @@ views =
 
         @requireAuthentication()
         @page
-            .add(base = new Container('d-r-new-topic-editor')
+            .add((base = new Form('d-r-new-topic-editor'))
+                .onSubmit(post)
+                .onCancel(=> @show 'forums.forum.view', id)
                 .add(new Container('d-r-title')
                     .add(new Link('d-r-list-back-button').setView('forums.forum.view', id))
                     .add(title = new Label))
@@ -372,7 +374,7 @@ views =
                         .add(new Container('d-r-new-topic-editor-inner')
                             .add(new Container('d-r-new-topic-editor-inner-wrap')
                                 .add(body = new TextField.Multiline('d-textfield d-r-new-topic-editor-body').setPlaceholder(tr 'Post Body')))))
-                    .add(new Button('d-button d-r-new-topic-button').setText(tr 'Create Topic').onExecute(post))))
+                    .add(new Button('d-button d-r-new-topic-button').setText(tr 'Create Topic').onExecute(base.submit, base))))
 
         @watch 'forum', forum$id: id,
             name: (x) -> title.text = tr.maybe x
