@@ -483,10 +483,11 @@ templates =
                 container.usePostId id
                 @wrap.scrollTop = 'max'
 
-        return postForm = new Container('d-r-block-form d-r-new-post-editor')
-                .add(body = new TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(tr 'Write something\u2026'))
-                .add(new Button('d-button d-r-authenticated').setText('Reply').onExecute(post))
-                .add(new Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(@showSignIn, @))
+        return (postForm = new Form('d-r-block-form d-r-new-post-editor'))
+            .onSubmit(=> if @user then post() else @showSignIn())
+            .add(body = new TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(tr 'Write something\u2026'))
+            .add(new Button('d-button d-r-authenticated').setText('Reply').onExecute(postForm.submit, postForm))
+            .add(new Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(postForm.submit, postForm))
 
 class App extends amber.ui.App
     @event 'Unload'
