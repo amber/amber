@@ -271,7 +271,7 @@ views =
             .add(new Label('d-r-title', tr 'Followers'))
             .add(new Carousel())
 
-    'forums.index': ->
+    forums: ->
         @request 'forums.categories', {}, (categories) =>
             for category in categories
                 @page
@@ -282,20 +282,20 @@ views =
                             .add(new Link('d-r-forum-list-item')
                                  .add(new Label('d-r-forum-list-item-title', tr.maybe(forum.name)))
                                  .add(new Label('d-r-forum-list-item-description', tr.maybe(forum.description)))
-                                 .setView('forums.forum.view', forum.id)))
+                                 .setView('forums.forum', forum.id)))
 
-    'forums.forum.view': (args) ->
+    'forums.forum': (args) ->
         id = args[1]
         @page
             .add(new Container('d-r-title')
-                .add(new Link('d-r-list-up-button').setView('forums.index'))
+                .add(new Link('d-r-list-up-button').setView('forums'))
                 .add(title = new Label))
             .add(new Container('d-r-subtitle')
                 .add(subtitle = new Label())
                 .add(new Separator('d-r-authenticated'))
                 .add(new Link('d-r-link d-r-authenticated')
                     .setText(tr 'New Topic')
-                    .setURL(@reverse('forums.forum.newTopic', id))))
+                    .setURL(@reverse('forums.addTopic', id))))
             .add(topics = new LazyList('d-r-topic-list')
                 .setLoader((offset, length, callback) =>
                     return @request('forums.topics',
@@ -305,7 +305,7 @@ views =
                     , callback))
                 .setTransformer((topic) =>
                     link = new Link('d-r-topic-list-item')
-                        .setView('forums.topic.view', topic.id)
+                        .setView('forums.topic', topic.id)
                         .add(new Container('d-r-topic-list-item-title')
                             .add(new Label('d-r-topic-list-item-name', topic.name))
                             .add(userLabel = new Label('d-r-topic-list-item-author', tr('by %', tr.list(topic.authors)))))
@@ -322,7 +322,7 @@ views =
             topics
         }
 
-    'forums.forum.newTopic': (args) ->
+    'forums.addTopic': (args) ->
         id = args[1]
 
         post = =>
@@ -332,7 +332,7 @@ views =
             @page
                 .clear()
                 .add(new Container('d-r-title d-r-topic-title')
-                    .add(new Link('d-r-list-up-button').setView('forums.forum.view', id))
+                    .add(new Link('d-r-list-up-button').setView('forums.forum', id))
                     .add(new Label('d-inline', name)))
                 .add(new Container('d-r-post-list')
                     .add(new Container('d-r-post pending')
@@ -348,8 +348,8 @@ views =
                 body: bodyText
             , (info) =>
                 @page.clear()
-                @redirect(@reverse('forums.topic.view', info.topic$id), true)
-                views['forums.topic.view'].call @, [null, info.topic$id],
+                @redirect(@reverse('forums.topic', info.topic$id), true)
+                views['forums.topic'].call @, [null, info.topic$id],
                     topic:
                         forum$id: id
                         name: name
@@ -363,9 +363,9 @@ views =
         @page
             .add((base = new Form('d-r-new-topic-editor'))
                 .onSubmit(post)
-                .onCancel(=> @show 'forums.forum.view', id)
+                .onCancel(=> @show 'forums.forum', id)
                 .add(new Container('d-r-title')
-                    .add(new Link('d-r-list-back-button').setView('forums.forum.view', id))
+                    .add(new Link('d-r-list-back-button').setView('forums.forum', id))
                     .add(title = new Label))
                 .add(subtitle = new Label('d-r-subtitle'))
                 .add(postForm = new Container('d-r-block-form')
@@ -380,9 +380,9 @@ views =
             name: (x) -> title.text = tr.maybe x
             description: (x) -> subtitle.text = tr.maybe x
 
-    'forums.topic.view': (args, info) ->
+    'forums.topic': (args, info) ->
         watcher =
-            forum$id: (x) -> up.setView 'forums.forum.view', x
+            forum$id: (x) -> up.setView 'forums.forum', x
             name: (x) -> title.text = tr.maybe x
             views: (x) -> subtitle.text = tr '% Views', x
 
@@ -514,7 +514,7 @@ class App extends amber.ui.App
                 .add(@panelLink('Amber', 'index'))
                 .add(@panelLink('Create', 'project.new'))
                 .add(@panelLink('Explore', 'explore'))
-                .add(@panelLink('Discuss', 'forums.index'))
+                .add(@panelLink('Discuss', 'forums'))
                 .add(@userButton = new Button('d-r-panel-button d-r-header-user')
                     .onExecute(@toggleUserPanel, @)
                     .add(@userLabel = new Label('d-r-header-user-label', tr 'Sign In'))
@@ -531,7 +531,7 @@ class App extends amber.ui.App
                 .add(new Container('d-r-footer')
                     .add(@panelLink 'Help', 'help')
                     .add(@panelLink 'About', 'help.about')
-                    .add(@panelLink 'Feedback', 'forums.topic.view', 1)
+                    .add(@panelLink 'Feedback', 'forums.topic', 1)
                     .add(@panelLink 'Contact', 'contact')))
 
         window.addEventListener 'hashchange', =>
