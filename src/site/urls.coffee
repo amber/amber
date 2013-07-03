@@ -18,7 +18,7 @@ urls = [
     [/^forums\/(\w+)\/add-topic$/, 'forums.addTopic']
     [/^forums\/t\/(\w+)$/, 'forums.topic']
     [/^forums\/p\/(\w+)$/, 'forums.post']
-    [/^mdtest$/, 'mdtest']
+    [/^mdtest\/(.+)$/, 'mdtest']
 ]
 
 @module 'amber.site', {

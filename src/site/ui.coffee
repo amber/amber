@@ -411,12 +411,12 @@ views =
         else
             @watch 'topic', topic$id: id, watcher
 
-    mdtest: ->
+    mdtest: (args) ->
         xhr = new XMLHttpRequest
-        xhr.open 'GET', 'static/test.md', false
+        xhr.open 'GET', args[1], false
         xhr.send()
         @page
-            .add(new Label('d-r-title', tr 'Markdown Test'))
+            .add(new Label('d-r-title', args[1].split('/').pop().replace(/\.md$/, '')))
             .add(new Label('d-r-post-list').setRichText(parse xhr.responseText))
 
 templates =
