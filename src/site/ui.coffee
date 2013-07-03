@@ -699,12 +699,11 @@ class App extends amber.ui.App
                 handler = config[key]
                 if typeof handler is 'function'
                     handler.call @, d
-                else if config.start and config.update
-                    if initial
-                        handler.start d
-                        initial = false
-                    else
-                        handler.update d
+                if initial
+                    handler.start d if handler.start
+                else
+                    handler.update d if handler.update
+            initial = false
 
         unless params
             params = {}
@@ -1651,10 +1650,14 @@ class LazyList extends Container
             @load()
 
     start: (items = []) ->
+        console.log items
         @clear()
         @items = []
         @offset = 0
         @addItems items
+
+    update: (delta) ->
+        # TODO
 
 module 'amber.site', {
     Server
