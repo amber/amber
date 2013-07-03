@@ -24,7 +24,7 @@ class Control extends Base
         @element = @newElement elementClass
         if containerClass
             @container = @newElement containerClass
-            @element.appendChild @container unless flat
+            @element.appendChild @container unless isFlat
         else
             @container = @element
         @
