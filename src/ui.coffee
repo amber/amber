@@ -898,8 +898,6 @@ module 'amber.ui', {
     MenuSeparator
     FormControl
     TextField
-    TextField
-    TextField
     Button
     Checkbox
     ProgressBar
