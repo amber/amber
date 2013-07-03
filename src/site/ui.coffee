@@ -1101,6 +1101,10 @@ emoticons =
     slant: /^(?:=|:-?)[\/\\]/
     tongue: /^(?:=|:-?)P/
     neutral: /^(?:=|:-?)\|/
+    frown: /^(?:=|:-?)\(/
+    cry: /^(?:=|:-?)'\(/
+    confused: /^(?:=|:-?)S/
+    'big-frown': /^D(?:=|-?:)/
 
 parse = (text) ->
     REFERENCE = /^ {0,3}\[([^[\]]+)\]:\s*(.+?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\s*$/gm
@@ -1220,7 +1224,16 @@ parse = (text) ->
         s = ''
         while i < length
             sub = p.substr i
-            if e = ESCAPE.exec sub
+            emoticon = false
+            for name, regex of emoticons
+                if e = regex.exec sub
+                    name = htmle name
+                    label = htmle e[0]
+                    s += "<span class=\"d-r-md-emoticon #{name}\">#{label}</span>"
+                    i += e[0].length
+                    emoticon = true
+            if emoticon
+            else if e = ESCAPE.exec sub
                 s += e[1]
                 i += e[0].length
             else if e = STRONG.exec sub
@@ -1308,13 +1321,6 @@ parse = (text) ->
                 i += e[0].length
             else
                 e = null
-                for name, regex of emoticons
-                    if e = regex.exec sub
-                        name = htmle name
-                        label = htmle e[0]
-                        s += "<span class=\"d-r-md-emoticon #{name}\">#{label}</span>"
-                        i += e[0].length
-                        break
                 unless e
                     s += htmle p[i]
                     i += 1

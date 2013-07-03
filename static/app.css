@@ -2376,6 +2376,10 @@
 .d-r-md-emoticon.slant { background: url(img/emoticon/slant.svg) }
 .d-r-md-emoticon.tongue { background: url(img/emoticon/tongue.svg) }
 .d-r-md-emoticon.neutral { background: url(img/emoticon/neutral.svg) }
+.d-r-md-emoticon.frown { background: url(img/emoticon/frown.svg) }
+.d-r-md-emoticon.cry { background: url(img/emoticon/cry.svg) }
+.d-r-md-emoticon.confused { background: url(img/emoticon/confused.svg) }
+.d-r-md-emoticon.big-frown { background: url(img/emoticon/big-frown.svg) }
 .d-r-md-error {
     color: #f00;
 }
