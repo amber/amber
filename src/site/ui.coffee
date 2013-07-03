@@ -1073,6 +1073,9 @@ class Server extends Base
         for log in @log
             @logPacket log
 
+emoticons =
+    smile: /^(?:=|:-?)\)/
+
 parse = (text) ->
     REFERENCE = /^ {0,3}\[([^[\]]+)\]:\s*(.+?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\s*$/gm
     VALID_LINK = /^\w+:|^#/
@@ -1278,8 +1281,17 @@ parse = (text) ->
                 s += "<a class=d-r-link href=\"#{href}\">#{url}</a>"
                 i += e[0].length
             else
-                s += htmle p[i]
-                i += 1
+                e = null
+                for name, regex of emoticons
+                    if e = regex.exec sub
+                        name = htmle name
+                        label = htmle e[0]
+                        s += "<span class=\"d-r-md-emoticon #{name}\">#{label}</span>"
+                        i += e[0].length
+                        break
+                unless e
+                    s += htmle p[i]
+                    i += 1
         while entry = stack.pop()
             s = s.substr(0, entry.index) + entry.original + s.substr entry.index + entry.kind.length + 2
         s

@@ -2355,6 +2355,18 @@
 .d-r-md img {
     max-width: 100%;
 }
+.d-r-md-emoticon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    color: transparent;
+    overflow: hidden;
+    font-size: 1px;
+    vertical-align: text-bottom;
+}
+.d-r-md-emoticon.smile {
+    background: url(img/emoticon/smile.svg);
+}
 .d-r-md-error {
     color: #f00;
 }
