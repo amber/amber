@@ -1095,7 +1095,7 @@ class Server extends Base
         for log in @log
             @logPacket log
 
-emoticons =
+EMOTICONS =
     smile: /^(?:=|:-?)\)/
     'big-smile': /^(?:=|:-?)D/
     slant: /^(?:=|:-?)[\/\\]/
@@ -1105,7 +1105,13 @@ emoticons =
     cry: /^(?:=|:-?)'\(/
     confused: /^(?:=|:-?)S/
     'big-frown': /^D(?:=|-?:)/
-    heart: /^<3/
+    heart: /^<3\b/
+
+SYMBOLS = [
+    [/^<--?(?= |$)/, '&larr;']
+    [/^--?>(?= |$)/, '&rarr;']
+    [/^<--?>(?= |$)/, '&harr;']
+]
 
 parse = (text) ->
     REFERENCE = /^ {0,3}\[([^[\]]+)\]:\s*(.+?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\s*$/gm
@@ -1114,8 +1120,8 @@ parse = (text) ->
     HORIZONTAL_RULE = /^\s*(?:\*(?:\s*\*){2,}|-(?:\s*-){2,})\s*\n\n+/
     HEADING = /^(#{1,6})([^#][^\n]*?)#{0,6}\n/
 
-    ESCAPE = /^\\([\\`*_{}[\]()#+\-.!])/
     LINE_BREAK = /^\\\n/
+    ESCAPE = /^\\./
     CODE = /^`+/
     EMPHASIS = /^[_*]/
     STRONG = /^(?:__|\*\*)/
@@ -1226,19 +1232,25 @@ parse = (text) ->
         s = ''
         while i < length
             sub = p.substr i
-            emoticon = false
-            for name, regex of emoticons
+            done = false
+            for name, regex of EMOTICONS
                 if e = regex.exec sub
                     name = htmle name
                     label = htmle e[0]
                     s += "<span class=\"d-r-md-emoticon #{name}\">#{label}</span>"
-                    i += e[0].length
-                    emoticon = true
-            if emoticon
-            else if e = ESCAPE.exec sub
-                s += e[1]
+                    done = true
+                    break
+            unless done
+                for [regex, substitution] in SYMBOLS
+                    if e = regex.exec sub
+                        s += substitution
+                        done = true
+                        break
+            if done
             else if e = LINE_BREAK.exec sub
                 s += '<br>'
+            else if e = ESCAPE.exec sub
+                s += e[1]
             else if e = STRONG.exec sub
                 toggle 'strong', e[0]
             else if e = EMPHASIS.exec sub
