@@ -299,8 +299,8 @@ views =
             .add(topics = new LazyList('d-r-topic-list')
                 .setLoader((offset, length, callback) =>
                     return @request('forums.topics',
-                        forum$id: id,
-                        offset: offset,
+                        forum$id: id
+                        offset: offset
                         length: length
                     , callback))
                 .setTransformer((topic) =>
