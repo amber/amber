@@ -1115,6 +1115,7 @@ parse = (text) ->
     HEADING = /^(#{1,6})([^#][^\n]*?)#{0,6}\n/
 
     ESCAPE = /^\\([\\`*_{}[\]()#+\-.!])/
+    LINE_BREAK = /^\\\n/
     CODE = /^`+/
     EMPHASIS = /^[_*]/
     STRONG = /^(?:__|\*\*)/
@@ -1236,24 +1237,20 @@ parse = (text) ->
             if emoticon
             else if e = ESCAPE.exec sub
                 s += e[1]
-                i += e[0].length
+            else if e = LINE_BREAK.exec sub
+                s += '<br>'
             else if e = STRONG.exec sub
                 toggle 'strong', e[0]
-                i += e[0].length
             else if e = EMPHASIS.exec sub
                 toggle 'em', e[0]
-                i += e[0].length
             else if e = DASH_SEQUENCE.exec sub
                 s += e[0]
-                i += e[0].length
             else if e = EM_DASH.exec sub
                 s += if e[1] then " " else ""
                 s += "&mdash;"
                 s += if e[2] then " " else ""
-                i += e[0].length
             else if e = EN_DASH.exec sub
                 s += " &ndash; "
-                i += e[0].length
             else if e = CODE.exec sub
                 i += e[0].length
                 j = p.indexOf e[0], i
@@ -1264,20 +1261,17 @@ parse = (text) ->
                     code = code.trim()
                     s += "<code>#{code}</code>"
                     i = j + e[0].length
+                e = null
             else if e = WORD.exec sub
                 s += leftQuote e[1]
                 s += rightQuote e[2]
-                i += e[0].length
             else if e = QUOTE.exec sub
                 s += rightQuote e[0]
-                i += e[0].length
             else if e = NON_EMPHASIS.exec sub
                 s += e[0]
-                i += e[0].length
             else if e = SPACE.exec sub
                 s += ' '
                 s += leftQuote e[1]
-                i += e[0].length
             else if e = EMAIL_ADDRESS.exec sub
                 chunked = ''
                 left = e[1]
@@ -1290,7 +1284,6 @@ parse = (text) ->
                     left = left.substr 6
                 url = htmle e[1].split('').reverse().join('').replace(/\\/g, '\\\\').replace(/'/g, '\\\'')
                 s += "<a class=d-r-link href=\"javascript:window.open('mailto:'+'#{url}'.split('').reverse().join(''))\">#{chunked}</a>"
-                i += e[0].length
             else if e = LINK.exec sub
                 label = htmle e[2]
                 href = e[3]
@@ -1300,17 +1293,15 @@ parse = (text) ->
                 title = htmle title
                 href = htmle href
                 s += link e[1], label, href, title
-                i += e[0].length
             else if e = REFERENCE_LINK.exec sub
                 label = htmle e[2]
-                href = e[3] or e[2]
+                href = (e[3] or e[2]).toLowerCase()
                 if ref = references[href]
                     href = htmle ref.href
                     title = htmle ref.title
                     s += link e[1], label, href, title
                 else
                     s += "<span class=d-r-md-error title=\"#{htmle tr 'Missing reference "%"', href}\">#{label}</span>"
-                i += e[0].length
             else if e = AUTOMATIC_LINK.exec sub
                 url = e[1]
                 href = url
@@ -1319,12 +1310,13 @@ parse = (text) ->
                 url = htmle url
                 href = htmle href
                 s += "<a class=d-r-link href=\"#{href}\">#{url}</a>"
-                i += e[0].length
             else
                 e = null
                 unless e
                     s += htmle p[i]
                     i += 1
+            if e
+                i += e[0].length
         while entry = stack.pop()
             s = s.substr(0, entry.index) + entry.original + s.substr entry.index + entry.kind.length + 2
         s
