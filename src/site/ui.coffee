@@ -451,8 +451,7 @@ templates =
             pending = true
             container.addClass('pending').add(spinner = new Container('d-r-post-spinner'))
             @request 'forums.post.delete', post$id: post.id, ->
-                container.removeClass('pending').remove(spinner)
-                pending = false
+                container.parent.remove container
 
         showActions = =>
             return if pending
