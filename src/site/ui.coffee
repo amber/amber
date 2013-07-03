@@ -592,10 +592,19 @@ class App extends amber.ui.App
             @userButton.addClass('d-r-panel-button-pressed')
             new Menu().addClass('d-r-header-user-menu').set(
                 items: [
-                    title: tr 'Profile', action: ['show', 'user.profile', @user.name],
-                    title: tr 'Settings', action: ['show', 'settings'],
-                    Menu.separator,
-                    title: tr 'Sign Out', action: 'signOut'
+                    {
+                        title: tr 'Profile'
+                        action: ['show', 'user.profile', @user.name]
+                    }
+                    {
+                        title: tr 'Settings'
+                        action: ['show', 'settings']
+                    }
+                    Menu.separator
+                    {
+                        title: tr 'Sign Out'
+                        action: 'signOut'
+                    }
                 ]
                 target: @
             ).onClose(=>
@@ -1581,8 +1590,6 @@ class LazyList extends Container
             app.wrap.onScroll @loadIfNecessary, @
             app.onUnload ->
                 app.wrap.unScroll @loadIfNecessary
-        setTimeout =>
-            @load()
 
     @property 'loader'
 
@@ -1615,7 +1622,8 @@ class LazyList extends Container
 
     setItems: (items) ->
         @clear()
-        @offset = items.length
+        @items = []
+        @offset = 0
         @max = items.length
         @addItems items
         @element.style.paddingBottom = ''
@@ -1640,6 +1648,12 @@ class LazyList extends Container
         wrap = @app.wrap.element
         if @element.offsetHeight - @buffer - wrap.scrollTop < wrap.offsetHeight * 2
             @load()
+
+    start: (items = []) ->
+        @clear()
+        @items = []
+        @offset = 0
+        @addItems items
 
 module 'amber.site', {
     Server

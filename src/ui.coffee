@@ -493,7 +493,7 @@ class Menu extends Control
             @element.style.top = (Math.max 4, window.innerHeight - height - 4) + 'px'
 
     layout: ->
-        maxHeight = (parseFloat getComputedStyle @element).height
+        maxHeight = parseFloat getComputedStyle(@element).height
         left = parseFloat @element.style.left
         top = parseFloat @element.style.top
         width = @element.offsetWidth
@@ -509,7 +509,7 @@ class Menu extends Control
             @element.style.left = (left = Math.max(4, window.innerWidth - width - 4)) + 'px'
 
         @element.style.bottom = '4px'
-        @viewHeight = parseFloat (getComputedStyle @element).height
+        @viewHeight = parseFloat getComputedStyle(@element).height
         height = @element.offsetHeight
         if top + height + 4 > window.innerHeight
             @element.style.top = (top = Math.max 4, window.innerHeight - height - 4) + 'px'
