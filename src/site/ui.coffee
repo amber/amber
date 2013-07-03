@@ -421,6 +421,8 @@ views =
 
 templates =
     post: (post) ->
+        pending = false
+
         edit = =>
             update = =>
                 body.richText = parse post.body = editor.text
@@ -434,7 +436,7 @@ templates =
 
             cancel = =>
                 container.replace(form, body).remove(updateButton).remove(cancelButton)
-                editButton.show()
+                actionButton.show()
 
             return unless post.id
             form = new Form().onSubmit(update).onCancel(cancel)
@@ -442,13 +444,33 @@ templates =
             form.add(editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
                 .add(updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
                 .add(cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
-            editButton.hide()
+            actionButton.hide()
             editor.select()
 
-        username = @user?.name
+        remove = =>
+            pending = true
+            container.addClass('pending').add(spinner = new Container('d-r-post-spinner'))
+            @request 'forums.post.delete', post$id: post.id, ->
+                container.removeClass('pending').remove(spinner)
+                pending = false
+
+        showActions = =>
+            return if pending
+            items = [
+                { title: tr('Report') }
+            ]
+            if -1 isnt post.authors.indexOf @user?.name
+                items = items.concat [
+                    Menu.separator
+                    { title: tr('Edit'), action: edit }
+                    { title: tr('Delete'), action: remove }
+                ]
+            new Menu()
+                .setItems(items)
+                .popDown(actionButton)
+
         container = new Container('d-r-post')
-        container.add(editButton = new Button('d-r-edit-button d-r-post-edit').onExecute(edit))
-        @authenticate post.authors, editButton
+        container.add(actionButton = new Button('d-r-action-button d-r-post-action').onExecute(showActions))
         container
             .add(users = new Label('d-r-post-author'))
             .add(body = new Label('d-r-post-body').setRichText(parse post.body))

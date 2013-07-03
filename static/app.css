@@ -257,17 +257,23 @@
 .d-menu {
     z-index: 100;
     min-height: 16px;
+    min-width: 150px;
     position: fixed;
     cursor: default;
     overflow: hidden;
     top: 0;
     left: 0;
-    padding: 5px 0;
-    font: 10px sans-serif;
-    border-radius: 5px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), 0 3px 20px rgba(0, 0, 0, .2);
-    background: rgba(255, 255, 255, .97);
+    padding: 6px 0;
+    font: inherit;
+    font-size: 16px;
+    line-height: 20px;
+    border-radius: 6px;
+    background: #666;
+    color: #fff;
     outline: 0;
+}
+.d-menu-pop-down {
+    border-top-left-radius: 0;
 }
 .d-menu-search {
     width: 1px;
@@ -315,24 +321,17 @@
     position: relative;
 }
 .d-menu-separator {
-    margin: 3px 1px;
+    margin: 6px 0;
     height: 1px;
-    background: rgba(0, 0, 0, .1);
+    background: #888;
 }
 .d-menu-item {
-    padding: 1px 13px 1px 3px;
-    min-height: 1em;
-    border: 1px solid transparent;
-    border-style: solid none;
+    padding: 3px 12px;
+    min-height: 20px;
+    cursor: pointer;
 }
 .d-menu-item-active {
-    color: #fff;
-    background: -webkit-linear-gradient(#69f, #16e);
-    background: -moz-linear-gradient(#69f, #16e);
-    background: -ms-linear-gradient(#69f, #16e);
-    background: -o-linear-gradient(#69f, #16e);
-    background: linear-gradient(#69f, #16e);
-    border-color: #58e #000 #15f;
+    background: #888;
 }
 .d-menu-item-title,
 .d-menu-item-state {
@@ -2233,7 +2232,8 @@
 .d-r-post-author .d-label {
     text-decoration: inherit;
 }
-.d-r-edit-button {
+.d-r-edit-button,
+.d-r-action-button {
     position: absolute;
     top: 0;
     right: 100%;
@@ -2246,7 +2246,10 @@
     opacity: .3;
     cursor: pointer;
 }
-.d-r-post-edit {
+.d-r-action-button {
+    background: url(img/action.svg);
+}
+.d-r-post-action {
     top: 24px;
 }
 .d-r-section-edit {
@@ -2254,11 +2257,16 @@
 }
 .d-r-edit-button:hover,
 .d-r-edit-button:active,
-.d-r-edit-button:focus {
+.d-r-edit-button:focus,
+.d-r-action-button:hover,
+.d-r-action-button:active,
+.d-r-action-button:focus {
     opacity: .6;
 }
 .d-r-edit-button:hover:active,
-.d-r-edit-button:focus:active {
+.d-r-edit-button:focus:active,
+.d-r-action-button:hover:active,
+.d-r-action-button:focus:active {
     opacity: 1;
 }
 .d-r-post-body {
@@ -2276,7 +2284,8 @@
         position: static;
         margin: 0;
     }
-    .d-r-edit-button {
+    .d-r-edit-button,
+    .d-r-action-button {
         position: static;
         float: right;
     }

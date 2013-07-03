@@ -445,7 +445,7 @@ class Menu extends Control
         @layout()
         @
 
-    popDown: (control, element, selectedItem) ->
+    popDown: (control, element = control.element, selectedItem) ->
         if typeof selectedItem is 'number'
             target = @menuItems[selectedItem]
         else if typeof selectedItem is 'string'
@@ -453,6 +453,7 @@ class Menu extends Control
             while target = @menuItems[i++]
                 break if target.action is selectedItem
 
+        @addClass 'd-menu-pop-down'
         target.setState 'checked' if target
         elementBB = element.getBoundingClientRect()
         control.app.setMenu @
@@ -530,6 +531,10 @@ class Menu extends Control
             else
                 @_target[model.action] model
             return @
+        else if model.action instanceof Array
+            model.action[0].apply null, model.action.slice 1
+        else if typeof model.action is 'function'
+            model.action()
 
         @dispatch 'Execute', (new ControlEvent @).set item: model
         @
