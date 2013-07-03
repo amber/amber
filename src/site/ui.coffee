@@ -323,6 +323,8 @@ views =
         }
 
     'forums.forum.newTopic': (args) ->
+        id = args[1]
+
         post = =>
             username = @user.name
             bodyText = body.text
@@ -330,7 +332,7 @@ views =
             @page
                 .clear()
                 .add(new Container('d-r-title d-r-topic-title')
-                    .add(new Link('d-r-list-up-button').setView('forums.forum.view', forumId))
+                    .add(new Link('d-r-list-up-button').setView('forums.forum.view', id))
                     .add(new Label('d-inline', name)))
                 .add(new Container('d-r-post-list')
                     .add(new Container('d-r-post pending')
@@ -341,7 +343,7 @@ views =
                     .add(new Container('d-r-post-spinner')))
                 .add(@template('replyForm'))
             @request 'forums.topic.add',
-                forum$id: forumId,
+                forum$id: id,
                 name: name,
                 body: bodyText
             , (info) =>
@@ -349,7 +351,7 @@ views =
                 @redirect(@reverse('forums.topic.view', info.topic$id), true)
                 views['forums.topic.view'].call @, [null, info.topic$id],
                     topic:
-                        forum$id: forumId
+                        forum$id: id
                         name: name
                     posts: [
                         authors: [username]
@@ -357,12 +359,11 @@ views =
                         id: info.post$id
                     ]
 
-        forumId = args[1]
         @requireAuthentication()
         @page
             .add(base = new Container('d-r-new-topic-editor')
                 .add(new Container('d-r-title')
-                    .add(new Link('d-r-list-back-button').setView('forums.forum.view', forumId))
+                    .add(new Link('d-r-list-back-button').setView('forums.forum.view', id))
                     .add(title = new Label))
                 .add(subtitle = new Label('d-r-subtitle'))
                 .add(postForm = new Container('d-r-block-form')
@@ -372,9 +373,10 @@ views =
                             .add(new Container('d-r-new-topic-editor-inner-wrap')
                                 .add(body = new TextField.Multiline('d-textfield d-r-new-topic-editor-body').setPlaceholder(tr 'Post Body')))))
                     .add(new Button('d-button d-r-new-topic-button').setText(tr 'Create Topic').onExecute(post))))
-        @request 'forums.forum', forum$id: forumId, (forum) =>
-            title.text = tr.maybe forum.name
-            subtitle.text = tr.maybe forum.description
+
+        @watch 'forum', forum$id: id,
+            name: (x) -> title.text = tr.maybe x
+            description: (x) -> subtitle.text = tr.maybe x
 
     'forums.topic.view': (args, info) ->
         watcher =
@@ -696,8 +698,7 @@ class App extends amber.ui.App
         initial = true
 
         watcher = (data) =>
-            for key, d of data
-                handler = config[key]
+            for key, d of data when handler = config[key]
                 if typeof handler is 'function'
                     handler.call @, d
                 if initial
