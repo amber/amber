@@ -381,18 +381,13 @@ views =
             description: (x) -> subtitle.text = tr.maybe x
 
     'forums.topic': (args, info) ->
-        watcher =
-            forum$id: (x) -> up.setView 'forums.forum', x
-            name: (x) -> title.text = tr.maybe x
-            views: (x) -> subtitle.text = tr '% Views', x
-
         id = args[1]
         @page
             .add(new Container('d-r-title d-r-topic-title')
                 .add(up = new Link('d-r-list-up-button'))
                 .add(title = new Label('d-inline')))
             .add(subtitle = new Label('d-r-subtitle'))
-            .add(list = new LazyList('d-r-post-list')
+            .add(posts = new LazyList('d-r-post-list')
                 .setLoader((offset, length, callback) =>
                     @request 'forums.posts',
                         topic$id: id,
@@ -401,6 +396,14 @@ views =
                     , callback)
                 .setTransformer(templates.post.bind @))
             .add(@template 'replyForm', id)
+
+        watcher = {
+            forum$id: (x) -> up.setView 'forums.forum', x
+            name: (x) -> title.text = tr.maybe x
+            views: (x) -> subtitle.text = tr '% Views', x
+            posts
+        }
+
         if info
             watcher.forum$id info.topic.forum$id
             watcher.name info.topic.name
