@@ -183,11 +183,11 @@ class Control extends Base
         @element.style.display = ''
         @
 
-    @property 'visible', -> @element.style.display isnt 'none'
-
-    setVisible: (visible) ->
-        @element.style.display = if visible then '' else 'none'
-        @
+    @property 'visible',
+        get: -> @element.style.display isnt 'none'
+        set: (visible) ->
+            @element.style.display = if visible then '' else 'none'
+            @
 
     childrenSatisfying: (predicate) ->
         array = []

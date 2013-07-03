@@ -651,6 +651,7 @@ class App extends amber.ui.App
                         visible = true
                         break
 
+            console.log controls
             for control in controls
                 control.visible = visible
 
