@@ -2360,6 +2360,7 @@
 }
 .d-r-md img {
     max-width: 100%;
+    vertical-align: text-bottom;
 }
 .d-r-md-emoticon {
     width: 16px;

@@ -1108,9 +1108,9 @@ EMOTICONS =
     heart: /^<3\b/
 
 SYMBOLS = [
-    [/^<--?(?= |$)/, '&larr;']
-    [/^--?>(?= |$)/, '&rarr;']
-    [/^<--?>(?= |$)/, '&harr;']
+    [/^<--?>/, '&harr;']
+    [/^<--?/, '&larr;']
+    [/^--?>/, '&rarr;']
 ]
 
 parse = (text) ->
@@ -1415,6 +1415,11 @@ class Separator extends Label
         super "d-r-separator #{className}"
         @setText '\xb7'
 
+ListChangeType =
+    ADD: 1
+    CHANGE: 2
+    REMOVE: 3
+
 class Carousel extends Control
     acceptsScrollWheel: true
 
@@ -1534,7 +1539,6 @@ class Carousel extends Control
         # TODO
 
 class CarouselItem extends Link
-
     constructor: ->
         super('d-r-carousel-item')
         @element.appendChild(@thumbnailImage = @newElement('d-r-carousel-item-thumbnail', 'img'))
@@ -1555,7 +1559,6 @@ class CarouselItem extends Link
 
 
 class ProjectCarousel extends Carousel
-
     constructor: (app) ->
         @_initApp = app
         @_requestArguments = {}
@@ -1589,7 +1592,6 @@ class ProjectCarouselItem extends CarouselItem
 
 
 class ActivityCarousel extends Carousel
-
     constructor: ->
         super()
         @addClass 'd-r-activity-carousel'
@@ -1636,7 +1638,6 @@ class ActivityCarouselItem extends Container
 
 class LazyList extends Container
     constructor: (className = 'd-r-list') ->
-        @_controls = []
         @visibleItems = []
         super(className)
         @element.style.paddingBottom = @buffer + 'px'
@@ -1679,7 +1680,6 @@ class LazyList extends Container
 
     @property 'items', apply: (items) ->
         @clear()
-        @_controls = []
         @offset = 0
         @max = items.length
         @addItems items
@@ -1687,8 +1687,7 @@ class LazyList extends Container
 
     addItems: (items) ->
         for item in items
-            @add control = @_transformer item
-            @_controls.push control
+            @add @_transformer item
 
         @offset += items.length
         @loadIfNecessary()
@@ -1708,15 +1707,32 @@ class LazyList extends Container
 
     start: (items = []) ->
         @clear()
-        @_controls = []
         @offset = 0
         @max = if items.length < @LOAD_AMOUNT then items.length else -1
         unless @max is -1
             @element.style.paddingBottom = ''
         @addItems items
 
-    update: (delta) ->
-        # TODO
+    update: (changes) ->
+        for change in changes
+            i = change[1]
+            item = change[2]
+            switch change[0]
+                when ListChangeType.ADD
+                    if i < @offset
+                        @insert @_transformer(item), @children[i]
+                        if @max isnt -1
+                            ++@max
+                        ++@offset
+                when ListChangeType.CHANGE
+                    if c = @children[i]
+                        @replace c, @_transformer item
+                when ListChangeType.REMOVE
+                    if c = @children[i]
+                        @remove c
+                        if @max isnt -1
+                            --@max
+                        --@offset
 
 module 'amber.site', {
     Server
