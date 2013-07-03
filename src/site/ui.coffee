@@ -489,6 +489,7 @@ class App extends amber.ui.App
         super()
         @setConfig()
         @pendingRequests = 0
+        @authenticators = []
 
     setElement: (element) ->
         addClass element, 'd-r-app unauthenticated'
@@ -539,7 +540,6 @@ class App extends amber.ui.App
     @property 'server',
         apply: (server) ->
             server.app = @
-            @go location.hash.substr 1
 
     @property 'connected',
         apply: (connected) ->
@@ -849,6 +849,9 @@ class Server extends Base
         connect: (p) ->
             @app.user = if p.user then (new User @).fromJSON p.user else null
             @setSessionId p.sessionId
+            if not @app.initialized
+                @app.go location.hash.substr 1
+                @app.initialized = true
 
         result: (p) ->
             request = @requests[p.request$id]
