@@ -2367,11 +2367,14 @@
     display: inline-block;
     color: transparent;
     overflow: hidden;
-    font-size: 1px;
+    font-size: 16px;
+    line-height: 16px;
     vertical-align: text-bottom;
 }
 .d-r-md-emoticon.smile { background: url(img/emoticon/smile.svg) }
 .d-r-md-emoticon.big-smile { background: url(img/emoticon/big-smile.svg) }
+.d-r-md-emoticon.slant { background: url(img/emoticon/slant.svg) }
+.d-r-md-emoticon.tongue { background: url(img/emoticon/tongue.svg) }
 .d-r-md-error {
     color: #f00;
 }
