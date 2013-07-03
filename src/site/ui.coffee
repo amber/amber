@@ -401,7 +401,7 @@ views =
         else
             @request 'forums.topic', topic$id: topicId, load
 
-        @request 'forums.topic.view',topic$id: topicId, ->
+        @request 'forums.topic.view', topic$id: topicId, ->
 
     mdtest: ->
         xhr = new XMLHttpRequest
