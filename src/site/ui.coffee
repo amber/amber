@@ -505,6 +505,7 @@ templates =
                 newPost.remove spinner
                 body.text = ''
                 postForm.show()
+                body.focus()
                 container.usePostId id
                 @wrap.scrollTop = 'max'
 
