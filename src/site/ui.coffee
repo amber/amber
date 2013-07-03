@@ -315,11 +315,10 @@ views =
                             .add(new Label().setText(tr.plural('% views', '% view', topic.views))))
                     userLabel.text = tr 'by %', tr.list topic.authors
                     return link))
-        @request 'forums.forum', forum$id: id, (forum) =>
-            title.text = tr.maybe forum.name
-            subtitle.text = tr.maybe forum.description
 
         @watch 'forum', forum$id: id, {
+            name: (x) -> title.text = tr.maybe x
+            description: (x) -> subtitle.text = tr.maybe x
             topics
         }
 
