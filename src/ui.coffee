@@ -723,6 +723,9 @@ class TextField.Multiline extends TextField
     constructor: (className) ->
         super className
         @onLive @_autoResize
+        @element.addEventListener 'keydown', (e) =>
+            if e.keyCode is 13 and not (e.metaKey or e.ctrlKey)
+                e.stopPropagation()
 
     TAG_NAME: 'textarea'
     @property 'autoSize',

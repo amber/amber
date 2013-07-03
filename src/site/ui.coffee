@@ -426,13 +426,15 @@ templates =
                 cancel()
 
             cancel = =>
-                container.replace(editor, body).remove(updateButton).remove(cancelButton)
+                container.replace(form, body).remove(updateButton).remove(cancelButton)
                 editButton.show()
 
             return unless post.id
-            container.replace(body, editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
-                .add(updateButton = new Button().setText(tr 'Update Post').onExecute(update))
-                .add(cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(cancel))
+            form = new Form().onSubmit(update).onCancel(cancel)
+            container.replace body, form
+            form.add(editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
+                .add(updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
+                .add(cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
             editButton.hide()
             editor.select()
 
