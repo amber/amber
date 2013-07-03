@@ -377,31 +377,32 @@ views =
             subtitle.text = tr.maybe forum.description
 
     'forums.topic.view': (args, info) ->
-        load = (topic) =>
-            up.setView('forums.forum.view', topic.forum$id)
-            title.text = tr.maybe topic.name
+        watcher =
+            forum$id: (x) -> up.setView 'forums.forum.view', x
+            name: (x) -> title.text = tr.maybe x
+            views: (x) -> subtitle.text = tr '% Views', x
 
-        topicId = args[1]
+        id = args[1]
         @page
             .add(new Container('d-r-title d-r-topic-title')
                 .add(up = new Link('d-r-list-up-button'))
                 .add(title = new Label('d-inline')))
+            .add(subtitle = new Label('d-r-subtitle'))
             .add(list = new LazyList('d-r-post-list')
                 .setLoader((offset, length, callback) =>
                     @request 'forums.posts',
-                        topic$id: topicId,
+                        topic$id: id,
                         offset: offset,
                         length: length
                     , callback)
-                .setTransformer(templates.post.bind(@)))
-            .add(@template 'replyForm', topicId)
+                .setTransformer(templates.post.bind @))
+            .add(@template 'replyForm', id)
         if info
-            load info.topic
-            list.setItems(info.posts)
+            watcher.forum$id info.topic.forum$id
+            watcher.name info.topic.name
+            list.items = info.posts
         else
-            @request 'forums.topic', topic$id: topicId, load
-
-        @request 'forums.topic.view', topic$id: topicId, ->
+            @watch 'topic', topic$id: id, watcher
 
     mdtest: ->
         xhr = new XMLHttpRequest
@@ -1579,7 +1580,7 @@ class ActivityCarouselItem extends Container
 
 class LazyList extends Container
     constructor: (className = 'd-r-list') ->
-        @items = []
+        @_controls = []
         @visibleItems = []
         super(className)
         @element.style.paddingBottom = @buffer + 'px'
@@ -1620,9 +1621,9 @@ class LazyList extends Container
 
         @loaded = offset + length
 
-    setItems: (items) ->
+    @property 'items', apply: (items) ->
         @clear()
-        @items = []
+        @_controls = []
         @offset = 0
         @max = items.length
         @addItems items
@@ -1631,7 +1632,7 @@ class LazyList extends Container
     addItems: (items) ->
         for item in items
             @add control = @_transformer item
-            @items.push control
+            @_controls.push control
 
         @offset += items.length
         @loadIfNecessary()
@@ -1650,10 +1651,12 @@ class LazyList extends Container
             @load()
 
     start: (items = []) ->
-        console.log items
         @clear()
-        @items = []
+        @_controls = []
         @offset = 0
+        @max = if items.length < @LOAD_AMOUNT then items.length else -1
+        unless @max is -1
+            @element.style.paddingBottom = ''
         @addItems items
 
     update: (delta) ->
