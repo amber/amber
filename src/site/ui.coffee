@@ -445,7 +445,7 @@ templates =
                 .add(updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
                 .add(cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
             actionButton.hide()
-            editor.select()
+            setTimeout -> editor.select()
 
         remove = =>
             pending = true
