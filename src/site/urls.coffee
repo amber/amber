@@ -3,6 +3,7 @@ urls = [
     [/^search$/, 'search']
     [/^search\/(.+)$/, 'search']
     [/^projects\/new$/, 'project.new']
+    [/^projects\/new\/(.+)$/, 'project.new']
     [/^projects\/(\w+)$/, 'project.view']
     [/^projects\/(\w+)\/edit$/, 'project.edit']
     [/^users\/([\w-]+)$/, 'user.profile']
@@ -18,6 +19,7 @@ urls = [
     [/^forums\/(\w+)\/add-topic$/, 'forums.addTopic']
     [/^forums\/t\/(\w+)$/, 'forums.topic']
     [/^forums\/p\/(\w+)$/, 'forums.post']
+    [/^collections\/starter-projects$/, 'collection.starterProjects']
     [/^mdtest\/(.+)$/, 'mdtest']
 ]
 

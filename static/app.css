@@ -2312,7 +2312,7 @@
 .d-r-md h5,
 .d-r-md h6 {
     font: inherit;
-    margin: 12px 0;
+    margin: 24px 0 12px;
 }
 .d-r-md h1 {
     font-size: 36px;
