@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>Amber (Offline)</title>
+<link rel=stylesheet href=static/app.css>
+<link rel=icon href=static/favicon.png>
+<body>
+<script src=src/util.js></script>
+<script src=src/event.js></script>
+<script src=src/locale.js></script>
+<script src=src/ui.js></script>
+<script src=src/site/urls.js></script>
+<script src=src/site/ui.js></script>
+<script src=src/site/offline.js></script>
+<script src=locale/en-US.js></script>
+<script>
+var app = new amber.site.App().setConfig({
+    livePacketLog: true,
+    verbosePackets: true
+}).setElement(document.body).setServer(new amber.site.OfflineServer());
+</script>
+</body>
