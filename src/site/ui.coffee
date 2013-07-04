@@ -37,13 +37,13 @@ views =
                     .add(new Link('d-r-splash-link').onExecute(@showSignIn, @)
                         .add(new Label('d-r-splash-link-title', tr 'Sign In'))
                         .add(new Label('d-r-splash-link-subtitle', tr 'With a Scratch account')))
-                    .add(new Link('d-r-splash-link').setView('help.about')
+                    .add(new Link('d-r-splash-link').setView('wiki', 'Help:About')
                         .add(new Label('d-r-splash-link-title', tr 'About Amber'))
                         .add(new Label('d-r-splash-link-subtitle', tr 'What is this thing?')))
-                    .add(new Link('d-r-splash-link').setView('help.tos')
+                    .add(new Link('d-r-splash-link').setView('wiki', 'Help:Terms of service')
                         .add(new Label('d-r-splash-link-title', tr 'Terms of Service'))
                         .add(new Label('d-r-splash-link-subtitle', tr 'How can I use it?')))
-                    .add(new Link('d-r-splash-link').setView('help.educators')
+                    .add(new Link('d-r-splash-link').setView('wiki', 'Help:Educators')
                         .add(new Label('d-r-splash-link-title', tr 'For Educators'))
                         .add(new Label('d-r-splash-link-subtitle', tr 'How can I teach with it?'))))
                 .add(new Container('d-r-splash-footer'))
@@ -112,20 +112,23 @@ views =
             .add(new Label('d-r-title', tr 'Authentication Required'))
             .add(new Label('d-r-paragraph', tr 'You need to log in to see this page.'))
 
-    help: (args) ->
-        @page
-            .add(new Label('d-r-title', tr 'Help'))
-            .add(new Label('d-r-paragraph', tr 'This is a placeholder help section.'))
-
-    'help.about': (args) ->
-        @page
-            .add(new Label('d-r-title', tr 'About Amber'))
-            .add(new Label('d-r-paragraph', tr 'Copyright \xa9 2013 Nathan Dinsmore and Truman Kilen.'))
-
-    'help.tos': ->
-        @page
-            .add(new Label('d-r-title', tr 'Terms of Service'))
-            .add(new Label('d-r-paragraph', tr 'You just do what the **** you want to.'))
+    wiki: (args) ->
+        page = args[1]
+        if e = /^([^:]+):/.exec page
+            [match, namespace] = e
+            page = "#{namespace}/#{page.substr match.length}"
+        @requestStart()
+        xhr = new XMLHttpRequest
+        xhr.open 'GET', "docs/wiki/#{page}.md", true
+        xhr.onload = =>
+            @requestEnd()
+            if xhr.status isnt 200
+                return views.notFound.call @, [args[0]]
+            context = parse xhr.responseText
+            @page
+                .add(title = new Label('d-r-title', context.config.title ? args[1].split('/').pop().replace(/\.md$/, '')))
+                .add(new Label('d-r-section').setRichText(context.result))
+        xhr.send()
 
     search: ->
         @page
@@ -411,15 +414,6 @@ views =
         else
             @watch 'topic', topic$id: id, watcher
 
-    mdtest: (args) ->
-        xhr = new XMLHttpRequest
-        xhr.open 'GET', args[1], false
-        xhr.send()
-        context = parse xhr.responseText
-        @page
-            .add(new Label('d-r-title', context.title ? args[1].split('/').pop().replace(/\.md$/, '')))
-            .add(new Label('d-r-post-list').setRichText(context.result))
-
 templates =
     post: (post) ->
         pending = false
@@ -556,10 +550,10 @@ class App extends amber.ui.App
             .add(@wrap = new Container('d-r-wrap').addClass('d-scrollable').withScrollEvent()
                 .add(@page = @createPage())
                 .add(new Container('d-r-footer')
-                    .add(@panelLink 'Help', 'help')
-                    .add(@panelLink 'About', 'help.about')
+                    .add(@panelLink 'Help', 'wiki', 'Help:Contents')
+                    .add(@panelLink 'About', 'wiki', 'Help:About')
                     .add(@panelLink 'Feedback', 'forums.topic', 1)
-                    .add(@panelLink 'Contact', 'contact')))
+                    .add(@panelLink 'Contact', 'wiki', 'Help:Contact')))
 
         window.addEventListener 'hashchange', =>
             if @isRedirect
@@ -763,7 +757,12 @@ class App extends amber.ui.App
                 source = url[0].source.replace(/^\^/, '').replace(/\\\//g, '/').replace(/\$$/, '')
                 arg = 0
                 out = source.replace /\((?:[^\)]|\\\))+\)/g, -> args[arg++]
-                if args.length is arg
+                match = true
+                for x in url[2..]
+                    if x isnt args[arg++]
+                        match = false
+                        break
+                if match and args.length is arg
                     return out
         throw new Error 'No reverse match for "' + view + '" with arguments [' + args + ']'
 
@@ -804,6 +803,9 @@ class App extends amber.ui.App
                     if not views[url[1]]
                         console.error 'Undefined view ' + url[1]
                         break
+
+                    for x in url[2..]
+                        match.push x
 
                     views[url[1]].call @, match
                     @swapIfComplete()
@@ -1159,6 +1161,8 @@ do ->
         if href[0] is ':'
             parts = href.substr(1).split(' ')
             App::abs App::reverse.apply null, parts
+        else if href[0] is '%'
+            App::abs App::reverse 'wiki', href.substr(1)
         else if not VALID_LINK.test href
             'http://' + href
         else
