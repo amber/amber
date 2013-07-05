@@ -90,7 +90,7 @@ views =
                         length: length
                     , callback))
                 .setTransformer((info) ->
-                    return new Link('d-r-fluid-project').setView('project.view', info.id)
+                    return new Link('d-r-fluid-project').setView('project', info.id)
                         .add(new Image('d-r-fluid-project-thumbnail').setURL(@app.server.getAsset(info.project.thumbnail)))
                         .add(new Label('d-r-fluid-project-label', info.project.name))))
 
@@ -147,7 +147,7 @@ views =
                 .add(new Label('d-r-form-label', tr 'What I\'m Working On'))
                 .add(new TextField.Multiline().setAutoSize(true)))
 
-    'project.view': (args, isEdit) ->
+    project: (args, isEdit) ->
         toggleNotes = () ->
             notes.element.style.height = 'auto'
             height = notes.element.offsetHeight + 'px'
@@ -235,8 +235,6 @@ views =
         # @onUnload(->
         #     player.parent.remove(player)
         # )
-
-    'project.edit': (args) -> views['project.view'].call(@, args, true)
 
     'user.profile': (args) ->
         @page
@@ -762,7 +760,7 @@ class App extends amber.ui.App
                     if x isnt args[arg++]
                         match = false
                         break
-                if match and args.length is arg
+                if match and args.length is arg and url[0].test out
                     return out
         throw new Error 'No reverse match for "' + view + '" with arguments [' + args + ']'
 
@@ -1672,7 +1670,7 @@ class ProjectCarousel extends Carousel
 
 class ProjectCarouselItem extends CarouselItem
     @property 'project', apply: (info) ->
-        @setView 'project.view', info.id
+        @setView 'project', info.id
         @label = info.project.name
         @onLive ->
             @thumbnail = @app.server.getAsset info.project.thumbnail
