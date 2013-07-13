@@ -1137,7 +1137,7 @@ do ->
     HEADING = /^(#{1,6})([^#][^\n]*?)#{0,6}(\n|$)/
 
     LINE_BREAK = /^\\\n/
-    ESCAPE = /^\\./
+    ESCAPE = /^\\(.)/
     CODE = /^`+/
     EMPHASIS = /^[_*]/
     STRONG = /^(?:__|\*\*)/
@@ -1234,41 +1234,79 @@ do ->
             length: i
             contents: template.apply null, [context].concat args
 
-        parseBlock = ->
-            p = text.substr index
-            if e = /^\n+/.exec p
+        parseBlock = (text) ->
+            index = 0
+            if e = /^\n+/.exec text
+                result = ''
                 index += e[0].length
-            else if e = HEADING.exec p
+            else if e = /^\*\s+/.exec text
+                index += e[0].length
+                items = []
+                useParagraph = false
+                loop
+                    p = text.substr index
+                    match = /\n(\n*)\*\s+/.exec p
+                    next = match?.index
+                    terminator = p.search /\n\n+(?!    )(?!\n)|$/
+                    end = Math.min terminator, if match then next else p.length
+                    items.push item = p.substr 0, end
+                    index += end
+                    useParagraph or= /\n+/.test item
+                    break if not match or terminator < next
+                    useParagraph or= match[1]
+                    e = /\n+\*\s+/.exec p.substr end
+                    index += e[0].length
+                result = ''
+                result += "<ul>\n"
+                for item in items
+                    if useParagraph
+                        i = 0
+                        item = item.replace(/^    /gm, '')
+                        length = item.length
+                        t = ''
+                        while i < length
+                            r = parseBlock item.substr i
+                            t += r.content
+                            i += r.length
+                        result += "<li>\n#{t}\n</li>\n"
+                    else
+                        t = parseParagraph item
+                        result += "<li>#{t}</li>\n"
+                result += "</ul>\n"
+                e = null
+            else if e = HEADING.exec text
                 n = e[1].length
                 title = parseParagraph e[2].trim()
-                content += "<h#{n}>#{title}</h#{n}>"
+                result = "<h#{n}>#{title}</h#{n}>"
                 index += e[0].length
-            else if e = /^```/.exec p
+            else if e = /^```/.exec text
                 index += e[0].length
                 p = text.substr index
-                i = p.search /```/
+                i = p.search /^```/m
                 if i is -1
-                    content += "```"
+                    result = "```"
                 else
                     code = htmle p.substr 0, i
-                    content += "<pre class=d-scrollable>#{code}</pre>\n"
+                    result = "<pre class=d-scrollable>#{code}</pre>\n"
                     index += i + 3
-            else if e = HORIZONTAL_RULE.exec p
-                content += '<hr>\n'
+            else if e = HORIZONTAL_RULE.exec text
+                result = '<hr>\n'
                 index += e[0].length
-            else if /^    /.test p
-                i = p.search /\n\n+(?!    )/
-                i = p.length if i is -1
-                code = p.substr 0, i
+            else if /^    /.test text
+                i = text.search /\n\n+(?!    )/
+                i = text.length if i is -1
+                code = text.substr 0, i
                 code = htmle code.replace /^    /gm, ''
-                content += "<pre class=d-scrollable>#{code}</pre>\n"
+                result = "<pre class=d-scrollable>#{code}</pre>\n"
                 index += i
             else
-                i = p.search /\n\n+/
-                i = p.length if i is -1
-                s = parseParagraph p.substr 0, i
-                content += "<div class=d-r-md-paragraph>#{s}</div>\n"
+                i = text.search /\n\n+/
+                i = text.length if i is -1
+                s = parseParagraph text.substr 0, i
+                result = "<div class=d-r-md-paragraph>#{s}</div>\n"
                 index += i
+            content: result
+            length: index
 
         parseParagraph = (p) ->
             stack = []
@@ -1428,7 +1466,9 @@ do ->
         content = ''
         index = 0
         while index < textLength
-            parseBlock()
+            result = parseBlock text.substr index
+            content += result.content
+            index += result.length
 
         context.rawResult = content
         context.result = "<div class=d-r-md>#{content}</div>"

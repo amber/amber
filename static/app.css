@@ -2388,6 +2388,10 @@
 .d-r-md-email {
     display: none;
 }
+.d-r-md ul {
+    margin: 12px 0;
+    padding-left: 40px;
+}
 
 .d-r-project-player-wrap {
     max-width: 480px;
