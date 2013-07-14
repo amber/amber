@@ -340,7 +340,7 @@ views =
                         .add(new Label('d-r-post-author')
                             .add(new Link().setView('user.profile', username)
                                 .add(new Label().setText(username))))
-                        .add(new Label('d-r-post-body').setRichText(parse(bodyText))))
+                        .add(new Label('d-r-post-body').setRichText(parse(bodyText).result)))
                     .add(new Container('d-r-post-spinner')))
                 .add(@template('replyForm'))
             @request 'forums.topic.add',
@@ -466,7 +466,7 @@ templates =
         container.add(actionButton = new Button('d-r-action-button d-r-post-action').onExecute(showActions))
         container
             .add(users = new Label('d-r-post-author'))
-            .add(body = new Label('d-r-post-body').setRichText(parse post.body))
+            .add(body = new Label('d-r-post-body').setRichText(parse(post.body).result))
         for author in post.authors
             if users.children.length
                 users.add(new Label().setText(', '))
