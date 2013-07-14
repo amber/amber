@@ -1148,6 +1148,8 @@ do ->
     DASH_SEQUENCE = /^---+/
     EM_DASH = /^(\s*)--(?!-)(\s*)/
     EN_DASH = /^\s+-\s+/
+    DOTS = /^\.{5,}/
+    ELLIPSIS = /^\.\.\.(\.?)/
     SPACE = /^\s+('(?:"')*"?|"(?:'")*'?)/
     WORD = /^(['"]*)([a-z0-9][a-z0-9'"]*)/i
     QUOTE = /^['"]+/
@@ -1393,6 +1395,10 @@ do ->
                     s += if e[2] then " " else ""
                 else if e = EN_DASH.exec sub
                     s += " &ndash; "
+                else if e = DOTS.exec sub
+                    s += e[0]
+                else if e = ELLIPSIS.exec sub
+                    s += "&hellip;" + e[1]
                 else if e = CODE.exec sub
                     i += e[0].length
                     j = p.indexOf e[0], i
