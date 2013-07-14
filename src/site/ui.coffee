@@ -1781,7 +1781,7 @@ class LazyList extends Container
         @onLive ->
             app = @app
             app.wrap.onScroll @loadIfNecessary, @
-            app.onUnload ->
+            app.onUnload =>
                 app.wrap.unScroll @loadIfNecessary
 
     @property 'loader'

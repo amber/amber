@@ -96,9 +96,8 @@ class Base
         @
 
     unlisten: (name, handler) ->
-        a = @['$listeners_' + name] ? []
-        if a
-            for o in a
+        if a = @['$listeners_' + name]
+            for o, i in a
                 if o.listener is handler
                     a.splice i, 1
                     break
