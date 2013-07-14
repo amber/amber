@@ -1101,6 +1101,8 @@ parse = null
 do ->
     EMOTICONS =
         smile: /^(?:=|:-?)\)/
+        wink: /^;-?\)/
+        'wide-eyed': /^o\.o/i
         'big-smile': /^(?:=|:-?)D/
         slant: /^(?:=|:-?)[\/\\]/
         tongue: /^(?:=|:-?)P/

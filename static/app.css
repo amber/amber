@@ -2373,6 +2373,8 @@
     vertical-align: text-bottom;
 }
 .d-r-md-emoticon.smile { background: url(img/emoticon/smile.svg) }
+.d-r-md-emoticon.wink { background: url(img/emoticon/wink.svg) }
+.d-r-md-emoticon.wide-eyed { background: url(img/emoticon/wide-eyed.svg) }
 .d-r-md-emoticon.big-smile { background: url(img/emoticon/big-smile.svg) }
 .d-r-md-emoticon.slant { background: url(img/emoticon/slant.svg) }
 .d-r-md-emoticon.tongue { background: url(img/emoticon/tongue.svg) }
