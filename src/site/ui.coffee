@@ -1872,6 +1872,21 @@ class LazyList extends Container
                         --@offset
 
 module 'amber.site', {
-    Server
+    views
+    templates
     App
+    RequestError
+    Server
+    parse
+    User
+    Link
+    Separator
+    ListChangeType
+    Carousel
+    CarouselItem
+    ProjectCarousel
+    ProjectCarouselItem
+    ActivityCarousel
+    ActivityCarouselItem
+    LazyList
 }
