@@ -21,16 +21,16 @@ class User extends Base
     @property 'rank',
         value: 'default'
 
-    avatarURL: ->
+    @property 'avatarURL', ->
         id = '' + @id
         trim = id.length - 4
         a = id.substr 0, trim
         b = id.substr trim
         "http://scratch.mit.edu/static/site/users/avatars/#{a}/#{b}.png"
 
-    profileURL: ->
+    @property 'profileURL', ->
         name = encodeURIComponent @name
-        "http://scratch.mit.edu/users/#{name}"
+        "http://scratch.mit.edu/users/#{name}/"
 
     toJSON: ->
         rank = @rank
@@ -42,13 +42,13 @@ class User extends Base
         result
 
     fromJSON: (o) ->
-        return @set
-            id: o.id
+        @set
+            id: o.scratchId
             name: o.name
             rank: o.rank ? 'default'
 
 class Server extends Base
-    INITIAL_REOPEN_DELAY: 100,
+    INITIAL_REOPEN_DELAY: 100
 
     constructor: (socketURL, assetStoreURL) ->
         @socketURL = socketURL
@@ -64,7 +64,7 @@ class Server extends Base
         @open()
 
     open: =>
-        @socket = new WebSocket(@socketURL)
+        @socket = new WebSocket @socketURL
         @socket.onopen = @listeners.open.bind @
         @socket.onclose = @listeners.close.bind @
         @socket.onmessage = @listeners.message.bind @
@@ -74,7 +74,7 @@ class Server extends Base
     @property 'app'
 
     @property 'sessionId', apply: (sessionId) ->
-        sessionStorage.setItem('sessionId', sessionId)
+        sessionStorage.setItem 'sessionId', sessionId
 
     on:
         connect: (p) ->
@@ -137,7 +137,7 @@ class Server extends Base
             if config.livePacketLog
                 @logPacket packet
 
-            while (packet = socketQueue.pop())
+            while packet = socketQueue.pop()
                 if config.livePacketLog
                     @logPacket @log[@log.length - socketQueue.length - 1]
                 if config.rawPacketLog
@@ -178,11 +178,11 @@ class Server extends Base
                 console.warn 'Missed packet:', packet
 
         error: (e) ->
-            console.warn('Socket error:', e)
+            console.warn 'Socket error:', e
 
     decodePacket: (side, packet) ->
         try
-            packet = JSON.parse(packet)
+            packet = JSON.parse packet
         catch
             console.warn 'Packet syntax error:', packet
             return
@@ -208,7 +208,7 @@ class Server extends Base
         result
 
     encodePacket: (side, type, properties) ->
-        if (@app.config.verbosePackets)
+        if @app.config.verbosePackets
             (properties ?= {}).$type = type
             return properties
 
@@ -264,6 +264,10 @@ class Server extends Base
         @send name, options
 
     getAsset: (hash) -> @assetStoreURL + hash + '/'
+
+    getUser: (name, callback) ->
+        @request 'users.user', { user: name }, (data) ->
+            callback (new User @).fromJSON data
 
     logPacket: (packet) ->
         log = (object, dollar) ->
