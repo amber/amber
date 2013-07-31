@@ -32,6 +32,9 @@ class User extends Base
         name = encodeURIComponent @name
         "http://scratch.mit.edu/users/#{name}/"
 
+    getAvatar: (size) ->
+        "http://cdn.scratch.mit.edu/get_image/user/#{@id}_#{size}x#{size}.png"
+
     toJSON: ->
         rank = @rank
         result =
