@@ -351,7 +351,7 @@ views =
                 body: bodyText
             , (info) =>
                 @page.clear()
-                @redirect(@reverse('forums.topic', info.topic$id), true)
+                @redirect @reverse('forums.topic', info.topic$id), true
                 views['forums.topic'].call @, [null, info.topic$id],
                     topic:
                         forum$id: id
