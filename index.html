@@ -6,6 +6,7 @@
 <body>
 <script src=src/util.js></script>
 <script src=src/event.js></script>
+<script src=src/models.js></script>
 <script src=src/locale.js></script>
 <script src=src/ui.js></script>
 <script src=src/site/urls.js></script>
@@ -15,6 +16,6 @@
 var app = new amber.site.App().setConfig({
     livePacketLog: true,
     verbosePackets: true
-}).setElement(document.body).setServer(new amber.site.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
+}).setElement(document.body).setServer(new amber.models.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
 </script>
 </body>
