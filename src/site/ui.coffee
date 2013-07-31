@@ -15,7 +15,7 @@ views =
                 .add(new Label('d-r-subtitle', tr 'Follow people to see their activity here.'))
                 .add(new ActivityCarousel().setLoader (offset, length, callback) =>
                     callback({
-                        icon: @server.getAsset('')
+                        icon: @server.getAsset ''
                         description: [
                             '<a href=#users/nXIII class="d-r-link black">nXIII</a> shared the project <a href=# class=d-r-link>Summer</a>',
                             '<a href=#users/Lightnin class="d-r-link black">Lightnin</a> followed <a href=#users/MathWizz class=d-r-link>MathWizz</a>',
