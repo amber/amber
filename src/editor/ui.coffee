@@ -48,8 +48,6 @@ class Editor extends Control
         id = ++@newScriptID
         tracker = []
         script = new BlockStack().fromJSON [x, y, blocks], tracker
-        # TODO fixme:
-        @tabBar.select 0 if @tabBar.selectedIndex isnt 0
         @socket.newScripts[id] = tracker
         @editor.add script
         @socket.send
@@ -62,8 +60,6 @@ class Editor extends Control
     initEditMode: (element) ->
         @editorLoaded = true
 
-        @add @_tab = new BlockEditor
-        @add @palette = new BlockPalette
         @add @userPanel = new UserPanel(@)
         @add @tabBar = new TabBar(@)
 
@@ -75,25 +71,6 @@ class Editor extends Control
             @spriteList.addIcon sprite
 
         @selectSprite @project.stage.children[0] ? @project.stage
-
-        isStage = @selectedSprite is @project.stage
-        for name, specs of amber.editor.specs when name isnt 'obsolete'
-            list = new BlockList
-            if specs.stage
-                specs = specs[if isStage then 'stage' else 'sprite']
-
-            for spec in specs
-                do (spec) =>
-                    if spec is '-'
-                        list.addSpace()
-                    else if spec[0] is '&'
-                        list.add new Button().setText(tr.maybe spec[2]).onExecute =>
-                            @[spec[1]]()
-                    else
-                        # TODO
-                        # list.add Block.fromSpec spec
-
-            @palette.addCategory name, list
         @
 
     createVariable: ->
@@ -137,7 +114,7 @@ class Editor extends Control
 
     @property 'tab',
         apply: (tab, old) ->
-            @remove old
+            @remove old if old?
             @add tab
             tab.fit() if tab.fit
 
@@ -251,7 +228,6 @@ class Editor extends Control
 
             if @editorLoaded
                 @_tab.visible = editMode
-                @palette.visible = editMode
                 @userPanel.visible = editMode
                 @tabBar.visible = editMode
                 @lightboxEnabled = @lightboxEnabled and editMode or @preloaderEnabled
@@ -559,7 +535,7 @@ class TabBar extends Control
     addTab: (label) ->
         i = @children.length
         @order.push i
-        return @add new Button('d-tab').setText(label).onExecute =>
+        @add new Button('d-tab').setText(label).onExecute =>
             @select i
 
     select: (i) ->
@@ -569,14 +545,14 @@ class TabBar extends Control
         @order.splice @order.indexOf(i), 1
         @order.unshift i
 
-        j = @order.length
-        while j--
-            @children[@order[j]].element.style.zIndex = -j
+        l = @order.length
+        for j in @order
+            @children[@order[j]].element.style.zIndex = l - j
 
         switch i
             when 0
                 # TODO: fixme
-                @amber.tab = new BlockEditor
+                @amber.tab = new BlockEditor @amber.selectedSprite, @amber
             when 1
                 @amber.tab = new CostumeEditor @amber.selectedSprite
             when 2
@@ -586,8 +562,8 @@ class TabBar extends Control
 class CostumeEditor extends Control
     constructor: (@object) ->
         super()
-        @initElements 'd-costume-editor d-editor', 'd-costume-editor-list d-scrollable'
-        @element.appendChild @contents = @newElement 'd-costume-editor-contents'
+        @initElements 'd-costume-editor d-editor', 'd-editor-list d-scrollable'
+        @element.appendChild @contents = @newElement 'd-editor-list-contents'
 
         for costume, i in object.costumes
             @add icon = new CostumeEditor.Icon(@, costume)
@@ -644,15 +620,24 @@ class CostumeEditor.Icon extends Control
 class SoundEditor extends Control
     constructor: ->
         super()
-        @initElements 'd-sound-editor d-editor d-scrollable'
+        @initElements 'd-sound-editor d-editor', 'd-editor-list d-scrollable'
+        @element.appendChild @contents = @newElement 'd-editor-list-contents'
 
 class BlockEditor extends Control
-    padding: 10,
-    acceptsScrollWheel: true,
-
-    constructor: ->
+    constructor: (sprite, amber) ->
         super()
-        @initElements 'd-block-editor d-editor d-scrollable'
+        @initElements 'd-block-editor d-editor'
+        @add new BlockPalette(sprite, amber)
+        @add new ScriptEditor(sprite, amber)
+
+class ScriptEditor extends Control
+    padding: 10
+    acceptsScrollWheel: true
+
+    constructor: (sprite, amber) ->
+        super()
+        @initElements 'd-script-editor'
+
         @element.appendChild @fill = @newElement 'd-block-editor-fill'
         @element.addEventListener 'scroll', @fit
         @onScrollWheel @scrollWheel
@@ -715,12 +700,39 @@ class BlockPalette extends Control
 
     isPalette: true
 
-    constructor: ->
+    constructor: (@sprite, @amber) ->
         super()
         @initElements 'd-block-palette'
         @add @categorySelector = new CategorySelector().onCategorySelect @selectCategory, @
         @blockLists = {}
         BlockPalette.palettes.push @
+        @reload()
+
+    reload: ->
+        @categorySelector.clear()
+        if @selectedBlockList
+            @remove @selectedBlockList
+            @selectedBlockList = null
+        @blockLists = {}
+
+        isStage = @sprite is @amber.project.stage
+        for name, specs of amber.editor.specs when name isnt 'obsolete'
+            list = new BlockList
+            if specs.stage
+                specs = specs[if isStage then 'stage' else 'sprite']
+
+            for spec in specs
+                do (spec) =>
+                    if spec is '-'
+                        list.addSpace()
+                    else if spec[0] is '&'
+                        list.add new Button().setText(tr.maybe spec[2]).onExecute =>
+                            @amber[spec[1]]()
+                    else
+                        # TODO
+                        # list.add Block.fromSpec spec
+
+            @addCategory name, list
 
     addCategory: (category, blockList) ->
         @blockLists[category] = blockList
@@ -734,17 +746,21 @@ class BlockPalette extends Control
         @insert @selectedBlockList = @blockLists[e.category], @categorySelector
 
 class CategorySelector extends Control
-    acceptsClick: true,
+    acceptsClick: true
 
     constructor: ->
         super()
         @initElements 'd-panel-title'
+        @onTouchStart @touchStart
+        @clear()
+
+    @event 'CategorySelect'
+
+    clear: ->
+        super()
         @buttons = []
         @categories = []
         @byCategory = {}
-        @onTouchStart @touchStart
-
-    @event 'CategorySelect'
 
     addCategory: (category) ->
         button = @newElement 'd-category-button'

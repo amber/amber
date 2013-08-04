@@ -343,15 +343,11 @@
     display: block;
     position: absolute;
     top: 0;
-    left: 486px;
+    left: 0;
     bottom: 0;
     width: 200px;
-    -webkit-transition: left .3s;
     background: #ddd;
     z-index: 1;
-}
-.d-collapse-sprite-panel .d-block-palette {
-    left: 48px;
 }
 .d-panel-title,
 .d-stage-controls {
@@ -460,39 +456,49 @@
 
 .d-editor {
     position: absolute;
-    top: 0;
-    left: 692px;
+    top: 32px;
+    left: 486px;
     right: 206px;
     bottom: 0;
-    overflow: auto;
-    background: #ddd;
     -webkit-transition: left .3s, right .3s;
+    overflow: hidden;
 }
-.d-block-editor-fill {
+.d-script-editor {
+    position: absolute;
+    top: 0;
+    left: 206px;
+    right: 0;
+    bottom: 0;
+    background: #ddd;
+}
+.d-script-editor-fill {
     position: absolute;
 }
-.d-collapse-user-panel .d-editor {
+.d-collapse-sprite-panel .d-editor,
+.d-collapse-sprite-panel .d-tab-bar {
+    left: 48px;
+}
+.d-collapse-user-panel .d-editor,
+.d-collapse-user-panel .d-tab-bar {
     right: 48px;
 }
-.d-collapse-sprite-panel .d-editor {
-    left: 254px;
-}
-.d-costume-editor-list {
+.d-editor-list {
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 88px;
+    width: 84px;
     overflow-x: hidden;
     overflow-y: visible;
+    background: #ddd;
 }
-.d-costume-editor-contents {
+.d-editor-list-contents {
     position: absolute;
     top: 0;
-    left: 83px;
+    left: 90px;
     right: 0;
     bottom: 0;
-    border-left: 1px solid rgb(18%, 18%, 18%);
+    background: #ddd;
 }
 
 .d-user-panel {
@@ -725,6 +731,12 @@
 .d-collapse-sprite-panel .d-sprite-panel {
     width: 42px;
 }
+.d-collapse-sprite-panel .d-sprite-panel .d-panel-contents::-webkit-scrollbar,
+.d-collapse-user-panel .d-user-panel .d-panel-contents::-webkit-scrollbar,
+.d-editor-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
 .d-stage-controls {
     top: 360px;
     bottom: auto;
@@ -883,35 +895,27 @@
 .d-tab-bar {
     position: absolute;
     top: 0;
-    width: 10000px;
-    left: 694px;
-    -webkit-transform: translate(-10019px, 0) rotate(-90deg);
-    -webkit-transform-origin: top right;
+    left: 486px;
+    right: 206px;
     z-index: 1;
-    -webkit-transition: left .3s;
-    pointer-events: none;
-}
-.d-collapse-sprite-panel .d-tab-bar {
-    left: 256px;
+    -webkit-transition: left .3s, right .3s;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .d-tab {
-    float: right;
+    display: inline-block;
+    margin: 0;
+    padding: 0 12px;
+    border: 0;
+    background: 0;
     position: relative;
-    margin: 0 0 0 -4px;
-    padding: 3px 12px 1px;
-    font: 11px sans-serif;
-    color: #555;
-    background: -webkit-linear-gradient(#bbb, #ccc);
-    border: 1px solid #888;
-    border-bottom: 0;
-    border-radius: 7px 7px 0 0 / 17px 17px 0 0;
-    pointer-events: auto;
+    font: inherit;
+    line-height: 32px;
+    color: #000;
 }
 .d-tab-selected {
-    background: -webkit-linear-gradient(#ccc, #ddd);
-}
-.d-tab:first-child {
-    margin-right: 4px;
+    background: #ddd;
 }
 
 .d-block-stack {
