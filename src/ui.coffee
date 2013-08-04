@@ -173,8 +173,6 @@ class Control extends Base
 
     @property 'app', -> @parent and @parent.app
 
-    @property 'amber', -> @parent and @parent.amber
-
     hide: ->
         @element.style.display = 'none'
         @
