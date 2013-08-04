@@ -783,13 +783,16 @@ class App extends amber.ui.App
         @url = loc
         @
 
-    go: (loc) ->
+    go: (loc, soft) ->
         while loc[loc.length - 1] is '/'
             loc = loc.substr 0, loc.length - 1
         while loc[0] is '/'
             loc = loc.substr 1
 
-        location.hash = loc
+        if soft
+            location.replace ('' + location).split('#')[0] + '#' + loc
+        else
+            location.hash = loc
         return if @url is loc
 
         @hideSignIn() if @signInForm.visible and @signInAutohide
