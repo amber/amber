@@ -63,7 +63,7 @@ class Base
         setName = 'set' + name[0].toUpperCase() + name.substr 1
         _name = '_' + name
 
-        event = options.event
+        @event event if event = options.event
         setter = options.set ? (value) -> @[_name] = value
         getter = options.get ? -> @[_name]
         apply = options.apply
