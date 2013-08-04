@@ -50,6 +50,11 @@ class User extends Base
             name: o.name
             rank: o.rank ? 'default'
 
+    @guest: ->
+        u = new User
+        u._name = 'Guest'
+        u._id = -1
+
 class Server extends Base
     INITIAL_REOPEN_DELAY: 100
 
