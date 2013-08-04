@@ -303,6 +303,50 @@ specsBySelector =
     'changeVar:by:': ['vc', 'var', 1]
     'readVariable': ['v', 'var']
 
+categoryColors =
+    # motion: 'rgb(29%, 42%, 83%)'
+    # motor: 'rgb(11%, 31%, 73%)'
+    # looks: 'rgb(56%, 34%, 89%)'
+    # sound: 'rgb(81%, 29%, 85%)'
+    # pen: 'rgb(0%, 63%, 47%)'
+    # control: 'rgb(90%, 66%, 13%)'
+    # sensing: 'rgb(2%, 58%, 86%)'
+    # operators: 'rgb(38%, 76%, 7%)'
+    # variables: 'rgb(95%, 46%, 11%)'
+    # lists: 'rgb(85%, 30%, 7%)'
+    # other: 'rgb(62%, 62%, 62%)'
+    system: 'rgb(50%, 50%, 50%)'
+
+    # Object.keys(d.categoryColors).reduce(function (o,k) { var c = d.categoryColors[k].toString(16); o[k] = '#' + '000000'.substr(c.length) + c; return o }, {});
+    # 'undefined': 13903912,
+    # motion: 4877524,
+    # looks: 9065943,
+    # sound: 12272323,
+    # pen: 957036,
+    # events: 13140784,
+    # control: 14788890,
+    # sensing: 2926050,
+    # operators: 6076178,
+    # data: 15629590,
+    # custom: 5447321,
+    # parameter: 5851057,
+    # lists: 13392674,
+    # extensions: 6761849
+    control: '#e1a91a'
+    custom: '#531e99'
+    data: '#ee7d16'
+    events: '#c88330'
+    extensions: '#672d79'
+    lists: '#cc5b22'
+    looks: '#8a55d7'
+    motion: '#4a6cd4'
+    operators: '#5cb712'
+    parameter: '#5947b1'
+    pen: '#0e9a6c'
+    sensing: '#2ca5e2'
+    sound: '#bb42c3'
+    undefined: '#d42828'
+
 do ->
     map = (specs) ->
         for spec in specs when spec isnt '-'
@@ -325,4 +369,5 @@ module 'amber.editor', {
     specs
     specsBySelector
     checkScratchSpecs
+    categoryColors
 }
