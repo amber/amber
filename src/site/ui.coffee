@@ -92,14 +92,14 @@ views =
                         length: length
                     , callback))
                 .setTransformer((info) ->
-                    return new Link('d-r-fluid-project').setView('project', info.id)
+                    new Link('d-r-fluid-project').setView('project', info.id)
                         .add(new Image('d-r-fluid-project-thumbnail').setURL(@app.server.getAsset(info.project.thumbnail)))
                         .add(new Label('d-r-fluid-project-label', info.project.name))))
 
     notFound: (args) ->
         @page
             .add(new Label('d-r-title', tr 'Page Not Found'))
-            .add(new Label('d-r-paragraph', tr('The page at the URL "%" could not be found.', args[0])))
+            .add(new Label('d-r-paragraph', tr 'The page at the URL "%" could not be found.', args[0]))
 
     error: (args) ->
         @page
@@ -107,7 +107,7 @@ views =
             .add(new Label('d-r-paragraph', args[2]))
         if args[3]?
             @page
-                .add(new Label('d-r-error-stack', args[3]))
+                .add(new Label('d-r-error-stack d-scrollable', args[3]))
 
     forbidden: (args) ->
         @page
@@ -115,20 +115,24 @@ views =
             .add(new Label('d-r-paragraph', tr 'You need to log in to see this page.'))
 
     wiki: (args) ->
-        page = args[1]
+        page = args[1][0].toUpperCase() + args[1].slice(1)
+        url = page
         if e = /^([^:]+):/.exec page
             [match, namespace] = e
-            page = "#{namespace}/#{page.substr match.length}"
+            base = page.substr match.length
+            page = namespace[0].toUpperCase() + namespace.slice(1).toLowerCase() + ':' + base[0].toUpperCase() + base.slice(1)
+            url = "#{namespace}/#{base}"
+        @redirect @reverse 'wiki', page
         @requestStart()
         xhr = new XMLHttpRequest
-        xhr.open 'GET', "docs/wiki/#{page}.md", true
+        xhr.open 'GET', "docs/wiki/#{url}.md", true
         xhr.onload = =>
             @requestEnd()
             if xhr.status isnt 200
                 return views.notFound.call @, [args[0]]
             context = parse xhr.responseText
             @page
-                .add(title = new Label('d-r-title', context.config.title ? args[1].split('/').pop().replace(/\.md$/, '')))
+                .add(title = new Label('d-r-title', context.config.title ? page))
                 .add(new Label('d-r-section').setRichText(context.result))
         xhr.send()
 
@@ -180,11 +184,9 @@ views =
                 .add(player = new Container('d-r-project-player')
                     .add(new Label('d-r-project-player-title', 'v234'))))
             .add(new Container('d-r-paragraph d-r-project-stats')
-                .add(favorites = new Label().setText(tr.plural('% Favorites', '% Favorite', 0)))
-                .add(new Separator)
                 .add(loves = new Label().setText(tr.plural('% Loves', '% Love', 0)))
                 .add(new Separator)
-                .add(views = new Label().setText(tr.plural('% Views', '% View', 0)))
+                .add(viewCount = new Label().setText(tr.plural('% Views', '% View', 0)))
                 .add(new Separator)
                 .add(remixes = new Label().setText(tr.plural('% Remixes', '% Remix', 0))))
             .add(notes = new Label('d-r-paragraph d-r-project-notes'))
@@ -194,9 +196,8 @@ views =
             #     .add(authors = new Label('d-r-project-authors', tr('by %', '')))
             #     .add(new Container('d-r-project-player'))
             #     .add(new Container('d-r-project-stats')
-            #         .add(favorites = new Label('d-r-project-stat', tr.plural('% Favorites', '% Favorite', 0)))
             #         .add(loves = new Label('d-r-project-stat', tr.plural('% Loves', '% Love', 0)))
-            #         .add(views = new Label('d-r-project-stat', tr.plural('% Views', '% View', 0)))
+            #         .add(viewCount = new Label('d-r-project-stat', tr.plural('% Views', '% View', 0)))
             #         .add(remixes = new Label('d-r-project-stat', tr.plural('% Remixes', '% Remix', 0)))))
             # .add(notes = new Label('d-r-project-notes d-scrollable'))
             # .add(new Label('d-r-project-comments-title', tr 'Comments'))
@@ -211,9 +212,8 @@ views =
                 notes.element.style.height = fixedHeight
                 notesDisclosure.show()
 
-            favorites.text = tr.plural '% Favorites', '% Favorite', project.favorites
             loves.text = tr.plural '% Loves', '% Love', project.loves
-            views.text = tr.plural '% Views', '% View', project.views
+            viewCount.text = tr.plural '% Views', '% View', project.views
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
         # @request('GET', 'projects/' + args[1] + '/', null, (info) ->
         #     title.setText(info.project.name)
@@ -221,9 +221,8 @@ views =
         #         return '<a class=d-r-link href="' + @abs(htmle(@reverse('user.profile', author))) + '">' + htmle(author) + '</a>'
         #     , @))))
         #     notes.setText(info.project.notes)
-        #     favorites.setText(tr.plural('% Favorites', '% Favorite', info.favorites))
         #     loves.setText(tr.plural('% Loves', '% Love', info.loves))
-        #     views.setText(tr.plural('% Views', '% View', info.views))
+        #     viewCount.setText(tr.plural('% Views', '% View', info.views))
         #     remixes.setText(tr.plural('% Remixes', '% Remix', info.remixes.length))
         #     player.setProject(info.project)
         #     if isEdit
@@ -306,18 +305,22 @@ views =
                         offset: offset
                         length: length
                     , callback))
-                .setTransformer((topic) =>
+                .setCreator((topic) =>
                     link = new Link('d-r-topic-list-item')
-                        .setView('forums.topic', topic.id)
-                        .add(new Container('d-r-topic-list-item-title')
-                            .add(new Label('d-r-topic-list-item-name', topic.name))
-                            .add(userLabel = new Label('d-r-topic-list-item-author', tr('by %', tr.list(topic.authors)))))
+                    link.add(new Container('d-r-topic-list-item-title')
+                            .add(link.nameLabel = new Label('d-r-topic-list-item-name'))
+                            .add(link.userLabel = new Label('d-r-topic-list-item-author')))
                         .add(new Container('d-r-topic-list-item-description')
-                            .add(new Label().setText(tr.plural('% posts', '% post', topic.posts)))
-                            .add(new Separator())
-                            .add(new Label().setText(tr.plural('% views', '% view', topic.views))))
-                    userLabel.text = tr 'by %', tr.list topic.authors
-                    return link))
+                            .add(link.postLabel = new Label)
+                            .add(new Separator)
+                            .add(link.viewLabel = new Label))
+                    link)
+                .setHandler((topic, link) =>
+                    link.setView('forums.topic', topic.id) if topic.id?
+                    link.nameLabel.text = topic.name if topic.name?
+                    link.userLabel.text = tr 'by %', tr.list topic.authors if topic.authors?
+                    link.postLabel.text = tr.plural '% posts', '% post', topic.posts if topic.posts?
+                    link.viewLabel.text = tr.plural '% views', '% view', topic.views if topic.views?))
 
         @watch 'forum', forum$id: id, {
             name: (x) -> title.text = tr.maybe x
@@ -397,7 +400,8 @@ views =
                         offset: offset,
                         length: length
                     , callback)
-                .setTransformer(templates.post.bind @))
+                .setCreator(-> new Post)
+                .setHandler((model, post) -> post.model = model))
             .add(@template 'replyForm', id)
 
         watcher = {
@@ -414,78 +418,86 @@ views =
         else
             @watch 'topic', topic$id: id, watcher
 
-templates =
-    post: (post) ->
-        pending = false
+class Post extends Container
+    pending: false
 
-        edit = =>
-            update = =>
-                context = parse post.body = editor.text
-                body.richText = context.result
-                container.addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-                @request 'forums.post.edit',
-                    post$id: post.id,
-                    body: editor.text
-                , ->
-                    container.removeClass('pending').remove(spinner)
-                cancel()
+    constructor: (model) ->
+        super 'd-r-post'
+        @add(@actionButton = new Button('d-r-action-button d-r-post-action').onExecute(@showActions, @))
+        @add(@users = new Label('d-r-post-author'))
+        @add(@body = new Label('d-r-post-body'))
 
-            cancel = =>
-                container.replace(form, body).remove(updateButton).remove(cancelButton)
-                actionButton.show()
+        @model = model
 
-            return unless post.id
-            form = new Form().onSubmit(update).onCancel(cancel)
-            container.replace body, form
-            form.add(editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
-                .add(updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
-                .add(cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
-            actionButton.hide()
-            setTimeout -> editor.select()
+    @property 'model',
+        get: ->
+        set: (post) ->
+            return unless post?
+            @id = post.id if post.id?
+            @body.setRichText(parse(@source = post.body).result) if post.body?
+            if post.authors?
+                @authors = post.authors
+                # TODO: should be a delta
+                @users.clear()
+                for author in post.authors
+                    if @users.children.length
+                        @users.add(new Label().setText(', '))
+                    @users.add(new Link().setView('user.profile', author)
+                        .add(new Label().setText(author)))
 
-        remove = =>
-            pending = true
-            container.addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-            @request 'forums.post.delete', post$id: post.id, ->
-                container.parent.remove container
+    update: ->
+        @body.richText = parse(@source = @editor.text).result
+        @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
+        @request 'forums.post.edit',
+            post$id: @id,
+            body: @editor.text
+        , =>
+            @removeClass('pending').remove(spinner)
+        @cancel()
 
-        showActions = =>
-            return if pending
-            items = [
-                { title: tr('Report') }
+    cancel: ->
+        @replace(@form, @body).remove(@updateButton).remove(@cancelButton)
+        @actionButton.show()
+
+    edit: =>
+        return unless @id
+        @form = new Form().onSubmit(@update, @).onCancel(@cancel, @)
+        @replace @body, @form
+        form.add(@editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
+            .add(@updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
+            .add(@cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
+        @actionButton.hide()
+        setTimeout => @editor.select()
+
+    remove: =>
+        @pending = true
+        @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
+        @request 'forums.post.delete', post$id: post.id, ->
+            @parent.remove @
+
+    showActions: ->
+        return if @pending or not @id?
+        items = [
+            { title: tr('Report') }
+        ]
+        if -1 isnt @authors.indexOf @user?.name
+            items = items.concat [
+                Menu.separator
+                { title: tr('Edit'), action: edit }
+                { title: tr('Delete'), action: remove }
             ]
-            if -1 isnt post.authors.indexOf @user?.name
-                items = items.concat [
-                    Menu.separator
-                    { title: tr('Edit'), action: edit }
-                    { title: tr('Delete'), action: remove }
-                ]
-            new Menu()
-                .setItems(items)
-                .popDown(actionButton)
+        new Menu()
+            .setItems(items)
+            .popDown(@actionButton)
 
-        container = new Container('d-r-post')
-        container.add(actionButton = new Button('d-r-action-button d-r-post-action').onExecute(showActions))
-        container
-            .add(users = new Label('d-r-post-author'))
-            .add(body = new Label('d-r-post-body').setRichText(parse(post.body).result))
-        for author in post.authors
-            if users.children.length
-                users.add(new Label().setText(', '))
-            users.add(new Link().setView('user.profile', author)
-                .add(new Label().setText(author)))
-        container.usePostId = (id) ->
-            post.id = id
-
-        return container
-
+templates =
     replyForm: (topicId) ->
-        post = =>
+        reply = =>
             return unless topicId
             username = @user.name
             newPost = new Container('d-r-post-list')
-                .add(container = @template('post',
-                    authors: [username],
+                .add(post = new Post(
+                    authors: [username]
                     body: body.text
                 ).addClass('pending'))
                 .add(spinner = new Container('d-r-post-spinner'))
@@ -501,11 +513,11 @@ templates =
                 body.text = ''
                 postForm.show()
                 body.focus()
-                container.usePostId id
+                post.model = { id }
                 @wrap.scrollTop = 'max'
 
         return (postForm = new Form('d-r-block-form d-r-new-post-editor'))
-            .onSubmit(=> if @user then post() else @showSignIn())
+            .onSubmit(=> if @user then reply() else @showSignIn())
             .add(body = new TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(tr 'Write something\u2026'))
             .add(new Button('d-button d-r-authenticated').setText('Reply').onExecute(postForm.submit, postForm))
             .add(new Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(postForm.submit, postForm))
@@ -597,7 +609,7 @@ class App extends amber.ui.App
                 a.call @
 
     createPage: ->
-        return new Container('d-r-page').setSelectable(true)
+        new Container('d-r-page').setSelectable(true)
 
     showSignIn: (autohide) ->
         return if @signInForm.visible
@@ -719,9 +731,8 @@ class App extends amber.ui.App
                 error.call @, e if error)
 
     watch: (name, params, config) ->
-        initial = true
-
-        watcher = (data) =>
+        watcher = (data, initial = false) =>
+            console.log data, initial
             for key, d of data when handler = config[key]
                 if typeof handler is 'function'
                     handler.call @, d
@@ -729,7 +740,6 @@ class App extends amber.ui.App
                     handler.start d if handler.start
                 else
                     handler.update d if handler.update
-            initial = false
 
         unless params
             params = {}
@@ -738,10 +748,11 @@ class App extends amber.ui.App
             params = {}
 
         @watcher = watcher
-        @request 'watch.' + name, params, watcher
+        @request 'watch.' + name, params, (data) ->
+            watcher data, true
 
     panelLink: (t, view) ->
-        new Link('d-r-panel-button').setText(tr t ).setURL(@reverse.apply @, [].slice.call arguments, 1)
+        new Link('d-r-panel-button').setText(tr t).setURL(@reverse.apply @, [].slice.call arguments, 1)
 
     notFound: ->
         @page.clear()
@@ -1118,7 +1129,13 @@ class LazyList extends Container
 
     @property 'loader'
 
-    @property 'transformer'
+    @property 'transformer',
+        set: (t) ->
+            @creator = t
+            @handler = ->
+        get: -> null
+    @property 'creator'
+    @property 'handler'
 
     LOAD_AMOUNT: 20,
     loaded: 0,
@@ -1154,7 +1171,7 @@ class LazyList extends Container
 
     addItems: (items) ->
         for item in items
-            @add @_transformer item
+            @add @create item
 
         @offset += items.length
         @loadIfNecessary()
@@ -1172,6 +1189,11 @@ class LazyList extends Container
         if @element.offsetHeight - @buffer - wrap.scrollTop < wrap.offsetHeight * 2
             @load()
 
+    create: (item) ->
+        c = @_creator item
+        @_handler item, c
+        c
+
     start: (items = []) ->
         @clear()
         @offset = 0
@@ -1186,14 +1208,14 @@ class LazyList extends Container
             item = change[2]
             switch change[0]
                 when ListChangeType.ADD
-                    if i < @offset
-                        @insert @_transformer(item), @children[i]
+                    if i <= @offset
+                        @insert @create(item), @children[i]
                         if @max isnt -1
                             ++@max
                         ++@offset
                 when ListChangeType.CHANGE
                     if c = @children[i]
-                        @replace c, @_transformer item
+                        @_handler item, c
                 when ListChangeType.REMOVE
                     if c = @children[i]
                         @remove c

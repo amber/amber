@@ -137,7 +137,7 @@ class Control extends Base
         @
 
     insert: (newChild, beforeChild) ->
-        if beforeChild.parent isnt @
+        if not beforeChild or beforeChild.parent isnt @
             return @add newChild
         if newChild.parent
             newChild.parent.remove newChild
@@ -146,7 +146,7 @@ class Control extends Base
         @children.splice (if i is -1 then @children.length else i), 0, newChild
         newChild.parent = @
 
-        @container.insertBefore newChild.element, beforeChild and beforeChild.element
+        @container.insertBefore newChild.element, beforeChild.element
 
         newChild.becomeLive() if @isLive
         @
