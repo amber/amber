@@ -69,9 +69,9 @@ TEMPLATE = /^\{\{\s*/
 linkHref = (href) ->
     if href[0] is ':'
         parts = href.substr(1).split(' ')
-        App::abs App::reverse.apply null, parts
+        amber.site.App::abs amber.site.App::reverse.apply null, parts
     else if href[0] is '%'
-        App::abs App::reverse 'wiki', href.substr(1)
+        amber.site.App::abs amber.site.App::reverse 'wiki', href.substr(1)
     else if not VALID_LINK.test href
         'http://' + href
     else
