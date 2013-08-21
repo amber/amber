@@ -192,19 +192,7 @@ views =
             .add(notes = new Label('d-r-paragraph d-r-project-notes'))
             .add(new Container('d-r-paragraph d-r-project-notes-disclosure')
                 .add(notesDisclosure = new Button('d-r-link').setText(tr 'Show more').onExecute(toggleNotes).hide()))
-            # .add(new Container('d-r-project-player-wrap')
-            #     .add(authors = new Label('d-r-project-authors', tr('by %', '')))
-            #     .add(new Container('d-r-project-player'))
-            #     .add(new Container('d-r-project-stats')
-            #         .add(loves = new Label('d-r-project-stat', tr.plural('% Loves', '% Love', 0)))
-            #         .add(viewCount = new Label('d-r-project-stat', tr.plural('% Views', '% View', 0)))
-            #         .add(remixes = new Label('d-r-project-stat', tr.plural('% Remixes', '% Remix', 0)))))
-            # .add(notes = new Label('d-r-project-notes d-scrollable'))
-            # .add(new Label('d-r-project-comments-title', tr 'Comments'))
-            # .add(new Label('d-r-project-remixes-title', tr 'Remixes'))
-            # .add(new Container('d-r-project-comments'))
         @request 'project', project$id: args[1], (project) =>
-            console.log(project)
             authors.richText = tr 'by %', tr.list ('<a class=d-r-link href="' + (htmle @abs @reverse 'user.profile', author) + '">' + (htmle author) + '</a>' for author in project.authors)
             title.text = project.name
             notes.text = project.notes
@@ -215,27 +203,6 @@ views =
             loves.text = tr.plural '% Loves', '% Love', project.loves
             viewCount.text = tr.plural '% Views', '% View', project.views
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
-        # @request('GET', 'projects/' + args[1] + '/', null, (info) ->
-        #     title.setText(info.project.name)
-        #     authors.setRichText(tr('by %', tr.list(info.project.authors.map((author) ->
-        #         return '<a class=d-r-link href="' + @abs(htmle(@reverse('user.profile', author))) + '">' + htmle(author) + '</a>'
-        #     , @))))
-        #     notes.setText(info.project.notes)
-        #     loves.setText(tr.plural('% Loves', '% Love', info.loves))
-        #     viewCount.setText(tr.plural('% Views', '% View', info.views))
-        #     remixes.setText(tr.plural('% Remixes', '% Remix', info.remixes.length))
-        #     player.setProject(info.project)
-        #     if isEdit
-        #         player.setEditMode(true)
-        #
-        # , (status) ->
-        #     if status is 404
-        #         @notFound()
-        #
-        # )
-        # @onUnload(->
-        #     player.parent.remove(player)
-        # )
 
     'user.profile': (args) ->
         @page
