@@ -29,8 +29,7 @@ class User extends Base
         "http://scratch.mit.edu/static/site/users/avatars/#{a}/#{b}.png"
 
     @property 'profileURL', ->
-        name = encodeURIComponent @name
-        "http://scratch.mit.edu/users/#{name}/"
+        amber.site.App::abs amber.site.App::reverse 'user.profile', @name
 
     getAvatar: (size) ->
         "http://cdn.scratch.mit.edu/get_image/user/#{@id}_#{size}x#{size}.png"
@@ -54,6 +53,7 @@ class User extends Base
         u = new User
         u._name = 'Guest'
         u._id = -1
+        u
 
 class Server extends Base
     INITIAL_REOPEN_DELAY: 100
@@ -100,6 +100,9 @@ class Server extends Base
 
             request.callback p.result
             delete @requests[p.request$id]
+
+        update: (p) ->
+            @app.watcher p.data
 
         requestError: (p) ->
             request = @requests[p.request$id]
