@@ -1659,6 +1659,7 @@
 .d-r-header-user-arrow,
 .d-r-header-user-label {
     display: inline-block;
+    vertical-align: top;
 }
 .d-r-header-user-arrow {
     margin-left: 6px;
