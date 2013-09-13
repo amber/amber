@@ -37,10 +37,14 @@ class Scriptable extends Base
         @costumes = []
 
 class Stage extends Scriptable
+    isStage: true
+
     constructor: ->
         super tr 'Stage'
 
 class Sprite extends Scriptable
+    isStage: false
+
     constructor: (name) ->
         super name
 
