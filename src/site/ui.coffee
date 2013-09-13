@@ -415,7 +415,7 @@ class Post extends Container
     update: ->
         @body.richText = parse(@source = @editor.text).result
         @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-        @request 'forums.post.edit',
+        @app.request 'forums.post.edit',
             post$id: @id,
             body: @editor.text
         , =>
@@ -430,16 +430,16 @@ class Post extends Container
         return unless @id
         @form = new Form().onSubmit(@update, @).onCancel(@cancel, @)
         @replace @body, @form
-        form.add(@editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(post.body))
-            .add(@updateButton = new Button().setText(tr 'Update Post').onExecute(form.submit, form))
-            .add(@cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(form.cancel, form))
+        @form.add(@editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(@source))
+            .add(@updateButton = new Button().setText(tr 'Update Post').onExecute(@form.submit, @form))
+            .add(@cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(@form.cancel, @form))
         @actionButton.hide()
         setTimeout => @editor.select()
 
-    remove: =>
+    deletePost: =>
         @pending = true
         @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-        @request 'forums.post.delete', post$id: post.id, ->
+        @app.request 'forums.post.delete', post$id: @id, =>
             @parent.remove @
 
     showActions: ->
@@ -447,11 +447,11 @@ class Post extends Container
         items = [
             { title: tr('Report') }
         ]
-        if -1 isnt @authors.indexOf @user?.name
+        if -1 isnt @authors.indexOf @app.user?.name
             items = items.concat [
                 Menu.separator
-                { title: tr('Edit'), action: edit }
-                { title: tr('Delete'), action: remove }
+                { title: tr('Edit'), action: @edit }
+                { title: tr('Delete'), action: @deletePost }
             ]
         new Menu()
             .setItems(items)
