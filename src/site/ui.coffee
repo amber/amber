@@ -481,6 +481,7 @@ templates =
                 postForm.show()
                 body.focus()
                 post.model = { id }
+                @addedPosts[id] = true
                 @wrap.scrollTop = 'max'
 
         return (postForm = new Form('d-r-block-form d-r-new-post-editor'))
@@ -497,6 +498,7 @@ class App extends amber.ui.App
         @setConfig()
         @pendingRequests = 0
         @authenticators = []
+        @addedPosts = {}
 
     setElement: (element) ->
         addClass element, 'd-r-app unauthenticated'
@@ -699,8 +701,14 @@ class App extends amber.ui.App
 
     watch: (name, params, config) ->
         watcher = (data, initial = false) =>
-            console.log data, initial
             for key, d of data when handler = config[key]
+                if key is 'posts' and not initial
+                    i = d.length
+                    while i--
+                        t = d[i]
+                        if t[0] is ListChangeType.ADD and t[2] and @addedPosts[t[2].id]
+                            delete @addedPosts[t[2].id]
+                            d.splice i, 1
                 if typeof handler is 'function'
                     handler.call @, d
                 if initial
