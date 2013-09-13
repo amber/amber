@@ -1184,10 +1184,13 @@ class LazyList extends Container
             switch change[0]
                 when ListChangeType.ADD
                     if i <= @offset
+                        bottom = @app.wrap.scrollTop is @app.wrap.maxScrollTop and i is @max
                         @insert @create(item), @children[i]
                         if @max isnt -1
                             ++@max
                         ++@offset
+                        if bottom
+                            @app.wrap.scrollTop = 'max'
                 when ListChangeType.CHANGE
                     if c = @children[i]
                         @_handler item, c

@@ -54,6 +54,10 @@ class Control extends Base
         set: (scrollTop) ->
             @container.scrollTop = if scrollTop is 'max' then @container.scrollHeight else scrollTop
 
+    @property 'maxScrollLeft', -> @container.scrollWidth - @container.offsetWidth
+
+    @property 'maxScrollTop', -> @container.scrollHeight - @container.offsetHeight
+
     _hasScrollEvent: false
 
     withScrollEvent: ->
