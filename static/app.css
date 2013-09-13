@@ -2151,22 +2151,31 @@
     margin: 0 0 24px;
     position: relative;
 }
-.d-r-post-author {
+.d-r-post-title {
     display: block;
     font-size: 20px;
     line-height: 24px;
     margin: 0 0 0 -24px;
 }
-.d-r-post-author .d-r-link {
+.d-r-post-author {
+    display: inline-block;
+}
+.d-r-post-timestamp {
+    display: inline-block;
+    color: #888;
+    font-size: 12px;
+    margin: 0 0 0 12px;
+}
+.d-r-post-title .d-r-link {
     color: #000;
 }
-.d-r-post-author .d-r-link:hover {
+.d-r-post-title .d-r-link:hover {
     color: #05d;
 }
-.d-r-post-author .d-r-link:active {
+.d-r-post-title .d-r-link:active {
     color: #028;
 }
-.d-r-post-author .d-label {
+.d-r-post-title .d-label {
     text-decoration: inherit;
 }
 .d-r-edit-button,
@@ -2217,7 +2226,7 @@
 }
 
 @media (max-width: 672px) {
-    .d-r-post-author {
+    .d-r-post-title {
         position: static;
         margin: 0;
     }

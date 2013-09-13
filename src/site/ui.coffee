@@ -391,7 +391,9 @@ class Post extends Container
     constructor: (model) ->
         super 'd-r-post'
         @add(@actionButton = new Button('d-r-action-button d-r-post-action').onExecute(@showActions, @))
-        @add(@users = new Label('d-r-post-author'))
+        @add(@title = new Label('d-r-post-title'))
+        @title.add(@users = new Label('d-r-post-author'))
+        @title.add(@timestamp = new Label('d-r-post-timestamp'))
         @add(@body = new Label('d-r-post-body'))
 
         @model = model
@@ -411,6 +413,7 @@ class Post extends Container
                         @users.add(new Label().setText(', '))
                     @users.add(new Link().setView('user.profile', author)
                         .add(new Label().setText(author)))
+            @timestamp.text = new Date(post.modified).toLocaleString() if post.modified?
 
     update: ->
         @body.richText = parse(@source = @editor.text).result
