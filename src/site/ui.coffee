@@ -390,10 +390,10 @@ class Post extends Container
 
     constructor: (model) ->
         super 'd-r-post'
-        @add(@actionButton = new Button('d-r-action-button d-r-post-action').onExecute(@showActions, @))
         @add(@title = new Label('d-r-post-title'))
         @title.add(@users = new Label('d-r-post-author'))
         @title.add(@timestamp = new Label('d-r-post-timestamp'))
+        @add(@actionButton = new Button('d-r-action-button d-r-post-action').onExecute(@showActions, @))
         @add(@body = new Label('d-r-post-body'))
 
         @model = model
