@@ -64,6 +64,10 @@ class Editor extends Control
         @add @tabBar = new TabBar(@)
 
         @userList.addUser @app.user ? User.guest()
+        for i in [1..10]
+            u = User.guest()
+            u._id = -i - 1
+            @userList.addUser u
 
         @spriteList.clear()
         @spriteList.addIcon @project.stage
