@@ -369,7 +369,7 @@ views =
                     , callback)
                 .setCreator(-> new Post)
                 .setHandler((model, post) -> post.model = model))
-            .add(@template 'replyForm', id)
+            .add(@template 'replyForm', id, posts)
 
         watcher = {
             forum$id: (x) -> up.setView 'forums.forum', x
@@ -458,31 +458,32 @@ class Post extends Container
             .popDown(@actionButton)
 
 templates =
-    replyForm: (topicId) ->
+    replyForm: (topicId, list) ->
         reply = =>
             return unless topicId
             username = @user.name
-            newPost = new Container('d-r-post-list')
-                .add(post = new Post(
+            post = new Post(
                     authors: [username]
                     body: body.text
-                ).addClass('pending'))
+                ).addClass('pending')
                 .add(spinner = new Container('d-r-post-spinner'))
-            postForm.parent.insert(newPost, postForm)
+            list.add(post, postForm)
             postForm.hide()
             @wrap.scrollTop = 'max'
             @request 'forums.post.add',
                 topic$id: topicId,
                 body: body.text
             , (id) =>
-                newPost.children[0].removeClass 'pending'
-                newPost.remove spinner
+                post.removeClass 'pending'
+                post.remove spinner
                 body.text = ''
                 postForm.show()
                 body.focus()
                 post.model = { id }
                 @addedPosts[id] = true
                 @wrap.scrollTop = 'max'
+                ++list.offset
+                ++list.max
 
         return (postForm = new Form('d-r-block-form d-r-new-post-editor'))
             .onSubmit(=> if @user then reply() else @showSignIn())
