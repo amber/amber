@@ -292,7 +292,7 @@ class UserList extends Control
         item = @newElement 'd-user-list-item', 'a'
         icon = @newElement 'd-user-list-icon', 'img'
         label = @newElement 'd-user-list-label'
-        href = user.profileURL
+        item.href = user.profileURL
         target = '_blank'
         icon.src = user.avatarURL
         label.textContent = user.name
