@@ -310,7 +310,7 @@ class Chat extends Control
         @selectable = true
         @element.appendChild @title = @newElement 'd-panel-title'
         @element.appendChild @contents = @newElement 'd-panel-contents d-scrollable'
-        @title.appendChild @input = @newElement 'd-chat-input', 'input'
+        @title.appendChild @input = @newElement 'd-chat-input d-textfield', 'input'
         @input.addEventListener 'keydown', @keyDown
 
     keyDown: (e) =>
