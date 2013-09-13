@@ -1,4 +1,5 @@
 { Base, extend, addClass, removeClass, toggleClass, hasClass, format, htmle, htmlu, bbTouch, inBB } = amber.util
+{ getText: tr } = amber.locale
 { Event, PropertyEvent, ControlEvent, TouchEvent, WheelEvent } = amber.event
 
 class Control extends Base
@@ -19,6 +20,7 @@ class Control extends Base
     @event 'Scroll'
     @event 'DragStart'
     @event 'Live'
+    @event 'Unlive'
 
     initElements: (elementClass, containerClass, isFlat) ->
         @element = @newElement elementClass
@@ -75,13 +77,14 @@ class Control extends Base
         child.becomeLive() if @isLive
         @
 
-    becomeLive: ->
-        unless @isLive
-            @dispatch 'Live', new ControlEvent @
-            @isLive = true
+    becomeLive: (target = true) ->
+        if @isLive isnt target
+            event = if target then 'Live' else 'Unlive'
+            @dispatch event, new ControlEvent @
+            @isLive = target
 
         for child in @children
-            child.becomeLive()
+            child.becomeLive target
 
     clear: ->
         if @children.length
@@ -120,6 +123,8 @@ class Control extends Base
         i = @children.indexOf child
         @children.splice i, 1 if -1 isnt i
         child.parent = null
+
+        child.becomeLive false if @isLive
 
         @container.removeChild child.element
         @
@@ -221,6 +226,52 @@ class Label extends Control
         get: -> @element.innerHTML
         set: (richText) -> @element.innerHTML = richText
 
+class RelativeDateLabel extends Label
+
+    constructor: (className = 'd-label', date) ->
+        super className
+        @date = date
+        @onLive ->
+            RelativeDateLabel.instances.push @
+        @onUnlive ->
+            i = RelativeDateLabel.instances.indexOf @
+            RelativeDateLabel.instances.splice i, 1 if i isnt -1
+
+    format: (date) ->
+        now = +new Date
+        old = +date
+        d = (now - old) / 1000
+        if d < 60 then return tr 'now'
+        d /= 60
+        if d < 2 then return tr 'a minute ago'
+        if d < 60 then return tr '% minutes ago', Math.floor d
+        d /= 60
+        if d < 2 then return tr 'an hour ago'
+        if d < 24 then return tr '% hours ago', Math.floor d
+        d /= 24
+        if d < 2 then return tr 'a day ago'
+        if d < 7 then return tr '% days ago', Math.floor d
+        d /= 7
+        if d < 2 then return tr 'a week ago'
+        if d < 4 then return tr '% weeks ago', Math.floor d
+        d /= 4
+        if d < 2 then return tr 'a month ago'
+        if d < 12 then return tr '% months ago', Math.floor d
+        d /= 12
+        if d < 2 then return tr 'a year ago'
+        return tr '% years ago', Math.floor d
+
+    @instances: []
+    @update: ->
+        for label in RelativeDateLabel.instances
+            label.update()
+
+    update: ->
+        @text = @format @date
+
+    @property 'date', apply: -> @update()
+
+setInterval RelativeDateLabel.update, 1000 * 60
 
 class Image extends Control
     constructor: (className = 'd-image') ->
@@ -901,6 +952,7 @@ class Dialog extends Control
 module 'amber.ui', {
     Control
     Label
+    RelativeDateLabel
     Image
     App
     Menu

@@ -1,7 +1,7 @@
 { Base, extend, addClass, removeClass, toggleClass, hasClass, format, htmle, htmlu, bbTouch, inBB } = amber.util
 { Event, PropertyEvent, ControlEvent, TouchEvent, WheelEvent } = amber.event
 { getText: tr, maybeGetText: tr.maybe, getList: tr.list, getPlural: tr.plural } = amber.locale
-{ Control, Label, Image, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
+{ Control, Label, RelativeDateLabel, Image, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
 { Server, User, RequestError } = amber.models
 { parse } = amber.markup
 { urls } = amber.site
@@ -408,7 +408,7 @@ class Post extends Container
         super 'd-r-post'
         @add(@title = new Label('d-r-post-title'))
         @title.add(@users = new Label('d-r-post-author'))
-        @title.add(@timestamp = new Label('d-r-post-timestamp'))
+        @title.add(@timestamp = new RelativeDateLabel('d-r-post-timestamp'))
         @add(@actionButton = new Button('d-r-action-button d-r-post-action').onExecute(@showActions, @))
         @add(@body = new Label('d-r-post-body'))
 
@@ -429,7 +429,8 @@ class Post extends Container
                         @users.add(new Label().setText(', '))
                     @users.add(new Link().setView('user.profile', author)
                         .add(new Label().setText(author)))
-            @timestamp.text = new Date(post.modified).toLocaleString() if post.modified?
+            if post.modified?
+                @timestamp.date = new Date(post.modified)
 
     update: ->
         @body.richText = parse(@source = @editor.text).result
@@ -1102,12 +1103,12 @@ class ActivityCarouselItem extends Container
         super('d-r-activity-carousel-item')
         @element.appendChild @iconElement = @newElement 'd-r-activity-carousel-item-icon', 'img'
         @element.appendChild @descriptionElement = @newElement 'd-r-activity-carousel-item-description'
-        @element.appendChild @timeElement = @newElement 'd-r-activity-carousel-item-time'
+        @add @timestamp = new RelativeDateLabel('d-r-activity-carousel-item-time')
     @property 'description', apply: (description) ->
         @descriptionElement.innerHTML = description
 
     @property 'time', apply: (time) ->
-        @timeElement.textContent = time.toLocaleString()
+        @timestamp.date = time
 
     @property 'icon', apply: (url) ->
         @iconElement.src = url
@@ -1121,10 +1122,9 @@ class LazyList extends Container
         @offset = 0
         @max = -1
         @onLive ->
-            app = @app
-            app.wrap.onScroll @loadIfNecessary, @
-            app.onUnload =>
-                app.wrap.unScroll @loadIfNecessary
+            @app.wrap.onScroll @loadIfNecessary, @
+        @onUnlive ->
+            @app.wrap.unScroll @loadIfNecessary
 
     @property 'loader'
 

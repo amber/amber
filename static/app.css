@@ -2157,13 +2157,15 @@
     line-height: 24px;
     margin: 0 0 0 -24px;
 }
-.d-r-post-author {
-    display: inline-block;
-}
+.d-r-post-author,
 .d-r-post-timestamp {
     display: inline-block;
+    vertical-align: bottom;
+}
+.d-r-post-timestamp {
     color: #888;
     font-size: 12px;
+    line-height: 18px;
     margin: 0 0 0 12px;
 }
 .d-r-post-title .d-r-link {
