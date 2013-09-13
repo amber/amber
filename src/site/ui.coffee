@@ -8,6 +8,7 @@
 
 views =
     index: ->
+        @setTitle tr('Amber')
         @reloadOnAuthentication = true
         if @user
             @page
@@ -84,6 +85,7 @@ views =
         }
 
     explore: (args) ->
+        @setTitle tr('Explore'), tr('Amber')
         @page
             .add(new LazyList('d-r-fluid-project-list')
                 .setLoader((offset, length, callback) =>
@@ -97,11 +99,13 @@ views =
                         .add(new Label('d-r-fluid-project-label', info.project.name))))
 
     notFound: (args) ->
+        @setTitle tr('Page not found'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Page Not Found'))
             .add(new Label('d-r-paragraph', tr 'The page at the URL "%" could not be found.', args[0]))
 
     error: (args) ->
+        @setTitle args[1], tr('Amber')
         @page
             .add(new Label('d-r-title', args[1]))
             .add(new Label('d-r-paragraph', args[2]))
@@ -110,6 +114,7 @@ views =
                 .add(new Label('d-r-error-stack d-scrollable', args[3]))
 
     forbidden: (args) ->
+        @setTitle tr('Authentication Required'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Authentication Required'))
             .add(new Label('d-r-paragraph', tr 'You need to log in to see this page.'))
@@ -131,18 +136,21 @@ views =
             if xhr.status isnt 200
                 return views.notFound.call @, [args[0]]
             context = parse xhr.responseText
+            @setTitle context.config.title, tr('Amber Wiki')
             @page
                 .add(title = new Label('d-r-title', context.config.title ? page))
                 .add(new Label('d-r-section').setRichText(context.result))
         xhr.send()
 
-    search: ->
+    search: (args) ->
+        @setTitle args[0] ? '', tr('Amber Search')
         @page
             .add(new Label('d-r-title', tr 'Search'))
             .add(new Label('d-r-paragraph', 'This is a placeholder search page.'))
 
     settings: ->
         @requireAuthentication()
+        @setTitle tr('Settings'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Settings'))
             .add(new Container('d-r-block-form')
@@ -193,6 +201,7 @@ views =
             .add(new Container('d-r-paragraph d-r-project-notes-disclosure')
                 .add(notesDisclosure = new Button('d-r-link').setText(tr 'Show more').onExecute(toggleNotes).hide()))
         @request 'project', project$id: args[1], (project) =>
+            @setTitle project.name, tr('Amber')
             authors.richText = tr 'by %', tr.list ('<a class=d-r-link href="' + (htmle @abs @reverse 'user.profile', author) + '">' + (htmle author) + '</a>' for author in project.authors)
             title.text = project.name
             notes.text = project.notes
@@ -205,6 +214,7 @@ views =
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
 
     'user.profile': (args) ->
+        @setTitle tr('%\'s Profile', args[1]), tr('Amber')
         @page
             .add(new Container('d-r-user-icon'))
             .add(new Label('d-r-title', args[1]))
@@ -241,6 +251,7 @@ views =
             .add(new Carousel())
 
     forums: ->
+        @setTitle tr('Amber Forums')
         @request 'forums.categories', {}, (categories) =>
             for category in categories
                 @page
@@ -290,12 +301,15 @@ views =
                     link.viewLabel.text = tr.plural '% views', '% view', topic.views if topic.views?))
 
         @watch 'forum', forum$id: id, {
-            name: (x) -> title.text = tr.maybe x
+            name: (x) ->
+                @setTitle tr.maybe(x), tr('Amber Forums')
+                title.text = tr.maybe x
             description: (x) -> subtitle.text = tr.maybe x
             topics
         }
 
     'forums.addTopic': (args) ->
+        @setTitle tr('New Topic'), tr('Amber Forums')
         id = args[1]
 
         post = =>
@@ -373,7 +387,9 @@ views =
 
         watcher = {
             forum$id: (x) -> up.setView 'forums.forum', x
-            name: (x) -> title.text = tr.maybe x
+            name: (x) ->
+                @setTitle tr.maybe(x), tr('Amber Forums')
+                title.text = tr.maybe x
             views: (x) -> subtitle.text = tr '% Views', x
             posts
         }
@@ -848,6 +864,9 @@ class App extends amber.ui.App
 
     template: (name) ->
         templates[name].apply @, [].slice.call arguments, 1
+
+    setTitle: (parts...) ->
+        document.title = parts.join ' \xb7 '
 
 class Link extends Button
     constructor: (className = 'd-r-link') ->
