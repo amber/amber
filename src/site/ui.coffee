@@ -468,6 +468,7 @@ templates =
             post = new Post(
                     authors: [username]
                     body: body.text
+                    modified: new Date().toJSON()
                 ).addClass('pending')
                 .add(spinner = new Container('d-r-post-spinner'))
             list.add(post, postForm)
