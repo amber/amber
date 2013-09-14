@@ -78,7 +78,7 @@ class Control extends Base
         @
 
     becomeLive: (target = true) ->
-        if @isLive isnt target
+        if !!@isLive isnt target
             event = if target then 'Live' else 'Unlive'
             @dispatch event, new ControlEvent @
             @isLive = target
@@ -120,11 +120,11 @@ class Control extends Base
     remove: (child) ->
         return @ if child.parent isnt @
 
+        child.becomeLive false if @isLive
+
         i = @children.indexOf child
         @children.splice i, 1 if -1 isnt i
         child.parent = null
-
-        child.becomeLive false if @isLive
 
         @container.removeChild child.element
         @
@@ -134,6 +134,8 @@ class Control extends Base
             return @add newChild
         if newChild.parent
             newChild.parent.remove newChild
+
+        oldChild.becomeLive false if @isLive
 
         i = @children.indexOf oldChild
         @children.splice i, 1, newChild if -1 isnt i
