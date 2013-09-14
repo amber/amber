@@ -309,7 +309,6 @@ views =
         }
 
     'forums.addTopic': (args) ->
-        @setTitle tr('New Topic'), tr('Amber Forums')
         id = args[1]
 
         post = =>
@@ -364,7 +363,9 @@ views =
                     .add(new Button('d-button d-r-new-topic-button').setText(tr 'Create Topic').onExecute(base.submit, base))))
 
         @watch 'forum', forum$id: id,
-            name: (x) -> title.text = tr.maybe x
+            name: (x) ->
+                @setTitle tr('New Topic'), tr.maybe(x), tr('Amber Forums')
+                title.text = tr.maybe x
             description: (x) -> subtitle.text = tr.maybe x
 
     'forums.topic': (args, info) ->
