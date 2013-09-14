@@ -1137,9 +1137,9 @@ class LazyList extends Container
     @property 'creator'
     @property 'handler'
 
-    LOAD_AMOUNT: 20,
-    loaded: 0,
-    buffer: 200,
+    LOAD_AMOUNT: 20
+    loaded: 0
+    buffer: 200
 
     loadItems: (offset, length, callback) ->
         return unless @_loader and length
