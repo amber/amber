@@ -460,8 +460,7 @@ class Post extends Container
     deletePost: =>
         @pending = true
         @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-        @app.request 'forums.post.delete', post$id: @id, =>
-            @parent.remove @
+        @app.request 'forums.post.delete', post$id: @id
 
     showActions: ->
         return if @pending or not @id?
