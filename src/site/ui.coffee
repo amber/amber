@@ -327,7 +327,8 @@ views =
                                 .add(new Label().setText(username))))
                         .add(new Label('d-r-post-body').setRichText(parse(bodyText).result)))
                     .add(new Container('d-r-post-spinner')))
-                .add(@template('replyForm'))
+                .add(replyForm = @template('replyForm'))
+            replyForm.forumId = id
             @request 'forums.topic.add',
                 forum$id: id,
                 name: name,
@@ -382,13 +383,15 @@ views =
                         offset: offset,
                         length: length
                     , callback)
-                .setCreator(-> new Post)
+                .setCreator(-> new Post(replyForm.forumId))
                 .setHandler((model, post) -> post.model = model))
-            .add(@template 'replyForm', id, posts)
+            .add(replyForm = @template 'replyForm', id, posts)
 
         watcher = {
-            forum$id: (x) -> up.setView 'forums.forum', x
-            name: (x) ->
+            forum$id: (x) ->
+                replyForm.forumId = x
+                up.setView 'forums.forum', x
+            name: (x) =>
                 @setTitle tr.maybe(x), tr('Amber Forums')
                 title.text = tr.maybe x
             views: (x) -> subtitle.text = tr '% Views', x
@@ -405,7 +408,7 @@ views =
 class Post extends Container
     pending: false
 
-    constructor: (model) ->
+    constructor: (@forumId, model) ->
         super 'd-r-post'
         @add(@title = new Label('d-r-post-title'))
         @title.add(@users = new Label('d-r-post-author'))
@@ -460,7 +463,10 @@ class Post extends Container
     deletePost: =>
         @pending = true
         @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
-        @app.request 'forums.post.delete', post$id: @id
+        topic = @parent.children[0] is @
+        @app.request 'forums.post.delete', post$id: @id, =>
+            if topic
+                @app.show 'forums.forum', @forumId
 
     showActions: ->
         return if @pending or not @id?
@@ -482,7 +488,7 @@ templates =
         reply = =>
             return unless topicId
             username = @user.name
-            post = new Post(
+            post = new Post(postForm.forumId,
                     authors: [username]
                     body: body.text
                     modified: new Date().toJSON()
