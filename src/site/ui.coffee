@@ -345,6 +345,7 @@ views =
                         authors: [username]
                         body: bodyText
                         id: info.post$id
+                        modified: new Date().toJSON()
                     ]
 
         @requireAuthentication()
