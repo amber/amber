@@ -340,6 +340,7 @@ views =
                     topic:
                         forum$id: id
                         name: name
+                        views: 0
                     posts: [
                         authors: [username]
                         body: bodyText
@@ -401,6 +402,7 @@ views =
         if info
             watcher.forum$id info.topic.forum$id
             watcher.name info.topic.name
+            watcher.views info.topic.views
             posts.items = info.posts
         else
             @watch 'topic', topic$id: id, watcher
