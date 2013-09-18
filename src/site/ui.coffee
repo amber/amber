@@ -501,7 +501,7 @@ templates =
             postForm.hide()
             @wrap.scrollTop = 'max'
             @request 'forums.post.add',
-                topic$id: topicId,
+                topic$id: topicId
                 body: body.text
             , (id) =>
                 post.removeClass 'pending'
