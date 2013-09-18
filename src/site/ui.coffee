@@ -396,7 +396,7 @@ views =
             name: (x) =>
                 @setTitle tr.maybe(x), tr('Amber Forums')
                 title.text = tr.maybe x
-            views: (x) -> subtitle.text = tr '% Views', x
+            views: (x) -> subtitle.text = tr.plural '% Views', '% View', x
             posts
         }
 
