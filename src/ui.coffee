@@ -904,8 +904,14 @@ class Form extends Container
         @element.addEventListener 'keydown', @keydown
 
     keydown: (e) =>
-        @submit() if e.keyCode is 13
-        @cancel() if e.keyCode is 27
+        if e.keyCode is 13
+            @submit()
+            e.preventDefault()
+            e.stopPropagation()
+        if e.keyCode is 27
+            @cancel()
+            e.preventDefault()
+            e.stopPropagation()
 
     submit: -> @dispatch 'Submit', new ControlEvent @
     cancel: -> @dispatch 'Cancel', new ControlEvent @
