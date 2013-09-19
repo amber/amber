@@ -474,10 +474,34 @@ class Post extends Container
             if topic
                 @app.show 'forums.forum', @forumId
 
+    report: =>
+        dialog = new Dialog()
+            .add((form = new Form())
+                .add(new Label('d-r-post-body')
+                    .setRichText(parse(@source).result))
+                #.add(name = new TextField()
+                #    .setPlaceholder(tr 'Variable Name'))
+                #.add(new Checkbox()
+                #    .setText(tr 'For this sprite only'))
+                .add(new TextField.Multiline('d-textfield d-r-report-editor')
+                    .autofocus()
+                    .setPlaceholder(tr('Why are you reporting this post?')))
+                .add(new Button()
+                    .setText(tr 'Report')
+                    .onExecute form.submit, form)
+                .add(new Button()
+                    .setText(tr 'Cancel')
+                    .onExecute form.cancel, form)
+                .onSubmit(=>
+                    # TODO: report backend
+                    dialog.close())
+                .onCancel(=> dialog.close()))
+            .show(@app)
+
     showActions: ->
         return if @pending or not @id?
         items = [
-            { title: tr('Report') }
+            { title: tr('Report'), action: @report }
         ]
         if @app.matchesAuthentication @authors
             items = items.concat [

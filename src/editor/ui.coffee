@@ -11,12 +11,10 @@ class Editor extends Control
         @blocks = {}
         @objects = {}
         @initElements 'd-amber d-collapse-user-panel'
-        @element.appendChild @lightbox = @newElement 'd-lightbox'
         @preloader = new Dialog().addClass('d-preloader')
             .add(@_progressLabel = new Label)
             .add(@_progressBar = new ProgressBar)
         @add @spritePanel = new SpritePanel(@)
-        @lightboxEnabled = false
         @spriteList.hide()
         @spritePanel.toggleVisible = false
         document.addEventListener 'keydown', @keyDown
@@ -103,10 +101,6 @@ class Editor extends Control
                 .onExecute =>
                     dialog.close())
             .show(@)
-
-    @property 'lightboxEnabled',
-        apply: (lightboxEnabled) ->
-            @lightbox.style.display = if lightboxEnabled then 'block' else 'none'
 
     @property 'preloaderEnabled',
         apply: (preloaderEnabled) ->

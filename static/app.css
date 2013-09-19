@@ -2253,6 +2253,12 @@
     margin: -24px;
 }
 
+.d-app .d-r-report-editor {
+    margin: 12px 0;
+    resize: none;
+    height: 94px;
+}
+
 .d-r-md-paragraph {
     margin: 12px 0;
 }

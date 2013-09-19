@@ -289,7 +289,14 @@ class App extends Control
     acceptsClick: true
     isLive: true
 
+    constructor: ->
+        @lightbox = @newElement 'd-lightbox'
+        super()
+
     @property 'app', -> @
+
+    @property 'lightboxEnabled', apply: (lightboxEnabled) ->
+        @lightbox.style.display = if lightboxEnabled then 'block' else 'none'
 
     @property 'menu',
         apply: (menu) ->
@@ -306,6 +313,9 @@ class App extends Control
         @element = @container = element
         element.control = @
         addClass element, 'd-app'
+
+        element.appendChild @lightbox
+        @lightboxEnabled = false
 
         element.addEventListener('touchstart', (e) ->
             t = e.target
@@ -946,7 +956,7 @@ class Dialog extends Control
         descend = (child) ->
             tag = child.tagName
             if tag is 'INPUT' or tag is 'BUTTON' or tag is 'TEXTAREA'
-                child.focus()
+                setTimeout -> child.focus()
                 return true
             for c in child.childNodes
                 return true if descend c
