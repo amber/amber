@@ -5,6 +5,11 @@ RequestError =
     notFound: 0,
     auth$incorrectCredentials: 1
 
+Group =
+    DEFAULT: 1 << 0
+    MODERATOR: 1 << 1
+    ADMINISTRATOR: 1 << 2
+
 class User extends Base
     constructor: (server) ->
         super()
@@ -304,6 +309,7 @@ class Server extends Base
 
 module 'amber.models', {
     User
+    Group
     RequestError
     Server
 }

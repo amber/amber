@@ -2,7 +2,7 @@
 { Event, PropertyEvent, ControlEvent, TouchEvent, WheelEvent } = amber.event
 { getText: tr, maybeGetText: tr.maybe, getList: tr.list, getPlural: tr.plural } = amber.locale
 { Control, Label, RelativeDateLabel, Image, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
-{ Server, User, RequestError } = amber.models
+{ Server, Group, User, RequestError } = amber.models
 { parse } = amber.markup
 { urls } = amber.site
 
@@ -479,7 +479,7 @@ class Post extends Container
         items = [
             { title: tr('Report') }
         ]
-        if -1 isnt @authors.indexOf @app.user?.name
+        if @app.matchesAuthentication @authors
             items = items.concat [
                 Menu.separator
                 { title: tr('Edit'), action: @edit }
@@ -670,21 +670,25 @@ class App extends amber.ui.App
             @showSignIn true
             throw @authenticationError
 
-    authenticate: (users, controls) ->
+    matchesAuthentication: (users, user = @user, andAdmin = true) ->
+        return false unless user
+        return true if andAdmin and user.group is 'administrator'
+        username = user.name
+        for u in users
+            if typeof u is 'string'
+                return true if u is username
+            else if typeof u is 'number'
+                return true if (switch user.group
+                    when 'administrator' then u & Group.ADMINISTRATOR
+                    when 'moderator' then u & Group.MODERATOR
+                    when 'default' then u & Group.DEFAULT)
+            else
+                return true if u is user
+        false
+
+    authenticate: (users, controls, andAdmin = true) ->
         authenticator = ->
-            user = @user
-            visible = false
-            if user
-                username = user.name
-                i = users.length
-                while (i--)
-                    if typeof users[i] is 'string'
-                        pass = users[i] is username
-                    else
-                        pass = users[i] is user
-                    if pass
-                        visible = true
-                        break
+            visible = @matchesAuthentication users, @user, andAdmin
 
             for control in controls
                 control.visible = visible
