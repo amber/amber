@@ -67,7 +67,7 @@ class Server extends Base
         @usersById = {}
         @userIdCallbacks = {}
         @log = []
-        @_sessionId = sessionStorage.getItem 'sessionId'
+        @_sessionId = localStorage.getItem 'sessionId'
         @reopenDelay = @INITIAL_REOPEN_DELAY
         @open()
 
@@ -82,7 +82,7 @@ class Server extends Base
     @property 'app'
 
     @property 'sessionId', apply: (sessionId) ->
-        sessionStorage.setItem 'sessionId', sessionId
+        localStorage.setItem 'sessionId', sessionId
 
     on:
         connect: (p) ->
