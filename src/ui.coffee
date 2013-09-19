@@ -941,6 +941,10 @@ class Dialog extends Control
     constructor: ->
         super()
         @initElements('d-dialog')
+        @onLive ->
+            window.addEventListener 'resize', @layout
+        @onUnlive ->
+            window.removeEventListener 'resize', @layout
 
     show: (app) ->
         app.setLightboxEnabled(true).add(@)
@@ -963,9 +967,9 @@ class Dialog extends Control
         descend @element
         @
 
-    layout: ->
-        @element.style.marginLeft = @element.offsetWidth * -.5 + 'px'
-        @element.style.marginTop = @element.offsetHeight * -.5 + 'px'
+    layout: =>
+        @element.style.left = (window.innerWidth - @element.offsetWidth) / 2 + 'px'
+        @element.style.top = (window.innerHeight - @element.offsetHeight) / 2 + 'px'
 
 module 'amber.ui', {
     Control

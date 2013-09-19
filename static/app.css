@@ -74,8 +74,10 @@
 
 .d-dialog {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    max-width: 100%;
+    max-height: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     padding: 12px;
     background: #fff;
     box-shadow: 0 3px 20px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .1);
@@ -2264,10 +2266,9 @@
     overflow: auto;
     margin: 12px 0;
     padding: 0 12px;
-    /*border: 1px solid #ddd;*/
     border-left: 4px solid #ddd;
-    /*background: #f5f5f5;*/
     width: 600px;
+    max-width: 100%;
 }
 
 .d-r-md-paragraph {
