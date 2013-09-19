@@ -433,7 +433,7 @@ class Post extends Container
                 @users.clear()
                 for author in post.authors
                     if @users.children.length
-                        @users.add(new Label().setText(', '))
+                        @users.add(new Label().setText(',\xa0'))
                     @users.add(new Link().setView('user.profile', author)
                         .add(new Label().setText(author)))
             if post.modified?
