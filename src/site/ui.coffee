@@ -516,8 +516,10 @@ templates =
                 ++list.max
 
         return (postForm = new Form('d-r-block-form d-r-new-post-editor'))
-            .onSubmit(=> if @user then reply() else @showSignIn())
-            .add(body = new TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).setPlaceholder(tr 'Write something\u2026'))
+            .onSubmit(=>
+                return if list.max is -1 or body.text.trim() is ''
+                if @user then reply() else @showSignIn())
+            .add(body = new TextField.Multiline('d-textfield d-r-new-post-editor-body').setAutoSize(true).autofocus().setPlaceholder(tr 'Write something\u2026'))
             .add(new Button('d-button d-r-authenticated').setText('Reply').onExecute(postForm.submit, postForm))
             .add(new Button('d-button d-r-hide-authenticated').setText('Sign In to Reply').onExecute(postForm.submit, postForm))
 
