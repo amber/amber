@@ -18,7 +18,7 @@ class User extends Base
     @property 'id', apply: (id) ->
         @server.usersById[id] = @
 
-    @property 'rank',
+    @property 'group',
         value: 'default'
 
     @property 'avatarURL', ->
@@ -35,19 +35,19 @@ class User extends Base
         "http://cdn.scratch.mit.edu/get_image/user/#{@id}_#{size}x#{size}.png"
 
     toJSON: ->
-        rank = @rank
+        group = @group
         result =
             scratchId: @id
             name: @name
 
-        result.rank = rank if rank isnt 'default'
+        result.group = group if group isnt 'default'
         result
 
     fromJSON: (o) ->
         @set
             id: o.scratchId
             name: o.name
-            rank: o.rank ? 'default'
+            group: o.group ? 'default'
 
     @guest: ->
         u = new User
