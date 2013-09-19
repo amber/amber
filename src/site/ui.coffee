@@ -703,7 +703,7 @@ class App extends amber.ui.App
         @signInButton.addClass('d-button-pressed').setEnabled(false)
         @request(
             'auth.signIn'
-            username: @signInUsername.text,
+            username: @signInUsername.text
             password: @signInPassword.text
             (user) ->
                 enable()
