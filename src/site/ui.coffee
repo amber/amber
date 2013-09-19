@@ -378,7 +378,7 @@ views =
                 .add(up = new Link('d-r-list-up-button'))
                 .add(title = new Label('d-inline')))
             .add(subtitle = new Label('d-r-subtitle'))
-            .add(posts = new LazyList('d-r-post-list')
+            .add(posts = new LazyList('d-r-post-list', args[2] ? 0)
                 .setLoader((offset, length, callback) =>
                     @request 'forums.posts',
                         topic$id: id,
@@ -1126,11 +1126,12 @@ class ActivityCarouselItem extends Container
 
 
 class LazyList extends Container
-    constructor: (className = 'd-r-list') ->
+    constructor: (className = 'd-r-list', @min = 0) ->
         @visibleItems = []
         super(className)
         @element.style.paddingBottom = @buffer + 'px'
-        @offset = 0
+        @element.style.paddingTop = if min then @buffer + 'px' else ''
+        @offset = min
         @max = -1
         @onLive ->
             @app.wrap.onScroll @loadIfNecessary, @
@@ -1206,10 +1207,10 @@ class LazyList extends Container
 
     start: (items = []) ->
         @clear()
-        @offset = 0
+        @offset = @min
         @max = if items.length < @LOAD_AMOUNT then items.length else -1
-        unless @max is -1
-            @element.style.paddingBottom = ''
+        @element.style.paddingBottom = if @max isnt -1 then @buffer + 'px' else ''
+        @element.style.paddingBottom = if @min then @buffer + 'px' else ''
         @addItems items
 
     update: (changes) ->

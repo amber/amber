@@ -21,6 +21,7 @@ urls = [
     [/^forums\/(\w+)\/add-topic$/, 'forums.addTopic']
     [/^forums\/t\/feedback\/$/, 'system', 'forums.topic', 'feedback']
     [/^forums\/t\/(\w+)$/, 'forums.topic']
+    [/^forums\/t\/(\w+)\/(\d+)$/, 'forums.topic']
     [/^forums\/p\/(\w+)$/, 'forums.post']
     [/^collection\/starter-projects$/, 'collection', '5749739']
     [/^wiki$/, 'wiki', 'Main page']
