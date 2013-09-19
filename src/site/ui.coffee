@@ -87,7 +87,7 @@ views =
     explore: (args) ->
         @setTitle tr('Explore'), tr('Amber')
         @page
-            .add(new LazyList('d-r-fluid-project-list')
+            .add(list = new LazyList('d-r-fluid-project-list')
                 .setLoader((offset, length, callback) =>
                     return @request('projects.topLoved',
                         offset: offset,
@@ -102,6 +102,7 @@ views =
                     link.setView('project', info.id)
                     link.icon.URL = @app.server.getAsset info.project.thumbnail
                     link.name.text = info.project.name))
+        list.onLive list.loadIfNecessary
 
     notFound: (args) ->
         @setTitle tr('Page not found'), tr('Amber')
