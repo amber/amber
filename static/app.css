@@ -2257,6 +2257,17 @@
     margin: 12px 0;
     resize: none;
     height: 94px;
+    width: 100%;
+}
+.d-r-report-preview {
+    max-height: 100px;
+    overflow: auto;
+    margin: 12px 0;
+    padding: 0 12px;
+    /*border: 1px solid #ddd;*/
+    border-left: 4px solid #ddd;
+    /*background: #f5f5f5;*/
+    width: 600px;
 }
 
 .d-r-md-paragraph {

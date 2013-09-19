@@ -477,7 +477,7 @@ class Post extends Container
     report: =>
         dialog = new Dialog()
             .add((form = new Form())
-                .add(new Label('d-r-post-body')
+                .add(new Label('d-r-post-body d-r-report-preview d-scrollable')
                     .setRichText(parse(@source).result))
                 .add(new TextField.Multiline('d-textfield d-r-report-editor')
                     .autofocus()
