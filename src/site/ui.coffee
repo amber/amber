@@ -93,10 +93,15 @@ views =
                         offset: offset,
                         length: length
                     , callback))
-                .setTransformer((info) ->
-                    new Link('d-r-fluid-project').setView('project', info.id)
-                        .add(new Image('d-r-fluid-project-thumbnail').setURL(@app.server.getAsset(info.project.thumbnail)))
-                        .add(new Label('d-r-fluid-project-label', info.project.name))))
+                .setCreator(->
+                    link = new Link('d-r-fluid-project')
+                    link.add(link.icon = new Image('d-r-fluid-project-thumbnail'))
+                    link.add(link.name = new Label('d-r-fluid-project-label'))
+                    link)
+                .setHandler((info, link) =>
+                    link.setView('project', info.id)
+                    link.icon.URL = @app.server.getAsset info.project.thumbnail
+                    link.name.text = info.project.name))
 
     notFound: (args) ->
         @setTitle tr('Page not found'), tr('Amber')
