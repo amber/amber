@@ -459,10 +459,10 @@ class Post extends Container
     edit: =>
         return unless @id
         @form = new Form().onSubmit(@update, @).onCancel(@cancel, @)
-        @replace @body, @form
         @form.add(@editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(@source))
             .add(@updateButton = new Button().setText(tr 'Update Post').onExecute(@form.submit, @form))
             .add(@cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(@form.cancel, @form))
+        @replace @body, @form
         @actionButton.hide()
         setTimeout => @editor.select()
 
