@@ -37,7 +37,7 @@ class User extends Base
     toJSON: ->
         rank = @rank
         result =
-            id: @id
+            scratchId: @id
             name: @name
 
         result.rank = rank if rank isnt 'default'
