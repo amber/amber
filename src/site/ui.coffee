@@ -143,7 +143,7 @@ views =
         xhr.send()
 
     search: (args) ->
-        @setTitle args[0] ? '', tr('Amber Search')
+        if args[1] then @setTitle args[1], tr('Amber Search') else @setTitle tr('Search'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Search'))
             .add(new Label('d-r-paragraph', 'This is a placeholder search page.'))
