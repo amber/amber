@@ -321,6 +321,7 @@ views =
             username = @user.name
             bodyText = body.text
             name = topicName.text
+            return unless bodyText.trim() and name.trim()
             @page
                 .clear()
                 .add(new Container('d-r-title d-r-topic-title')
