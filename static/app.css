@@ -618,6 +618,7 @@
 }
 .d-user-list-label {
     display: inline-block;
+    vertical-align: middle;
     overflow: hidden;
     max-width: 100%;
     -webkit-transition: opacity .3s;
