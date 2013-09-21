@@ -100,7 +100,7 @@ class Editor extends Control
                 .setText(tr 'Cancel')
                 .onExecute =>
                     dialog.close())
-            .show(@)
+            .show(@app)
 
     @property 'preloaderEnabled',
         apply: (preloaderEnabled) ->
