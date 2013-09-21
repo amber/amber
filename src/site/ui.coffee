@@ -387,7 +387,7 @@ views =
                 .add(up = new Link('d-r-list-up-button'))
                 .add(title = new Label('d-inline')))
             .add(subtitle = new Label('d-r-subtitle'))
-            .add(posts = new LazyList('d-r-post-list', args[2] ? 0)
+            .add(posts = new LazyList('d-r-post-list', +args[2] || 0)
                 .setLoader((offset, length, callback) =>
                     @request 'forums.posts',
                         topic$id: id,
@@ -415,7 +415,10 @@ views =
             watcher.views info.topic.views
             posts.items = info.posts
         else
-            @watch 'topic', topic$id: id, watcher
+            @watch 'topic',
+                topic$id: id
+                offset: +args[2] || 0
+            , watcher
 
 class Post extends Container
     pending: false
@@ -1163,11 +1166,15 @@ class LazyList extends Container
         @visibleItems = []
         super(className)
         @element.style.paddingBottom = @buffer + 'px'
-        @element.style.paddingTop = if min then @buffer + 'px' else ''
-        @offset = min
+        @element.style.paddingTop = if @min then @buffer + 'px' else ''
+        @offset = @min
         @max = -1
         @onLive ->
-            @app.wrap.onScroll @loadIfNecessary, @
+            w = @app.wrap
+            if @min isnt 0
+                setTimeout =>
+                    w.element.scrollTop = @element.getBoundingClientRect().top - w.element.getBoundingClientRect().top + @buffer
+            w.onScroll @loadIfNecessary, @
         @onUnlive ->
             @app.wrap.unScroll @loadIfNecessary
 
@@ -1187,24 +1194,33 @@ class LazyList extends Container
 
     loadItems: (offset, length, callback) ->
         return unless @_loader and length
-        return if offset + length <= @loaded
+        return if offset >= @min and offset + length <= @loaded + @min
 
-        if offset < @loaded
-            delta = @loaded - offset
-            @_loader offset + delta, length - delta, (result) =>
-                if result.length < length - delta
-                    @max = offset + delta + result.length
-                    @element.style.paddingBottom = ''
+        if offset < @min
+            delta = @min - offset
+            @_loader offset, delta, (result) =>
+                if @min is 0
+                    @element.style.paddingTop = ''
                 callback.call @, result
+
+            @min -= delta
+            @loaded += delta
         else
-            @_loader offset, length, (result) =>
-                if result.length < length
-                    @max = offset + result.length
-                    @element.style.paddingBottom = ''
+            if offset < @min + @loaded
+                delta = @min + @loaded - offset
+                @_loader offset + delta, length - delta, (result) =>
+                    if result.length < length - delta
+                        @max = offset + delta + result.length
+                        @element.style.paddingBottom = ''
+                    callback.call @, result
+            else
+                @_loader offset, length, (result) =>
+                    if result.length < length
+                        @max = offset + result.length
+                        @element.style.paddingBottom = ''
+                    callback.call @, result
 
-                callback.call @, result
-
-        @loaded = offset + length
+            @loaded = offset + length
 
     @property 'items', apply: (items) ->
         @clear()
@@ -1212,6 +1228,17 @@ class LazyList extends Container
         @max = items.length
         @addItems items
         @element.style.paddingBottom = ''
+
+    prependItems: (items) ->
+        wrap = @app.wrap.element
+        h = wrap.scrollHeight
+
+        for item, i in items
+            @insert @create(item), @children[i]
+
+        wrap.scrollTop += wrap.scrollHeight - h
+
+        @loadIfNecessary()
 
     addItems: (items) ->
         for item in items
@@ -1227,10 +1254,19 @@ class LazyList extends Container
             if offset is @offset
                 @addItems items
 
+    loadBackward: ->
+        return if @min is 0
+        min = @min
+        offset = Math.max 0, min - @LOAD_AMOUNT
+        @loadItems offset, @LOAD_AMOUNT, (items) ->
+            if offset is @min
+                @prependItems items
+
     loadIfNecessary: ->
-        return unless @max is -1
         wrap = @app.wrap.element
-        if @element.offsetHeight - @buffer - wrap.scrollTop < wrap.offsetHeight * 2
+        if @min isnt 0 and wrap.scrollTop + @buffer < wrap.offsetHeight * 2
+            @loadBackward()
+        if @max is -1 and @element.offsetHeight - @buffer - wrap.scrollTop < wrap.offsetHeight * 2
             @load()
 
     create: (item) ->
@@ -1242,8 +1278,8 @@ class LazyList extends Container
         @clear()
         @offset = @min
         @max = if items.length < @LOAD_AMOUNT then items.length else -1
-        @element.style.paddingBottom = if @max isnt -1 then @buffer + 'px' else ''
-        @element.style.paddingBottom = if @min then @buffer + 'px' else ''
+        @element.style.paddingBottom = if @max is -1 then @buffer + 'px' else ''
+        @element.style.paddingTop = if @min then @buffer + 'px' else ''
         @addItems items
 
     update: (changes) ->
