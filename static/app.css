@@ -1838,6 +1838,9 @@
     color: #000;
     font-weight: bold;
 }
+.d-r-link.subtle {
+    color: #000;
+}
 .d-r-link:hover,
 .d-r-link:focus,
 .d-r-link:active {
@@ -2079,6 +2082,9 @@
     padding: 6px 0;
     color: #000;
 }
+.d-r-forum-list-item-title {
+    display: inline-block;
+}
 
 .d-r-topic-list-item {
     display: block;
@@ -2093,27 +2099,8 @@
 .d-r-topic-list-item-author {
     display: inline;
 }
-.d-r-forum-list-item-title,
-.d-r-topic-list-item-name {
-    color: #05d;
-}
 .d-r-topic-list-item-author {
     margin-left: 4px;
-}
-.d-r-forum-list-item:hover > .d-r-forum-list-item-title,
-.d-r-forum-list-item:focus > .d-r-forum-list-item-title,
-.d-r-forum-list-item:active > .d-r-forum-list-item-title,
-.d-r-topic-list-item:hover .d-r-topic-list-item-name,
-.d-r-topic-list-item:focus .d-r-topic-list-item-name,
-.d-r-topic-list-item:active .d-r-topic-list-item-name {
-    color: #05d;
-    text-decoration: underline;
-}
-.d-r-forum-list-item:focus:active > .d-r-forum-list-item-title,
-.d-r-forum-list-item:hover:active > .d-r-forum-list-item-title,
-.d-r-topic-list-item:hover:active .d-r-topic-list-item-name,
-.d-r-topic-list-item:focus:active .d-r-topic-list-item-name {
-    color: #028;
 }
 
 .d-r-new-topic-editor {

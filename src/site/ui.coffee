@@ -266,7 +266,7 @@ views =
                     @page
                         .add(new Container('d-r-forum-list')
                             .add(new Link('d-r-forum-list-item')
-                                 .add(new Label('d-r-forum-list-item-title', tr.maybe(forum.name)))
+                                 .add(new Label('d-r-forum-list-item-title d-r-link', tr.maybe(forum.name)))
                                  .add(new Label('d-r-forum-list-item-description', tr.maybe(forum.description)))
                                  .setView('forums.forum', forum.id)))
 
@@ -292,7 +292,7 @@ views =
                 .setCreator((topic) =>
                     link = new Link('d-r-topic-list-item')
                     link.add(new Container('d-r-topic-list-item-title')
-                            .add(link.nameLabel = new Label('d-r-topic-list-item-name'))
+                            .add(link.nameLabel = new Label('d-r-topic-list-item-name d-r-link'))
                             .add(link.userLabel = new Label('d-r-topic-list-item-author')))
                         .add(new Container('d-r-topic-list-item-description')
                             .add(link.postLabel = new Label)
@@ -302,7 +302,7 @@ views =
                 .setHandler((topic, link) =>
                     link.setView('forums.topic', topic.id) if topic.id?
                     link.nameLabel.text = topic.name if topic.name?
-                    link.userLabel.text = tr 'by %', tr.list topic.authors if topic.authors?
+                    link.userLabel.richText = tr 'by %', tr.list ('<a class="d-r-link subtle" href="' + (htmle @abs @reverse 'user.profile', author) + '">' + (htmle author) + '</a>' for author in topic.authors)
                     link.postLabel.text = tr.plural '% posts', '% post', topic.posts if topic.posts?
                     link.viewLabel.text = tr.plural '% views', '% view', topic.views if topic.views?))
 
