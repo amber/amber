@@ -533,7 +533,7 @@ class TabBar extends Control
     addTab: (label) ->
         i = @children.length
         @order.push i
-        @add new Button('d-tab').setText(label).onTouchStart =>
+        @add new Label('d-tab').setText(label).onTouchStart =>
             @select i
 
     select: (i) ->

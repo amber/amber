@@ -899,7 +899,7 @@
 }
 .d-tab-bar-tabs {
     position: absolute;
-    right: 12px;
+    right: 6px;
     top: 0;
 }
 .d-tab {
@@ -915,8 +915,7 @@
     text-shadow: 0 1px 1px #222;
     cursor: pointer;
 }
-.d-tab:hover,
-.d-tab:focus {
+.d-tab:hover {
     background: #444;
     box-shadow: 0 1px 2px #222;
 }
