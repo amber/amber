@@ -524,7 +524,7 @@ class SpriteIcon extends Control
 class TabBar extends Control
     constructor: (@amber) ->
         super()
-        @initElements 'd-tab-bar'
+        @initElements 'd-tab-bar', 'd-tab-bar-tabs'
         @order = []
         @addTab tr 'Scripts'
         @addTab tr 'Costumes'
@@ -533,7 +533,7 @@ class TabBar extends Control
     addTab: (label) ->
         i = @children.length
         @order.push i
-        @add new Button('d-tab').setText(label).onExecute =>
+        @add new Button('d-tab').setText(label).onTouchStart =>
             @select i
 
     select: (i) ->

@@ -394,12 +394,12 @@
 .d-category-button.active,
 .d-category-button.active:hover,
 .d-category-button.active:focus,
-.d-category-button.active:active,
-.d-category-button:active:hover,
-.d-category-button:active:focus {
-    color: #aaa;
+.d-category-button.active:active {
+    /*color: #aaa;
     background: #222;
-    box-shadow: inset 0 2px 3px #000;
+    box-shadow: inset 0 2px 3px #000;*/
+    color: #000;
+    background: #ddd;
 }
 .d-category-button-color {
     display: inline-block;
@@ -409,6 +409,9 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     vertical-align: top;
+}
+.d-category-button.active > .d-category-button-color {
+    box-shadow: 0 0 0 1px #333;
 }
 .d-category-button:hover {
     background: rgba(255, 255, 255, .1);
@@ -457,7 +460,7 @@
 
 .d-editor {
     position: absolute;
-    top: 32px;
+    top: 0;
     left: 486px;
     right: 206px;
     bottom: 0;
@@ -884,14 +887,20 @@
 
 .d-tab-bar {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 486px;
     right: 206px;
+    height: 32px;
     z-index: 1;
     -webkit-transition: left .3s, right .3s;
-    text-align: right;
     white-space: nowrap;
     overflow: hidden;
+    background: #333;
+}
+.d-tab-bar-tabs {
+    position: absolute;
+    right: 12px;
+    top: 0;
 }
 .d-tab {
     display: inline-block;
@@ -902,11 +911,21 @@
     position: relative;
     font: inherit;
     line-height: 32px;
-    color: #000;
+    color: #fff;
+    text-shadow: 0 1px 1px #222;
     cursor: pointer;
 }
-.d-tab-selected {
+.d-tab:hover,
+.d-tab:focus {
+    background: #444;
+    box-shadow: 0 1px 2px #222;
+}
+.d-tab-selected,
+.d-tab-selected:hover {
     background: #ddd;
+    color: #000;
+    text-shadow: none;
+    box-shadow: inset 0 -3px 5px -3px rgba(0, 0, 0, .2);
 }
 
 .d-block-stack {
@@ -2359,7 +2378,7 @@
     height: 0;
     padding-top: 24px;
     padding-bottom: 75%;
-    box-shadow: 0 0 0 1px #aaa;
+    box-shadow: 0 0 0 1px #333;
     background: #fff;
 }
 .d-r-project-player-title {
@@ -2367,9 +2386,9 @@
     line-height: 23px;
     font-size: 14px;
     margin-top: -24px;
-    background: #ddd;
-    color: #000;
-    border-bottom: 1px solid #aaa;
+    background: #333;
+    color: #fff;
+    border-bottom: 1px solid #333;
     padding: 0 6px;
 }
 .d-r-project-stats {
