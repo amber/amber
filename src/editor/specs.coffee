@@ -27,8 +27,7 @@ specs =
             ['v', $:'rotation style']
         ]
         stage: [
-            ['!', 'Stage selected:']
-            ['!', 'No motion blocks']
+            ['!', $:'Stage selected: no motion blocks']
         ]
     looks:
         sprite: [
@@ -230,8 +229,8 @@ specs =
             ['v', $:'loudness']
             '-'
             ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis']
-            ['c', 'sensing', 'turn video %m.videoState', $:'on']
-            ['c', 'sensing', 'set video transparency to %f%', 50]
+            ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
+            ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
             '-'
             ['v', $:'timer']
             ['vs', $:'timer']
@@ -347,6 +346,38 @@ categoryColors =
     sound: '#bb42c3'
     undefined: '#d42828'
 
+variableCategories =
+    'x position': 'motion'
+    'y position': 'motion'
+    'direction': 'motion'
+    'rotation style': 'motion'
+    'costume #': 'looks'
+    'color effect': 'looks'
+    'fisheye effect': 'looks'
+    'whirl effect': 'looks'
+    'pixelate effect': 'looks'
+    'mosaic effect': 'looks'
+    'brightness effect': 'looks'
+    'ghost effect': 'looks'
+    'size': 'looks'
+    'layer': 'looks'
+    'instrument': 'sound'
+    'volume': 'sound'
+    'tempo': 'sound'
+    'pen down?': 'pen'
+    'pen color': 'pen'
+    'pen hue': 'pen'
+    'pen lightness': 'pen'
+    'pen size': 'pen'
+    'answer': 'sensing'
+    'mouse x': 'sensing'
+    'mouse y': 'sensing'
+    'mouse down?': 'sensing'
+    'timer': 'sensing'
+    'loudness': 'sensing'
+    'loud?': 'sensing'
+    'backdrop name': 'looks'
+
 do ->
     map = (specs) ->
         for spec in specs when spec isnt '-'
@@ -370,4 +401,5 @@ module 'amber.editor', {
     specsBySelector
     checkScratchSpecs
     categoryColors
+    variableCategories
 }

@@ -3,6 +3,7 @@
 { getText: tr, maybeGetText: tr.maybe, getList: tr.list, getPlural: tr.plural } = amber.locale
 { Control, Label, Image, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
 { User } = amber.models
+{ specs, specsBySelector, categoryColors, variableCategories } = amber.editor
 { Project, Stage, Sprite } = amber.editor.models
 
 class Editor extends Control
@@ -270,7 +271,7 @@ class UserList extends Control
         @element.appendChild @title = @newElement 'd-panel-title'
         @element.appendChild @contents = @newElement 'd-panel-contents d-scrollable'
         @title.appendChild @titleLabel = @newElement 'd-panel-title-label'
-        @titleLabel.textContent = tr 'Chat'
+        @titleLabel.textContent = tr 'Users'
         @users = {}
 
     addUser: (user) ->
@@ -301,9 +302,10 @@ class Chat extends Control
         @amber = amber
         super()
         @initElements 'd-chat'
-        @selectable = true
         @element.appendChild @title = @newElement 'd-panel-title'
-        @element.appendChild @contents = @newElement 'd-panel-contents d-scrollable'
+        @contentLabel = new Label('d-panel-contents d-scrollable')
+        @contentLabel.selectable = true
+        @element.appendChild @contents = @contentLabel.element
         @title.appendChild @input = @newElement 'd-chat-input d-textfield', 'input'
         @input.addEventListener 'keydown', @keyDown
 
@@ -381,12 +383,10 @@ class Chat extends Control
 
 
 class SpritePanel extends Control
-    constructor: (amber) ->
-        @amber = amber
+    constructor: (@amber) ->
         super()
         @initElements 'd-sprite-panel'
-        @add amber.stageControls = new StageControls(amber)
-        @add amber.stageView = new StageView(amber)
+        @add amber.stagePanel = new StagePanel(amber)
         @add amber.spriteList = new SpriteList(amber)
         @element.appendChild @toggleButton = @newElement 'd-sprite-panel-toggle'
         @toggleButton.addEventListener 'click', @toggle
@@ -404,10 +404,15 @@ class SpritePanel extends Control
     toggle: =>
         @collapsed = not @collapsed
 
+class StagePanel extends Control
+    constructor: (@amber) ->
+        super()
+        @initElements 'd-stage-panel'
+        @add amber.stageControls = new StageControls(amber)
+        @add amber.stageView = new StageView(amber)
 
 class StageControls extends Control
-    constructor: (amber) ->
-        @amber = amber
+    constructor: (@amber) ->
         super()
         @initElements 'd-stage-controls'
         @add new Button('d-stage-control d-stage-control-go')
@@ -415,8 +420,7 @@ class StageControls extends Control
         @add new Button('d-stage-control d-stage-control-edit')
 
 class StageView extends Control
-    constructor: (amber) ->
-        @amber = amber
+    constructor: (@amber) ->
         super()
         @initElements 'd-stage'
 
@@ -434,8 +438,7 @@ class StageView extends Control
 
 
 class SpriteView extends Control
-    constructor: (amber) ->
-        @amber = amber
+    constructor: (@amber) ->
         super()
         @initElements 'd-sprite'
 
@@ -462,8 +465,7 @@ class SpriteView extends Control
 
 
 class SpriteList extends Control
-    constructor: (amber) ->
-        @amber = amber
+    constructor: (@amber) ->
         super()
         @initElements 'd-sprite-list'
         @element.appendChild @container = @newElement 'd-panel-contents d-scrollable'
@@ -486,9 +488,7 @@ class SpriteList extends Control
 class SpriteIcon extends Control
     acceptsClick: true,
 
-    constructor: (amber, object) ->
-        @amber = amber
-        @object = object
+    constructor: (@amber, @object) ->
         super()
         @initElements 'd-sprite-icon'
         @element.appendChild @image = @newElement 'd-sprite-icon-image', 'canvas'
@@ -533,11 +533,14 @@ class TabBar extends Control
     addTab: (label) ->
         i = @children.length
         @order.push i
-        @add new Label('d-tab').setText(label).onTouchStart =>
+        tab = new Label('d-tab')
+        tab.acceptsClick = true
+        @add tab.setText(label).onTouchStart =>
             @select i
 
     select: (i) ->
         if @selectedIndex?
+            @amber.removeClass 'tab-' + @selectedIndex
             removeClass @children[@selectedIndex].element, 'd-tab-selected'
         addClass @children[@selectedIndex = i].element, 'd-tab-selected'
         @order.splice @order.indexOf(i), 1
@@ -547,6 +550,7 @@ class TabBar extends Control
         for j in @order
             @children[@order[j]].element.style.zIndex = l - j
 
+        @amber.addClass 'tab-' + i
         switch i
             when 0
                 # TODO: fixme
@@ -726,9 +730,11 @@ class BlockPalette extends Control
                     else if spec[0] is '&'
                         list.add new Button().setText(tr.maybe spec[2]).onExecute =>
                             @amber[spec[1]]()
+                    else if spec[0] is '!'
+                        list.add new Label().setText(tr.maybe spec[1])
                     else
-                        # TODO
-                        # list.add Block.fromSpec spec
+                        block = Block.fromSpec spec
+                        list.add block if block
 
             @addCategory name, list
 
@@ -808,6 +814,242 @@ class BlockList extends Control
         @list.appendChild @newElement 'd-block-list-space'
         @
 
+class Block extends Control
+
+    paddingTop: 3
+    paddingRight: 5
+    paddingBottom: 3
+    paddingLeft: 5
+
+    outsetTop: 0
+    outsetRight: 0
+    outsetBottom: 3
+    outsetLeft: 0
+
+    shape: 'command'
+
+    constructor: ->
+        super()
+        @initElements 'd-block', 'd-block-label'
+        @element.insertBefore (@canvas = @newElement 'd-block-canvas', 'canvas'), @container
+        @context = @canvas.getContext '2d'
+        @shapeChanged()
+        @onLive -> @changed()
+
+    @property 'category', value: 'undefined', apply: -> @changed()
+
+    @property 'selector'
+
+    @property 'spec', apply: (spec) ->
+        @clear()
+
+        start = 0
+        args = @arguments = []
+        n = 0
+
+        while -1 isnt i = spec.substr(start).search(/[%@]/)
+            i += start
+            if not /^\s*$/.test label = spec.substring start, i
+                @add(new Label('d-block-word').setText(label))
+
+            if ex = /^%(?:(\d+)\$)?(\w+)(?:\.(\w+))?/.exec(spec.substr(i))
+                @add(arg = @argFromSpec(ex[1] ? n, ex[2], ex[3]))
+                if ex[1]
+                    args[ex[1]] = arg
+                else
+                    args.push arg
+                ++n
+                start = i + ex[0].length
+
+            else if ex = /^@(\w+)/.exec(spec.substr(i))
+                @add(label = @iconFromSpec(ex[1]))
+                start = i + ex[0].length
+
+            else
+                @add(new Label('d-block-word').setText(spec[i]))
+                start = i + 1
+
+        if start < spec.length
+            @add(new Label('d-block-word').setText(spec.substr(start)))
+
+        @defaultArguments = args
+
+    argFromSpec: (i, type, menu) ->
+        switch type
+            when 'i', 'f', 's'
+                new TextArg()
+            else
+                new Label('d-block-arg').setText("#{i}:#{type}.#{menu}")
+
+    iconFromSpec: (id) ->
+        # TODO
+        new Label('d-block-arg').setText("#{id}")
+
+    changed: ->
+        if @isLive
+            bb = @container.getBoundingClientRect()
+            width = bb.right - bb.left + @paddingLeft + @paddingRight
+            height = bb.bottom - bb.top + @paddingTop + @paddingBottom
+            @element.style.width = width + 'px'
+            @element.style.height = height + 'px'
+            @canvas.width = width + @outsetLeft + @outsetRight
+            @canvas.height = height + @outsetTop + @outsetBottom
+
+            @draw width, height
+
+    draw: (w, h) ->
+
+        r = 3
+        puzzleInset = 8
+        puzzleWidth = 12
+        puzzleHeight = 3
+
+        color = categoryColors[@category]
+
+        switch @shape
+            when 'command', 'terminal'
+                (->
+                    @fillStyle = color
+
+                    @beginPath()
+                    @arc r, r, r, Math.PI, Math.PI * 3 / 2, false
+
+                    @lineTo puzzleInset, 0
+                    @arc puzzleInset + r, puzzleHeight - r, r, Math.PI, Math.PI / 2, true
+                    @arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r, Math.PI / 2, 0, true
+                    @lineTo puzzleInset + puzzleWidth, 0
+
+                    @arc w - r, r, r, Math.PI * 3 / 2, 0, false
+                    @arc w - r, h - r, r, 0, Math.PI / 2, false
+
+                    @lineTo puzzleInset + puzzleWidth, h
+                    @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
+                    @arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
+                    @lineTo puzzleInset, h
+
+                    @arc r, h - r, r, Math.PI / 2, Math.PI, false
+                    @fill()
+
+                    @strokeStyle = 'rgba(0,0,0,.3)'
+                    @beginPath()
+
+                    @moveTo r, h - .5
+                    @arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
+                    @lineTo puzzleInset, h - .5
+
+                    @moveTo puzzleInset, h + puzzleHeight - .5
+                    @arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
+                    @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
+                    @lineTo puzzleInset + puzzleWidth, h + puzzleHeight - .5
+
+                    @moveTo puzzleInset + puzzleWidth, h - .5
+                    @arc w - r, h - r, r - .5, Math.PI / 2, 0, true
+
+                    @stroke()
+
+                ).call @context
+
+
+    roundRect: (x, y, w, h, r) ->
+
+    shapeChanged: ->
+        @container.style.top = "#{@paddingTop}px"
+        @container.style.left = "#{@paddingLeft}px"
+        @canvas.style.top = "#{-@outsetTop}px"
+        @canvas.style.left = "#{-@outsetLeft}px"
+
+    setArgs: (args...) ->
+        # TODO
+
+    @fromSpec: (spec) ->
+        switch spec[0]
+            when 'c', 't', 'r', 'b', 'e', 'h'
+                block = new (
+                        h: HatBlock
+                        r: ReporterBlock
+                        e: ReporterBlock
+                        b: ReporterBlock
+                        t: CommandBlock
+                        c: CommandBlock
+                    )[spec[0]]()
+                    .setCategory(spec[1])
+                    .setSelector(spec[2])
+                    .setSpec(spec[3])
+
+                switch spec[0]
+                    when 't'
+                        block.setIsTerminal(true)
+                    when 'e'
+                        block.setEmbedded(true).setFillsLine(true)
+                    when 'b'
+                        block.setIsBoolean(true)
+
+                block.setArgs spec.slice(4)...
+                block
+            when 'v'
+                new VariableBlock().setVar(spec[1])
+            when 'vs', 'vc'
+                block = new SetterBlock()
+                    .setIsChange(spec[0] is 'vc')
+                    .setVar(spec[1])
+
+                if spec.length > 2
+                    block.setValue(spec[2])
+
+                block
+            else
+                console.warn "Invalid block type #{spec[0]}"
+
+class HatBlock extends Block
+
+class CommandBlock extends Block
+
+    @property 'isTerminal', -> @changed()
+
+class SetterBlock extends CommandBlock
+    category: 'data'
+
+    constructor: ->
+        super()
+        @isChange = false
+
+    @property 'isChange', apply: (isChange) ->
+        @spec = if isChange then "change %m.var to %s" else "change %m.var by %f"
+
+    @property 'var',
+        #get: -> @arguments[0].value
+        set: (name) ->
+            #@arguments[0].value = name
+
+    @property 'value',
+        #get: -> @arguments[1].value
+        #set: (value) -> @arguments[1].value = value
+
+class ReporterBlock extends Block
+
+    @property 'isBoolean', -> @changed()
+
+class VariableBlock extends ReporterBlock
+    category: 'data'
+
+    constructor: ->
+        super()
+        @spec = '%a.var'
+
+    @property 'var',
+        get: -> @arguments[0].value
+        set: (name) -> @arguments[0].value = name
+
+class TextArg extends TextField
+    constructor: ->
+        super 'd-block-arg d-block-text-arg'
+        @autosize
+
 module 'amber.editor.ui', {
+    Block
+    CommandBlock
+    SetterBlock
+    ReporterBlock
+    VariableBlock
     Editor
 }

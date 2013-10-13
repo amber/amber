@@ -80,8 +80,8 @@ class Control extends Base
     becomeLive: (target = true) ->
         if !!@isLive isnt target
             event = if target then 'Live' else 'Unlive'
-            @dispatch event, new ControlEvent @
             @isLive = target
+            @dispatch event, new ControlEvent @
 
         for child in @children
             child.becomeLive target
