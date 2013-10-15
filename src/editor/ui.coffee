@@ -311,9 +311,9 @@ class Chat extends Control
 
     keyDown: (e) =>
         if e.keyCode is 13 and @input.value isnt ''
-            @amber.socket.send
-                $: 'chat.message'
-                message: @input.value
+            # @amber.socket.send
+            #     $: 'chat.message'
+            #     message: @input.value
             @showMessage @app.user, @input.value
             @input.value = ''
 
@@ -816,6 +816,8 @@ class BlockList extends Control
 
 class Block extends Control
 
+    shape: 'puzzle'
+
     paddingTop: 3
     paddingRight: 5
     paddingBottom: 3
@@ -825,8 +827,6 @@ class Block extends Control
     outsetRight: 0
     outsetBottom: 3
     outsetLeft: 0
-
-    shape: 'command'
 
     constructor: ->
         super()
@@ -850,7 +850,7 @@ class Block extends Control
         while -1 isnt i = spec.substr(start).search(/[%@]/)
             i += start
             if not /^\s*$/.test label = spec.substring start, i
-                @add(new Label('d-block-word').setText(label))
+                @add(new Label('d-block-text').setText(label))
 
             if ex = /^%(?:(\d+)\$)?(\w+)(?:\.(\w+))?/.exec(spec.substr(i))
                 @add(arg = @argFromSpec(ex[1] ? n, ex[2], ex[3]))
@@ -866,11 +866,11 @@ class Block extends Control
                 start = i + ex[0].length
 
             else
-                @add(new Label('d-block-word').setText(spec[i]))
+                @add(new Label('d-block-text').setText(spec[i]))
                 start = i + 1
 
         if start < spec.length
-            @add(new Label('d-block-word').setText(spec.substr(start)))
+            @add(new Label('d-block-text').setText(spec.substr(start)))
 
         @defaultArguments = args
 
@@ -899,16 +899,18 @@ class Block extends Control
 
     draw: (w, h) ->
 
-        r = 3
-        puzzleInset = 8
-        puzzleWidth = 12
-        puzzleHeight = 3
-
         color = categoryColors[@category]
+        shadow = 'rgba(0,0,0,.3)'
+        shape = @shape
 
-        switch @shape
-            when 'command', 'terminal'
-                (->
+        (->
+            switch shape
+                when 'puzzle', 'puzzle-terminal'
+                    r = 3
+                    puzzleInset = 8
+                    puzzleWidth = 12
+                    puzzleHeight = 3
+
                     @fillStyle = color
 
                     @beginPath()
@@ -930,7 +932,7 @@ class Block extends Control
                     @arc r, h - r, r, Math.PI / 2, Math.PI, false
                     @fill()
 
-                    @strokeStyle = 'rgba(0,0,0,.3)'
+                    @strokeStyle = shadow
                     @beginPath()
 
                     @moveTo r, h - .5
@@ -947,7 +949,26 @@ class Block extends Control
 
                     @stroke()
 
-                ).call @context
+                when 'rounded'
+
+                    r = Math.min h / 2, 12
+
+                    @fillStyle = color
+
+                    @beginPath()
+                    @arc r, r, r, Math.PI, Math.PI * 3 / 2, false
+                    @arc w - r, r, r, Math.PI * 3 / 2, 0, false
+                    @arc w - r, h - r, r, 0, Math.PI / 2, false
+                    @arc r, h - r, r, Math.PI / 2, Math.PI, false
+                    @fill()
+
+                    @strokeStyle = shadow
+                    @beginPath()
+                    @arc w - r, h - r, r - .5, Math.PI / 8, Math.PI / 2, false
+                    @arc r, h - r, r - .5, Math.PI / 2, Math.PI * 7 / 8, false
+                    @stroke()
+
+        ).call @context
 
 
     roundRect: (x, y, w, h, r) ->
@@ -981,8 +1002,8 @@ class Block extends Control
                         block.setIsTerminal(true)
                     when 'e'
                         block.setEmbedded(true).setFillsLine(true)
-                    when 'b'
-                        block.setIsBoolean(true)
+                    # when 'b'
+                    #     block.setIsBoolean(true)
 
                 block.setArgs spec.slice(4)...
                 block
@@ -1027,7 +1048,17 @@ class SetterBlock extends CommandBlock
 
 class ReporterBlock extends Block
 
-    @property 'isBoolean', -> @changed()
+    shape: 'rounded'
+
+    paddingTop: 3
+    paddingRight: 7
+    paddingBottom: 3
+    paddingLeft: 7
+
+    outsetTop: 0
+    outsetRight: 0
+    outsetBottom: 0
+    outsetLeft: 0
 
 class VariableBlock extends ReporterBlock
     category: 'data'
@@ -1040,10 +1071,126 @@ class VariableBlock extends ReporterBlock
         get: -> @arguments[0].value
         set: (name) -> @arguments[0].value = name
 
-class TextArg extends TextField
+class TextArg extends Control
+
+    @measure = document.createElement 'div'
+    @measure.className = 'd-block-field-measure'
+    @cache = {}
+    document.body.appendChild @measure
+
+    acceptsClick: true
+    acceptsReporter: (reporter) -> !@_numeric or !reporter.isBoolean
+
     constructor: ->
-        super 'd-block-arg d-block-text-arg'
-        @autosize
+        super()
+        @initElements 'd-block-arg d-block-string'
+        @element.appendChild @input = @newElement '', 'input'
+        @menuButton = @newElement 'd-block-field-menu'
+        @onTouchStart @touchStart
+        @input.addEventListener 'input', @autosize
+        @input.addEventListener 'input', @edited
+        @input.addEventListener 'keypress', @key
+        @input.addEventListener 'focus', @focus
+        @input.addEventListener 'blur', @blur
+        @input.style.width = '1px'
+
+    copy: ->
+        copy = new @constructor().setText(@text())
+        copy.setNumeric true if @_numeric
+        copy.setIntegral true if @_integral
+        copy.setInline true if @_inline
+        copy.setItems @_items if @_items
+        copy
+
+    edited: =>
+        @parent.changed()
+        #@sendEdit @text()
+
+    @property 'text',
+        set: (v) ->
+            @input.value = v
+            @autosize()
+
+        get: -> @input.value
+
+    @property 'value',
+        set: (v) -> @setText v
+
+        get: ->
+            value = @text()
+
+            if @_numeric
+                value = +value
+                throw new TypeError "Not a number." if value isnt value
+
+            value
+
+    @property 'numeric', apply: (numeric) ->
+        @element.className = if numeric then 'd-block-number' else 'd-block-string'
+
+    @property 'inline', apply: (inline) ->
+        toggleClass @element, 'd-block-field-inline', inline
+
+    @property 'items', apply: (items) ->
+        if items
+            @element.appendChild @menuButton
+        else if @menuButton.parentNode
+            @menuButton.parentNode.removeChild @menuButton
+
+    claimEdits: -> @input.disabled = true
+
+    unclaimEdits: -> @input.disabled = false
+
+    focus: =>
+        @setText '' if @_numeric and /[^0-9\.+-]/.test @input.value
+        #@claim()
+
+    blur: =>
+        #@unclaim()
+
+    touchStart: (e) ->
+        if @menu and d.bbTouch @menuButton, e
+            new d.Menu()
+                .onExecute (e) =>
+                    item = e.item
+                    @setText (if typeof e.item is 'string'
+                        e.item
+                    else if Object::hasOwnProperty.call item, 'value'
+                        item.value
+                    else
+                        item.action)
+                .setItems(@getItems @menu)
+                .popDown(@, @menuButton, @text())
+
+    autosize: (e) =>
+        cache = TextArg.cache
+        measure = TextArg.measure
+        # (document.activeElement is @input ? /[^0-9\.+-]/.test(@input.value) :
+        if e and @_numeric and isNaN(@input.value) and (not @integral or +@input.value % 1)
+            @input.value = (if @_integral then parseInt else parseFloat)(@input.value) or 0
+            @input.focus()
+            @input.select()
+
+        if not width = cache[@input.value]
+            measure.style.display = 'inline-block'
+            measure.textContent = @input.value
+            width = cache[@input.value] = measure.offsetWidth + 1 # Math.max(1, measure.offsetWidth)
+            measure.style.display = 'none'
+
+        @input.style.width = width + 'px'
+
+    key: (e) =>
+        if @_numeric
+            v = @input.value
+            return if not e.charCode or e.metaKey or e.ctrlKey or
+                (@input.selectionStart isnt 0 or v[0] isnt '-' and v[0] isnt '+') and (
+                    e.charCode >= 0x30 and e.charCode <= 0x39 or
+                    !@_integral and e.charCode is 0x2e and v.indexOf('.') is -1) or
+                (e.charCode is 0x2d or
+                    e.charCode is 0x2b) and
+                    v[0] isnt '-' and v[0] isnt '+' and
+                    @input.selectionStart is 0
+            e.preventDefault()
 
 module 'amber.editor.ui', {
     Block

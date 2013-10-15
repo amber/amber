@@ -598,7 +598,7 @@
     text-shadow: -1px 0 1px #222;
 }
 .d-user-list-item {
-    padding: 6px 12px;
+    padding: 6px;
     display: block;
     position: relative;
     text-decoration: none;
@@ -607,9 +607,9 @@
     cursor: pointer;
     color: #000;
 }
-.d-collapse-user-panel .d-user-list-item {
+/*.d-collapse-user-panel .d-user-list-item {
     padding: 3px 6px;
-}
+}*/
 .d-user-list-icon {
     width: 30px;
     height: 30px;
@@ -1032,30 +1032,116 @@
     position: absolute;
     top: 0;
     left: 0;
+    pointer-events: none;
 }
 
-.d-block-text-arg {
-    border: 0;
-    margin: 0;
-    outline: 0;
-    padding: 0 2px;
+.d-block-string,
+.d-block-number {
     font: inherit;
     background: #fff;
-    width: 0;
     min-width: 5px;
     box-shadow: 0 -1px rgba(0, 0, 0, .3);
+    /*font: 10px sans-serif;
+    height: 13px;
+    background: #fff;
+    border: 0;
+    box-shadow:
+        0 -1px rgba(0, 0, 0, .4),
+        -1px 0 rgba(0, 0, 0, .4),
+        0 1px rgba(255, 255, 255, .3),
+        1px 0 rgba(255, 255, 255, .3);*/
 }
-.d-block-text-arg:focus {
-
+.d-block-string.d-arg-claimed > input,
+.d-block-number.d-arg-claimed > input {
+    color: #aaa;
+}
+.d-block-field-inline {
+    box-shadow: none;
+    background: transparent;
+}
+.d-block-field-inline > input {
+    color: #fff;
+}
+.d-block-string > input,
+.d-block-number > input {
+    font: 12px Helvetica Neue, Helvetica, Arial, sans-serif;
+    line-height: 14px;
+    background: transparent;
+    outline: 0;
+    border: 0;
+    margin: 0;
+    padding: 0 2px;
+    min-width: 5px;
+}
+.d-block-number > input {
+    min-width: 5px;
+    padding: 0 3px;
+}
+.d-block-number {
+    border-radius: 3px / 5px;
+}
+.d-block-field-measure {
+    font: 12px Helvetica Neue, Helvetica, Arial, sans-serif;
+    position: fixed;
+    display: none;
+    white-space: pre;
+}
+.d-block-field-menu {
+    font: 12px monospace;
+    line-height: 15px;
+    width: 7px;
+    color: #333;
+    display: inline-block;
+    margin-right: 3px;
+    margin-left: -2px;
+    position: relative;
+    top: -1px;
+    vertical-align: middle;
+}
+.d-block-field-menu::after {
+    content: '\25be';
+}
+.d-block-enum {
+    padding: 0 3px;
+    height: 13px;
+    line-height: 7px;
+    background: rgba(0, 0, 0, .1);
+    color: #fff;
+    font: 10px sans-serif;
+    white-space: pre;
+    box-shadow:
+        0 -1px rgba(0, 0, 0, .4),
+        -1px 0 rgba(0, 0, 0, .4),
+        0 1px rgba(255, 255, 255, .3),
+        1px 0 rgba(255, 255, 255, .3);
+}
+.d-block-enum-inline {
+    box-shadow: none;
+    background: transparent;
+    /*font: bold 10px Verdana, sans-serif;*/
+}
+.d-block-enum-menu-button {
+    font: 12px monospace;
+    line-height: 15px;
+    width: 7px;
+    color: #333;
+    display: inline-block;
+    margin-left: 3px;
+    position: relative;
+    top: -1px;
+    vertical-align: middle;
+}
+.d-block-enum-menu-button::after {
+    content: '\25be';
 }
 
-.d-block-word,
+.d-block-text,
 .d-block-arg {
     margin-left: 4px;
     display: inline-block;
     vertical-align: middle;
 }
-.d-block-word:first-child,
+.d-block-text:first-child,
 .d-block-arg:first-child {
     margin-left: 0;
 }
@@ -1239,7 +1325,7 @@
     background-position: left bottom, left -10px, left -10px;
 }
 
-.d-block-text,
+/*.d-block-text,
 .d-block-string,
 .d-block-number,
 .d-block-enum,
@@ -1249,7 +1335,7 @@
     display: inline-block;
     vertical-align: middle;
     margin: -1px 3px 0;
-}
+}*/
 .d-block .d-block {
     margin: 0 2px;
 }
@@ -1257,7 +1343,7 @@
     margin-top: -1px;
     color: #fff;
 }
-.d-block-string,
+/*.d-block-string,
 .d-block-number {
     font: 10px sans-serif;
     height: 13px;
@@ -1336,7 +1422,6 @@
 .d-block-enum-inline {
     box-shadow: none;
     background: transparent;
-    /*font: bold 10px Verdana, sans-serif;*/
 }
 .d-block-enum-menu-button {
     font: 12px monospace;
@@ -1351,7 +1436,7 @@
 }
 .d-block-enum-menu-button::after {
     content: '\25be';
-}
+}*/
 .d-block-bool {
     position: relative;
     width: 29px;
