@@ -125,7 +125,7 @@ specs =
         '-'
         ['c', 'lists', 'append:toList:', 'add %s to %m.list', $:'thing', '']
         '-'
-        ['c', 'lists', 'deleteLine:ofList:', 'delete %i.deletion-index of %m.list', 1, '']
+        ['c', 'lists', 'deleteLine:ofList:', 'delete %i.deletionIndex of %m.list', 1, '']
         ['c', 'lists', 'insert:at:ofList:', 'insert %s at %i.index of %m.list', $:'thing', 1, '']
         ['c', 'lists', 'setLine:ofList:to:', 'replace item %i.index of %m.list with %s', 1, '', $:'thing']
         '-'
