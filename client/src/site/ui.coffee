@@ -133,6 +133,8 @@ views =
             base = page.substr match.length
             page = namespace[0].toUpperCase() + namespace.slice(1).toLowerCase() + ':' + base[0].toUpperCase() + base.slice(1)
             url = "#{namespace}/#{base}"
+        else
+            base = page
         @redirect @reverse 'wiki', page
         @requestStart()
         xhr = new XMLHttpRequest
@@ -142,7 +144,7 @@ views =
             if xhr.status isnt 200
                 return views.notFound.call @, [args[0]]
             context = parse xhr.responseText
-            @setTitle context.config.title, tr('Amber Wiki')
+            @setTitle context.config.title ? base, tr('Amber Wiki')
             @page
                 .add(title = new Label('d-r-title', context.config.title ? page))
                 .add(new Label('d-r-section').setRichText(context.result))
