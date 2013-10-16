@@ -4,7 +4,7 @@ urls = [
     [/^search\/(.+)$/, 'search']
     [/^projects\/new$/, 'project.new']
     [/^projects\/new\/(.+)$/, 'project.new']
-    [/^projects\/(\w+)$/, 'project']
+    [/^projects\/(\w+)$/, 'project', false]
     [/^projects\/(\w+)\/edit$/, 'project', true]
     [/^users\/([\w-]+)$/, 'user.profile']
     [/^settings$/, 'settings']

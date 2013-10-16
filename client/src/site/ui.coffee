@@ -99,7 +99,7 @@ views =
                     link.add(link.name = new Label('d-r-fluid-project-label'))
                     link)
                 .setHandler((info, link) =>
-                    link.setView('project', info.id)
+                    link.setView('project', info.id, false)
                     link.icon.URL = @app.server.getAsset info.project.thumbnail
                     link.name.text = info.project.name))
         list.onLive list.loadIfNecessary
@@ -206,6 +206,7 @@ views =
             .add(notes = new Label('d-r-paragraph d-r-project-notes'))
             .add(new Container('d-r-paragraph d-r-project-notes-disclosure')
                 .add(notesDisclosure = new Button('d-r-link').setText(tr 'Show more').onExecute(toggleNotes).hide()))
+
         @request 'project', project$id: args[1], (project) =>
             @setTitle project.name, tr('Amber')
             authors.richText = tr 'by %', tr.list ('<a class=d-r-link href="' + (htmle @abs @reverse 'user.profile', author) + '">' + (htmle author) + '</a>' for author in project.authors)
@@ -218,6 +219,11 @@ views =
             loves.text = tr.plural '% Loves', '% Love', project.loves
             viewCount.text = tr.plural '% Views', '% View', project.views
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
+
+    'project.new': (args) ->
+        @request 'project.create', {}, (project$id) =>
+            @redirect @reverse 'project', [project$id], true
+            views.project.call @, [null, project$id], true
 
     'user.profile': (args) ->
         @setTitle tr('%\'s Profile', args[1]), tr('Amber')
@@ -1111,7 +1117,7 @@ class ProjectCarousel extends Carousel
 
 class ProjectCarouselItem extends CarouselItem
     @property 'project', apply: (info) ->
-        @setView 'project', info.id
+        @setView 'project', info.id, false
         @label = info.project.name
         @onLive ->
             @thumbnail = @app.server.getAsset info.project.thumbnail
