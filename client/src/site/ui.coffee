@@ -197,8 +197,6 @@ views =
             .add(title = new Label('d-r-title'))
             .add(authors = new Label('d-r-subtitle'))
             .add(new Container('d-r-project-player-wrap')
-                # .add(player = new Container('d-r-project-player')
-                #     .add(new Label('d-r-project-player-title', 'v234'))))
                 .add(player = new amber.editor.ui.Editor().setProjectId(args[1])))
             .add(new Container('d-r-paragraph d-r-project-stats')
                 .add(loves = new Label().setText(tr.plural('% Loves', '% Love', 0)))
