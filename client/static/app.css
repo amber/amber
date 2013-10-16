@@ -772,6 +772,7 @@
     margin: 0;
     padding: 0;
     cursor: pointer;
+    font: inherit;
 }
 .d-stage-control:hover,
 .d-stage-control:active {
