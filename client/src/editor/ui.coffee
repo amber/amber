@@ -109,8 +109,9 @@ class Editor extends Control
     @property 'tab',
         apply: (tab, old) ->
             @remove old if old?
-            @add tab
-            tab.fit() if tab.fit
+            if tab?
+                @add tab
+                tab.fit() if tab.fit
 
     @property 'selectedSprite'
 
@@ -551,6 +552,11 @@ class TabBar extends Control
         if @selectedIndex?
             @amber.removeClass 'tab-' + @selectedIndex
             removeClass @children[@selectedIndex].element, 'd-tab-selected'
+
+        unless @amber.selectedSprite
+            @amber.tab = null
+            return
+
         addClass @children[@selectedIndex = i].element, 'd-tab-selected'
         @order.splice @order.indexOf(i), 1
         @order.unshift i
