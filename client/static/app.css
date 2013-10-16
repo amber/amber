@@ -15,7 +15,7 @@
 .d-amber {
     position: relative;
     min-width: 480px;
-    min-height: 389px;
+    min-height: 392px;
     cursor: default;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -722,11 +722,15 @@
 
 .d-sprite-panel {
     position: absolute;
-    top: 6px;
-    left: 6px;
+    top: 0;
+    left: 0;
     bottom: 6px;
     width: 480px;
     -webkit-transition: width .3s;
+}
+.d-app-edit .d-sprite-panel {
+    top: 6px;
+    left: 6px;
 }
 .d-collapse-sprite-panel .d-sprite-panel {
     width: 42px;

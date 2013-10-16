@@ -169,7 +169,7 @@ views =
                 .add(new Label('d-r-form-label', tr 'What I\'m Working On'))
                 .add(new TextField.Multiline().setAutoSize(true)))
 
-    project: (args, isEdit) ->
+    project: (args) ->
         toggleNotes = () ->
             notes.element.style.height = 'auto'
             height = notes.element.offsetHeight + 'px'
@@ -197,8 +197,9 @@ views =
             .add(title = new Label('d-r-title'))
             .add(authors = new Label('d-r-subtitle'))
             .add(new Container('d-r-project-player-wrap')
-                .add(player = new Container('d-r-project-player')
-                    .add(new Label('d-r-project-player-title', 'v234'))))
+                # .add(player = new Container('d-r-project-player')
+                #     .add(new Label('d-r-project-player-title', 'v234'))))
+                .add(player = new amber.editor.ui.Editor().setProjectId(args[1])))
             .add(new Container('d-r-paragraph d-r-project-stats')
                 .add(loves = new Label().setText(tr.plural('% Loves', '% Love', 0)))
                 .add(new Separator)
@@ -222,10 +223,13 @@ views =
             viewCount.text = tr.plural '% Views', '% View', project.views
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
 
+            if args[2]
+                player.editMode = true
+
     'project.new': (args) ->
         @request 'project.create', {}, (project$id) =>
-            @redirect @reverse 'project', [project$id], true
-            views.project.call @, [null, project$id], true
+            @redirect @reverse 'project', project$id, true
+            views.project.call @, [null, project$id, true]
 
     'user.profile': (args) ->
         @setTitle tr('%\'s Profile', args[1]), tr('Amber')

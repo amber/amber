@@ -62,18 +62,13 @@ class Editor extends Control
         @add @userPanel = new UserPanel(@)
         @add @tabBar = new TabBar(@)
 
-        @userList.addUser @app.user ? User.guest()
-        for i in [1..10]
-            u = User.guest()
-            u._id = -i - 1
-            @userList.addUser u
+        if @project
+            @spriteList.clear()
+            @spriteList.addIcon @project.stage
+            for sprite in @project.stage.children
+                @spriteList.addIcon sprite
 
-        @spriteList.clear()
-        @spriteList.addIcon @project.stage
-        for sprite in @project.stage.children
-            @spriteList.addIcon sprite
-
-        @selectSprite @project.stage.children[0] ? @project.stage
+            @selectSprite @project.stage.children[0] ? @project.stage
         @
 
     createVariable: ->
@@ -226,18 +221,27 @@ class Editor extends Control
             document.body.style.overflow = if editMode then 'hidden' else ''
 
             if @editorLoaded
-                @_tab.visible = editMode
+                @tab.visible = editMode if @tab
                 @userPanel.visible = editMode
                 @tabBar.visible = editMode
                 @lightboxEnabled = @lightboxEnabled and editMode or @preloaderEnabled
             else if editMode
                 @initEditMode()
 
-            if not editMode
+            if editMode
+                @userList.clear()
+                @userList.addUser @app.user ? User.guest()
+                app.onUnload @unload
+            else
                 @spritePanel.collapsed = false
+                app.unUnload @unload
 
             @spriteList.visible = editMode
             @spritePanel.toggleVisible = editMode
+
+    unload: =>
+        if @editMode and @parent
+            @parent.remove @
 
 class UserPanel extends Control
 
@@ -282,6 +286,10 @@ class UserList extends Control
         if @users[user.id]
             @contents.removeChild @users[user.id]
             delete @users[user.id]
+
+    clear: ->
+        @users = {}
+        @contents.innerHTML = ''
 
     createUserItem: (user) ->
         item = @newElement 'd-user-list-item', 'a'
@@ -417,7 +425,8 @@ class StageControls extends Control
         @initElements 'd-stage-controls'
         @add new Button('d-stage-control d-stage-control-go')
         @add new Button('d-stage-control d-stage-control-stop')
-        @add new Button('d-stage-control d-stage-control-edit')
+        @add new Button('d-stage-control d-stage-control-edit').onExecute =>
+            @amber.editMode = not @amber.editMode
 
 class StageView extends Control
     constructor: (@amber) ->
