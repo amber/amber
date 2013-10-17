@@ -84,7 +84,7 @@ views =
             topViewed
         }
 
-    explore: (args) ->
+    explore: ->
         @setTitle tr('Explore'), tr('Amber')
         @page
             .add(list = new LazyList('d-r-fluid-project-list')
@@ -104,29 +104,29 @@ views =
                     link.name.text = info.project.name))
         list.onLive list.loadIfNecessary
 
-    notFound: (args) ->
+    notFound: (url) ->
         @setTitle tr('Page not found'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Page Not Found'))
-            .add(new Label('d-r-paragraph', tr 'The page at the URL "%" could not be found.', args[0]))
+            .add(new Label('d-r-paragraph', tr 'The page at the URL "%" could not be found.', url))
 
-    error: (args) ->
-        @setTitle args[1], tr('Amber')
+    error: (name, message, stack) ->
+        @setTitle name, tr('Amber')
         @page
-            .add(new Label('d-r-title', args[1]))
-            .add(new Label('d-r-paragraph', args[2]))
-        if args[3]?
+            .add(new Label('d-r-title', name))
+            .add(new Label('d-r-paragraph', message))
+        if stack?
             @page
-                .add(new Label('d-r-error-stack d-scrollable', args[3]))
+                .add(new Label('d-r-error-stack d-scrollable', stack))
 
-    forbidden: (args) ->
+    forbidden: ->
         @setTitle tr('Authentication Required'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Authentication Required'))
             .add(new Label('d-r-paragraph', tr 'You need to log in to see this page.'))
 
-    wiki: (args) ->
-        page = args[1][0].toUpperCase() + args[1].slice(1)
+    wiki: (rawPage, url) ->
+        page = rawPage[0].toUpperCase() + rawPage.slice(1)
         url = page
         if e = /^([^:]+):/.exec page
             [match, namespace] = e
@@ -142,7 +142,7 @@ views =
         xhr.onload = =>
             @requestEnd()
             if xhr.status isnt 200
-                return views.notFound.call @, [args[0]]
+                return views.notFound.call @, url
             context = parse xhr.responseText
             @setTitle context.config.title ? base, tr('Amber Wiki')
             @page
@@ -150,8 +150,8 @@ views =
                 .add(new Label('d-r-section').setRichText(context.result))
         xhr.send()
 
-    search: (args) ->
-        if args[1] then @setTitle args[1], tr('Amber Search') else @setTitle tr('Search'), tr('Amber')
+    search: (query) ->
+        if query then @setTitle query, tr('Amber Search') else @setTitle tr('Search'), tr('Amber')
         @page
             .add(new Label('d-r-title', tr 'Search'))
             .add(new Label('d-r-paragraph', 'This is a placeholder search page.'))
@@ -169,7 +169,7 @@ views =
                 .add(new Label('d-r-form-label', tr 'What I\'m Working On'))
                 .add(new TextField.Multiline().setAutoSize(true)))
 
-    project: (args) ->
+    project: (id, isEdit) ->
         toggleNotes = () ->
             notes.element.style.height = 'auto'
             height = notes.element.offsetHeight + 'px'
@@ -197,7 +197,7 @@ views =
             .add(title = new Label('d-r-title'))
             .add(authors = new Label('d-r-subtitle'))
             .add(new Container('d-r-project-player-wrap')
-                .add(player = new amber.editor.ui.Editor().setProjectId(args[1])))
+                .add(player = new amber.editor.ui.Editor().setProjectId(id)))
             .add(new Container('d-r-paragraph d-r-project-stats')
                 .add(loves = new Label().setText(tr.plural('% Loves', '% Love', 0)))
                 .add(new Separator)
@@ -208,7 +208,7 @@ views =
             .add(new Container('d-r-paragraph d-r-project-notes-disclosure')
                 .add(notesDisclosure = new Button('d-r-link').setText(tr 'Show more').onExecute(toggleNotes).hide()))
 
-        @request 'project', project$id: args[1], (project) =>
+        @request 'project', project$id: id, (project) =>
             @setTitle project.name, tr('Amber')
             authors.richText = tr 'by %', tr.list ('<a class=d-r-link href="' + (htmle @abs @reverse 'user.profile', author) + '">' + (htmle author) + '</a>' for author in project.authors)
             title.text = project.name
@@ -221,29 +221,29 @@ views =
             viewCount.text = tr.plural '% Views', '% View', project.views
             remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
 
-            if args[2]
+            if isEdit
                 player.editMode = true
 
-    'project.new': (args) ->
+    'project.new': ->
         @request 'project.create', {}, (project$id) =>
             @redirect @reverse 'project', project$id, true
-            views.project.call @, [null, project$id, true]
+            views.project.call @, project$id, true
 
-    'user.profile': (args) ->
-        @setTitle tr('%\'s Profile', args[1]), tr('Amber')
+    'user.profile': (user) ->
+        @setTitle tr('%\'s Profile', user), tr('Amber')
         @page
             .add(new Container('d-r-user-icon'))
-            .add(new Label('d-r-title', args[1]))
+            .add(new Label('d-r-title', user))
             .add(new Container('d-r-user-icon'))
             .add(new ActivityCarousel().setLoader (offset, length, callback) =>
                 callback({
                     icon: @server.getAsset ''
                     description: [
-                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Summer</a>',
-                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/MathIncognito class=d-r-link>MathIncognito</a>',
-                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
-                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> followed <a href=#users/nXIII- class=d-r-link>nXIII-</a>',
-                        '<a href=#users/' + args[1] + ' class="d-r-link black">' + args[1] + '</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
+                        '<a href=#users/' + user + ' class="d-r-link black">' + user + '</a> shared the project <a href=# class=d-r-link>Summer</a>',
+                        '<a href=#users/' + user + ' class="d-r-link black">' + user + '</a> followed <a href=#users/MathIncognito class=d-r-link>MathIncognito</a>',
+                        '<a href=#users/' + user + ' class="d-r-link black">' + user + '</a> loved <a href=# class=d-r-link>Amber is Cool</a>',
+                        '<a href=#users/' + user + ' class="d-r-link black">' + user + '</a> followed <a href=#users/nXIII- class=d-r-link>nXIII-</a>',
+                        '<a href=#users/' + user + ' class="d-r-link black">' + user + '</a> shared the project <a href=# class=d-r-link>Custom Blocks</a>'
                     ][i % 5]
                     time: new Date
                 } for i in [offset..Math.min offset + length, 100]))
@@ -256,7 +256,7 @@ views =
                 .add(new Button('d-r-edit-button d-r-section-edit')))
             .add(new Label('d-r-section', 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'))
             .add(new Label('d-r-title', tr 'Shared Projects'))
-            .add(new ProjectCarousel(@).setRequestName('byUser').setRequestArguments(user: args[1] ))
+            .add(new ProjectCarousel(@).setRequestName('byUser').setRequestArguments({ user }))
             .add(new Label('d-r-title', tr 'Favorite Projects'))
             .add(new ProjectCarousel(@).setRequestName('topLoved'))
             .add(new Label('d-r-title', tr 'Collections'))
@@ -280,8 +280,7 @@ views =
                                  .add(new Label('d-r-forum-list-item-description', tr.maybe(forum.description)))
                                  .setView('forums.forum', forum.id)))
 
-    'forums.forum': (args) ->
-        id = args[1]
+    'forums.forum': (id) ->
         @page
             .add(new Container('d-r-title')
                 .add(new Link('d-r-list-up-button').setView('forums'))
@@ -324,9 +323,7 @@ views =
             topics
         }
 
-    'forums.addTopic': (args) ->
-        id = args[1]
-
+    'forums.addTopic': (id) ->
         post = =>
             username = @user.name
             bodyText = body.text
@@ -356,7 +353,7 @@ views =
             , (info) =>
                 @page.clear()
                 @redirect @reverse('forums.topic', info.topic$id), true
-                views['forums.topic'].call @, [null, info.topic$id],
+                views['forums.topic'].call @, info.topic$id, 0, null,
                     topic:
                         forum$id: id
                         name: name
@@ -391,14 +388,13 @@ views =
                 title.text = tr.maybe x
             description: (x) -> subtitle.text = tr.maybe x
 
-    'forums.topic': (args, info) ->
-        id = args[1]
+    'forums.topic': (id, num, url, info) ->
         @page
             .add(new Container('d-r-title d-r-topic-title')
                 .add(up = new Link('d-r-list-up-button'))
                 .add(title = new Label('d-inline')))
             .add(subtitle = new Label('d-r-subtitle'))
-            .add(posts = new LazyList('d-r-post-list', +args[2] || 0)
+            .add(posts = new LazyList('d-r-post-list', +num || 0)
                 .setLoader((offset, length, callback) =>
                     @request 'forums.posts',
                         topic$id: id,
@@ -428,7 +424,7 @@ views =
         else
             @watch 'topic',
                 topic$id: id
-                offset: +args[2] || 0
+                offset: +num || 0
             , watcher
 
 class Post extends Container
@@ -812,7 +808,7 @@ class App extends amber.ui.App
 
     notFound: ->
         @page.clear()
-        views.notFound.call @, [@url]
+        views.notFound.call @, @url
         @
 
     abs: (url) -> '#' + url
@@ -870,21 +866,23 @@ class App extends amber.ui.App
         try
             for url in urls
                 if match = url[0].exec loc
-                    if not views[url[1]]
+                    unless views[url[1]]
                         console.error 'Undefined view ' + url[1]
                         break
 
                     for x in url[2..]
                         match.push x
 
-                    views[url[1]].call @, match
+                    match.push match.shift()
+
+                    views[url[1]].apply @, match
                     @swapIfComplete()
                     return @
 
-            views.notFound.call @, [loc]
+            views.notFound.call @, loc
         catch e
             if e is @authenticationError
-                views.forbidden.call @, [loc]
+                views.forbidden.call @, loc
             else
                 throw e
 
@@ -903,7 +901,7 @@ class App extends amber.ui.App
 
     load: (view, args...) ->
         @_resetPage()
-        views[view].call @, [this.url].concat args
+        views[view].apply @, args.concat [this.url]
         @swapIfComplete()
         @
 
