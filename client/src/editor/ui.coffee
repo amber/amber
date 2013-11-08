@@ -3,10 +3,15 @@
 { getText: tr, maybeGetText: tr.maybe, getList: tr.list, getPlural: tr.plural } = amber.locale
 { Control, Label, Image, Menu, MenuItem, MenuSeparator, FormControl, TextField, TextField, TextField, Button, Checkbox, ProgressBar, Container, Form, FormGrid, Dialog } = amber.ui
 { User } = amber.models
-{ specs, specsBySelector, categoryColors, variableCategories } = amber.editor
-{ Project, Stage, Sprite } = amber.editor.models
+{ specs, specsBySelector, categoryColors } = amber.editor
+{ Project, Scriptable, Stage, Sprite, Costume, Variable } = amber.editor.models
+
+Control.property 'editor', ->
+    if @isEditor or not @parent then @ else @parent.editor
 
 class Editor extends Control
+    isEditor: true
+
     constructor: ->
         super()
         @blocks = {}
@@ -103,8 +108,6 @@ class Editor extends Control
             @preloader.show @ unless @preloader.parent
             @preloader.visible = preloaderEnabled
             @lightboxEnabled = preloaderEnabled
-
-    @property 'editor'
 
     @property 'tab',
         apply: (tab, old) ->
@@ -868,7 +871,7 @@ class Block extends Control
                 @add(new Label('d-block-text').setText(label))
 
             if ex = /^%(?:(\d+)\$)?(\w+)(?:\.(\w+))?/.exec(spec.substr(i))
-                @add(arg = @argFromSpec(ex[1] ? n, ex[2], ex[3]))
+                @add(arg = @argFromSpec(ex[2], ex[3], ex[1] ? n))
                 if ex[1]
                     args[ex[1]] = arg
                 else
@@ -888,17 +891,6 @@ class Block extends Control
             @add(new Label('d-block-text').setText(spec.substr(start)))
 
         @defaultArguments = args
-
-    argFromSpec: (i, type, menu) ->
-        switch type
-            when 'i', 'f', 's'
-                new TextArg()
-            else
-                new Label('d-block-arg').setText("#{i}:#{type}.#{menu}")
-
-    iconFromSpec: (id) ->
-        # TODO
-        new Label('d-block-arg').setText("#{id}")
 
     changed: ->
         if @isLive
@@ -995,7 +987,8 @@ class Block extends Control
         @canvas.style.left = "#{-@outsetLeft}px"
 
     setArgs: (args...) ->
-        # TODO
+        for v, i in args
+            @arguments[i].value = v
 
     @fromSpec: (spec) ->
         switch spec[0]
@@ -1036,6 +1029,37 @@ class Block extends Control
             else
                 console.warn "Invalid block type #{spec[0]}"
 
+    argFromSpec: (type, menu, i) ->
+        switch type
+            when 'i', 'f', 's'
+                new TextArg().setMenu(menu).setNumeric(type isnt 's').setIntegral(type is 'i')
+            when 'm', 'a'
+                new EnumArg().setMenu(menu).setInline(type is 'a')
+            else
+                new TextArg().setText("#E:#{i}:#{type}.#{menu}")
+
+    getMenuItems: (menu) ->
+        items = switch menu
+            when 'direction'
+                [(action: 90, title: tr '(90) right'), (action: -90, title: tr '(-90) left'), (action: 0, title: tr '(0) up'), (action: 180, title: tr '(180) down')]
+            when 'math'
+                [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
+            when 'spriteOrMouse'
+                @editor.selectedSprite.stage.allSprites
+            when 'rotationStyle'
+                [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
+            when 'var'
+                @editor.selectedSprite?.allVariableNames
+            when 'wvar'
+                @editor.selectedSprite?.allWritableVariableNames
+            else
+                [menu]
+        (if x.$ then title: tr(x.$), action: x else x) for x in items
+
+    iconFromSpec: (id) ->
+        # TODO
+        new Label('d-block-arg').setText("#{id}")
+
 class HatBlock extends Block
 
 class CommandBlock extends Block
@@ -1050,16 +1074,81 @@ class SetterBlock extends CommandBlock
         @isChange = false
 
     @property 'isChange', apply: (isChange) ->
-        @spec = if isChange then "change %m.var to %s" else "change %m.var by %f"
+        @spec = if isChange then 'change %m.wvar by %f' else 'set %m.wvar to %s'
+        @selector = if isChange then 'changeVar:by:' else 'setVar:to:'
+        @add @unitLabel = new Label('d-block-arg')
+        @unitLabel.hide()
+
+    varChanged: ->
+        @unit = ''
+        if @arguments[1] is @defaultArguments[1]
+            arg = @getDefaultArg(@var)
+            @replace @arguments[1], arg
+            @arguments[1] = @defaultArguments[1] = arg
+        if @unit
+            @unitLabel.show()
+            @unitLabel.text = @unit
+        else
+            @unitLabel.hide()
+        @category = @var.$ and Scriptable.categoryIndex[@var.$] or 'data'
+
+    getDefaultArg: (name) ->
+        if @isChange
+            switch name.$
+                when 'costume #', 'layer', 'instrument'
+                    @argFromSpec('i').setValue(1)
+                when 'direction'
+                    @argFromSpec('f').setValue(15)
+                when 'tempo'
+                    @argFromSpec('f').setValue(20)
+                when 'volume'
+                    @argFromSpec('f').setValue(-10)
+                when 'pen size', 'answer', 'timer'
+                    @argFromSpec('f').setValue(1)
+                else
+                    @argFromSpec('f').setValue(if name.$ then 10 else 1)
+        else
+            switch name.$
+                when 'x position', 'y position', 'pen hue', 'timer'
+                    @argFromSpec('f').setValue(0)
+                when 'direction'
+                    @argFromSpec('f', 'direction')
+                when 'costume #'
+                    @argFromSpec('i').setValue(1)
+                when 'layer'
+                    @argFromSpec('i', 'layer').setValue('top')
+                when 'instrument'
+                    @argFromSpec('i', 'instrument').setValue(1)
+                when 'size', 'volume'
+                    @unit = '%'
+                    @argFromSpec('f').setValue(100)
+                when 'tempo'
+                    @unit = 'bpm'
+                    @argFromSpec('f').setValue(60)
+                when 'pen down?'
+                    @argFromSpec('b')
+                when 'pen color'
+                    @argFromSpec('color')
+                when 'pen lightness'
+                    @argFromSpec('f').setValue(50)
+                when 'pen size'
+                    @argFromSpec('f').setValue(1)
+                when 'rotation style'
+                    @argFromSpec('m', 'rotationStyle').setValue($:'left-right')
+                else
+                    if name.$ and /[ ]effect$/.test name.$
+                        @argFromSpec('f').setValue(0)
+                    else
+                        @argFromSpec('s').setValue(0)
 
     @property 'var',
-        #get: -> @arguments[0].value
+        get: -> @arguments[0].value
         set: (name) ->
-            #@arguments[0].value = name
+            @arguments[0].value = name
 
     @property 'value',
-        #get: -> @arguments[1].value
-        #set: (value) -> @arguments[1].value = value
+        get: -> @arguments[1].value
+        set: (value) -> @arguments[1].value = value
 
 class ReporterBlock extends Block
 
@@ -1082,11 +1171,130 @@ class VariableBlock extends ReporterBlock
         super()
         @spec = '%a.var'
 
+    varChanged: ->
+        @category = @var.$ and Scriptable.categoryIndex[@var.$] or 'data'
+
     @property 'var',
         get: -> @arguments[0].value
         set: (name) -> @arguments[0].value = name
 
-class TextArg extends Control
+class BlockArg extends Control
+    isArg: true
+
+    acceptsReporter: (reporter) -> false
+
+    toJSON: -> @value
+
+    claimEdits: ->
+
+    unclaimEdits: ->
+
+    claim: ->
+        id = @block.id
+        return if id is -1
+        @app.socket.send 'slot.claim',
+            block$id: id
+            slot$index: @slotIndex
+
+    unclaim: ->
+        return if @block.id is -1
+        @app.socket.send 'slot.claim',
+            block$id: -1
+
+    sendEdit: (value) ->
+        @app.socket.send 'slot.set',
+            block$id: @block.id
+            slot$index: @slotIndex
+            value: value
+
+    edited: =>
+        #@sendEdit @value
+
+    claimedBy: (user) ->
+        addClass @element, 'd-arg-claimed'
+        @claimEdits()
+        @claimedUser = user
+        @_isClaimed = true
+
+    unclaimed: ->
+        removeClass @element, 'd-arg-claimed'
+        @unclaimEdits()
+        @_isClaimed = false
+
+    @property 'isClaimed', -> @_isClaimed
+
+    getPosition: ->
+        e = @app.editor.element
+        bb = @element.getBoundingClientRect()
+        bbe = e.getBoundingClientRect()
+        return {
+            x: bb.left + e.scrollLeft - bbe.left,
+            y: bb.top + e.scrollTop - bbe.top
+        }
+
+    @property 'block', ->
+        if @parent.isArg then @parent.block else @parent
+
+    @property 'slotIndex', -> @parent.indexOfSlot @
+
+class EnumArg extends BlockArg
+    acceptsClick: true
+
+    acceptsReporter: -> true
+
+    constructor: ->
+        super()
+        @initElements 'd-block-arg d-block-enum'
+        @element.appendChild @label = @newElement '', 'span'
+        @element.appendChild @menuButton = @newElement 'd-block-enum-menu-button'
+        @onTouchStart @touchStart
+
+    copy: ->
+        copy = new @constructor().setMenu(@_menu).setValue(@value)
+        copy.inline = @_inline
+        copy
+
+    @property 'menu'
+
+    @property 'text',
+        set: (v) -> @label.textContent = v
+        get: -> @label.textContent
+
+    @property 'value',
+        value: '',
+        set: (v) ->
+            @_value = v
+            @setText (if v.$ then tr v.$ else v)
+            @parent?.varChanged?() if @menu is 'var' or @menu is 'wvar'
+
+        get: -> @_value
+
+    @property 'inline',
+        value: false
+        apply: (inline) ->
+            toggleClass @element, 'd-block-enum-inline', inline
+
+    touchStart: (e) ->
+        if @_inline and not bbTouch @menuButton, e
+            @hoistTouchStart e
+            return
+
+        new Menu()
+            .addClass('d-enum-menu')
+            .onExecute (e) =>
+                item = e.item
+                @value = if typeof item is 'string'
+                    item
+                else if Object::hasOwnProperty.call item, 'value'
+                    item.value
+                else
+                    item.action
+                @parent.changed()
+                @edited()
+            .setItems(@block.getMenuItems @menu)
+            .popUp(@, @label, @value)
+
+class TextArg extends BlockArg
 
     @measure = document.createElement 'div'
     @measure.className = 'd-block-field-measure'
@@ -1100,7 +1308,8 @@ class TextArg extends Control
         super()
         @initElements 'd-block-arg d-block-string'
         @element.appendChild @input = @newElement '', 'input'
-        @menuButton = @newElement 'd-block-field-menu'
+        @element.appendChild @menuButton = @newElement 'd-block-field-menu'
+        @menuButton.style.display = 'none'
         @onTouchStart @touchStart
         @input.addEventListener 'input', @autosize
         @input.addEventListener 'input', @edited
@@ -1110,16 +1319,13 @@ class TextArg extends Control
         @input.style.width = '1px'
 
     copy: ->
-        copy = new @constructor().setText(@text())
-        copy.setNumeric true if @_numeric
-        copy.setIntegral true if @_integral
-        copy.setInline true if @_inline
-        copy.setItems @_items if @_items
+        copy = new @constructor()
+        copy.text = @text
+        copy.numeric = @numeric
+        copy.integral = @integral
+        copy.inline = @inline
+        copy.menu = @menu
         copy
-
-    edited: =>
-        @parent.changed()
-        #@sendEdit @text()
 
     @property 'text',
         set: (v) ->
@@ -1129,62 +1335,63 @@ class TextArg extends Control
         get: -> @input.value
 
     @property 'value',
-        set: (v) -> @setText v
+        set: (v) -> @setText tr.maybe v
 
-        get: ->
-            value = @text()
+        get: -> @text
 
-            if @_numeric
-                value = +value
-                throw new TypeError "Not a number." if value isnt value
-
-            value
+    evaluate: ->
+        value = @value
+        if @numeric
+            if @integral
+                value = parseInt value
+            else
+                value = parseFloat value
+            return 0 if value isnt value
+        return value
 
     @property 'numeric', apply: (numeric) ->
-        @element.className = if numeric then 'd-block-number' else 'd-block-string'
+        @element.className = "d-block-arg #{if numeric then 'd-block-number' else 'd-block-string'}"
+
+    @property 'integral'
 
     @property 'inline', apply: (inline) ->
         toggleClass @element, 'd-block-field-inline', inline
 
-    @property 'items', apply: (items) ->
-        if items
-            @element.appendChild @menuButton
-        else if @menuButton.parentNode
-            @menuButton.parentNode.removeChild @menuButton
+    @property 'menu', apply: (menu) ->
+        @menuButton.style.display = if menu then '' else 'none'
 
     claimEdits: -> @input.disabled = true
 
     unclaimEdits: -> @input.disabled = false
 
     focus: =>
-        @setText '' if @_numeric and /[^0-9\.+-]/.test @input.value
-        #@claim()
+        @setText '' if @numeric and /[^0-9\.+-]/.test @input.value
+        @claim()
 
     blur: =>
-        #@unclaim()
+        v = +@text
+        @setText @value if @numeric and v isnt v
+        @unclaim()
 
     touchStart: (e) ->
-        if @menu and d.bbTouch @menuButton, e
-            new d.Menu()
+        if @menu and bbTouch @menuButton, e
+            new Menu()
+                .addClass('d-enum-menu')
                 .onExecute (e) =>
                     item = e.item
-                    @setText (if typeof e.item is 'string'
+                    @text = if typeof e.item is 'string'
                         e.item
                     else if Object::hasOwnProperty.call item, 'value'
                         item.value
                     else
-                        item.action)
-                .setItems(@getItems @menu)
-                .popDown(@, @menuButton, @text())
+                        item.action
+                .setItems(@block.getMenuItems @menu)
+                .popDown(@, @element, @text)
 
     autosize: (e) =>
         cache = TextArg.cache
         measure = TextArg.measure
         # (document.activeElement is @input ? /[^0-9\.+-]/.test(@input.value) :
-        if e and @_numeric and isNaN(@input.value) and (not @integral or +@input.value % 1)
-            @input.value = (if @_integral then parseInt else parseFloat)(@input.value) or 0
-            @input.focus()
-            @input.select()
 
         if not width = cache[@input.value]
             measure.style.display = 'inline-block'
@@ -1193,18 +1400,14 @@ class TextArg extends Control
             measure.style.display = 'none'
 
         @input.style.width = width + 'px'
+        @parent?.changed()
 
     key: (e) =>
-        if @_numeric
-            v = @input.value
+        if @numeric
             return if not e.charCode or e.metaKey or e.ctrlKey or
-                (@input.selectionStart isnt 0 or v[0] isnt '-' and v[0] isnt '+') and (
-                    e.charCode >= 0x30 and e.charCode <= 0x39 or
-                    !@_integral and e.charCode is 0x2e and v.indexOf('.') is -1) or
-                (e.charCode is 0x2d or
-                    e.charCode is 0x2b) and
-                    v[0] isnt '-' and v[0] isnt '+' and
-                    @input.selectionStart is 0
+                e.charCode >= 0x30 and e.charCode <= 0x39 or
+                e.charCode is 0x2d or e.charCode is 0x2b or
+                (not @integral and e.charCode is 0x2e)
             e.preventDefault()
 
 module 'amber.editor.ui', {

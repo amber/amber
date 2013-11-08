@@ -2,7 +2,7 @@
 
 unless Function.prototype.bind
     Function.prototype.bind = (context) ->
-        => this.apply context, arguments
+        => @apply context, arguments
 
 extend = (o, p) ->
     o[key] = value for key, value of p

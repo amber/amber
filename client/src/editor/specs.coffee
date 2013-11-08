@@ -346,38 +346,6 @@ categoryColors =
     sound: '#bb42c3'
     undefined: '#d42828'
 
-variableCategories =
-    'x position': 'motion'
-    'y position': 'motion'
-    'direction': 'motion'
-    'rotation style': 'motion'
-    'costume #': 'looks'
-    'color effect': 'looks'
-    'fisheye effect': 'looks'
-    'whirl effect': 'looks'
-    'pixelate effect': 'looks'
-    'mosaic effect': 'looks'
-    'brightness effect': 'looks'
-    'ghost effect': 'looks'
-    'size': 'looks'
-    'layer': 'looks'
-    'instrument': 'sound'
-    'volume': 'sound'
-    'tempo': 'sound'
-    'pen down?': 'pen'
-    'pen color': 'pen'
-    'pen hue': 'pen'
-    'pen lightness': 'pen'
-    'pen size': 'pen'
-    'answer': 'sensing'
-    'mouse x': 'sensing'
-    'mouse y': 'sensing'
-    'mouse down?': 'sensing'
-    'timer': 'sensing'
-    'loudness': 'sensing'
-    'loud?': 'sensing'
-    'backdrop name': 'looks'
-
 do ->
     map = (specs) ->
         for spec in specs when spec isnt '-'
@@ -401,5 +369,4 @@ module 'amber.editor', {
     specsBySelector
     checkScratchSpecs
     categoryColors
-    variableCategories
 }

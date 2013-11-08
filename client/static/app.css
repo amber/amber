@@ -257,11 +257,11 @@
     left: 0;
     padding: 6px 0;
     font: inherit;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 20px;
-    border-radius: 6px;
-    background: #666;
-    color: #fff;
+    background: #fff;
+    color: #000;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .4);
     outline: 0;
 }
 .d-menu-search {
@@ -282,7 +282,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    background: #666;
+    background: #fff;
     z-index: 1;
     display: none;
     text-align: center;
@@ -312,15 +312,16 @@
 .d-menu-separator {
     margin: 6px 0;
     height: 1px;
-    background: #888;
+    background: #ddd;
 }
 .d-menu-item {
-    padding: 3px 12px;
+    padding: 2px 6px;
     min-height: 20px;
     cursor: pointer;
 }
 .d-menu-item-active {
-    background: #888;
+    background: #555;
+    color: #fff;
 }
 .d-menu-item-title,
 .d-menu-item-state {
@@ -1026,7 +1027,7 @@
 .d-block {
     position: relative;
     white-space: nowrap;
-    font: 400 14px Helvetica Neue, Helvetica, Arial, sans-serif;
+    font: 12px Helvetica, Arial, sans-serif;
     line-height: 14px;
     color: #fff;
 }
@@ -1042,7 +1043,8 @@
 
 .d-block-string,
 .d-block-number {
-    font: inherit;
+    font: 12px Helvetica, Arial, sans-serif;
+    line-height: 12px;
     background: #fff;
     min-width: 5px;
     box-shadow: 0 -1px rgba(0, 0, 0, .3);
@@ -1069,8 +1071,7 @@
 }
 .d-block-string > input,
 .d-block-number > input {
-    font: 12px Helvetica Neue, Helvetica, Arial, sans-serif;
-    line-height: 14px;
+    font: inherit;
     background: transparent;
     outline: 0;
     border: 0;
@@ -1086,14 +1087,14 @@
     border-radius: 3px / 5px;
 }
 .d-block-field-measure {
-    font: 12px Helvetica Neue, Helvetica, Arial, sans-serif;
+    font: 12px Helvetica, Arial, sans-serif;
     position: fixed;
     display: none;
     white-space: pre;
 }
 .d-block-field-menu {
     font: 12px monospace;
-    line-height: 15px;
+    line-height: 13px;
     width: 7px;
     color: #333;
     display: inline-block;
@@ -1138,6 +1139,15 @@
 }
 .d-block-enum-menu-button::after {
     content: '\25be';
+}
+
+.d-enum-menu {
+    font: 10px sans-serif;
+    min-width: 100px;
+}
+.d-enum-menu .d-menu-item {
+    padding: 3px 4px;
+    min-height: 10px;
 }
 
 .d-block-text,
@@ -1344,10 +1354,10 @@
 .d-block .d-block {
     margin: 0 2px;
 }
-.d-block-text {
+/*.d-block-text {
     margin-top: -1px;
     color: #fff;
-}
+}*/
 /*.d-block-string,
 .d-block-number {
     font: 10px sans-serif;
