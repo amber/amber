@@ -1113,7 +1113,7 @@
     line-height: 7px;
     background: rgba(0, 0, 0, .1);
     color: #fff;
-    font: 10px sans-serif;
+    font-size: 12px;
     white-space: pre;
     box-shadow:
         0 -1px rgba(0, 0, 0, .4),
@@ -1130,9 +1130,10 @@
     font: 12px monospace;
     line-height: 15px;
     width: 7px;
-    color: #333;
+    color: rgba(0, 0, 0, .7);
     display: inline-block;
-    margin-left: 3px;
+    padding: 0 3px;
+    margin-right: -3px;
     position: relative;
     top: -1px;
     vertical-align: middle;
@@ -1142,11 +1143,11 @@
 }
 
 .d-enum-menu {
-    font: 10px sans-serif;
-    min-width: 100px;
+    font: 12px Helvetica, Arial, sans-serif;
+    min-width: 0;
 }
 .d-enum-menu .d-menu-item {
-    padding: 3px 4px;
+    padding: 2px 20px 2px 4px;
     min-height: 10px;
 }
 
