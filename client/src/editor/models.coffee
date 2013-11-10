@@ -8,7 +8,7 @@ transUnion = (arrays...) ->
         for x in arrays[0]
             found = false
             for y in result
-                if y is x or y.$ is x.$
+                if y is x or y.$ and y.$ is x.$
                     found = true
                     break
             continue if found
@@ -79,7 +79,7 @@ class Scriptable extends Base
 
     removeVariable: (name) ->
         for x, i in @variables
-            if x.name is name or x.name.$ is name.$
+            if x.name is name or name.$ and x.name.$ is name.$
                 @variables.splice i, 1
                 @rebuildVariables()
                 break
