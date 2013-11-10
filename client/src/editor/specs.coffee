@@ -5,7 +5,7 @@ specs =
             ['c', 'motion', 'turnRight:', 'turn @turnRight %f degrees', 15]
             ['c', 'motion', 'turnLeft:', 'turn @turnLeft %f degrees', 15]
             '-'
-            ['vs', $:'direction', 90]
+            ['vs', $:'direction']
             ['c', 'motion', 'pointTowards:', 'point towards %m.spriteOrMouse']
             '-'
             ['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0]
@@ -50,7 +50,7 @@ specs =
             ['c', 'looks', 'filterReset', 'clear graphic effects']
             '-'
             ['vc', $:'size']
-            ['vs', $:'size', 100]
+            ['vs', $:'size']
             '-'
             ['c', 'looks', 'comeToFront', 'go to front']
             ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
@@ -71,7 +71,7 @@ specs =
             ['c', 'looks', 'filterReset', 'clear graphic effects']
             '-'
             ['vc', $:'size']
-            ['vs', $:'size', 100]
+            ['vs', $:'size']
             '-'
             ['c', 'looks', 'comeToFront', 'go to front']
             ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
@@ -91,12 +91,12 @@ specs =
         ['c', 'sound', 'noteOn:duration:elapsed:from:', 'play note %i.note for %f beats', 60, .5]
         ['vs', $:'instrument']
         '-'
-        ['vc', $:'volume', -10]
-        ['vs', $:'volume', 100]
+        ['vc', $:'volume']
+        ['vs', $:'volume']
         ['v', $:'volume']
         '-'
-        ['vc', $:'tempo', 20]
-        ['vs', $:'tempo', 60]
+        ['vc', $:'tempo']
+        ['vs', $:'tempo']
         ['v', $:'tempo']
     ]
     pen: [
@@ -303,7 +303,7 @@ specs =
 
 specsBySelector =
     'setVar:to:': ['vs', 'var']
-    'changeVar:by:': ['vc', 'var', 1]
+    'changeVar:by:': ['vc', 'var']
     'readVariable': ['v', 'var']
 
 categoryColors =

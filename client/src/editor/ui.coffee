@@ -1022,9 +1022,6 @@ class Block extends Control
                     .setIsChange(spec[0] is 'vc')
                     .setVar(spec[1])
 
-                if spec.length > 2
-                    block.setValue(spec[2])
-
                 block
             else
                 console.warn "Invalid block type #{spec[0]}"
@@ -1116,7 +1113,7 @@ class SetterBlock extends CommandBlock
                 when 'x position', 'y position', 'pen hue', 'timer'
                     @argFromSpec('f').setValue(0)
                 when 'direction'
-                    @argFromSpec('f', 'direction')
+                    @argFromSpec('f', 'direction').setValue(90)
                 when 'costume #'
                     @argFromSpec('i').setValue(1)
                 when 'layer'
