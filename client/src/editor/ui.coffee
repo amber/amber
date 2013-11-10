@@ -931,10 +931,11 @@ class Block extends Control
                     @arc w - r, r, r, Math.PI * 3 / 2, 0, false
                     @arc w - r, h - r, r, 0, Math.PI / 2, false
 
-                    @lineTo puzzleInset + puzzleWidth, h
-                    @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
-                    @arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
-                    @lineTo puzzleInset, h
+                    if shape is 'puzzle'
+                        @lineTo puzzleInset + puzzleWidth, h
+                        @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
+                        @arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
+                        @lineTo puzzleInset, h
 
                     @arc r, h - r, r, Math.PI / 2, Math.PI, false
                     @fill()
@@ -946,12 +947,16 @@ class Block extends Control
                     @arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
                     @lineTo puzzleInset, h - .5
 
-                    @moveTo puzzleInset, h + puzzleHeight - .5
-                    @arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
-                    @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
-                    @lineTo puzzleInset + puzzleWidth, h + puzzleHeight - .5
+                    if shape is 'puzzle'
+                        @moveTo puzzleInset, h + puzzleHeight - .5
+                        @arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
+                        @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
+                        @lineTo puzzleInset + puzzleWidth, h + puzzleHeight - .5
 
-                    @moveTo puzzleInset + puzzleWidth, h - .5
+                        @moveTo puzzleInset + puzzleWidth, h - .5
+                    else
+                        @lineTo puzzleInset + puzzleWidth, h - .5
+
                     @arc w - r, h - r, r - .5, Math.PI / 2, 0, true
 
                     @stroke()
@@ -1097,7 +1102,9 @@ class HatBlock extends Block
 
 class CommandBlock extends Block
 
-    @property 'isTerminal', -> @changed()
+    @property 'isTerminal', apply: (terminal) ->
+        @shape = if terminal then 'puzzle-terminal' else 'puzzle'
+        @shapeChanged()
 
 class SetterBlock extends CommandBlock
     category: 'data'
