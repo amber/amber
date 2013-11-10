@@ -666,7 +666,7 @@ class MenuItem extends Control
     constructor: ->
         super()
         @initElements 'd-menu-item'
-        @element.appendChild @state = @newElement 'd-menu-item-state'
+        @element.appendChild @stateEl = @newElement 'd-menu-item-state'
         @element.appendChild @targetElement = @label = @newElement 'd-menu-item-title'
         @onTouchEnd @touchEnd
         @element.addEventListener 'mouseover', @activate
@@ -679,9 +679,9 @@ class MenuItem extends Control
     @property 'action'
 
     @property 'state', apply: (state) ->
-        addClass @state, 'd-menu-item-checked' if state is 'checked'
-        addClass @state, 'd-menu-item-radio' if state is 'radio'
-        addClass @state, 'd-menu-item-minimized' if state is 'minimized'
+        addClass @stateEl, 'd-menu-item-checked' if state is 'checked'
+        addClass @stateEl, 'd-menu-item-radio' if state is 'radio'
+        addClass @stateEl, 'd-menu-item-minimized' if state is 'minimized'
 
     load: (menu, item) ->
         @menu = menu
