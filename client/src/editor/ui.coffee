@@ -1192,6 +1192,18 @@ class Block extends Control
                     @arc r, h - r, r, Math.PI / 2, Math.PI, false
                     @fill()
 
+                    @strokeStyle = highlight
+                    @beginPath()
+                    @arc r, r, r - .5, Math.PI, Math.PI * 3 / 2, false
+
+                    @lineTo puzzleInset, .5
+                    @arc puzzleInset + r, puzzleHeight - r, r + .5, Math.PI, Math.PI / 2, true
+                    @arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r + .5, Math.PI / 2, 0, true
+                    @lineTo puzzleInset + puzzleWidth, .5
+
+                    @arc w - r, r, r - .5, Math.PI * 3 / 2, 0, false
+                    @stroke()
+
                     @strokeStyle = shadow
                     @beginPath()
 
