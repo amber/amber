@@ -474,6 +474,7 @@
     right: 0;
     bottom: 38px;
     background: #fff;
+    overflow: auto;
 }
 .d-script-editor-fill {
     position: absolute;
@@ -1010,11 +1011,10 @@
 }*/
 
 .d-block-feedback {
-    position: fixed;
+    position: absolute;
     z-index: 2;
-    display: none;
-    background: rgba(255, 255, 255, .3);
-    border: 2px solid #fff;
+    background: rgba(220, 220, 220, .8);
+    border: 2px solid #eee;
     border-radius: 3px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -1026,6 +1026,12 @@
     font: 12px Helvetica, Arial, sans-serif;
     line-height: 14px;
     color: #fff;
+}
+.d-block-stack {
+    position: absolute;
+}
+.d-block-stack.dragging {
+    z-index: 1000;
 }
 .d-block-label {
     position: absolute;

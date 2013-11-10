@@ -122,7 +122,7 @@ class Editor extends Control
 
     selectSprite: (object) ->
         @selectedSprite = object
-        @editor = object.scripts
+        @scripts = object.scripts
         @tabBar.children[1].text = if object.isStage then tr 'Backdrops' else tr 'Costumes'
         @tabBar.select @tabBar.selectedIndex ? 0
         @spriteList.select object
@@ -647,8 +647,8 @@ class BlockEditor extends Control
     constructor: (sprite, amber) ->
         super()
         @initElements 'd-block-editor d-editor'
-        @add new BlockPalette(sprite, amber)
-        @add new ScriptEditor(sprite, amber)
+        @add @palette = new BlockPalette(sprite, amber)
+        @add @scripts = new ScriptEditor(sprite, amber)
 
 class ScriptEditor extends Control
     padding: 10
@@ -656,10 +656,11 @@ class ScriptEditor extends Control
 
     constructor: (sprite, amber) ->
         super()
-        @initElements 'd-script-editor'
+        @initElements 'd-script-editor d-scrollable'
 
         @element.appendChild @fill = @newElement 'd-block-editor-fill'
         @element.addEventListener 'scroll', @fit
+        @onLive @fit
         @onScrollWheel @scrollWheel
 
     scrollWheel: (e) =>
@@ -715,16 +716,16 @@ class ScriptEditor extends Control
         @fill.style.left = x + 'px'
         @fill.style.top = y + 'px'
 
-class BlockPalette extends Control
-    @palettes: []
+        @element.style.overflowX = if x + @fillWidth <= @element.offsetWidth then 'hidden' else 'auto'
+        @element.style.overflowY = if y + @fillHeight <= @element.offsetHeight then 'hidden' else 'auto'
 
+class BlockPalette extends Control
     isPalette: true
 
     constructor: (@sprite, @amber) ->
         super()
         @initElements 'd-block-palette'
         @add @categorySelector = new CategorySelector().onCategorySelect @selectCategory, @
-        BlockPalette.palettes.push @
 
         for name of specs when name isnt 'obsolete'
             @categorySelector.addCategory name
@@ -825,7 +826,175 @@ class BlockList extends Control
         @list.appendChild @newElement 'd-block-list-space'
         @
 
+HTOLERANCE = 15
+VTOLERANCE = 8
+
+class BlockStack extends Control
+    isStack: true
+
+    constructor: ->
+        super()
+        @initElements 'd-block-stack'
+        @onTouchMove @drag
+        @onTouchEnd @stopDrag
+
+    @property 'top', -> @children[0]
+
+    splitAt: (top) ->
+        if top is @top
+            return @
+
+        stack = new BlockStack
+
+        i = @children.indexOf top
+        if -1 isnt i
+            for c in @children[i..@children.length - 1]
+                stack.add c
+
+        stack
+
+    startDrag: (e, editor, tbb) ->
+        return if @dragging
+
+        editor ?= @editor
+        ebb = editor.element.getBoundingClientRect()
+        tbb ?= @element.getBoundingClientRect()
+
+        @dragging = true
+        @dragOffsetX = tbb.left - ebb.left - e.x
+        @dragOffsetY = tbb.top - ebb.top - e.y
+
+        if @parent?.isBlock
+            @parent.revertArg @
+
+        if not (editor.tab instanceof BlockEditor)
+            editor.tabBar.select 0
+        editor.add @
+
+        app = @app
+        app.mouseDown = true
+        app.mouseDownControl = @
+
+        @feedback = new Container('d-block-feedback')
+        @feedback.hide()
+        editor.add @feedback
+
+        @addClass 'dragging'
+        @drag e
+
+    drag: (e) ->
+        @element.style.left = (@dragOffsetX + e.x) + 'px'
+        @element.style.top = (@dragOffsetY + e.y) + 'px'
+
+        @showFeedback e
+
+    showFeedback: (e) ->
+        targets = []
+
+        tbb = @element.getBoundingClientRect()
+        tp = x: tbb.left, y: tbb.top
+
+        add = (pt, target, bb) ->
+            pt.radiusX ?= 0
+            pt.radiusY ?= 0
+            if inBB pt, bb
+                targets.push target
+
+        showStackFeedback = (stack) ->
+            for c in stack.children
+                showBlockFeedback c
+
+        showBlockFeedback = (block) ->
+            bb = block.element.getBoundingClientRect()
+
+            add tp, {
+                block
+                type: 'insertAfter'
+            }, {
+                left: bb.left - HTOLERANCE
+                right: bb.left + HTOLERANCE
+                top: bb.bottom - VTOLERANCE
+                bottom: bb.bottom + VTOLERANCE
+            }
+
+            if block.parent.isStack and block.parent.top is block
+                add tp, {
+                    block, type: 'insertBefore'
+                }, {
+                    left: bb.left - HTOLERANCE
+                    right: bb.right + HTOLERANCE
+                    top: bb.top - VTOLERANCE
+                    bottom: bb.top + VTOLERANCE
+                }
+
+        for c in @editor.tab?.scripts.children
+            showStackFeedback c
+
+        if @dropTarget = targets.pop()
+            @resizeFeedback @dropTarget
+            @feedback.show()
+        else
+            @feedback.hide()
+
+    resizeFeedback: (target) ->
+        bb = target.block.element.getBoundingClientRect()
+        ebb = @feedback.parent.element.getBoundingClientRect()
+        switch target.type
+            when 'insertAfter'
+                @feedback.element.style.left = bb.left - 10 - ebb.left + 'px'
+                @feedback.element.style.top = bb.bottom - 2 - ebb.top + 'px'
+                @feedback.element.style.width = bb.width + 20 + 'px'
+                @feedback.element.style.height = '4px'
+            when 'insertBefore'
+                @feedback.element.style.left = bb.left - 10 - ebb.left + 'px'
+                @feedback.element.style.top = bb.top - 2 - ebb.top + 'px'
+                @feedback.element.style.width = bb.width + 20 + 'px'
+                @feedback.element.style.height = '4px'
+
+    stopDrag: (e) ->
+        @dragging = false
+        @removeClass 'dragging'
+
+        @feedback?.parent?.remove @feedback
+        @feedback = null
+
+        editor = @editor
+        if editor.tab.scripts
+            if bbTouch editor.tab.palette.element, e
+                @delete()
+            else if t = @dropTarget
+                switch t.type
+                    when 'insertBefore'
+                        i = t.block.parent.children.indexOf t.block
+                        t.block.parent.insertStack @, i
+                    when 'insertAfter'
+                        i = t.block.parent.children.indexOf t.block
+                        t.block.parent.insertStack @, i + 1
+            else if bbTouch editor.tab.scripts.element, e
+                editor.tab.scripts.add @
+                @moveInParent @dragOffsetX + e.x, @dragOffsetY + e.y
+
+    delete: (e) ->
+        editor = @editor
+        @parent.remove @
+        editor.tab.scripts.fit()
+
+    insertStack: (s, i) ->
+        j = s.children.length
+        while j--
+            @insert s.children[j], @children[i]
+        s.parent?.remove s
+
+    moveInParent: (x, y) ->
+        bb = @parent.container.getBoundingClientRect()
+        ebb = @editor.container.getBoundingClientRect()
+        @element.style.left = x - bb.left + ebb.left + @parent.container.scrollLeft + 'px'
+        @element.style.top = y - bb.top + ebb.top + @parent.container.scrollTop + 'px'
+        @editor.tab.scripts.fit()
+
 class Block extends Control
+
+    acceptsClick: true
 
     shape: 'puzzle'
 
@@ -846,6 +1015,37 @@ class Block extends Control
         @context = @canvas.getContext '2d'
         @shapeChanged()
         @onLive -> @changed()
+
+        @onTouchStart @pickUp
+
+    pickUp: (e) ->
+        editor = @editor
+        bb = @element.getBoundingClientRect()
+        if @parent?.parent?.isPalette
+            stack = new BlockStack
+            stack.add @copy()
+        else if @parent.isStack
+            stack = @split()
+        else
+            stack = new BlockStack
+            @parent.revertArg @
+            stack.add @
+        stack.startDrag e, editor, bb
+
+    split: -> @parent.splitAt @
+
+    revertArg: (a) ->
+        if -1 isnt i = @arguments.indexOf a
+            @replace a, @defaultArguments[i]
+            @arguments[i] = @defaultArguments[i]
+
+    copy: ->
+        copy = new @constructor()
+        copy.spec = @spec
+        copy.selector = @selector
+        copy.category = @category
+        copy.setArgs (a.value for a in @arguments)...
+        copy
 
     @property 'category', value: 'undefined', apply: -> @changed()
 
