@@ -658,7 +658,7 @@ class Menu extends Control
     refocus: =>
         @search.focus()
 
-    separator: {}
+    @separator: {}
 
 class MenuItem extends Control
     acceptsClick: true
