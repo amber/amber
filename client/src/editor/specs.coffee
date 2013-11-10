@@ -6,7 +6,7 @@ specs =
             ['c', 'motion', 'turnLeft:', 'turn @turnLeft %f degrees', 15]
             '-'
             ['vs', $:'direction', 90]
-            ['c', 'motion', 'pointTowards:', 'point towards %m.sprite']
+            ['c', 'motion', 'pointTowards:', 'point towards %m.spriteOrMouse']
             '-'
             ['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0]
             ['c', 'motion', 'gotoSpriteOrMouse:', 'go to %m.spriteOrMouse']
@@ -41,7 +41,9 @@ specs =
             '-'
             ['c', 'looks', 'lookLike:', 'switch costume to %m.costume']
             ['c', 'looks', 'nextCostume', 'next costume']
+            '-'
             ['c', 'looks', 'startScene', 'switch backdrop to %m.backdrop']
+            ['c', 'looks', 'startNextScene', 'next backdrop']
             '-'
             ['vc', $:'color effect']
             ['vs', $:'color effect']
@@ -54,6 +56,8 @@ specs =
             ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
             '-'
             ['v', $:'costume #']
+            ['v', $:'costume name']
+            ['v', $:'backdrop #']
             ['v', $:'backdrop name']
             ['v', $:'size']
         ]

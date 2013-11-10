@@ -25,6 +25,9 @@ class Project extends Base
 class Scriptable extends Base
     @id: 0
 
+    isStage: false
+    isSprite: false
+
     constructor: (@name) ->
         @id = ++Scriptable.id
 
@@ -42,6 +45,17 @@ class Scriptable extends Base
     @property 'costumeIndex',
         get: -> @costumes.indexOf @costume
         set: (i) -> @costume = @costumes[i]
+
+    @property 'stage', -> @parent?.stage
+
+    @property 'allObjects', ->
+        if @children
+            [].concat.apply [@], (x.allObjects for x in @children)
+        else
+            [@]
+
+    @property 'allSprites', ->
+        x for x in @allObjects when x.isSprite
 
     addCostume: (info) ->
         image = new Image
@@ -124,6 +138,8 @@ class Scriptable extends Base
 class Stage extends Scriptable
     isStage: true
 
+    @property 'stage', -> @
+
     properties: extend Object.create(Scriptable::properties),
         'backdrop #': category: 'looks', isWritable: false
         'backdrop name': category: 'looks', isWritable: false
@@ -147,7 +163,7 @@ class Stage extends Scriptable
         super $:'Stage'
 
 class Sprite extends Scriptable
-    isStage: false
+    isSprite: true
 
     properties: extend Object.create(Scriptable::properties),
         'x position': 'motion'

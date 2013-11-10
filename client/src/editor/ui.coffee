@@ -1040,12 +1040,16 @@ class Block extends Control
 
     getMenuItems: (menu) ->
         items = switch menu
+            when 'backdrop'
+                c.name for c in @editor.selectedSprite.stage.costumes
+            when 'costume'
+                c.name for c in @editor.selectedSprite.costumes
             when 'direction'
                 [(action: 90, title: tr '(90) right'), (action: -90, title: tr '(-90) left'), (action: 0, title: tr '(0) up'), (action: 180, title: tr '(180) down')]
             when 'math'
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
             when 'spriteOrMouse'
-                @editor.selectedSprite.stage.allSprites
+                [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'rotationStyle'
                 [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'var'
