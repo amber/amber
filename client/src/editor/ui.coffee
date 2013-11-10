@@ -1074,6 +1074,8 @@ class Block extends Control
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
             when 'spriteOrMouse'
                 [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+            when 'spriteOrSelf'
+                [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'rotationStyle'
                 [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'var'

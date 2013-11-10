@@ -170,7 +170,7 @@ specs =
             ['t', 'control', 'stopScripts', 'stop %m.stop']
             '-'
             ['h', 'control', 'whenCloned', 'clone startup']
-            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf']
+            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
             ['t', 'control', 'deleteClone', 'delete this clone']
         ]
         sprite: [
@@ -189,7 +189,7 @@ specs =
             '-'
             ['t', 'control', 'stopScripts', 'stop %m.stop']
             '-'
-            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf']
+            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
         ]
     sensing:
         sprite: [
