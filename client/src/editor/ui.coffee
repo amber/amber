@@ -1402,7 +1402,7 @@ class SetterBlock extends CommandBlock
                 when 'costume #'
                     @argFromSpec('i').setValue(1)
                 when 'layer'
-                    @argFromSpec('i', 'index').setValue('top')
+                    @argFromSpec('i', 'index').setValue(1)
                 when 'instrument'
                     @argFromSpec('i', 'instrument').setValue(1)
                 when 'size', 'volume'
