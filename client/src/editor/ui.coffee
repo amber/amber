@@ -724,48 +724,41 @@ class BlockPalette extends Control
         super()
         @initElements 'd-block-palette'
         @add @categorySelector = new CategorySelector().onCategorySelect @selectCategory, @
-        @blockLists = {}
         BlockPalette.palettes.push @
-        @reload()
+
+        for name of specs when name isnt 'obsolete'
+            @categorySelector.addCategory name
+
+        @selectedCategory = 'motion'
+
+    @property 'selectedCategory', apply: -> @reload()
 
     reload: ->
-        @categorySelector.clear()
-        if @selectedBlockList
-            @remove @selectedBlockList
-            @selectedBlockList = null
-        @blockLists = {}
+        @remove @list if @list
 
-        isStage = @sprite is @amber.project.stage
-        for name, specs of amber.editor.specs when name isnt 'obsolete'
-            list = new BlockList
-            if specs.stage
-                specs = specs[if isStage then 'stage' else 'sprite']
+        @list = new BlockList
+        blocks = specs[@selectedCategory]
 
-            for spec in specs
-                do (spec) =>
-                    if spec is '-'
-                        list.addSpace()
-                    else if spec[0] is '&'
-                        list.add new Button().setText(tr.maybe spec[2]).onExecute =>
-                            @amber[spec[1]]()
-                    else if spec[0] is '!'
-                        list.add new Label().setText(tr.maybe spec[1])
-                    else
-                        block = Block.fromSpec spec
-                        list.add block if block
+        if blocks.stage
+            blocks = blocks[if @sprite.isStage then 'stage' else 'sprite']
 
-            @addCategory name, list
+        for spec in blocks
+            do (spec) =>
+                if spec is '-'
+                    @list.addSpace()
+                else if spec[0] is '&'
+                    @list.add new Button().setText(tr.maybe spec[2]).onExecute =>
+                        @amber[spec[1]]()
+                else if spec[0] is '!'
+                    @list.add new Label().setText(tr.maybe spec[1])
+                else
+                    block = Block.fromSpec spec
+                    @list.add block if block
 
-    addCategory: (category, blockList) ->
-        @blockLists[category] = blockList
-        @categorySelector.addCategory category
-        return @
+        @add @list
 
     selectCategory: (e) ->
-        if @selectedBlockList
-            @remove @selectedBlockList
-
-        @insert @selectedBlockList = @blockLists[e.category], @categorySelector
+        @selectedCategory = e.category
 
 class CategorySelector extends Control
     acceptsClick: true
