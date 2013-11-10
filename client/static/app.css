@@ -1028,6 +1028,11 @@
     line-height: 14px;
     color: #fff;
 }
+.d-block-label > .d-block {
+    margin: 0 2px;
+    display: inline-block;
+    vertical-align: middle;
+}
 .d-block-stack {
     position: absolute;
 }
@@ -1357,9 +1362,6 @@
     vertical-align: middle;
     margin: -1px 3px 0;
 }*/
-.d-block .d-block {
-    margin: 0 2px;
-}
 /*.d-block-text {
     margin-top: -1px;
     color: #fff;

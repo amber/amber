@@ -840,6 +840,9 @@ class BlockStack extends Control
 
     @property 'top', -> @children[0]
 
+    changed: ->
+        @parent?.changed?()
+
     splitAt: (top) ->
         if top is @top
             return @
@@ -863,9 +866,6 @@ class BlockStack extends Control
         @dragging = true
         @dragOffsetX = tbb.left - ebb.left - e.x
         @dragOffsetY = tbb.top - ebb.top - e.y
-
-        if @parent?.isBlock
-            @parent.revertArg @
 
         if not (editor.tab instanceof BlockEditor)
             editor.tabBar.select 0
@@ -900,11 +900,11 @@ class BlockStack extends Control
             if inBB pt, bb
                 targets.push target
 
-        showStackFeedback = (stack) ->
+        showStackFeedback = (stack, each) ->
             for c in stack.children
-                showBlockFeedback c
+                each c
 
-        showBlockFeedback = (block) ->
+        showCommandFeedback = (block) ->
             bb = block.element.getBoundingClientRect()
 
             add tp, {
@@ -927,8 +927,27 @@ class BlockStack extends Control
                     bottom: bb.top + VTOLERANCE
                 }
 
-        for c in @editor.tab?.scripts.children
-            showStackFeedback c
+        showSlotFeedback = (block) ->
+            for a in block.arguments
+                bb = a.element.getBoundingClientRect()
+                add tp, {
+                    block: a
+                    type: 'replace'
+                }, {
+                    left: bb.left - HTOLERANCE
+                    right: bb.right + HTOLERANCE
+                    top: bb.top - VTOLERANCE
+                    bottom: bb.bottom + VTOLERANCE
+                }
+                if a.isBlock
+                    showSlotFeedback a
+
+        if @top.isReporter
+            for c in @editor.tab?.scripts.children
+                showStackFeedback c, showSlotFeedback
+        else
+            for c in @editor.tab?.scripts.children
+                showStackFeedback c, showCommandFeedback
 
         if @dropTarget = targets.pop()
             @resizeFeedback @dropTarget
@@ -950,6 +969,11 @@ class BlockStack extends Control
                 @feedback.element.style.top = bb.top - 2 - ebb.top + 'px'
                 @feedback.element.style.width = bb.width + 20 + 'px'
                 @feedback.element.style.height = '4px'
+            when 'replace'
+                @feedback.element.style.left = bb.left - 4 - ebb.left + 'px'
+                @feedback.element.style.top = bb.top - 4 - ebb.top + 'px'
+                @feedback.element.style.width = bb.width + 8 + 'px'
+                @feedback.element.style.height = bb.height + 8 + 'px'
 
     stopDrag: (e) ->
         @dragging = false
@@ -970,6 +994,9 @@ class BlockStack extends Control
                     when 'insertAfter'
                         i = t.block.parent.children.indexOf t.block
                         t.block.parent.insertStack @, i + 1
+                    when 'replace'
+                        t.block.parent.replaceArg t.block, @top
+                        @parent?.remove @
             else if bbTouch editor.tab.scripts.element, e
                 editor.tab.scripts.add @
                 @moveInParent @dragOffsetX + e.x, @dragOffsetY + e.y
@@ -993,6 +1020,8 @@ class BlockStack extends Control
         @editor.tab.scripts.fit()
 
 class Block extends Control
+
+    isBlock: true
 
     acceptsClick: true
 
@@ -1038,6 +1067,20 @@ class Block extends Control
         if -1 isnt i = @arguments.indexOf a
             @replace a, @defaultArguments[i]
             @arguments[i] = @defaultArguments[i]
+            @changed()
+
+    replaceArg: (a, b) ->
+        if -1 isnt i = @arguments.indexOf a
+            if a.isBlock
+                bb = a.element.getBoundingClientRect()
+            @replace a, b
+            @arguments[i] = b
+            @changed()
+            if a.isBlock
+                stack = new BlockStack
+                @editor.tab.scripts.add stack
+                stack.add a
+                stack.moveInParent bb.left + 20, bb.top + 20
 
     copy: ->
         copy = new @constructor()
@@ -1083,7 +1126,7 @@ class Block extends Control
         if start < spec.length
             @add(new Label('d-block-text').setText(spec.substr(start)))
 
-        @defaultArguments = args
+        @defaultArguments = args.slice 0
 
     changed: ->
         zoom = 1 # TODO: for debugging, remove
@@ -1103,6 +1146,8 @@ class Block extends Control
             @draw width, height
 
             @context.restore()
+
+        @parent?.changed?()
 
     draw: (w, h) ->
 
@@ -1393,6 +1438,8 @@ class SetterBlock extends CommandBlock
 
 class ReporterBlock extends Block
 
+    isReporter: true
+
     shape: 'rounded'
 
     paddingTop: 3
@@ -1406,6 +1453,8 @@ class ReporterBlock extends Block
     outsetLeft: 0
 
 class BooleanReporterBlock extends ReporterBlock
+
+    isBoolean: true
 
     shape: 'hexagon'
 
