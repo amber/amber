@@ -1099,13 +1099,14 @@
     font: 12px monospace;
     line-height: 13px;
     width: 7px;
-    color: #333;
+    color: rgba(0, 0, 0, .7);
     display: inline-block;
     margin-right: 3px;
     margin-left: -2px;
     position: relative;
     top: -1px;
     vertical-align: middle;
+    cursor: pointer;
 }
 .d-block-field-menu::after {
     content: '\25be';
@@ -1132,7 +1133,7 @@
 }
 .d-block-enum-menu-button {
     font: 12px monospace;
-    line-height: 15px;
+    line-height: 13px;
     width: 7px;
     color: rgba(0, 0, 0, .7);
     display: inline-block;
