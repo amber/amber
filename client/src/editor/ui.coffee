@@ -1072,6 +1072,8 @@ class Block extends Control
                 ['1', ($:'last'), ($:'random')]
             when 'math'
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
+            when 'stop'
+                [($:'all'), ($:'this script'), ($:'other scripts in sprite')]
             when 'spriteOrMouse'
                 [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'spriteOrSelf'

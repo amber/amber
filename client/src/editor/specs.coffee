@@ -167,7 +167,7 @@ specs =
             ['c', 'control', 'doWaitUntil', 'wait until %b']
             ['c', 'control', 'doUntil', 'repeat until %b %c']
             '-'
-            ['t', 'control', 'stopScripts', 'stop %m.stop']
+            ['t', 'control', 'stopScripts', 'stop %m.stop', $:'all']
             '-'
             ['h', 'control', 'whenCloned', 'clone startup']
             ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
@@ -187,7 +187,7 @@ specs =
             ['c', 'control', 'doWaitUntil', 'wait until %b']
             ['c', 'control', 'doUntil', 'repeat until %b %c']
             '-'
-            ['t', 'control', 'stopScripts', 'stop %m.stop']
+            ['t', 'control', 'stopScripts', 'stop %m.stop', $:'all']
             '-'
             ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
         ]
