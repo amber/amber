@@ -1119,11 +1119,12 @@
         -1px 0 rgba(0, 0, 0, .4),
         0 1px rgba(255, 255, 255, .3),
         1px 0 rgba(255, 255, 255, .3);
+    cursor: pointer;
 }
 .d-block-enum-inline {
     box-shadow: none;
     background: transparent;
-    /*font: bold 10px Verdana, sans-serif;*/
+    cursor: default;
 }
 .d-block-enum-menu-button {
     font: 12px monospace;
@@ -1136,6 +1137,7 @@
     position: relative;
     top: -1px;
     vertical-align: middle;
+    cursor: pointer;
 }
 .d-block-enum-menu-button::after {
     content: '\25be';
