@@ -1051,6 +1051,28 @@ class Block extends Control
         @onLive -> @changed()
 
         @onTouchStart @pickUp
+        @onContextMenu @contextMenu
+
+    contextMenu: (e) ->
+        new Menu()
+            .onExecute (s) =>
+                switch s.item?.action
+                    when 'duplicate'
+                        editor = @editor
+                        bb = @element.getBoundingClientRect()
+
+                        stack = new BlockStack
+                        if @parent.isStack
+                            for c in @parent.children[(@parent.children.indexOf @)..@parent.children.length - 1]
+                                stack.add c.copy()
+                        else
+                            stack.add @copy()
+                        editor.add stack
+                        stack.startDrag(e, editor, bb)
+            .setItems([
+                (action: 'duplicate', title: tr 'Duplicate')
+            ])
+            .show(@, e)
 
     pickUp: (e) ->
         editor = @editor
