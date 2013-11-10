@@ -320,8 +320,7 @@
     cursor: pointer;
 }
 .d-menu-item-active {
-    background: #555;
-    color: #fff;
+    background: #eee;
 }
 .d-menu-item-title,
 .d-menu-item-state {
