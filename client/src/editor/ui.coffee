@@ -1079,6 +1079,7 @@ class Block extends Control
             when 'wvar'
                 @editor.selectedSprite?.allWritableVariableNames
             else
+                console.warn "Missing menu #{menu}"
                 [menu]
         (if x.$ then title: tr(x.$), action: x else x) for x in items
 
