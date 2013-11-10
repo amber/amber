@@ -701,7 +701,7 @@ class ScriptEditor extends Control
             h = Math.max h, v + c.element.offsetHeight - y
 
         if x < 0 or y < 0
-            for c in children
+            for c in @children
                 b = c.getPosition()
                 c.initPosition b.x - x, b.y - y
 
@@ -1054,6 +1054,14 @@ class Block extends Control
         @onContextMenu @contextMenu
 
     contextMenu: (e) ->
+        items = [
+            (action: 'help', title: tr 'Help')
+        ]
+        unless @anyParentSatisfies((p) -> p.isPalette)
+            items = items.concat [
+                Menu.separator
+                (action: 'duplicate', title: tr 'Duplicate')
+            ]
         new Menu()
             .onExecute (s) =>
                 switch s.item?.action
@@ -1069,9 +1077,7 @@ class Block extends Control
                             stack.add @copy()
                         editor.add stack
                         stack.startDrag(e, editor, bb)
-            .setItems([
-                (action: 'duplicate', title: tr 'Duplicate')
-            ])
+            .setItems(items)
             .show(@, e)
 
     pickUp: (e) ->
