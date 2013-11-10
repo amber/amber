@@ -148,7 +148,7 @@ class Stage extends Scriptable
         'mouse x': category: 'sensing', isWritable: false
         'mouse y': category: 'sensing', isWritable: false
         'mouse down?': category: 'sensing', isWritable: false
-        'timer': category: 'sensing', isWritable: false
+        'timer': 'sensing'
         'loudness': category: 'sensing', isWritable: false
         'loud?': category: 'sensing', isWritable: false
 
