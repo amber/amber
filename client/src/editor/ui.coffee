@@ -893,16 +893,23 @@ class Block extends Control
         @defaultArguments = args
 
     changed: ->
+        zoom = 1 # TODO: for debugging, remove
+
         if @isLive
             bb = @container.getBoundingClientRect()
             width = bb.right - bb.left + @paddingLeft + @paddingRight
             height = bb.bottom - bb.top + @paddingTop + @paddingBottom
-            @element.style.width = width + 'px'
-            @element.style.height = height + 'px'
-            @canvas.width = width + @outsetLeft + @outsetRight
-            @canvas.height = height + @outsetTop + @outsetBottom
+            @element.style.width = zoom * width + 'px'
+            @element.style.height = zoom * height + 'px'
+            @canvas.width = zoom * (width + @outsetLeft + @outsetRight)
+            @canvas.height = zoom * (height + @outsetTop + @outsetBottom)
+
+            @context.save()
+            @context.scale(zoom, zoom)
 
             @draw width, height
+
+            @context.restore()
 
     draw: (w, h) ->
 
@@ -943,15 +950,14 @@ class Block extends Control
                     @strokeStyle = shadow
                     @beginPath()
 
-                    @moveTo r, h - .5
                     @arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
                     @lineTo puzzleInset, h - .5
 
                     if shape is 'puzzle'
-                        @moveTo puzzleInset, h + puzzleHeight - .5
+                        @moveTo puzzleInset, h - .5
                         @arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
                         @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
-                        @lineTo puzzleInset + puzzleWidth, h + puzzleHeight - .5
+                        @lineTo puzzleInset + puzzleWidth, h - .5
 
                         @moveTo puzzleInset + puzzleWidth, h - .5
                     else
