@@ -839,6 +839,7 @@ class BlockStack extends Control
         @onTouchEnd @stopDrag
 
     @property 'top', -> @children[0]
+    @property 'bottom', -> @children[@children.length - 1]
 
     changed: ->
         @parent?.changed?()
@@ -891,6 +892,9 @@ class BlockStack extends Control
     showFeedback: (e) ->
         targets = []
 
+        top = @top
+        bottom = @bottom
+
         tbb = @element.getBoundingClientRect()
         tp = x: tbb.left, y: tbb.top
 
@@ -907,17 +911,18 @@ class BlockStack extends Control
         showCommandFeedback = (block) ->
             bb = block.element.getBoundingClientRect()
 
-            add tp, {
-                block
-                type: 'insertAfter'
-            }, {
-                left: bb.left - HTOLERANCE
-                right: bb.left + HTOLERANCE
-                top: bb.bottom - VTOLERANCE
-                bottom: bb.bottom + VTOLERANCE
-            }
+            if not block.isTerminal and (not bottom.isTerminal or block is block.parent.bottom)
+                add tp, {
+                    block
+                    type: 'insertAfter'
+                }, {
+                    left: bb.left - HTOLERANCE
+                    right: bb.left + HTOLERANCE
+                    top: bb.bottom - VTOLERANCE
+                    bottom: bb.bottom + VTOLERANCE
+                }
 
-            if block.parent.isStack and block.parent.top is block
+            if block.parent.top is block and not bottom.isTerminal
                 add tp, {
                     block, type: 'insertBefore'
                 }, {
@@ -1087,6 +1092,7 @@ class Block extends Control
         copy.spec = @spec
         copy.selector = @selector
         copy.category = @category
+        copy.isTerminal = @isTerminal
         copy.setArgs (a.value for a in @arguments)...
         copy
 
