@@ -142,7 +142,7 @@ specs =
     ]
     events: [
         ['h', 'events', 'whenGreenFlag', 'when @greenFlag clicked']
-        ['h', 'events', 'whenKeyPressed', 'when %m.key key pressed']
+        ['h', 'events', 'whenKeyPressed', 'when %m.key key pressed', $:'space']
         ['h', 'events', 'whenClicked', 'when this sprite clicked']
         ['h', 'events', 'whenSceneStarts', 'when backdrop switches to %m.backdrop']
         '-'
@@ -201,7 +201,7 @@ specs =
             ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
             ['v', $:'answer']
             '-'
-            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?']
+            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?', $:'space']
             ['v', $:'mouse down?']
             ['v', $:'mouse x']
             ['v', $:'mouse y']
@@ -225,7 +225,7 @@ specs =
             ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
             ['v', $:'answer']
             '-'
-            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?']
+            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?', $:'space']
             ['v', $:'mouse down?']
             ['v', $:'mouse x']
             ['v', $:'mouse y']

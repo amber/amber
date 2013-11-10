@@ -1274,6 +1274,8 @@ class Block extends Control
                 [(action: '90', title: tr '(90) right'), (action: '-90', title: tr '(-90) left'), (action: '0', title: tr '(0) up'), (action: '180', title: tr '(180) down')]
             when 'index'
                 ['1', ($:'last'), ($:'random')]
+            when 'key'
+                [($:'up arrow'), ($:'down arrow'), ($:'right arrow'), ($:'left arrow'), ($:'space')].concat (String.fromCharCode i for i in [('a'.charCodeAt 0)..('z'.charCodeAt 0)])
             when 'math'
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
             when 'stop'
