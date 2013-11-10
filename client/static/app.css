@@ -58,7 +58,7 @@
     background: #888;
 }
 .d-scrollable::-webkit-scrollbar-corner {
-    background: #ddd;
+    background: #fff;
 }
 
 .d-label {
