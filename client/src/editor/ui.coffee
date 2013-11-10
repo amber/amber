@@ -526,7 +526,7 @@ class SpriteIcon extends Control
         x.drawImage costume, (size - tw) / 2, (size - th) / 2, tw, th
 
     updateLabel: ->
-        @label.textContent = @object.name
+        @label.textContent = tr.maybe @object.name
 
     select: ->
         addClass @element, 'd-sprite-icon-selected'

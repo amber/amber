@@ -23,7 +23,11 @@ class Project extends Base
         @name = tr 'Untitled'
 
 class Scriptable extends Base
+    @id: 0
+
     constructor: (@name) ->
+        @id = ++Scriptable.id
+
         @variables = []
         @allVariables = {}
 
