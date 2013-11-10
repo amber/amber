@@ -271,7 +271,7 @@ specs =
         ['r', 'operators', '%', '%f mod %f']
         ['r', 'operators', 'rounded', 'round %f']
         '-'
-        ['r', 'operators', 'computeFunction:of:', '%m.math of %f', 'sqrt', 10]
+        ['r', 'operators', 'computeFunction:of:', '%m.math of %f', $:'sqrt', 10]
     ]
     obsolete: [
         ['c', 'obsolete', 'drum:duration:elapsed:from:', 'play drum %f for %f beats', 1, 0.25],
