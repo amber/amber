@@ -1158,6 +1158,7 @@ class Block extends Control
     draw: (w, h) ->
 
         color = categoryColors[@category]
+        highlight = 'rgba(255,255,255,.3)'
         shadow = 'rgba(0,0,0,.3)'
         shape = @shape
 
@@ -1224,6 +1225,12 @@ class Block extends Control
                     @arc r, h - r, r, Math.PI / 2, Math.PI, false
                     @fill()
 
+                    @strokeStyle = highlight
+                    @beginPath()
+                    @arc w - r, r, r - .5, Math.PI * 15 / 8, Math.PI * 3 / 2, true
+                    @arc r, r, r - .5, Math.PI * 3 / 2, Math.PI * 9 / 8, true
+                    @stroke()
+
                     @strokeStyle = shadow
                     @beginPath()
                     @arc w - r, h - r, r - .5, Math.PI / 8, Math.PI / 2, false
@@ -1244,6 +1251,14 @@ class Block extends Control
                     @lineTo w - r, h
                     @lineTo r, h
                     @fill()
+
+                    @strokeStyle = highlight
+                    @beginPath()
+                    @moveTo .5, Math.floor(h / 2) + .5
+                    @lineTo r, .5
+                    @lineTo w - r, .5
+                    @lineTo w - .5, Math.floor(h / 2) + .5
+                    @stroke()
 
                     @strokeStyle = shadow
                     @beginPath()
