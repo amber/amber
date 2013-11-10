@@ -1064,6 +1064,8 @@ class Block extends Control
                 c.name for c in @editor.selectedSprite.stage.costumes
             when 'costume'
                 c.name for c in @editor.selectedSprite.costumes
+            when 'deletionIndex'
+                ['1', ($:'last'), ($:'random'), Menu.separator, ($:'all')]
             when 'direction'
                 [(action: '90', title: tr '(90) right'), (action: '-90', title: tr '(-90) left'), (action: '0', title: tr '(0) up'), (action: '180', title: tr '(180) down')]
             when 'index'
@@ -1404,9 +1406,15 @@ class TextArg extends BlockArg
         @claim()
 
     blur: =>
-        v = +@value
-        @setText @evaluate() if @numeric and v isnt v
         @unclaim()
+
+    edited: =>
+        super()
+        v = +@text
+        if @numeric and v isnt v
+            @_value = '' + @evaluate()
+        else
+            @_value = @text
 
     touchStart: (e) ->
         if @menu and bbTouch @menuButton, e

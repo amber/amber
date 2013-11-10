@@ -194,8 +194,8 @@ specs =
     sensing:
         sprite: [
             ['b', 'sensing', 'touching:', 'touching %m.spriteOrMouse?']
-            ['b', 'sensing', 'touchingColor:', 'touching color %m.color?']
-            ['b', 'sensing', 'color:sees:', 'color %m.color is touching %m.color?']
+            ['b', 'sensing', 'touchingColor:', 'touching color %color?']
+            ['b', 'sensing', 'color:sees:', 'color %color is touching %color?']
             ['r', 'sensing', 'distanceTo:', 'distance to %m.spriteOrMouse']
             '-'
             ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
