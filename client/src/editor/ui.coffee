@@ -975,6 +975,29 @@ class Block extends Control
                     @arc r, h - r, r - .5, Math.PI / 2, Math.PI * 7 / 8, false
                     @stroke()
 
+                when 'hexagon'
+
+                    @fillStyle = color
+
+                    r = Math.min h / 2, 12
+
+                    @beginPath()
+                    @moveTo 0, h / 2
+                    @lineTo r, 0
+                    @lineTo w - r, 0
+                    @lineTo w, h / 2
+                    @lineTo w - r, h
+                    @lineTo r, h
+                    @fill()
+
+                    @strokeStyle = shadow
+                    @beginPath()
+                    @moveTo .5, Math.floor(h / 2) + .5
+                    @lineTo r, h - .5
+                    @lineTo w - r, h - .5
+                    @lineTo w - .5, Math.floor(h / 2) + .5
+                    @stroke()
+
         ).call @context
 
 
@@ -997,7 +1020,7 @@ class Block extends Control
                         h: HatBlock
                         r: ReporterBlock
                         e: ReporterBlock
-                        b: ReporterBlock
+                        b: BooleanReporterBlock
                         t: CommandBlock
                         c: CommandBlock
                     )[spec[0]]()
@@ -1164,6 +1187,13 @@ class ReporterBlock extends Block
     outsetRight: 0
     outsetBottom: 0
     outsetLeft: 0
+
+class BooleanReporterBlock extends ReporterBlock
+
+    shape: 'hexagon'
+
+    paddingRight: 12
+    paddingLeft: 12
 
 class VariableBlock extends ReporterBlock
     category: 'data'
