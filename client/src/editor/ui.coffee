@@ -1065,7 +1065,9 @@ class Block extends Control
             when 'costume'
                 c.name for c in @editor.selectedSprite.costumes
             when 'direction'
-                [(action: 90, title: tr '(90) right'), (action: -90, title: tr '(-90) left'), (action: 0, title: tr '(0) up'), (action: 180, title: tr '(180) down')]
+                [(action: '90', title: tr '(90) right'), (action: '-90', title: tr '(-90) left'), (action: '0', title: tr '(0) up'), (action: '180', title: tr '(180) down')]
+            when 'index'
+                ['1', ($:'last'), ($:'random')]
             when 'math'
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
             when 'spriteOrMouse'
@@ -1140,7 +1142,7 @@ class SetterBlock extends CommandBlock
                 when 'costume #'
                     @argFromSpec('i').setValue(1)
                 when 'layer'
-                    @argFromSpec('i', 'layer').setValue('top')
+                    @argFromSpec('i', 'index').setValue('top')
                 when 'instrument'
                     @argFromSpec('i', 'instrument').setValue(1)
                 when 'size', 'volume'
@@ -1294,7 +1296,7 @@ class EnumArg extends BlockArg
     @property 'value',
         value: '',
         set: (v) ->
-            @_value = v
+            @_value = if typeof v is 'number' then '' + v else v
             @setText (if v.$ then tr v.$ else v)
             @parent?.varChanged?() if @menu is 'var' or @menu is 'wvar'
 
@@ -1366,9 +1368,10 @@ class TextArg extends BlockArg
         get: -> @input.value
 
     @property 'value',
-        set: (v) -> @setText tr.maybe v
-
-        get: -> @text
+        set: (v) ->
+            @_value = if typeof v is 'number' then '' + v else v
+            @setText tr.maybe @_value
+        get: -> @_value
 
     evaluate: ->
         value = @value
@@ -1400,8 +1403,8 @@ class TextArg extends BlockArg
         @claim()
 
     blur: =>
-        v = +@text
-        @setText @value if @numeric and v isnt v
+        v = +@value
+        @setText @evaluate() if @numeric and v isnt v
         @unclaim()
 
     touchStart: (e) ->
@@ -1410,14 +1413,14 @@ class TextArg extends BlockArg
                 .addClass('d-enum-menu')
                 .onExecute (e) =>
                     item = e.item
-                    @text = if typeof e.item is 'string'
+                    @value = if typeof e.item is 'string'
                         e.item
                     else if Object::hasOwnProperty.call item, 'value'
                         item.value
                     else
                         item.action
                 .setItems(@block.getMenuItems @menu)
-                .popDown(@, @element, @text)
+                .popDown(@, @element, @value)
 
     autosize: (e) =>
         cache = TextArg.cache

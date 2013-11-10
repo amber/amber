@@ -490,7 +490,7 @@ class Menu extends Control
         if @activeItem = item
             addClass item.element, 'd-menu-item-active'
 
-    popUp: (control, element, selectedItem) ->
+    findTarget: (selectedItem) ->
         if typeof selectedItem is 'number'
             target = @menuItems[selectedItem]
         else if typeof selectedItem is 'string' or typeof selectedItem is 'object'
@@ -499,10 +499,13 @@ class Menu extends Control
                 break if target.action is selectedItem or selectedItem.$ and target.action.$ is selectedItem.$
         else
             throw new TypeError
+        target.setState 'checked' if target
+        target
 
+    popUp: (control, element, selectedItem) ->
+        target = @findTarget selectedItem
         elementBB = element.getBoundingClientRect()
         control.app.setMenu @
-        target.setState 'checked' if target
         target.activate() if target ?= @menuItems[0]
         targetBB = (target ? @).targetElement.getBoundingClientRect()
         @element.style.left = elementBB.left - targetBB.left + 'px'
@@ -511,15 +514,9 @@ class Menu extends Control
         @
 
     popDown: (control, element = control.element, selectedItem) ->
-        if typeof selectedItem is 'number'
-            target = @menuItems[selectedItem]
-        else if typeof selectedItem is 'string'
-            i = 0
-            while target = @menuItems[i++]
-                break if target.action is selectedItem
-
+        target = @findTarget selectedItem
+        target.activate() if target ?= @menuItems[0]
         @addClass 'd-menu-pop-down'
-        target.setState 'checked' if target
         elementBB = element.getBoundingClientRect()
         control.app.setMenu @
         @element.style.left = elementBB.left + 'px'
