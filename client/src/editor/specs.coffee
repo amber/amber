@@ -251,7 +251,7 @@ specs =
         ['r', 'operators', '*', '%f \xd7 %f']
         ['r', 'operators', '/', '%f / %f']
         '-'
-        ['r', 'operators', 'randomFrom:to:', 'pick random %f to %f']
+        ['r', 'operators', 'randomFrom:to:', 'pick random %f to %f', 1, 10]
         '-'
         ['r', 'operators', '<', '%s < %s']
         ['r', 'operators', '=', '%s = %s']
