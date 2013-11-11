@@ -951,7 +951,7 @@ class BlockStack extends Control
             for c in @editor.tab?.scripts.children
                 showStackFeedback c, showSlotFeedback
         else
-            for c in @editor.tab?.scripts.children
+            for c in @editor.tab?.scripts.children when not c.top?.isReporter
                 showStackFeedback c, showCommandFeedback
 
         if @dropTarget = targets.pop()
