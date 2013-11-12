@@ -1518,6 +1518,8 @@ class Block extends Control
                 [($:'up arrow'), ($:'down arrow'), ($:'right arrow'), ($:'left arrow'), ($:'space')].concat (String.fromCharCode i for i in [('a'.charCodeAt 0)..('z'.charCodeAt 0)])
             when 'math'
                 [($:'abs'), ($:'floor'), ($:'ceiling'), ($:'sqrt'), ($:'sin'), ($:'cos'), ($:'tan'), ($:'asin'), ($:'acos'), ($:'atan'), ($:'ln'), ($:'log'), ($:'e ^'), ($:'10 ^')]
+            when 'rotationStyle'
+                [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'stop'
                 [($:'all'), ($:'this script'), ($:'other scripts in sprite')]
             when 'spriteOrMouse'
@@ -1526,8 +1528,6 @@ class Block extends Control
                 [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'stageOrThis'
                 [($:'Stage'), ($:'this sprite')]
-            when 'rotationStyle'
-                [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'var'
                 @editor.selectedSprite?.allVariableNames
             when 'videoMotion'
