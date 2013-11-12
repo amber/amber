@@ -1085,6 +1085,7 @@ class Block extends Control
     isBlock: true
 
     acceptsClick: true
+    acceptsContextMenu: true
 
     shape: 'puzzle'
 

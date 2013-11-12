@@ -366,12 +366,14 @@ class App extends Control
             tag = e.target.tagName
             return if tag is 'INPUT' or tag is 'TEXTAREA' or tag is 'SELECT'
 
-            while c and not c.acceptsClick
+            context = e.button is 2
+
+            while c and not (if context then c.acceptsContextMenu else c.acceptsClick)
                 return if c.selectable
                 c = c.parent
 
             return unless c
-            if e.button is 2
+            if context
                 c.dispatch 'ContextMenu', new TouchEvent().setMouseEvent e
                 return
             else
