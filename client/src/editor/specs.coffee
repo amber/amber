@@ -126,8 +126,8 @@ specs =
         '-'
         ['vs']
         ['vc']
-        ['c', 'data', 'showVariable:', 'show variable %m.var', '']
-        ['c', 'data', 'hideVariable:', 'hide variable %m.var', '']
+        ['c', 'data', 'showVariable:', 'show variable %m.var']
+        ['c', 'data', 'hideVariable:', 'hide variable %m.var']
         '-'
         ['c', 'lists', 'append:toList:', 'add %s to %m.list', $:'thing', '']
         '-'

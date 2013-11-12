@@ -766,6 +766,7 @@ class BlockPalette extends Control
                 else
                     block = Block.fromSpec spec
                     @list.add block if block
+                    block.setDefaults(@amber.selectedSprite)
 
         @add @list
 
@@ -1102,6 +1103,8 @@ class Block extends Control
     outsetBottom: 3
     outsetLeft: 0
 
+    argStart: 0
+
     constructor: ->
         super()
         @initElements 'd-block', 'd-block-label'
@@ -1437,6 +1440,17 @@ class Block extends Control
     setArgs: (args...) ->
         for v, i in args
             @arguments[i].value = v
+        @argStart = args.length
+
+    setDefaults: (sprite) ->
+        for a in @arguments
+            switch a.menu
+                when 'var', 'wvar'
+                    name = null
+                    for n in sprite.allVariableNames when sprite.findVariable(n).category is 'data'
+                        name = n
+                        break
+                    a.value or= name ? ''
 
     @fromSpec: (spec) ->
         switch spec[0]
