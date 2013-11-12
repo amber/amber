@@ -120,10 +120,12 @@ specs =
     data: [
         ['&', 'createVariable', $:'Make a Variable']
         '-'
-        ['v', '']
+        'gv'
         '-'
-        ['vs', '']
-        ['vc', '']
+        'v'
+        '-'
+        ['vs']
+        ['vc']
         ['c', 'data', 'showVariable:', 'show variable %m.var', '']
         ['c', 'data', 'hideVariable:', 'hide variable %m.var', '']
         '-'

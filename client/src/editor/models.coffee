@@ -87,6 +87,9 @@ class Scriptable extends Base
     findVariable: (name) ->
         if name.$ then @allProperties[name.$] else @allVariables[name]
 
+    hasVariable: (name) ->
+        !!@findVariable name
+
     @property 'parent',
         get: -> @_parent
         set: (p) ->

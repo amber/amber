@@ -80,7 +80,7 @@ class Editor extends Control
         dialog = new Dialog()
             .add(name = new TextField()
                 .setPlaceholder(tr 'Variable Name'))
-            .add(new Checkbox()
+            .add(checkbox = new Checkbox()
                 .setText(tr 'For this sprite only'))
             .add(new Button()
                 .setText(tr 'OK')
@@ -88,15 +88,16 @@ class Editor extends Control
                     sprite = @selectedSprite
                     variable = name.text.trim()
 
+                    sprite = sprite.stage unless checkbox.checked
+
                     dialog.close()
                     if not variable or sprite.hasVariable variable
                         return
 
                     sprite.addVariable variable
-                    @socket.send
-                        $: 'variable.create'
-                        object$id: sprite.id
-                        name: variable)
+
+                    if @tab instanceof BlockEditor and @tab.palette.selectedCategory is 'data'
+                        @tab.palette.reload())
             .add(new Button()
                 .setText(tr 'Cancel')
                 .onExecute =>
@@ -752,6 +753,13 @@ class BlockPalette extends Control
                         @amber[spec[1]]()
                 else if spec[0] is '!'
                     @list.add new Label().setText(tr.maybe spec[1])
+                else if spec is 'v' or spec is 'gv'
+                    sprite = @amber.selectedSprite
+                    sprite = sprite.stage if spec is 'gv'
+                    for n in sprite.variableNames
+                        if sprite.findVariable(n).category is 'data'
+                            block = Block.fromSpec ['v', n]
+                            @list.add block if block
                 else
                     block = Block.fromSpec spec
                     @list.add block if block
@@ -1353,7 +1361,8 @@ class Block extends Control
             when 'vs', 'vc'
                 block = new SetterBlock()
                     .setIsChange(spec[0] is 'vc')
-                    .setVar(spec[1])
+
+                block.setVar(spec[1]) if spec[1]
 
                 block
             else
@@ -1362,11 +1371,11 @@ class Block extends Control
     argFromSpec: (type, menu, i) ->
         switch type
             when 'i', 'f', 's'
-                new TextArg().setMenu(menu).setNumeric(type isnt 's').setIntegral(type is 'i')
+                arg = new TextArg().setMenu(menu).setNumeric(type isnt 's').setIntegral(type is 'i')
             when 'm', 'a'
-                new EnumArg().setMenu(menu).setInline(type is 'a')
+                arg = new EnumArg().setMenu(menu).setInline(type is 'a')
             else
-                new TextArg().setText("#E:#{i}:#{type}.#{menu}")
+                arg = new TextArg().setText("#E:#{i}:#{type}.#{menu}")
 
     getMenuItems: (menu) ->
         items = switch menu
@@ -1425,6 +1434,7 @@ class SetterBlock extends CommandBlock
         @selector = if isChange then 'changeVar:by:' else 'setVar:to:'
         @add @unitLabel = new Label('d-block-arg')
         @unitLabel.hide()
+        @varChanged()
 
     varChanged: ->
         @unit = ''
