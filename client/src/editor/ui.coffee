@@ -867,6 +867,20 @@ class BlockStack extends Control
 
         stack
 
+    copyAt: (b) ->
+        copy = new BlockStack
+        i = @children.indexOf b
+        if i isnt -1
+            for c in @children[i..@children.length - 1]
+                copy.add c.copy()
+        copy
+
+    copy: ->
+        copy = new BlockStack
+        for c in @children
+            copy.add c.copy()
+        copy
+
     startDrag: (e, editor, tbb) ->
         return if @dragging
 
@@ -1104,12 +1118,10 @@ class Block extends Control
                     when 'duplicate'
                         editor = @editor
                         bb = @element.getBoundingClientRect()
-
-                        stack = new BlockStack
                         if @parent.isStack
-                            for c in @parent.children[(@parent.children.indexOf @)..@parent.children.length - 1]
-                                stack.add c.copy()
+                            stack = @parent.copyAt @
                         else
+                            stack = new BlockStack()
                             stack.add @copy()
                         editor.add stack
                         stack.startDrag(e, editor, bb)
@@ -1157,7 +1169,14 @@ class Block extends Control
         copy.selector = @selector
         copy.category = @category
         copy.isTerminal = @isTerminal
-        copy.setArgs (a.value for a in @arguments)...
+        for a, i in @arguments
+            b = copy.arguments[i]
+            if a.isBlock
+                copy.replaceArg b, a.copy()
+            else if a.isCommandSlot
+                b.stack = a.stack?.copy()
+            else
+                b.value = a.value
         copy
 
     @property 'category', value: 'undefined', apply: -> @changed()
