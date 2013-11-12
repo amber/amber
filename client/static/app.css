@@ -1173,6 +1173,7 @@
     display: block;
     margin: 3px 0 3px 5px;
     min-height: 12px;
+    width: 28px;
 }
 .d-block-c > .d-block-stack {
     position: relative;
