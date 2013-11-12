@@ -865,6 +865,8 @@ class BlockStack extends Control
             for c in @children[i..@children.length - 1]
                 stack.add c
 
+        @changed()
+
         stack
 
     copyAt: (b) ->
