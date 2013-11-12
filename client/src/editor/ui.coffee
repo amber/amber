@@ -1391,8 +1391,8 @@ class Block extends Control
             cx.closePath()
             cx.globalCompositeOperation = 'destination-out'
             cx.fill()
-            cx.globalCompositeOperation = 'source-over'
 
+            cx.globalCompositeOperation = 'source-atop'
             cx.strokeStyle = shadow
             cx.beginPath()
             cx.moveTo x - .5, y + sh - r
@@ -1408,15 +1408,13 @@ class Block extends Control
             cx.arc w - r, y - r, r - .5, Math.PI / 2, 0, true
             cx.stroke()
 
-            cx.strokeStyle = shadow
-            cx.beginPath()
-            cx.stroke()
-
             cx.strokeStyle = highlight
             cx.beginPath()
             cx.arc w - r, y + sh + r, r - .5, 0, Math.PI * 3 / 2, true
             cx.arc x + r, y + sh - r, r + .5, Math.PI / 2, Math.PI, false
             cx.stroke()
+
+            cx.globalCompositeOperation = 'source-over'
 
     roundRect: (x, y, w, h, r) ->
 
