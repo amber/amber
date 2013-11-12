@@ -706,8 +706,7 @@ class ScriptEditor extends Control
 
         if x < 0 or y < 0
             for c in @children
-                b = c.getPosition()
-                c.initPosition b.x - x, b.y - y
+                c.setPosition c.x - x, c.y - y
 
             x = 0
             y = 0
@@ -1077,11 +1076,14 @@ class BlockStack extends Control
         @element.style.left =
         @element.style.top = ''
 
-    moveInParent: (x, y) ->
+    setPosition: (@x, @y) ->
         bb = @parent.container.getBoundingClientRect()
         ebb = @editor.container.getBoundingClientRect()
         @element.style.left = x - bb.left + ebb.left + @parent.container.scrollLeft + 'px'
         @element.style.top = y - bb.top + ebb.top + @parent.container.scrollTop + 'px'
+
+    moveInParent: (x, y) ->
+        @setPosition x, y
         @editor.tab.scripts.fit()
 
 class Block extends Control
@@ -1722,15 +1724,6 @@ class BlockArg extends Control
         @_isClaimed = false
 
     @property 'isClaimed', -> @_isClaimed
-
-    getPosition: ->
-        e = @app.editor.element
-        bb = @element.getBoundingClientRect()
-        bbe = e.getBoundingClientRect()
-        return {
-            x: bb.left + e.scrollLeft - bbe.left,
-            y: bb.top + e.scrollTop - bbe.top
-        }
 
     @property 'block', ->
         if @parent.isArg then @parent.block else @parent
