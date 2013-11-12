@@ -1241,7 +1241,7 @@ class Block extends Control
     draw: (w, h) ->
 
         color = categoryColors[@category]
-        highlight = 'rgba(255,255,255,.3)'
+        highlight = 'rgba(255,255,255,.2)'
         shadow = 'rgba(0,0,0,.3)'
         shape = @shape
 
