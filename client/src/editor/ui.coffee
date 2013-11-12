@@ -731,7 +731,7 @@ class BlockPalette extends Control
         for name of specs when name isnt 'obsolete'
             @categorySelector.addCategory name
 
-        @selectedCategory = 'motion'
+        @selectedCategory = 'control'
 
     @property 'selectedCategory', apply: -> @reload()
 
@@ -959,16 +959,20 @@ class BlockStack extends Control
 
         showSlotFeedback = (block) ->
             for a in block.arguments
-                bb = a.element.getBoundingClientRect()
-                add tp, {
-                    block: a
-                    type: 'replace'
-                }, {
-                    left: bb.left - HTOLERANCE
-                    right: bb.right + HTOLERANCE
-                    top: bb.top - VTOLERANCE
-                    bottom: bb.bottom + VTOLERANCE
-                }
+                if a.isCommandSlot
+                    if a.stack
+                        showStackFeedback a.stack, showSlotFeedback
+                else
+                    bb = a.element.getBoundingClientRect()
+                    add tp, {
+                        block: a
+                        type: 'replace'
+                    }, {
+                        left: bb.left - HTOLERANCE
+                        right: bb.right + HTOLERANCE
+                        top: bb.top - VTOLERANCE
+                        bottom: bb.bottom + VTOLERANCE
+                    }
                 if a.isBlock
                     showSlotFeedback a
 
@@ -1220,17 +1224,17 @@ class Block extends Control
         color = categoryColors[@category]
         highlight = 'rgba(255,255,255,.3)'
         shadow = 'rgba(0,0,0,.3)'
-        lightShadow = 'rgba(0,0,0,.1)'
         shape = @shape
 
         cx = @context
 
+        puzzleInset = 8
+        puzzleWidth = 12
+        puzzleHeight = 3
+
         switch shape
             when 'puzzle', 'puzzle-terminal'
                 r = 3
-                puzzleInset = 8
-                puzzleWidth = 12
-                puzzleHeight = 3
 
                 cx.fillStyle = color
 
@@ -1256,6 +1260,7 @@ class Block extends Control
 
                 cx.strokeStyle = highlight
                 cx.beginPath()
+                cx.moveTo .5, h - r
                 cx.arc r, r, r - .5, Math.PI, Math.PI * 3 / 2, false
 
                 cx.lineTo puzzleInset, .5
@@ -1283,6 +1288,7 @@ class Block extends Control
                     cx.lineTo puzzleInset + puzzleWidth, h - .5
 
                 cx.arc w - r, h - r, r - .5, Math.PI / 2, 0, true
+                cx.lineTo w - .5, r
 
                 cx.stroke()
 
@@ -1354,6 +1360,12 @@ class Block extends Control
             r = 3
             cx.beginPath()
             cx.arc x + r, y + r, r, Math.PI, Math.PI * 3 / 2, false
+
+            cx.lineTo x + puzzleInset, y
+            cx.arc x + puzzleInset + r, y + puzzleHeight - r, r, Math.PI, Math.PI / 2, true
+            cx.arc x + puzzleInset + puzzleWidth - r, y + puzzleHeight - r, r, Math.PI / 2, 0, true
+            cx.lineTo x + puzzleInset + puzzleWidth, y
+
             cx.arc w - r, y - r, r, Math.PI / 2, 0, true
             cx.arc w - r, y + sh + r, r, 0, Math.PI * 3 / 2, true
             cx.arc x + r, y + sh - r, r, Math.PI / 2, Math.PI, false
@@ -1364,14 +1376,21 @@ class Block extends Control
 
             cx.strokeStyle = shadow
             cx.beginPath()
+            cx.moveTo x - .5, y + sh - r
             cx.arc x + r, y + r, r + .5, Math.PI, Math.PI * 3 / 2, false
+
+            cx.lineTo x + puzzleInset, y - .5
+
+            cx.moveTo x + puzzleInset, y + puzzleHeight - r - .5
+            cx.arc x + puzzleInset + r, y + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
+            cx.arc x + puzzleInset + puzzleWidth - r, y + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
+            cx.lineTo x + puzzleInset + puzzleWidth, y + puzzleHeight - r - .5
+
             cx.arc w - r, y - r, r - .5, Math.PI / 2, 0, true
             cx.stroke()
 
-            cx.strokeStyle = lightShadow
+            cx.strokeStyle = shadow
             cx.beginPath()
-            cx.moveTo x - .5, y + r
-            cx.lineTo x - .5, y + sh - r
             cx.stroke()
 
             cx.strokeStyle = highlight
