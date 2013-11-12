@@ -933,43 +933,47 @@ class BlockStack extends Control
                 each c
 
         showCommandFeedback = (block) ->
-            bb = block.element.getBoundingClientRect()
+            unless block.isReporter
+                bb = block.element.getBoundingClientRect()
 
-            if not block.isTerminal and (not bottom.isTerminal or block is block.parent.bottom)
-                add tp, {
-                    block
-                    type: 'insertAfter'
-                }, {
-                    left: bb.left - HTOLERANCE
-                    right: bb.left + HTOLERANCE
-                    top: bb.bottom - VTOLERANCE
-                    bottom: bb.bottom + VTOLERANCE
-                }
-
-            if block.parent.top is block and not bottom.isTerminal
-                add tp, {
-                    block, type: 'insertBefore'
-                }, {
-                    left: bb.left - HTOLERANCE
-                    right: bb.right + HTOLERANCE
-                    top: bb.top - VTOLERANCE
-                    bottom: bb.top + VTOLERANCE
-                }
-
-            for a in block.arguments when a.isCommandSlot
-                if a.stack
-                    showStackFeedback a.stack, showCommandFeedback
-                else
-                    abb = a.element.getBoundingClientRect()
+                if not block.isTerminal and (not bottom.isTerminal or block is block.parent.bottom)
                     add tp, {
-                        block: a
-                        type: 'insertIn'
+                        block
+                        type: 'insertAfter'
                     }, {
-                        left: abb.left - HTOLERANCE
-                        right: abb.right + HTOLERANCE
-                        top: abb.top - VTOLERANCE
-                        bottom: abb.top + VTOLERANCE
+                        left: bb.left - HTOLERANCE
+                        right: bb.left + HTOLERANCE
+                        top: bb.bottom - VTOLERANCE
+                        bottom: bb.bottom + VTOLERANCE
                     }
+
+                if block.parent.top is block and not bottom.isTerminal
+                    add tp, {
+                        block, type: 'insertBefore'
+                    }, {
+                        left: bb.left - HTOLERANCE
+                        right: bb.right + HTOLERANCE
+                        top: bb.top - VTOLERANCE
+                        bottom: bb.top + VTOLERANCE
+                    }
+
+            for a in block.arguments
+                if a.isCommandSlot
+                    if a.stack
+                        showStackFeedback a.stack, showCommandFeedback
+                    else
+                        abb = a.element.getBoundingClientRect()
+                        add tp, {
+                            block: a
+                            type: 'insertIn'
+                        }, {
+                            left: abb.left - HTOLERANCE
+                            right: abb.right + HTOLERANCE
+                            top: abb.top - VTOLERANCE
+                            bottom: abb.top + VTOLERANCE
+                        }
+                else if a.isBlock
+                    showCommandFeedback a
 
         showSlotFeedback = (block) ->
             for a in block.arguments
@@ -994,7 +998,7 @@ class BlockStack extends Control
             for c in @editor.tab?.scripts.children
                 showStackFeedback c, showSlotFeedback
         else
-            for c in @editor.tab?.scripts.children when not c.top?.isReporter
+            for c in @editor.tab?.scripts.children
                 showStackFeedback c, showCommandFeedback
 
         if @dropTarget = targets.pop()

@@ -156,8 +156,8 @@ specs =
     ]
     control:
         stage: [
-            ['r', 'system', 'commandClosure', '%m.parameters %slot.command']
-            ['r', 'system', 'reporterClosure', '%m.parameters %slot.reporter']
+            ['r', 'system', 'commandClosure', '%parameters %c']
+            ['r', 'system', 'reporterClosure', '%parameters %reporter']
             '-'
             ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1]
             '-'
@@ -176,8 +176,8 @@ specs =
             ['t', 'control', 'deleteClone', 'delete this clone']
         ]
         sprite: [
-            ['r', 'system', 'commandClosure', '%parameters %slot:command']
-            ['r', 'system', 'reporterClosure', '%parameters %slot:reporter']
+            ['r', 'system', 'commandClosure', '%parameters %c']
+            ['r', 'system', 'reporterClosure', '%parameters %reporter']
             '-'
             ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1]
             '-'
