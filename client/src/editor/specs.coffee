@@ -210,7 +210,7 @@ specs =
             '-'
             ['v', $:'loudness']
             '-'
-            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis']
+            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
             ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
             ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
             '-'
@@ -234,7 +234,7 @@ specs =
             '-'
             ['v', $:'loudness']
             '-'
-            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis']
+            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
             ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
             ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
             '-'

@@ -1508,10 +1508,14 @@ class Block extends Control
                 [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'spriteOrSelf'
                 [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+            when 'stageOrThis'
+                [($:'Stage'), ($:'this sprite')]
             when 'rotationStyle'
                 [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'var'
                 @editor.selectedSprite?.allVariableNames
+            when 'videoMotion'
+                [($:'motion'), ($:'direction')]
             when 'wvar'
                 @editor.selectedSprite?.allWritableVariableNames
             else
