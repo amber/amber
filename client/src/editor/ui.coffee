@@ -78,13 +78,8 @@ class Editor extends Control
 
     createVariable: ->
         dialog = new Dialog()
-            .add(name = new TextField()
-                .setPlaceholder(tr 'Variable Name'))
-            .add(checkbox = new Checkbox()
-                .setText(tr 'For this sprite only'))
-            .add(new Button()
-                .setText(tr 'OK')
-                .onExecute =>
+            .add((form = new Form()
+                .onSubmit =>
                     sprite = @selectedSprite
                     variable = name.text.trim()
 
@@ -97,11 +92,19 @@ class Editor extends Control
                     sprite.addVariable variable
 
                     if @tab instanceof BlockEditor and @tab.palette.selectedCategory is 'data'
-                        @tab.palette.reload())
-            .add(new Button()
-                .setText(tr 'Cancel')
-                .onExecute =>
+                        @tab.palette.reload()
+                .onCancel =>
                     dialog.close())
+                .add(name = new TextField()
+                    .setPlaceholder(tr 'Variable Name'))
+                .add(checkbox = new Checkbox()
+                    .setText(tr 'For this sprite only'))
+                .add(new Button()
+                    .setText(tr 'OK')
+                    .onExecute(form.submit, form))
+                .add(new Button()
+                    .setText(tr 'Cancel')
+                    .onExecute(form.cancel, form)))
             .show(@app)
 
     @property 'preloaderEnabled',
