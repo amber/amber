@@ -1160,13 +1160,22 @@
 .d-block-text,
 .d-block-arg,
 .d-block-label > .d-block {
-    margin-left: 4px;
+    margin-right: 4px;
     display: inline-block;
     vertical-align: middle;
 }
-.d-block-text:first-child,
-.d-block-arg:first-child {
-    margin-left: 0;
+.d-block-text:last-child,
+.d-block-arg:last-child {
+    margin-right: 0;
+}
+
+.d-block-c {
+    display: block;
+    margin: 3px 0 3px 5px;
+    min-height: 12px;
+}
+.d-block-c > .d-block-stack {
+    position: relative;
 }
 
 /* ----------------------------- */
@@ -1534,7 +1543,7 @@
     opacity: 0;
 }
 
-.d-block-c {
+/*.d-block-c {
     display: inline-block;
     vertical-align: middle;
     position: relative;
@@ -1589,7 +1598,7 @@
 }
 .d-block-c > .d-block-stack > .d-block {
     margin: 0;
-}
+}*/
 
 .d-block-reporter {
     box-shadow:

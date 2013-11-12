@@ -854,6 +854,8 @@ class BlockStack extends Control
 
     splitAt: (top) ->
         if top is @top
+            if @parent.isCommandSlot
+                @parent.stack = null
             return @
 
         stack = new BlockStack
@@ -940,6 +942,21 @@ class BlockStack extends Control
                     bottom: bb.top + VTOLERANCE
                 }
 
+            for a in block.arguments when a.isCommandSlot
+                if a.stack
+                    showStackFeedback a.stack, showCommandFeedback
+                else
+                    abb = a.element.getBoundingClientRect()
+                    add tp, {
+                        block: a
+                        type: 'insertIn'
+                    }, {
+                        left: abb.left - HTOLERANCE
+                        right: abb.right + HTOLERANCE
+                        top: abb.top - VTOLERANCE
+                        bottom: abb.top + VTOLERANCE
+                    }
+
         showSlotFeedback = (block) ->
             for a in block.arguments
                 bb = a.element.getBoundingClientRect()
@@ -977,7 +994,7 @@ class BlockStack extends Control
                 @feedback.element.style.top = bb.bottom - 2 - ebb.top + 'px'
                 @feedback.element.style.width = bb.width + 20 + 'px'
                 @feedback.element.style.height = '4px'
-            when 'insertBefore'
+            when 'insertBefore', 'insertIn'
                 @feedback.element.style.left = bb.left - 10 - ebb.left + 'px'
                 @feedback.element.style.top = bb.top - 2 - ebb.top + 'px'
                 @feedback.element.style.width = bb.width + 20 + 'px'
@@ -1010,6 +1027,9 @@ class BlockStack extends Control
                     when 'replace'
                         t.block.parent.replaceArg t.block, @top
                         @parent?.remove @
+                    when 'insertIn'
+                        @discardPosition()
+                        t.block.stack = @
             else if bbTouch editor.tab.scripts.element, e
                 editor.tab.scripts.add @
                 @moveInParent @dragOffsetX + e.x, @dragOffsetY + e.y
@@ -1024,6 +1044,10 @@ class BlockStack extends Control
         while j--
             @insert s.children[j], @children[i]
         s.parent?.remove s
+
+    discardPosition: ->
+        @element.style.left =
+        @element.style.top = ''
 
     moveInParent: (x, y) ->
         bb = @parent.container.getBoundingClientRect()
@@ -1196,128 +1220,165 @@ class Block extends Control
         color = categoryColors[@category]
         highlight = 'rgba(255,255,255,.3)'
         shadow = 'rgba(0,0,0,.3)'
+        lightShadow = 'rgba(0,0,0,.1)'
         shape = @shape
 
-        (->
-            switch shape
-                when 'puzzle', 'puzzle-terminal'
-                    r = 3
-                    puzzleInset = 8
-                    puzzleWidth = 12
-                    puzzleHeight = 3
+        cx = @context
 
-                    @fillStyle = color
+        switch shape
+            when 'puzzle', 'puzzle-terminal'
+                r = 3
+                puzzleInset = 8
+                puzzleWidth = 12
+                puzzleHeight = 3
 
-                    @beginPath()
-                    @arc r, r, r, Math.PI, Math.PI * 3 / 2, false
+                cx.fillStyle = color
 
-                    @lineTo puzzleInset, 0
-                    @arc puzzleInset + r, puzzleHeight - r, r, Math.PI, Math.PI / 2, true
-                    @arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r, Math.PI / 2, 0, true
-                    @lineTo puzzleInset + puzzleWidth, 0
+                cx.beginPath()
+                cx.arc r, r, r, Math.PI, Math.PI * 3 / 2, false
 
-                    @arc w - r, r, r, Math.PI * 3 / 2, 0, false
-                    @arc w - r, h - r, r, 0, Math.PI / 2, false
+                cx.lineTo puzzleInset, 0
+                cx.arc puzzleInset + r, puzzleHeight - r, r, Math.PI, Math.PI / 2, true
+                cx.arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r, Math.PI / 2, 0, true
+                cx.lineTo puzzleInset + puzzleWidth, 0
 
-                    if shape is 'puzzle'
-                        @lineTo puzzleInset + puzzleWidth, h
-                        @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
-                        @arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
-                        @lineTo puzzleInset, h
+                cx.arc w - r, r, r, Math.PI * 3 / 2, 0, false
+                cx.arc w - r, h - r, r, 0, Math.PI / 2, false
 
-                    @arc r, h - r, r, Math.PI / 2, Math.PI, false
-                    @fill()
+                if shape is 'puzzle'
+                    cx.lineTo puzzleInset + puzzleWidth, h
+                    cx.arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
+                    cx.arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
+                    cx.lineTo puzzleInset, h
 
-                    @strokeStyle = highlight
-                    @beginPath()
-                    @arc r, r, r - .5, Math.PI, Math.PI * 3 / 2, false
+                cx.arc r, h - r, r, Math.PI / 2, Math.PI, false
+                cx.fill()
 
-                    @lineTo puzzleInset, .5
-                    @arc puzzleInset + r, puzzleHeight - r, r + .5, Math.PI, Math.PI / 2, true
-                    @arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r + .5, Math.PI / 2, 0, true
-                    @lineTo puzzleInset + puzzleWidth, .5
+                cx.strokeStyle = highlight
+                cx.beginPath()
+                cx.arc r, r, r - .5, Math.PI, Math.PI * 3 / 2, false
 
-                    @arc w - r, r, r - .5, Math.PI * 3 / 2, 0, false
-                    @stroke()
+                cx.lineTo puzzleInset, .5
+                cx.arc puzzleInset + r, puzzleHeight - r, r + .5, Math.PI, Math.PI / 2, true
+                cx.arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r + .5, Math.PI / 2, 0, true
+                cx.lineTo puzzleInset + puzzleWidth, .5
 
-                    @strokeStyle = shadow
-                    @beginPath()
+                cx.arc w - r, r, r - .5, Math.PI * 3 / 2, 0, false
+                cx.stroke()
 
-                    @arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
-                    @lineTo puzzleInset, h - .5
+                cx.strokeStyle = shadow
+                cx.beginPath()
 
-                    if shape is 'puzzle'
-                        @moveTo puzzleInset, h - .5
-                        @arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
-                        @arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
-                        @lineTo puzzleInset + puzzleWidth, h - .5
+                cx.arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
+                cx.lineTo puzzleInset, h - .5
 
-                        @moveTo puzzleInset + puzzleWidth, h - .5
-                    else
-                        @lineTo puzzleInset + puzzleWidth, h - .5
+                if shape is 'puzzle'
+                    cx.moveTo puzzleInset, h - .5
+                    cx.arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
+                    cx.arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
+                    cx.lineTo puzzleInset + puzzleWidth, h - .5
 
-                    @arc w - r, h - r, r - .5, Math.PI / 2, 0, true
+                    cx.moveTo puzzleInset + puzzleWidth, h - .5
+                else
+                    cx.lineTo puzzleInset + puzzleWidth, h - .5
 
-                    @stroke()
+                cx.arc w - r, h - r, r - .5, Math.PI / 2, 0, true
 
-                when 'rounded'
+                cx.stroke()
 
-                    r = Math.min h / 2, 12
+            when 'rounded'
 
-                    @fillStyle = color
+                r = Math.min h / 2, 12
 
-                    @beginPath()
-                    @arc r, r, r, Math.PI, Math.PI * 3 / 2, false
-                    @arc w - r, r, r, Math.PI * 3 / 2, 0, false
-                    @arc w - r, h - r, r, 0, Math.PI / 2, false
-                    @arc r, h - r, r, Math.PI / 2, Math.PI, false
-                    @fill()
+                cx.fillStyle = color
 
-                    @strokeStyle = highlight
-                    @beginPath()
-                    @arc w - r, r, r - .5, Math.PI * 15 / 8, Math.PI * 3 / 2, true
-                    @arc r, r, r - .5, Math.PI * 3 / 2, Math.PI * 9 / 8, true
-                    @stroke()
+                cx.beginPath()
+                cx.arc r, r, r, Math.PI, Math.PI * 3 / 2, false
+                cx.arc w - r, r, r, Math.PI * 3 / 2, 0, false
+                cx.arc w - r, h - r, r, 0, Math.PI / 2, false
+                cx.arc r, h - r, r, Math.PI / 2, Math.PI, false
+                cx.fill()
 
-                    @strokeStyle = shadow
-                    @beginPath()
-                    @arc w - r, h - r, r - .5, Math.PI / 8, Math.PI / 2, false
-                    @arc r, h - r, r - .5, Math.PI / 2, Math.PI * 7 / 8, false
-                    @stroke()
+                cx.strokeStyle = highlight
+                cx.beginPath()
+                cx.arc w - r, r, r - .5, Math.PI * 15 / 8, Math.PI * 3 / 2, true
+                cx.arc r, r, r - .5, Math.PI * 3 / 2, Math.PI * 9 / 8, true
+                cx.stroke()
 
-                when 'hexagon'
+                cx.strokeStyle = shadow
+                cx.beginPath()
+                cx.arc w - r, h - r, r - .5, Math.PI / 8, Math.PI / 2, false
+                cx.arc r, h - r, r - .5, Math.PI / 2, Math.PI * 7 / 8, false
+                cx.stroke()
 
-                    @fillStyle = color
+            when 'hexagon'
 
-                    r = Math.min h / 2, 12
+                cx.fillStyle = color
 
-                    @beginPath()
-                    @moveTo 0, h / 2
-                    @lineTo r, 0
-                    @lineTo w - r, 0
-                    @lineTo w, h / 2
-                    @lineTo w - r, h
-                    @lineTo r, h
-                    @fill()
+                r = Math.min h / 2, 12
 
-                    @strokeStyle = highlight
-                    @beginPath()
-                    @moveTo .5, Math.floor(h / 2) + .5
-                    @lineTo r, .5
-                    @lineTo w - r, .5
-                    @lineTo w - .5, Math.floor(h / 2) + .5
-                    @stroke()
+                cx.beginPath()
+                cx.moveTo 0, h / 2
+                cx.lineTo r, 0
+                cx.lineTo w - r, 0
+                cx.lineTo w, h / 2
+                cx.lineTo w - r, h
+                cx.lineTo r, h
+                cx.fill()
 
-                    @strokeStyle = shadow
-                    @beginPath()
-                    @moveTo .5, Math.floor(h / 2) + .5
-                    @lineTo r, h - .5
-                    @lineTo w - r, h - .5
-                    @lineTo w - .5, Math.floor(h / 2) + .5
-                    @stroke()
+                cx.strokeStyle = highlight
+                cx.beginPath()
+                cx.moveTo .5, Math.floor(h / 2) + .5
+                cx.lineTo r, .5
+                cx.lineTo w - r, .5
+                cx.lineTo w - .5, Math.floor(h / 2) + .5
+                cx.stroke()
 
-        ).call @context
+                cx.strokeStyle = shadow
+                cx.beginPath()
+                cx.moveTo .5, Math.floor(h / 2) + .5
+                cx.lineTo r, h - .5
+                cx.lineTo w - r, h - .5
+                cx.lineTo w - .5, Math.floor(h / 2) + .5
+                cx.stroke()
 
+        bb = null
+        for a in @arguments when a.isCSlot
+            bb ?= @element.getBoundingClientRect()
+            abb = a.element.getBoundingClientRect()
+
+            x = abb.left - bb.left
+            y = abb.top - bb.top
+            sh = abb.height
+
+            r = 3
+            cx.beginPath()
+            cx.arc x + r, y + r, r, Math.PI, Math.PI * 3 / 2, false
+            cx.arc w - r, y - r, r, Math.PI / 2, 0, true
+            cx.arc w - r, y + sh + r, r, 0, Math.PI * 3 / 2, true
+            cx.arc x + r, y + sh - r, r, Math.PI / 2, Math.PI, false
+            cx.closePath()
+            cx.globalCompositeOperation = 'destination-out'
+            cx.fill()
+            cx.globalCompositeOperation = 'source-over'
+
+            cx.strokeStyle = shadow
+            cx.beginPath()
+            cx.arc x + r, y + r, r + .5, Math.PI, Math.PI * 3 / 2, false
+            cx.arc w - r, y - r, r - .5, Math.PI / 2, 0, true
+            cx.stroke()
+
+            cx.strokeStyle = lightShadow
+            cx.beginPath()
+            cx.moveTo x - .5, y + r
+            cx.lineTo x - .5, y + sh - r
+            cx.stroke()
+
+            cx.strokeStyle = highlight
+            cx.beginPath()
+            cx.arc w - r, y + sh + r, r - .5, 0, Math.PI * 3 / 2, true
+            cx.arc x + r, y + sh - r, r + .5, Math.PI / 2, Math.PI, false
+            cx.stroke()
 
     roundRect: (x, y, w, h, r) ->
 
@@ -1371,11 +1432,13 @@ class Block extends Control
     argFromSpec: (type, menu, i) ->
         switch type
             when 'i', 'f', 's'
-                arg = new TextArg().setMenu(menu).setNumeric(type isnt 's').setIntegral(type is 'i')
+                new TextArg().setMenu(menu).setNumeric(type isnt 's').setIntegral(type is 'i')
             when 'm', 'a'
-                arg = new EnumArg().setMenu(menu).setInline(type is 'a')
+                new EnumArg().setMenu(menu).setInline(type is 'a')
+            when 'c'
+                new CArg()
             else
-                arg = new TextArg().setText("#E:#{i}:#{type}.#{menu}")
+                new TextArg().setText("#E:#{i}:#{type}.#{menu}")
 
     getMenuItems: (menu) ->
         items = switch menu
@@ -1557,6 +1620,9 @@ class BlockArg extends Control
 
     unclaimEdits: ->
 
+    changed: ->
+        @parent?.changed?()
+
     claim: ->
         id = @block.id
         return if id is -1
@@ -1657,7 +1723,7 @@ class EnumArg extends BlockArg
                     item.value
                 else
                     item.action
-                @parent.changed()
+                @changed()
                 @edited()
             .setItems(@block.getMenuItems @menu)
             .popUp(@, @label, @value)
@@ -1775,7 +1841,7 @@ class TextArg extends BlockArg
             measure.style.display = 'none'
 
         @input.style.width = width + 'px'
-        @parent?.changed()
+        @changed()
 
     key: (e) =>
         if @numeric
@@ -1784,6 +1850,20 @@ class TextArg extends BlockArg
                 e.charCode is 0x2d or e.charCode is 0x2b or
                 (not @integral and e.charCode is 0x2e)
             e.preventDefault()
+
+class CArg extends BlockArg
+    isCommandSlot: true
+    isCSlot: true
+
+    constructor: ->
+        super()
+        @initElements 'd-block-c'
+
+    @property 'stack', apply: (stack) ->
+        @clear()
+        if stack
+            @add stack
+        @changed()
 
 module 'amber.editor.ui', {
     Block
