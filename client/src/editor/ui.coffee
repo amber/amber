@@ -1516,6 +1516,8 @@ class Block extends Control
                 @editor.selectedSprite?.allVariableNames
             when 'videoMotion'
                 [($:'motion'), ($:'direction')]
+            when 'videoState'
+                [($:'off'), ($:'on'), ($:'on-flipped')]
             when 'wvar'
                 @editor.selectedSprite?.allWritableVariableNames
             else
