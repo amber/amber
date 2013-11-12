@@ -731,7 +731,7 @@ class BlockPalette extends Control
         for name of specs when name isnt 'obsolete'
             @categorySelector.addCategory name
 
-        @selectedCategory = 'control'
+        @selectedCategory = 'motion'
 
     @property 'selectedCategory', apply: -> @reload()
 
