@@ -255,9 +255,9 @@ specs =
         '-'
         ['r', 'operators', 'randomFrom:to:', 'pick random %f to %f', 1, 10]
         '-'
-        ['r', 'operators', '<', '%s < %s']
-        ['r', 'operators', '=', '%s = %s']
-        ['r', 'operators', '>', '%s > %s']
+        ['b', 'operators', '<', '%s < %s']
+        ['b', 'operators', '=', '%s = %s']
+        ['b', 'operators', '>', '%s > %s']
         '-'
         ['b', 'operators', '&', '%b and %b']
         ['b', 'operators', '|', '%b or %b']
