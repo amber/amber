@@ -1530,6 +1530,8 @@ class Block extends Control
                 new EnumArg().setMenu(menu).setInline(type is 'a')
             when 'c'
                 new CArg()
+            when 'b'
+                new BoolArg()
             else
                 new TextArg().setText("#E:#{i}:#{type}.#{menu}")
 
@@ -1950,6 +1952,48 @@ class CArg extends BlockArg
         if stack
             @add stack
         @changed()
+
+class BoolArg extends BlockArg
+
+    constructor: ->
+        super()
+        @element = @container = @newElement 'd-block-arg d-block-bool', 'canvas'
+        @context = @element.getContext '2d'
+        @draw()
+
+    draw: ->
+        @element.width = w = 30
+        @element.height = h = 13
+
+        r = Math.min h / 2, 12
+
+        cx = @context
+
+        cx.fillStyle = 'rgba(0, 0, 0, .1)'
+        cx.beginPath()
+        cx.moveTo .5, h / 2 - .5
+        cx.lineTo r, 0
+        cx.lineTo w - r, 0
+        cx.lineTo w - .5, h / 2 - .5
+        cx.lineTo w - r, h - 1
+        cx.lineTo r, h - 1
+        cx.fill()
+
+        cx.strokeStyle = 'rgba(0, 0, 0, .4)'
+        cx.beginPath()
+        cx.moveTo .5, h / 2
+        cx.lineTo r, .5
+        cx.lineTo w - r, .5
+        cx.lineTo w - .5, h / 2
+        cx.stroke()
+
+        cx.strokeStyle = 'rgba(255, 255, 255, .3)'
+        cx.beginPath()
+        cx.moveTo w - .5, h / 2
+        cx.lineTo w - r, h - .5
+        cx.lineTo r, h - .5
+        cx.lineTo .5, h / 2
+        cx.stroke()
 
 module 'amber.editor.ui', {
     Block
