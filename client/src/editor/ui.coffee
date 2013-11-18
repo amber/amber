@@ -217,11 +217,6 @@ class Editor extends Control
     @property 'editMode',
         apply: (editMode) ->
             app = @app
-            if editMode
-                @originalParent = @parent
-                app.add @
-            else if @originalParent
-                @originalParent.add @
 
             app.redirect app.reverse('project', @projectId, editMode)
 
@@ -246,6 +241,12 @@ class Editor extends Control
 
             @spriteList.visible = editMode
             @spritePanel.toggleVisible = editMode
+
+            if editMode
+                @originalParent = @parent
+                app.add @
+            else if @originalParent
+                @originalParent.add @
 
     unload: =>
         if @editMode and @parent
