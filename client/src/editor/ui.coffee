@@ -1528,6 +1528,8 @@ class Block extends Control
                 [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'stageOrThis'
                 [($:'Stage'), ($:'this sprite')]
+            when 'triggerSensor'
+                [($:'loudness'), ($:'timer'), ($:'video motion')]
             when 'var'
                 @editor.selectedSprite?.allVariableNames
             when 'videoMotion'

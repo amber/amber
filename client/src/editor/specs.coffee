@@ -148,7 +148,7 @@ specs =
         ['h', 'events', 'whenClicked', 'when this sprite clicked']
         ['h', 'events', 'whenSceneStarts', 'when backdrop switches to %m.backdrop']
         '-'
-        ['h', 'events', 'whenSensorGreaterThan', 'when %m.triggerSensor > %f']
+        ['h', 'events', 'whenSensorGreaterThan', 'when %m.triggerSensor > %f', $:'loudness', 10]
         '-'
         ['h', 'events', 'whenIReceive', 'when I receive %m.event']
         ['c', 'events', 'broadcast:', 'broadcast %m.event']
