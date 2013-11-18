@@ -1673,6 +1673,9 @@ class SetterBlock extends CommandBlock
                     @argFromSpec('color')
                 when 'pen lightness'
                     @argFromSpec('f').setValue(50)
+                when 'video transparency'
+                    @unit = '%'
+                    @argFromSpec('f').setValue(50)
                 when 'pen size'
                     @argFromSpec('f').setValue(1)
                 when 'rotation style'

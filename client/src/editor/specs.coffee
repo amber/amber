@@ -172,7 +172,7 @@ specs =
         '-'
         ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
         ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
-        ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
+        ['vs', $:'video transparency']
         '-'
         ['v', $:'timer']
         ['vs', $:'timer']
