@@ -11,6 +11,7 @@ Control.property 'editor', ->
 
 class Editor extends Control
     isEditor: true
+    selectedCategory: 'motion'
 
     constructor: ->
         super()
@@ -734,9 +735,11 @@ class BlockPalette extends Control
         for name of specs when name isnt 'obsolete'
             @categorySelector.addCategory name
 
-        @selectedCategory = 'motion'
+        @categorySelector.selectCategory @amber.selectedCategory
 
-    @property 'selectedCategory', apply: -> @reload()
+    @property 'selectedCategory', apply: (category) ->
+        @amber.selectedCategory = category
+        @reload()
 
     reload: ->
         @remove @list if @list
@@ -800,9 +803,6 @@ class CategorySelector extends Control
         @buttons.push button
         @categories.push category
         @byCategory[category] = button
-
-        if 1 is @buttons.length
-            @selectCategory 'motion'
 
         width = 100 / @buttons.length + '%'
         for b in @buttons
