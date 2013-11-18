@@ -26,9 +26,6 @@ class Editor extends Control
         @spritePanel.toggleVisible = false
         document.addEventListener 'keydown', @keyDown
 
-    amber: ->
-        return @
-
     keyDown: (e) =>
         none = e.target is document.body
         switch e.keyCode
