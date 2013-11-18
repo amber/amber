@@ -1197,6 +1197,7 @@
     padding: 0;
     border: 0;
     opacity: 0;
+    cursor: pointer;
 }
 
 .d-block-text,
