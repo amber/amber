@@ -941,7 +941,7 @@ class BlockStack extends Control
             unless block.isReporter
                 bb = block.element.getBoundingClientRect()
 
-                if not block.isTerminal and (not bottom.isTerminal or block is block.parent.bottom)
+                if not block.isTerminal and (not bottom.isTerminal or block is block.parent.bottom) and not top.isHat
                     add tp, {
                         block
                         type: 'insertAfter'
@@ -952,7 +952,7 @@ class BlockStack extends Control
                         bottom: bb.bottom + VTOLERANCE
                     }
 
-                if block.parent.top is block and not bottom.isTerminal
+                if block.parent.top is block and not (bottom.isTerminal or block.isHat)
                     add tp, {
                         block, type: 'insertBefore'
                     }, {
@@ -1094,16 +1094,6 @@ class Block extends Control
     acceptsContextMenu: true
 
     shape: 'puzzle'
-
-    paddingTop: 3
-    paddingRight: 5
-    paddingBottom: 3
-    paddingLeft: 5
-
-    outsetTop: 0
-    outsetRight: 0
-    outsetBottom: 3
-    outsetLeft: 0
 
     argStart: 0
 
@@ -1267,23 +1257,31 @@ class Block extends Control
         puzzleHeight = 3
 
         switch shape
-            when 'puzzle', 'puzzle-terminal'
+            when 'puzzle', 'puzzle-terminal', 'hat'
                 r = 3
+                hh = @paddingTop - @paddingBottom
+                hw = 80
+                y = if shape is 'hat' then hh else 0
 
                 cx.fillStyle = color
 
                 cx.beginPath()
-                cx.arc r, r, r, Math.PI, Math.PI * 3 / 2, false
 
-                cx.lineTo puzzleInset, 0
-                cx.arc puzzleInset + r, puzzleHeight - r, r, Math.PI, Math.PI / 2, true
-                cx.arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r, Math.PI / 2, 0, true
-                cx.lineTo puzzleInset + puzzleWidth, 0
+                if shape is 'hat'
+                    cx.moveTo 0, hh
+                    cx.quadraticCurveTo hw / 2, -hh / 2, hw, hh
+                else
+                    cx.arc r, r, r, Math.PI, Math.PI * 3 / 2, false
 
-                cx.arc w - r, r, r, Math.PI * 3 / 2, 0, false
+                    cx.lineTo puzzleInset, 0
+                    cx.arc puzzleInset + r, puzzleHeight - r, r, Math.PI, Math.PI / 2, true
+                    cx.arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r, Math.PI / 2, 0, true
+                    cx.lineTo puzzleInset + puzzleWidth, 0
+
+                cx.arc w - r, y + r, r, Math.PI * 3 / 2, 0, false
                 cx.arc w - r, h - r, r, 0, Math.PI / 2, false
 
-                if shape is 'puzzle'
+                if shape isnt 'puzzle-terminal'
                     cx.lineTo puzzleInset + puzzleWidth, h
                     cx.arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r, 0, Math.PI / 2, false
                     cx.arc puzzleInset + r, h + puzzleHeight - r, r, Math.PI / 2, Math.PI, false
@@ -1295,14 +1293,19 @@ class Block extends Control
                 cx.strokeStyle = highlight
                 cx.beginPath()
                 cx.moveTo .5, h - r
-                cx.arc r, r, r - .5, Math.PI, Math.PI * 3 / 2, false
 
-                cx.lineTo puzzleInset, .5
-                cx.arc puzzleInset + r, puzzleHeight - r, r + .5, Math.PI, Math.PI / 2, true
-                cx.arc puzzleInset + puzzleWidth - r, puzzleHeight - r, r + .5, Math.PI / 2, 0, true
-                cx.lineTo puzzleInset + puzzleWidth, .5
+                if shape is 'hat'
+                    cx.lineTo .5, hh + .5
+                    cx.quadraticCurveTo hw / 2, -hh / 2, hw, hh + .5
+                else
+                    cx.arc r, y + r, r - .5, Math.PI, Math.PI * 3 / 2, false
 
-                cx.arc w - r, r, r - .5, Math.PI * 3 / 2, 0, false
+                    cx.lineTo puzzleInset, y + .5
+                    cx.arc puzzleInset + r, y + puzzleHeight - r, r + .5, Math.PI, Math.PI / 2, true
+                    cx.arc puzzleInset + puzzleWidth - r, y + puzzleHeight - r, r + .5, Math.PI / 2, 0, true
+                    cx.lineTo puzzleInset + puzzleWidth, y + .5
+
+                cx.arc w - r, y + r, r - .5, Math.PI * 3 / 2, 0, false
                 cx.stroke()
 
                 cx.strokeStyle = shadow
@@ -1311,18 +1314,18 @@ class Block extends Control
                 cx.arc r, h - r, r - .5, Math.PI, Math.PI / 2, true
                 cx.lineTo puzzleInset, h - .5
 
-                if shape is 'puzzle'
+                if shape is 'puzzle-terminal'
+                    cx.lineTo puzzleInset + puzzleWidth, h - .5
+                else
                     cx.moveTo puzzleInset, h - .5
                     cx.arc puzzleInset + r, h + puzzleHeight - r, r - .5, Math.PI, Math.PI / 2, true
                     cx.arc puzzleInset + puzzleWidth - r, h + puzzleHeight - r, r - .5, Math.PI / 2, 0, true
                     cx.lineTo puzzleInset + puzzleWidth, h - .5
 
                     cx.moveTo puzzleInset + puzzleWidth, h - .5
-                else
-                    cx.lineTo puzzleInset + puzzleWidth, h - .5
 
                 cx.arc w - r, h - r, r - .5, Math.PI / 2, 0, true
-                cx.lineTo w - .5, r
+                cx.lineTo w - .5, y + r
 
                 cx.stroke()
 
@@ -1434,6 +1437,33 @@ class Block extends Control
     roundRect: (x, y, w, h, r) ->
 
     shapeChanged: ->
+        switch @shape
+            when 'puzzle', 'puzzle-terminal', 'hat'
+                @paddingLeft =
+                @paddingRight = 5
+                @paddingTop =
+                @paddingBottom = 3
+                @outsetLeft =
+                @outsetRight =
+                @outsetTop =
+                @outsetBottom = 0
+                if @shape isnt 'puzzle-terminal'
+                    @outsetBottom = 3
+                if @shape is 'hat'
+                    @paddingTop = 15
+            when 'rounded', 'hexagon'
+                @paddingLeft =
+                @paddingRight = 7
+                @paddingTop =
+                @paddingBottom = 3
+                @outsetLeft =
+                @outsetRight =
+                @outsetTop =
+                @outsetBottom = 0
+                if @shape is 'hexagon'
+                    @paddingLeft =
+                    @paddingRight = 12
+
         @container.style.top = "#{@paddingTop}px"
         @container.style.left = "#{@paddingLeft}px"
         @canvas.style.top = "#{-@outsetTop}px"
@@ -1549,6 +1579,9 @@ class Block extends Control
 
 class HatBlock extends Block
 
+    shape: 'hat'
+    isHat: true
+
 class CommandBlock extends Block
 
     @property 'isTerminal', apply: (terminal) ->
@@ -1646,15 +1679,6 @@ class ReporterBlock extends Block
 
     shape: 'rounded'
 
-    paddingTop: 3
-    paddingRight: 7
-    paddingBottom: 3
-    paddingLeft: 7
-
-    outsetTop: 0
-    outsetRight: 0
-    outsetBottom: 0
-    outsetLeft: 0
     constructor: ->
         super()
         @addClass 'd-reporter-block'
@@ -1664,9 +1688,6 @@ class BooleanReporterBlock extends ReporterBlock
     isBoolean: true
 
     shape: 'hexagon'
-
-    paddingRight: 12
-    paddingLeft: 12
 
 class VariableBlock extends ReporterBlock
     category: 'data'
