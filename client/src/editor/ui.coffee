@@ -84,7 +84,7 @@ class Editor extends Control
                     sprite = @selectedSprite
                     variable = name.text.trim()
 
-                    sprite = sprite.stage unless checkbox.checked
+                    sprite = sprite.stage unless checkbox?.checked
 
                     dialog.close()
                     if not variable or sprite.hasVariable variable
@@ -97,15 +97,18 @@ class Editor extends Control
                 .onCancel =>
                     dialog.close())
                 .add(name = new TextField()
-                    .setPlaceholder(tr 'Variable Name'))
-                .add(checkbox = new Checkbox()
-                    .setText(tr 'For this sprite only'))
-                .add(new Button()
-                    .setText(tr 'OK')
-                    .onExecute(form.submit, form))
-                .add(new Button()
-                    .setText(tr 'Cancel')
-                    .onExecute(form.cancel, form)))
+                    .setPlaceholder(tr 'Variable Name')))
+
+        unless @selectedSprite.isStage
+            dialog.add(checkbox = new Checkbox()
+                .setText(tr 'For this sprite only'))
+
+        dialog.add(new Button()
+                .setText(tr 'OK')
+                .onExecute(form.submit, form))
+            .add(new Button()
+                .setText(tr 'Cancel')
+                .onExecute(form.cancel, form))
             .show(@app)
 
     @property 'preloaderEnabled',
