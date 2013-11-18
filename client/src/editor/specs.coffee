@@ -1,85 +1,65 @@
+so = (x) -> sprite: x
+go = (x) -> stage: x
+
 specs =
-    motion:
-        sprite: [
-            ['c', 'motion', 'forward:', 'move %f steps', 10]
-            ['c', 'motion', 'turnRight:', 'turn @turnRight %f degrees', 15]
-            ['c', 'motion', 'turnLeft:', 'turn @turnLeft %f degrees', 15]
-            '-'
-            ['vs', $:'direction']
-            ['c', 'motion', 'pointTowards:', 'point towards %m.spriteOrMouse']
-            '-'
-            ['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0]
-            ['c', 'motion', 'gotoSpriteOrMouse:', 'go to %m.spriteOrMouse']
-            ['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0]
-            '-'
-            ['vc', $:'x position']
-            ['vs', $:'x position']
-            ['vc', $:'y position']
-            ['vs', $:'y position']
-            '-'
-            ['c', 'motion', 'bounceOffEdge', 'if on edge, bounce']
-            '-'
-            ['vs', $:'rotation style']
-            '-'
-            ['v', $:'x position']
-            ['v', $:'y position']
-            ['v', $:'direction']
-            ['v', $:'rotation style']
-        ]
-        stage: [
-            ['!', $:'Stage selected: no motion blocks']
-        ]
-    looks:
-        sprite: [
-            ['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2]
-            ['c', 'looks', 'say:', 'say %s', 'Hello!']
-            ['c', 'looks', 'think:duration:elapsed:from:', 'think %s for %f secs', 'Hmm\u2026', 2]
-            ['c', 'looks', 'think:', 'think %s', 'Hmm\u2026']
-            '-'
-            ['c', 'looks', 'show', 'show']
-            ['c', 'looks', 'hide', 'hide']
-            '-'
-            ['c', 'looks', 'lookLike:', 'switch costume to %m.costume']
-            ['c', 'looks', 'nextCostume', 'next costume']
-            '-'
-            ['c', 'looks', 'startScene', 'switch backdrop to %m.backdrop']
-            ['c', 'looks', 'startNextScene', 'next backdrop']
-            '-'
-            ['vc', $:'color effect']
-            ['vs', $:'color effect']
-            ['c', 'looks', 'filterReset', 'clear graphic effects']
-            '-'
-            ['vc', $:'size']
-            ['vs', $:'size']
-            '-'
-            ['c', 'looks', 'comeToFront', 'go to front']
-            ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
-            '-'
-            ['v', $:'costume #']
-            ['v', $:'costume name']
-            ['v', $:'backdrop #']
-            ['v', $:'backdrop name']
-            ['v', $:'size']
-        ]
-        stage: [
-            ['c', 'looks', 'startSceneAndWait', 'switch backdrop to %m.backdrop']
-            ['c', 'looks', 'startScene', 'switch backdrop to %m.backdrop and wait']
-            ['c', 'looks', 'nextScene', 'next backdrop']
-            '-'
-            ['vc', $:'color effect']
-            ['vs', $:'color effect']
-            ['c', 'looks', 'filterReset', 'clear graphic effects']
-            '-'
-            ['vc', $:'size']
-            ['vs', $:'size']
-            '-'
-            ['c', 'looks', 'comeToFront', 'go to front']
-            ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
-            '-'
-            ['v', $:'costume #']
-            ['v', $:'backdrop name']
-            ['v', $:'size']
-        ]
+    motion: [
+        so ['c', 'motion', 'forward:', 'move %f steps', 10]
+        so ['c', 'motion', 'turnRight:', 'turn @turnRight %f degrees', 15]
+        so ['c', 'motion', 'turnLeft:', 'turn @turnLeft %f degrees', 15]
+        so '-'
+        so ['vs', $:'direction']
+        so ['c', 'motion', 'pointTowards:', 'point towards %m.spriteOrMouse']
+        so '-'
+        so ['c', 'motion', 'gotoX:y:', 'go to x: %f y: %f', 0, 0]
+        so ['c', 'motion', 'gotoSpriteOrMouse:', 'go to %m.spriteOrMouse']
+        so ['c', 'motion', 'glideSecs:toX:y:elapsed:from:', 'glide %f secs to x: %f y: %f', 1, 0, 0]
+        so '-'
+        so ['vc', $:'x position']
+        so ['vs', $:'x position']
+        so ['vc', $:'y position']
+        so ['vs', $:'y position']
+        so '-'
+        so ['c', 'motion', 'bounceOffEdge', 'if on edge, bounce']
+        so '-'
+        so ['vs', $:'rotation style']
+        so '-'
+        so ['v', $:'x position']
+        so ['v', $:'y position']
+        so ['v', $:'direction']
+        so ['v', $:'rotation style']
+        go ['!', $:'Stage selected: no motion blocks']
+    ]
+    looks: [
+        so ['c', 'looks', 'say:duration:elapsed:from:', 'say %s for %f secs', 'Hello!', 2]
+        so ['c', 'looks', 'say:', 'say %s', 'Hello!']
+        so ['c', 'looks', 'think:duration:elapsed:from:', 'think %s for %f secs', 'Hmm\u2026', 2]
+        so ['c', 'looks', 'think:', 'think %s', 'Hmm\u2026']
+        so '-'
+        so ['c', 'looks', 'show', 'show']
+        so ['c', 'looks', 'hide', 'hide']
+        so '-'
+        so ['c', 'looks', 'lookLike:', 'switch costume to %m.costume']
+        so ['c', 'looks', 'nextCostume', 'next costume']
+        so '-'
+        ['c', 'looks', 'startScene', 'switch backdrop to %m.backdrop']
+        ['c', 'looks', 'startNextScene', 'next backdrop']
+        '-'
+        ['vc', $:'color effect']
+        ['vs', $:'color effect']
+        ['c', 'looks', 'filterReset', 'clear graphic effects']
+        '-'
+        so ['vc', $:'size']
+        so ['vs', $:'size']
+        so '-'
+        so ['c', 'looks', 'comeToFront', 'go to front']
+        so ['c', 'looks', 'goBackByLayers:', 'go back %i layers', 1]
+        so '-'
+        so ['v', $:'costume #']
+        so ['v', $:'costume name']
+        ['v', $:'backdrop #']
+        ['v', $:'backdrop name']
+        so ['v', $:'size']
+    ]
     sound: [
         ['c', 'sound', 'playSound:', 'play sound %m.sound']
         ['c', 'sound', 'doPlaySoundAndWait', 'play sound %m.sound until done']
@@ -154,99 +134,55 @@ specs =
         ['c', 'events', 'broadcast:', 'broadcast %m.event']
         ['c', 'events', 'doBroadcastAndWait', 'broadcast %m.event and wait']
     ]
-    control:
-        stage: [
-            ['r', 'system', 'commandClosure', '%parameters %c']
-            ['r', 'system', 'reporterClosure', '%parameters %reporter']
-            '-'
-            ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1]
-            '-'
-            ['c', 'control', 'doRepeat', 'repeat %i %c', 10]
-            ['t', 'control', 'doForever', 'forever %c']
-            '-'
-            ['c', 'control', 'doIf', 'if %b %c']
-            ['c', 'control', 'doIfElse', 'if %b %c else %c']
-            ['c', 'control', 'doWaitUntil', 'wait until %b']
-            ['c', 'control', 'doUntil', 'repeat until %b %c']
-            '-'
-            ['t', 'control', 'stopScripts', 'stop %m.stop', $:'all']
-            '-'
-            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
-        ]
-        sprite: [
-            ['r', 'system', 'commandClosure', '%parameters %c']
-            ['r', 'system', 'reporterClosure', '%parameters %reporter']
-            '-'
-            ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1]
-            '-'
-            ['c', 'control', 'doRepeat', 'repeat %i %c', 10]
-            ['t', 'control', 'doForever', 'forever %c']
-            '-'
-            ['c', 'control', 'doIf', 'if %b %c']
-            ['c', 'control', 'doIfElse', 'if %b %c else %c']
-            ['c', 'control', 'doWaitUntil', 'wait until %b']
-            ['c', 'control', 'doUntil', 'repeat until %b %c']
-            '-'
-            ['t', 'control', 'stopScripts', 'stop %m.stop', $:'all']
-            '-'
-            ['h', 'control', 'whenCloned', 'when I start as a clone']
-            ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
-            ['t', 'control', 'deleteClone', 'delete this clone']
-        ]
-    sensing:
-        sprite: [
-            ['b', 'sensing', 'touching:', 'touching %m.spriteOrMouse?']
-            ['b', 'sensing', 'touchingColor:', 'touching color %color?']
-            ['b', 'sensing', 'color:sees:', 'color %color is touching %color?']
-            ['r', 'sensing', 'distanceTo:', 'distance to %m.spriteOrMouse']
-            '-'
-            ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
-            ['v', $:'answer']
-            '-'
-            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?', $:'space']
-            ['v', $:'mouse down?']
-            ['v', $:'mouse x']
-            ['v', $:'mouse y']
-            '-'
-            ['v', $:'loudness']
-            '-'
-            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
-            ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
-            ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
-            '-'
-            ['v', $:'timer']
-            ['vs', $:'timer']
-            '-'
-            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage', ($:'backdrop name'), ($:'Stage')]
-            '-'
-            ['r', 'sensing', 'timeAndDate', 'current %m.timeAndDate', $:'minute']
-            ['r', 'sensing', 'timestamp', 'days since 2000']
-            ['r', 'sensing', 'getUserName', 'username']
-        ]
-        stage: [
-            ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
-            ['v', $:'answer']
-            '-'
-            ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?', $:'space']
-            ['v', $:'mouse down?']
-            ['v', $:'mouse x']
-            ['v', $:'mouse y']
-            '-'
-            ['v', $:'loudness']
-            '-'
-            ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
-            ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
-            ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
-            '-'
-            ['v', $:'timer']
-            ['vs', $:'timer']
-            '-'
-            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage', ($:'backdrop name'), ($:'Stage')]
-            '-'
-            ['r', 'sensing', 'timeAndDate', 'current %m.timeAndDate', $:'minute']
-            ['r', 'sensing', 'timestamp', 'days since 2000']
-            ['r', 'sensing', 'getUserName', 'username']
-        ]
+    control: [
+        ['r', 'system', 'commandClosure', '%parameters %c']
+        ['r', 'system', 'reporterClosure', '%parameters %reporter']
+        '-'
+        ['c', 'control', 'wait:elapsed:from:', 'wait %f secs', 1]
+        '-'
+        ['c', 'control', 'doRepeat', 'repeat %i %c', 10]
+        ['t', 'control', 'doForever', 'forever %c']
+        '-'
+        ['c', 'control', 'doIf', 'if %b %c']
+        ['c', 'control', 'doIfElse', 'if %b %c else %c']
+        ['c', 'control', 'doWaitUntil', 'wait until %b']
+        ['c', 'control', 'doUntil', 'repeat until %b %c']
+        '-'
+        ['t', 'control', 'stopScripts', 'stop %m.stop', $:'all']
+        '-'
+        so ['h', 'control', 'whenCloned', 'when I start as a clone']
+        ['c', 'control', 'createCloneOf', 'create clone of %m.spriteOrSelf', $:'myself']
+        so ['t', 'control', 'deleteClone', 'delete this clone']
+    ]
+    sensing: [
+        so ['b', 'sensing', 'touching:', 'touching %m.spriteOrMouse?']
+        so ['b', 'sensing', 'touchingColor:', 'touching color %color?']
+        so ['b', 'sensing', 'color:sees:', 'color %color is touching %color?']
+        so ['r', 'sensing', 'distanceTo:', 'distance to %m.spriteOrMouse']
+        so '-'
+        ['c', 'sensing', 'doAsk', 'ask %s and wait', $:"What's your name?"]
+        ['v', $:'answer']
+        '-'
+        ['b', 'sensing', 'keyPressed:', 'key %m.key pressed?', $:'space']
+        ['v', $:'mouse down?']
+        ['v', $:'mouse x']
+        ['v', $:'mouse y']
+        '-'
+        ['v', $:'loudness']
+        '-'
+        ['r', 'sensing', 'senseVideoMotion', 'video %m.videoMotion on %m.stageOrThis', ($:'motion'), ($:'this sprite')]
+        ['c', 'sensing', 'setVideoState', 'turn video %m.videoState', $:'on']
+        ['c', 'sensing', 'setVideoTransparency', 'set video transparency to %f%', 50]
+        '-'
+        ['v', $:'timer']
+        ['vs', $:'timer']
+        '-'
+        ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage', ($:'backdrop name'), ($:'Stage')]
+        '-'
+        ['r', 'sensing', 'timeAndDate', 'current %m.timeAndDate', $:'minute']
+        ['r', 'sensing', 'timestamp', 'days since 2000']
+        ['r', 'sensing', 'getUserName', 'username']
+    ]
     operators: [
         ['r', 'operators', '+', '%f + %f']
         ['r', 'operators', '-', '%f - %f']

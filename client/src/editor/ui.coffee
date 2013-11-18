@@ -754,6 +754,12 @@ class BlockPalette extends Control
             blocks = blocks[if @sprite.isStage then 'stage' else 'sprite']
 
         for spec in blocks
+            if spec.stage
+                spec = spec.stage
+                continue unless @sprite.isStage
+            if spec.sprite
+                spec = spec.sprite
+                continue unless @sprite.isSprite
             do (spec) =>
                 if spec is '-'
                     @list.addSpace()
