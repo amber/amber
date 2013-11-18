@@ -1655,6 +1655,9 @@ class ReporterBlock extends Block
     outsetRight: 0
     outsetBottom: 0
     outsetLeft: 0
+    constructor: ->
+        super()
+        @addClass 'd-reporter-block'
 
 class BooleanReporterBlock extends ReporterBlock
 

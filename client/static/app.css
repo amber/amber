@@ -1175,7 +1175,7 @@
     min-height: 12px;
     width: 28px;
 }
-.d-block-label > .d-block > .d-block-label > .d-block-c {
+.d-reporter-block .d-block-c {
     width: auto;
     min-width: 28px;
 }
