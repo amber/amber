@@ -1561,6 +1561,8 @@ class Block extends Control
                 [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'spriteOrSelf'
                 [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+            when 'spriteOrStage'
+                [$:'Stage', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
             when 'stageOrThis'
                 [($:'Stage'), ($:'this sprite')]
             when 'triggerSensor'
