@@ -100,8 +100,8 @@ specs =
     data: [
         ['&', 'createVariable', $:'Make a Variable']
         '-'
-        'gv'
-        '-'
+        so 'gv'
+        so '-'
         'v'
         '-'
         ['vs']
