@@ -1532,6 +1532,8 @@ class Block extends Control
                 new CArg()
             when 'b'
                 new BoolArg()
+            when 'color'
+                new ColorArg().randomize()
             else
                 new TextArg().setText("#E:#{i}:#{type}.#{menu}")
 
@@ -1994,6 +1996,30 @@ class BoolArg extends BlockArg
         cx.lineTo r, h - .5
         cx.lineTo .5, h / 2
         cx.stroke()
+
+class ColorArg extends BlockArg
+
+    constructor: ->
+        super()
+        @initElements 'd-block-arg d-block-color'
+        @element.appendChild @picker = @newElement 'd-block-color-input', 'input'
+        @picker.type = 'color'
+        @value = '#000000'
+        @picker.addEventListener 'input', @colorSelected
+
+    colorSelected: =>
+        @setValue @picker.value
+        @edited()
+
+    randomize: ->
+        h = -> (Math.random() * 16 | 0).toString 16
+        @setValue '#' + h() + h() + h() + h() + h() + h()
+
+    copy: -> new @constructor()
+
+    @property 'value',
+        apply: (color) ->
+            @element.style.backgroundColor = @picker.value = color
 
 module 'amber.editor.ui', {
     Block

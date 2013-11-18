@@ -1157,6 +1157,31 @@
     min-height: 10px;
 }
 
+.d-block-color {
+    height: 13px;
+    width: 13px;
+    box-shadow:
+        0 -1px rgba(0, 0, 0, .4),
+        -1px 0 rgba(0, 0, 0, .4),
+        0 1px rgba(255, 255, 255, .3),
+        1px 0 rgba(255, 255, 255, .3);
+    position: relative;
+}
+.d-block-color-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-appearance: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+}
+
 .d-block-text,
 .d-block-arg,
 .d-block-label > .d-block {
