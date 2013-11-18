@@ -217,7 +217,7 @@ specs =
             ['v', $:'timer']
             ['vs', $:'timer']
             '-'
-            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage']
+            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage', ($:'backdrop name'), ($:'Stage')]
             '-'
             ['r', 'sensing', 'timeAndDate', 'current %m.timeAndDate', $:'minute']
             ['r', 'sensing', 'timestamp', 'days since 2000']
@@ -241,7 +241,7 @@ specs =
             ['v', $:'timer']
             ['vs', $:'timer']
             '-'
-            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage']
+            ['r', 'sensing', 'getAttribute:of:', '%m.attribute of %m.spriteOrStage', ($:'backdrop name'), ($:'Stage')]
             '-'
             ['r', 'sensing', 'timeAndDate', 'current %m.timeAndDate', $:'minute']
             ['r', 'sensing', 'timestamp', 'days since 2000']
