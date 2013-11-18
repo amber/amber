@@ -1207,6 +1207,9 @@
 .d-block-c > .d-block-stack {
     position: relative;
 }
+.d-block-c-end {
+    height: 6px;
+}
 
 /* ----------------------------- */
 

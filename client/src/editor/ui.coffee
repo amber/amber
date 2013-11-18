@@ -1221,6 +1221,9 @@ class Block extends Control
         if start < spec.length
             @add(new Label('d-block-text').setText(spec.substr(start)))
 
+        if args[args.length - 1]?.isCSlot
+            @add(new Label('d-block-c-end'))
+
         @defaultArguments = args.slice 0
 
     changed: ->
