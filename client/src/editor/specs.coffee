@@ -227,7 +227,7 @@ specs =
         ['r', undefined, 'COUNT', 'counter']
         ['c', undefined, 'CLR_COUNT', 'clear counter']
         ['c', undefined, 'INCR_COUNT', 'incr counter']
-        ['c', undefined, 'doForLoop', 'for each %m.var in %s %c']
+        ['c', undefined, 'doForLoop', 'for each %m.wvar in %s %c']
         ['c', undefined, 'doWhile', 'while %b %c']
         ['c', undefined, 'warpSpeed', 'all at once %c']
         ['c', undefined, 'scrollRight', 'scroll right %f']
