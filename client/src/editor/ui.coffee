@@ -309,7 +309,7 @@ class UserList extends Control
         item.href = user.profileURL
         target = '_blank'
         icon.src = user.avatarURL
-        label.textContent = user.name
+        label.textContent = tr.maybe user.name
         item.appendChild icon
         item.appendChild label
         item

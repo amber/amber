@@ -27,14 +27,20 @@ class User extends Base
         value: 'default'
 
     @property 'avatarURL', ->
-        id = '' + @id
-        trim = id.length - 4
-        a = id.substr 0, trim
-        b = id.substr trim
-        "http://scratch.mit.edu/static/site/users/avatars/#{a}/#{b}.png"
+        if @isGuest
+            'static/img/default-user.svg'
+        else
+            id = '' + @id
+            trim = id.length - 4
+            a = id.substr 0, trim
+            b = id.substr trim
+            "http://scratch.mit.edu/static/site/users/avatars/#{a}/#{b}.png"
 
     @property 'profileURL', ->
-        amber.site.App::abs amber.site.App::reverse 'user.profile', @name
+        if @isGuest
+            null
+        else
+            amber.site.App::abs amber.site.App::reverse 'user.profile', @name
 
     getAvatar: (size) ->
         "http://cdn.scratch.mit.edu/get_image/user/#{@id}_#{size}x#{size}.png"
@@ -56,7 +62,8 @@ class User extends Base
 
     @guest: ->
         u = new User
-        u._name = 'Guest'
+        u.isGuest = true
+        u._name = $:'Guest'
         u._id = -1
         u
 
