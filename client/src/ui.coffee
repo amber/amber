@@ -70,12 +70,67 @@ class Control extends Base
         @
 
     add: (child) ->
-        child.parent.remove child if child.parent
+        child.parent._remove child if child.parent
+        @_add child
+
+        child.becomeLive() if @isLive
+        @
+
+    remove: (child) ->
+        return @ if child.parent isnt @
+
+        child.becomeLive false if @isLive
+        @_remove child
+
+        @
+
+    replace: (oldChild, newChild) ->
+        if oldChild.parent isnt @
+            return @add newChild
+
+        newChild.parent._remove newChild if newChild.parent
+        oldChild.becomeLive false if @isLive
+        @_replace oldChild, newChild
+        newChild.becomeLive() if @isLive
+        @
+
+    insert: (newChild, beforeChild) ->
+        if not beforeChild or beforeChild.parent isnt @
+            return @add newChild
+
+        newChild.parent._remove newChild if newChild.parent
+        @_insert newChild, beforeChild
+        newChild.becomeLive() if @isLive
+        @
+
+    _add: (child) ->
         @children.push child
         child.parent = @
         @container.appendChild child.element
-        child.becomeLive() if @isLive
-        @
+
+    _remove: (child) ->
+        if -1 isnt i = @children.indexOf child
+            @children.splice i, 1
+            child.parent = null
+
+            @container.removeChild child.element
+
+    _replace: (oldChild, newChild) ->
+        if -1 isnt i = @children.indexOf oldChild
+            @children.splice i, 1, newChild
+            oldChild.parent = null
+            newChild.parent = @
+
+            @container.replaceChild newChild.element, oldChild.element
+
+    _insert: (newChild, beforeChild) ->
+        i = @children.indexOf beforeChild
+        if i is -1
+            @children.push newChild
+        else
+            @children.splice i, 0, newChild
+        newChild.parent = @
+        @container.insertBefore newChild.element, beforeChild.element
 
     becomeLive: (target = true) ->
         if !!@isLive isnt target
@@ -116,51 +171,6 @@ class Control extends Base
 
     hasClass: (className) ->
         hasClass @element, className
-
-    remove: (child) ->
-        return @ if child.parent isnt @
-
-        child.becomeLive false if @isLive
-
-        i = @children.indexOf child
-        @children.splice i, 1 if -1 isnt i
-        child.parent = null
-
-        @container.removeChild child.element
-        @
-
-    replace: (oldChild, newChild) ->
-        if oldChild.parent isnt @
-            return @add newChild
-        if newChild.parent
-            newChild.parent.remove newChild
-
-        oldChild.becomeLive false if @isLive
-
-        i = @children.indexOf oldChild
-        @children.splice i, 1, newChild if -1 isnt i
-        oldChild.parent = null
-        newChild.parent = @
-
-        @container.replaceChild newChild.element, oldChild.element
-
-        newChild.becomeLive() if @isLive
-        @
-
-    insert: (newChild, beforeChild) ->
-        if not beforeChild or beforeChild.parent isnt @
-            return @add newChild
-        if newChild.parent
-            newChild.parent.remove newChild
-
-        i = @children.indexOf beforeChild
-        @children.splice (if i is -1 then @children.length else i), 0, newChild
-        newChild.parent = @
-
-        @container.insertBefore newChild.element, beforeChild.element
-
-        newChild.becomeLive() if @isLive
-        @
 
     hasChild: (child) ->
         return true if @ is child

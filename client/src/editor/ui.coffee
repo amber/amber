@@ -1111,6 +1111,7 @@ class BlockStack extends Control
         while j--
             @insert s.children[j], @children[i]
         s.parent?.remove s
+        @changed()
 
     discardPosition: ->
         @element.style.left =
