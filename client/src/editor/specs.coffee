@@ -125,7 +125,7 @@ specs =
     events: [
         ['h', 'events', 'whenGreenFlag', 'when @greenFlag clicked']
         ['h', 'events', 'whenKeyPressed', 'when %m.key key pressed', $:'space']
-        ['h', 'events', 'whenClicked', 'when this sprite clicked']
+        ['h', 'events', 'whenClicked', 'when @target clicked']
         ['h', 'events', 'whenSceneStarts', 'when backdrop switches to %m.backdrop']
         '-'
         ['h', 'events', 'whenSensorGreaterThan', 'when %m.triggerSensor > %f', $:'loudness', 10]

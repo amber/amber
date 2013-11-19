@@ -1609,8 +1609,9 @@ class Block extends Control
         (if x.$ then title: tr(x.$).replace(/@target/g, tr.maybe @target.name), action: x else x) for x in items
 
     iconFromSpec: (id) ->
-        # TODO
-        new Label('d-block-arg').setText("#{id}")
+        switch id
+            when 'target' then new Label('d-block-text').setText(tr.maybe @target.name)
+            else new Label('d-block-arg').setText("#{id}")
 
 class HatBlock extends Block
 
