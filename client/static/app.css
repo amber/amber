@@ -293,7 +293,6 @@
 .d-menu-up {
     top: 0;
     box-shadow: 0 1px rgba(0, 0, 0, .1);
-    border-radius: 5px 5px 0 0;
 }
 .d-menu-up::before {
     content: '\25b2';
@@ -301,7 +300,6 @@
 .d-menu-down {
     bottom: 0;
     box-shadow: 0 -1px rgba(0, 0, 0, .1);
-    border-radius: 0 0 5px 5px;
 }
 .d-menu-down::before {
     content: '\25bc';
