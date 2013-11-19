@@ -1501,18 +1501,18 @@ class Block extends Control
             @arguments[i].value = v
         @argStart = args.length
 
-    setDefaults: (sprite) ->
+    setDefaults: ->
         for a in @arguments
             continue if a.value
             switch a.menu
                 when 'var', 'wvar'
-                    for n in sprite.allVariableNames when sprite.findVariable(n).category is 'data'
+                    for n in @target.allVariableNames when @target.findVariable(n).category is 'data'
                         a.value = n
                         break
                 when 'costume'
-                    a.value = sprite.costumes[0]?.name ? ''
+                    a.value = @target.costumes[0]?.name ? ''
                 when 'backdrop'
-                    a.value = sprite.stage.costumes[0]?.name ? ''
+                    a.value = @target.stage.costumes[0]?.name ? ''
 
     @fromSpec: (spec, target) ->
         switch spec[0]
