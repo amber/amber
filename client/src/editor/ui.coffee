@@ -1619,6 +1619,10 @@ class HatBlock extends Block
 
 class CommandBlock extends Block
 
+    stopChanged: ->
+        if @selector is 'stopScripts'
+            @isTerminal = @arguments[0].value.$ isnt 'other scripts in @target'
+
     @property 'isTerminal', apply: (terminal) ->
         @shape = if terminal then 'puzzle-terminal' else 'puzzle'
         @shapeChanged()
@@ -1826,6 +1830,7 @@ class EnumArg extends BlockArg
                 text = text.replace /@target/g, tr.maybe @parent.target.name
             @setText text
             @parent?.varChanged?() if @menu is 'var' or @menu is 'wvar'
+            @parent?.stopChanged?() if @menu is 'stop'
 
         get: -> @_value
 
