@@ -28,6 +28,8 @@ class Scriptable extends Base
     isStage: false
     isSprite: false
 
+    @event 'Change'
+
     constructor: (@name) ->
         @id = ++Scriptable.id
 
@@ -40,6 +42,29 @@ class Scriptable extends Base
 
         @children = []
         @costumes = []
+
+        @filters =
+            color: 0
+            fisheye: 0
+            whirl: 0
+            pixelate: 0
+            mosaic: 0
+            brightness: 0
+            ghost: 0
+
+        @onCostumeChange @change
+        @onFilterChange @change
+
+    change: =>
+        @dispatch 'Change', new ControlEvent(@)
+
+    @event 'FilterChange'
+    setFilter: (name, value) ->
+        @filters[name] = value
+        @dispatch 'FilterChange', new ControlEvent(@)
+
+    applyFilter: (cx) ->
+        cx.globalAlpha = 1 - @filters.ghost / 100
 
     @property 'costume', event: 'CostumeChange'
     @property 'costumeIndex',
@@ -139,6 +164,9 @@ class Scriptable extends Base
         transUnion (v.name for v in @variables when v.isWritable), (@parent?.allWritableVariableNames ? [])
 
 class Stage extends Scriptable
+    @WIDTH: 480
+    @HEIGHT: 360
+
     isStage: true
 
     @property 'stage', -> @
@@ -156,15 +184,29 @@ class Stage extends Scriptable
         'video transparency': 'sensing'
         'timer': 'sensing'
 
-    @property 'children', apply: (children, old) ->
-        if old
-            for c in old
-                c.parent = null
-        for c in children
-            c.parent = @
+    @property 'children',
+        event: 'ChildrenChange'
+        apply: (children, old) ->
+            if old
+                for c in old
+                    c.parent = null
+            for c in children
+                c.parent = @
 
     constructor: ->
         super $:'Stage'
+
+    draw: (cx) ->
+        if costume = @costumes[@costumeIndex]
+            cx.save()
+
+            @applyFilter cx
+            cx.drawImage costume.image, 0, 0
+
+            cx.restore()
+
+        for c in @children
+            c.draw cx
 
 class Sprite extends Scriptable
     isSprite: true
@@ -184,6 +226,46 @@ class Sprite extends Scriptable
 
     constructor: (name) ->
         super name
+
+        @onPositionChange @change
+        @onDirectionChange @change
+        @onVisibleChange @change
+        @onScaleChange @change
+
+    x: 0
+    y: 0
+    @event 'PositionChange'
+    moveTo: (x, y) ->
+        @x = x
+        @y = y
+        @dispatch 'PositionChange', new ControlEvent(@)
+
+    @property 'direction',
+        value: 90
+        event: 'DirectionChange'
+
+    @property 'visible',
+        value: true
+        event: 'VisibleChange'
+
+    @property 'scale',
+        value: 1
+        event: 'ScaleChange'
+
+    draw: (cx) ->
+        if @visible and @costume
+            cx.save()
+
+            cx.translate Stage.WIDTH / 2 + @x, Stage.HEIGHT / 2 - @y
+            cx.rotate (@direction - 90) * Math.PI / 180
+            cx.scale @scale, @scale
+            cx.translate -@costume.rotationCenterX, -@costume.rotationCenterY
+
+            @applyFilter cx
+
+            cx.drawImage @costume.image, 0, 0
+
+            cx.restore()
 
     @default: ->
         new Sprite tr 'Scratch Cat'

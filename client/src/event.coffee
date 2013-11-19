@@ -10,6 +10,7 @@ class Event extends Base
 
 class PropertyEvent extends Event
     @property 'object'
+    @property 'previousObject'
 
 class ControlEvent extends Event
     constructor: (@control) ->

@@ -75,7 +75,7 @@ class Base
                 old = @[_name]
                 setter.call @, value
                 apply.call @, value, old if apply and old isnt value
-                @dispatch event, new amber.event.PropertyEvent().setObject @ if event
+                @dispatch event, new amber.event.PropertyEvent().setObject(@).setPreviousObject(old) if event
             get: getter
             readonly: options.readonly
 

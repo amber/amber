@@ -72,6 +72,7 @@ class Editor extends Control
                 @spriteList.addIcon sprite
 
             @selectSprite @project.stage.children[0] ? @project.stage
+            @stageView.model = @project.stage
         @
 
     createVariable: ->
@@ -442,46 +443,61 @@ class StageView extends Control
     constructor: (@amber) ->
         super()
         @element = @container = @newElement 'd-stage', 'canvas'
+        @resize()
+        @context = @element.getContext '2d'
+        @redraw = true
+        @onLive @start
+        @onUnlive @stop
+
+    @property 'model', apply: (model, old) ->
+        if old
+            old.unChange @dirty
+            old.unChildrenChange @listenChildren
+            c.unChange @dirty for c in old.children
+
+        model.onChange @dirty
+        c.onChange @dirty for c in model.children
+
+        @dirty()
+
+    @property 'framerate',
+        value: 60
+        apply: -> @restart()
+
+    resize: ->
+        @element.width = Stage.WIDTH
+        @element.height = Stage.HEIGHT
+
+    restart: ->
+        @stop()
+        @start()
+
+    start: ->
+        return if @interval
+        @interval = setInterval @step, 1000 / @framerate
+        @step()
+
+    stop: ->
+        return unless @interval
+        clearInterval @interval
+        delete @interval
+
+    dirty: =>
+        @redraw = true
+
+    step: =>
+        if @redraw
+            @draw()
+            @redraw = false
+
+    draw: ->
+        @element.width = @element.width
+        @amber.project.stage.draw @context
 
     createBackdrop: ->
         image = @model.filteredImage
         image.control = @
         @element.appendChild @image = image, @element.firstChild
-
-    @property 'model',
-        apply: (model) ->
-            @element.innerHTML = ''
-            @createBackdrop()
-            for sprite in model.children
-                @add new SpriteView(@amber).setModel(sprite)
-
-
-class SpriteView extends Control
-    constructor: (@amber) ->
-        super()
-        @initElements 'd-sprite'
-
-    createCostume: ->
-        image = @model.filteredImage
-        image.control = @
-        @element.appendChild @image = image, @element.firstChild
-
-    updateCostume: =>
-        costume = @model.costume
-        @image.style.WebkitTransform = 'translate(' + -costume.centerX + 'px,' + -costume.centerY + 'px)'
-
-    updatePosition: =>
-        x = @model.x + 240
-        y = 180 - @model.y
-        @element.style.WebkitTransform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (@model.direction - 90) + 'deg)'
-
-    @property 'model',
-        apply: (model) ->
-            @createCostume()
-            @updatePosition()
-            model.onCostumeChange @updateCostume
-            model.onPositionChange @updatePosition
-
 
 class SpriteList extends Control
     constructor: (@amber) ->
