@@ -441,7 +441,7 @@ class StageControls extends Control
 class StageView extends Control
     constructor: (@amber) ->
         super()
-        @initElements 'd-stage'
+        @element = @container = @newElement 'd-stage', 'canvas'
 
     createBackdrop: ->
         image = @model.filteredImage
@@ -775,7 +775,7 @@ class BlockPalette extends Control
                 else
                     block = Block.fromSpec spec
                     @list.add block if block
-                    block.setDefaults(@amber.selectedSprite)
+                    block.setDefaults @amber.selectedSprite
 
         @add @list
 
@@ -1486,13 +1486,16 @@ class Block extends Control
 
     setDefaults: (sprite) ->
         for a in @arguments
+            continue if a.value
             switch a.menu
                 when 'var', 'wvar'
-                    name = null
                     for n in sprite.allVariableNames when sprite.findVariable(n).category is 'data'
-                        name = n
+                        a.value = n
                         break
-                    a.value or= name ? ''
+                when 'costume'
+                    a.value = sprite.costumes[0]?.name ? ''
+                when 'backdrop'
+                    a.value = sprite.stage.costumes[0]?.name ? ''
 
     @fromSpec: (spec) ->
         switch spec[0]
