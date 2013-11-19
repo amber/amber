@@ -766,6 +766,7 @@ class BlockPalette extends Control
         if blocks.stage
             blocks = blocks[if @sprite.isStage then 'stage' else 'sprite']
 
+        target = @amber.selectedSprite
         for spec in blocks
             if spec.stage
                 spec = spec.stage
@@ -782,16 +783,16 @@ class BlockPalette extends Control
                 else if spec[0] is '!'
                     @list.add new Label().setText(tr.maybe spec[1])
                 else if spec is 'v' or spec is 'gv'
-                    sprite = @amber.selectedSprite
+                    sprite = target
                     sprite = sprite.stage if spec is 'gv'
                     for n in sprite.variableNames
                         if sprite.findVariable(n).category is 'data'
-                            block = Block.fromSpec ['v', n]
+                            block = Block.fromSpec ['v', n], target
                             @list.add block if block
                 else
-                    block = Block.fromSpec spec
+                    block = Block.fromSpec spec, target
+                    block.setDefaults()
                     @list.add block if block
-                    block.setDefaults @amber.selectedSprite
 
         @add @list
 
@@ -1120,7 +1121,7 @@ class Block extends Control
 
     argStart: 0
 
-    constructor: ->
+    constructor: (@target) ->
         super()
         @initElements 'd-block', 'd-block-label'
         @element.insertBefore (@canvas = @newElement 'd-block-canvas', 'canvas'), @container
@@ -1192,7 +1193,7 @@ class Block extends Control
                 stack.moveInParent bb.left + 20, bb.top + 20
 
     copy: ->
-        copy = new @constructor()
+        copy = new @constructor(@target)
         copy.spec = @spec
         copy.selector = @selector
         copy.category = @category
@@ -1513,7 +1514,7 @@ class Block extends Control
                 when 'backdrop'
                     a.value = sprite.stage.costumes[0]?.name ? ''
 
-    @fromSpec: (spec) ->
+    @fromSpec: (spec, target) ->
         switch spec[0]
             when 'c', 't', 'r', 'b', 'e', 'h'
                 block = new (
@@ -1523,7 +1524,7 @@ class Block extends Control
                         b: BooleanReporterBlock
                         t: CommandBlock
                         c: CommandBlock
-                    )[spec[0]]()
+                    )[spec[0]](target)
                     .setCategory(spec[1])
                     .setSelector(spec[2])
                     .setSpec(spec[3])
@@ -1539,16 +1540,15 @@ class Block extends Control
                 block.setArgs spec.slice(4)...
                 block
             when 'v'
-                new VariableBlock().setVar(spec[1])
+                block = new VariableBlock(target).setVar(spec[1])
             when 'vs', 'vc'
-                block = new SetterBlock()
+                block = new SetterBlock(target)
                     .setIsChange(spec[0] is 'vc')
 
                 block.setVar(spec[1]) if spec[1]
-
-                block
             else
                 console.warn "Invalid block type #{spec[0]}"
+        block
 
     argFromSpec: (type, menu, i) ->
         switch type
@@ -1568,9 +1568,9 @@ class Block extends Control
     getMenuItems: (menu) ->
         items = switch menu
             when 'backdrop'
-                c.name for c in @editor.selectedSprite.stage.costumes
+                c.name for c in @target.stage.costumes
             when 'costume'
-                c.name for c in @editor.selectedSprite.costumes
+                c.name for c in @target.costumes
             when 'deletionIndex'
                 ['1', ($:'last'), ($:'random'), Menu.separator, ($:'all')]
             when 'direction'
@@ -1584,29 +1584,29 @@ class Block extends Control
             when 'rotationStyle'
                 [($:'left-right'), ($:'don\'t rotate'), ($:'all around')]
             when 'stop'
-                [($:'all'), ($:'this script'), ($:'other scripts in sprite')]
+                [($:'all'), ($:'this script'), ($:'other scripts in @target')]
             when 'spriteOrMouse'
-                [$:'mouse-pointer', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+                [$:'mouse-pointer', Menu.separator].concat (s.name for s in @target.stage.allSprites)
             when 'spriteOrSelf'
-                [$:'myself', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+                [$:'myself', Menu.separator].concat (s.name for s in @target.stage.allSprites)
             when 'spriteOrStage'
-                [$:'Stage', Menu.separator].concat (s.name for s in @editor.selectedSprite.stage.allSprites)
+                [$:'Stage', Menu.separator].concat (s.name for s in @target.stage.allSprites)
             when 'stageOrThis'
                 [($:'Stage'), ($:'this sprite')]
             when 'triggerSensor'
                 [($:'loudness'), ($:'timer'), ($:'video motion')]
             when 'var'
-                @editor.selectedSprite?.allVariableNames
+                @target.allVariableNames
             when 'videoMotion'
                 [($:'motion'), ($:'direction')]
             when 'videoState'
                 [($:'off'), ($:'on'), ($:'on-flipped')]
             when 'wvar'
-                @editor.selectedSprite?.allWritableVariableNames
+                @target.allWritableVariableNames
             else
                 console.warn "Missing menu #{menu}"
                 [menu]
-        (if x.$ then title: tr(x.$), action: x else x) for x in items
+        (if x.$ then title: tr(x.$).replace(/@target/g, tr.maybe @target.name), action: x else x) for x in items
 
     iconFromSpec: (id) ->
         # TODO
@@ -1626,8 +1626,8 @@ class CommandBlock extends Block
 class SetterBlock extends CommandBlock
     category: 'data'
 
-    constructor: ->
-        super()
+    constructor: (target) ->
+        super target
         @isChange = false
 
     @property 'isChange', apply: (isChange) ->
@@ -1717,8 +1717,8 @@ class ReporterBlock extends Block
 
     shape: 'rounded'
 
-    constructor: ->
-        super()
+    constructor: (target) ->
+        super target
         @addClass 'd-reporter-block'
 
 class BooleanReporterBlock extends ReporterBlock
@@ -1730,8 +1730,8 @@ class BooleanReporterBlock extends ReporterBlock
 class VariableBlock extends ReporterBlock
     category: 'data'
 
-    constructor: ->
-        super()
+    constructor: (target) ->
+        super target
         @spec = '%a.var'
 
     varChanged: ->
@@ -1821,7 +1821,10 @@ class EnumArg extends BlockArg
         value: '',
         set: (v) ->
             @_value = if typeof v is 'number' then '' + v else v
-            @setText (if v.$ then tr v.$ else v)
+            text = tr.maybe v
+            if v.$ and @parent?.target
+                text = text.replace /@target/g, tr.maybe @parent.target.name
+            @setText text
             @parent?.varChanged?() if @menu is 'var' or @menu is 'wvar'
 
         get: -> @_value
