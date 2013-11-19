@@ -873,6 +873,11 @@ class BlockStack extends Control
         @onTouchMove @drag
         @onTouchEnd @stopDrag
 
+    toJSON: (script = false) ->
+        result = (b.toJSON() for b in @children)
+        if script then result = [@x, @y, result]
+        result
+
     @property 'top', -> @children[0]
     @property 'bottom', -> @children[@children.length - 1]
 
@@ -1100,11 +1105,13 @@ class BlockStack extends Control
         @element.style.left =
         @element.style.top = ''
 
-    setPosition: (@x, @y) ->
+    setPosition: (x, y) ->
         bb = @parent.container.getBoundingClientRect()
         ebb = @editor.container.getBoundingClientRect()
-        @element.style.left = x - bb.left + ebb.left + @parent.container.scrollLeft + 'px'
-        @element.style.top = y - bb.top + ebb.top + @parent.container.scrollTop + 'px'
+        @x = x - bb.left + ebb.left
+        @y = y - bb.top + ebb.top
+        @element.style.left = @x + @parent.container.scrollLeft + 'px'
+        @element.style.top = @y + @parent.container.scrollTop + 'px'
 
     moveInParent: (x, y) ->
         @setPosition x, y
@@ -1131,6 +1138,8 @@ class Block extends Control
 
         @onTouchStart @pickUp
         @onContextMenu @contextMenu
+
+    toJSON: -> [@selector].concat (a.toJSON() for a in @arguments)
 
     contextMenu: (e) ->
         items = [
@@ -1988,6 +1997,8 @@ class CArg extends BlockArg
     isCommandSlot: true
     isCSlot: true
 
+    toJSON: -> @stack?.toJSON()
+
     constructor: ->
         super()
         @initElements 'd-block-c'
@@ -1999,6 +2010,8 @@ class CArg extends BlockArg
         @changed()
 
 class BoolArg extends BlockArg
+
+    toJSON: -> false
 
     constructor: ->
         super()
@@ -2049,6 +2062,8 @@ class ColorArg extends BlockArg
         @picker.type = 'color'
         @value = '#000000'
         @picker.addEventListener 'input', @colorSelected
+
+    toJSON: -> console.warn('Unimplemented: ColorArg::toJSON'); @value
 
     colorSelected: =>
         @setValue @picker.value
