@@ -878,6 +878,17 @@ class BlockStack extends Control
         if script then result = [@x, @y, result]
         result
 
+    @fromJSON: (json, target) ->
+        stack = new BlockStack()
+        if typeof json[0] is 'number'
+            stack.setPosition json[0], json[1]
+            json = json[2]
+
+        for b in json
+            stack.add Block.fromJSON b, target, false
+
+        stack
+
     @property 'top', -> @children[0]
     @property 'bottom', -> @children[@children.length - 1]
 
@@ -1105,16 +1116,18 @@ class BlockStack extends Control
         @element.style.left =
         @element.style.top = ''
 
-    setPosition: (x, y) ->
+    setPosition: (@x, @y) ->
+        @element.style.left = x + 'px'
+        @element.style.top = y + 'px'
+
+    setScreenPosition: (x, y) ->
         bb = @parent.container.getBoundingClientRect()
         ebb = @editor.container.getBoundingClientRect()
-        @x = x - bb.left + ebb.left
-        @y = y - bb.top + ebb.top
-        @element.style.left = @x + @parent.container.scrollLeft + 'px'
-        @element.style.top = @y + @parent.container.scrollTop + 'px'
+        @setPosition x - bb.left + ebb.left + @parent.container.scrollLeft,
+                     y - bb.top + ebb.top + @parent.container.scrollTop
 
     moveInParent: (x, y) ->
-        @setPosition x, y
+        @setScreenPosition x, y
         @editor.tab.scripts.fit()
 
 class Block extends Control
@@ -1140,6 +1153,23 @@ class Block extends Control
         @onContextMenu @contextMenu
 
     toJSON: -> [@selector].concat (a.toJSON() for a in @arguments)
+
+    @fromJSON: (json, target, reporter) ->
+        selector = json[0]
+        spec = specsBySelector[selector]
+        if spec
+            b = Block.fromSpec spec, target
+        else
+            b = Block.fromSpec [(if reporter then 'r' else 'c'), undefined, 'nop', 'obsolete' + Array(json.length).join(' %s')], target
+        for a, i in json[1..]
+            if a instanceof Array
+                if typeof a[0] is 'string'
+                    b.replaceArg b.arguments[i], Block.fromJSON a, target, true
+                else
+                    b.arguments[i].stack = BlockStack.fromJSON a, target
+            else if a?
+                b.arguments[i].value = a
+        b
 
     contextMenu: (e) ->
         items = [
@@ -2060,26 +2090,27 @@ class ColorArg extends BlockArg
         @initElements 'd-block-arg d-block-color'
         @element.appendChild @picker = @newElement 'd-block-color-input', 'input'
         @picker.type = 'color'
-        @value = '#000000'
+        @value = 0
         @picker.addEventListener 'input', @colorSelected
 
-    toJSON: -> console.warn('Unimplemented: ColorArg::toJSON'); @value
-
     colorSelected: =>
-        @setValue @picker.value
+        @setValue parseInt @picker.value.substr(1), 16
         @edited()
 
     randomize: ->
-        h = -> (Math.random() * 16 | 0).toString 16
-        @setValue '#' + h() + h() + h() + h() + h() + h()
+        @setValue Math.floor(Math.random() * 0xffffff)
 
     copy: -> new @constructor()
 
     @property 'value',
         apply: (color) ->
-            @element.style.backgroundColor = @picker.value = color
+            css = color.toString 16
+            while css.length < 6
+                css = '0' + css
+            @element.style.backgroundColor = @picker.value = '#' + css
 
 module 'amber.editor.ui', {
+    BlockStack
     Block
     CommandBlock
     SetterBlock
