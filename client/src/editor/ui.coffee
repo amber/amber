@@ -1737,6 +1737,7 @@ class VariableBlock extends ReporterBlock
 
     constructor: (target) ->
         super target
+        @selector = 'getVar:'
         @spec = '%a.var'
 
     varChanged: ->
