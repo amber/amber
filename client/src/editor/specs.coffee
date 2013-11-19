@@ -211,32 +211,32 @@ specs =
         '-'
         ['r', 'operators', 'computeFunction:of:', '%m.math of %f', $:'sqrt', 10]
     ]
-    obsolete: [
-        ['c', 'obsolete', 'drum:duration:elapsed:from:', 'play drum %f for %f beats', 1, 0.25],
-        ['c', 'obsolete', 'midiInstrument:', 'set instrument to %f', 1],
-        ['b', 'obsolete', 'isLoud', 'loud?'],
-        ['r', 'obsolete', 'abs', 'abs %f'],
-        ['r', 'obsolete', 'sqrt', 'sqrt %f'],
-        ['t', 'obsolete', 'doReturn', 'stop script'],
-        ['t', 'obsolete', 'stopAll', 'stop all'],
-        ['c', 'obsolete', 'showBackground:', 'switch to background %m.costume', 'backdrop1'],
-        ['c', 'obsolete', 'nextBackground', 'next background'],
-        ['t', 'obsolete', 'doForeverIf', 'forever if %b %c'],
+    undefined: [
+        ['c', undefined, 'drum:duration:elapsed:from:', 'play drum %f for %f beats', 1, 0.25],
+        ['c', undefined, 'midiInstrument:', 'set instrument to %f', 1],
+        ['b', undefined, 'isLoud', 'loud?'],
+        ['r', undefined, 'abs', 'abs %f'],
+        ['r', undefined, 'sqrt', 'sqrt %f'],
+        ['t', undefined, 'doReturn', 'stop script'],
+        ['t', undefined, 'stopAll', 'stop all'],
+        ['c', undefined, 'showBackground:', 'switch to background %m.costume', 'backdrop1'],
+        ['c', undefined, 'nextBackground', 'next background'],
+        ['t', undefined, 'doForeverIf', 'forever if %b %c'],
 
-        ['r', 'obsolete', 'COUNT', 'noop']
-        ['r', 'obsolete', 'COUNT', 'counter']
-        ['c', 'obsolete', 'CLR_COUNT', 'clear counter']
-        ['c', 'obsolete', 'INCR_COUNT', 'incr counter']
-        ['c', 'obsolete', 'doForLoop', 'for each %m.var in %s %c']
-        ['c', 'obsolete', 'doWhile', 'while %b %c']
-        ['c', 'obsolete', 'warpSpeed', 'all at once %c']
-        ['c', 'obsolete', 'scrollRight', 'scroll right %f']
-        ['c', 'obsolete', 'scrollUp', 'scroll up %f']
-        ['c', 'obsolete', 'scrollAlign', 'align scene %m.scrollAlign', $:'bottom-left']
+        ['r', undefined, 'COUNT', 'noop']
+        ['r', undefined, 'COUNT', 'counter']
+        ['c', undefined, 'CLR_COUNT', 'clear counter']
+        ['c', undefined, 'INCR_COUNT', 'incr counter']
+        ['c', undefined, 'doForLoop', 'for each %m.var in %s %c']
+        ['c', undefined, 'doWhile', 'while %b %c']
+        ['c', undefined, 'warpSpeed', 'all at once %c']
+        ['c', undefined, 'scrollRight', 'scroll right %f']
+        ['c', undefined, 'scrollUp', 'scroll up %f']
+        ['c', undefined, 'scrollAlign', 'align scene %m.scrollAlign', $:'bottom-left']
         ['v', $:'x scroll']
         ['v', $:'y scroll']
-        ['c', 'obsolete', 'hideAll', 'hide all sprites']
-        ['r', 'obsolete', 'getUserId', 'user id']
+        ['c', undefined, 'hideAll', 'hide all sprites']
+        ['r', undefined, 'getUserId', 'user id']
     ]
 
 specsBySelector =
