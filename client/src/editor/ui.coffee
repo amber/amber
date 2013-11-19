@@ -748,7 +748,7 @@ class BlockPalette extends Control
         @initElements 'd-block-palette'
         @add @categorySelector = new CategorySelector().onCategorySelect @selectCategory, @
 
-        for name of specs when name isnt 'obsolete'
+        for name of specs when name isnt 'undefined'
             @categorySelector.addCategory name
 
         @categorySelector.selectCategory @amber.selectedCategory
