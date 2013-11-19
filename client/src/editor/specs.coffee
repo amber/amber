@@ -289,17 +289,13 @@ categoryColors =
     undefined: '#d42828'
 
 do ->
-    map = (specs) ->
-        for spec in specs when spec isnt '-'
+    for name, category of specs
+        for spec in category when spec isnt '-'
+            spec = spec.sprite if spec.sprite
+            spec = spec.stage if spec.stage
             switch spec[0]
                 when 'c', 't', 'r', 'b', 'h'
                     specsBySelector[spec[2]] = spec
-    for name, category of specs
-        if category.stage
-            map category.stage
-            map category.sprite
-        else
-            map category
 
 checkScratchSpecs = (specs) ->
     for spec in specs when spec.length > 1
