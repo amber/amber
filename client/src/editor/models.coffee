@@ -22,6 +22,10 @@ class Project extends Base
     constructor: ->
         @name = tr 'Untitled'
 
+    fromJSON: (json) ->
+        @name = json.name ? null
+        @stage = new Stage().fromJSON(json.stage)
+
 class Scriptable extends Base
     @id: 0
 
@@ -55,6 +59,16 @@ class Scriptable extends Base
         @onCostumeChange @change
         @onFilterChange @change
 
+    fromJSON: (json) ->
+        if json.children
+            @children.push new Sprite(s.objName).fromJSON(s) for s in json.children
+
+        if json.costumes
+            index = json.currentCostumeIndex ? 0
+            @addCostume c, i is index for c, i in json.costumes
+
+        @
+
     change: =>
         @dispatch 'Change', new ControlEvent(@)
 
@@ -82,19 +96,19 @@ class Scriptable extends Base
     @property 'allSprites', ->
         x for x in @allObjects when x.isSprite
 
-    addCostume: (info) ->
+    addCostume: (info, apply) ->
         image = new Image
         image.onload = =>
             costume = new Costume().set({
-                name: info.name
+                name: info.costumeName
                 image: image
                 rotationCenterX: info.rotationCenterX
                 rotationCenterY: info.rotationCenterY
             })
-            if not @costumes.length
+            if apply
                 @costume = costume
             @costumes.push costume
-        image.src = info.base64
+        image.src = info.baseLayerURL
         @
 
     addVariable: (name) ->

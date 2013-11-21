@@ -133,14 +133,13 @@ class Editor extends Control
         @tabBar.select @tabBar.selectedIndex ? 0
         @spriteList.select object
 
-    @property 'project'
-    ###
+    @property 'project',
         set: (project) ->
-            @preloaderEnabled = true
-            @progressText = tr 'Loading resources\u2026'
-            @_project = new Project(@).fromJSON project
+            # @preloaderEnabled = true
+            # @progressText = tr 'Loading project resources\u2026'
+            @_project = new Project().fromJSON project
             @stageView.model = @project.stage
-    ###
+        get: -> @_project
 
     @property 'projectId'
 
