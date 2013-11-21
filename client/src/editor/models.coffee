@@ -44,7 +44,6 @@ class Scriptable extends Base
             @variables.push new Variable @, $:name, config
         @rebuildVariables()
 
-        @children = []
         @costumes = []
 
         @filters =
@@ -60,9 +59,6 @@ class Scriptable extends Base
         @onFilterChange @change
 
     fromJSON: (json) ->
-        if json.children
-            @children.push new Sprite(s.objName).fromJSON(s) for s in json.children
-
         if json.costumes
             index = json.currentCostumeIndex ? 0
             @addCostume c, i is index for c, i in json.costumes
@@ -209,6 +205,16 @@ class Stage extends Scriptable
 
     constructor: ->
         super $:'Stage'
+
+        @children = []
+
+    fromJSON: (json) ->
+        super json
+
+        if json.children
+            @children = (new Sprite(s.objName).fromJSON(s) for s in json.children)
+
+        @
 
     draw: (cx) ->
         if costume = @costumes[@costumeIndex]
