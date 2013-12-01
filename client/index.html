@@ -18,8 +18,8 @@
 <script src=locale/en-US.js></script>
 <script>
 var app = new amber.site.App().setConfig({
-    livePacketLog: true,
-    verbosePackets: true
+  livePacketLog: true,
+  verbosePackets: true
 }).setElement(document.body).setServer(localStorage.getItem('amber.useCloud9') === 'true' ? new amber.models.Server('ws://am-c9-nd.c9.io/', 'http://am-c9-nd.c9.io/api/assets/') : new amber.models.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
 </script>
 </body>
