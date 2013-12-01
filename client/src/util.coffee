@@ -110,10 +110,11 @@ class Base
     delete @['$listeners_' + name]
     @
 
-  dispatch: (name, event) ->
-    a = @[key = '$listeners_' + name]
-    if a
-      for o in a
+  dispatch: (name, event, targets) ->
+    key = '$listeners_' + name
+    targets ?= @[key]
+    if targets
+      for o in targets
         o.listener.call o.context, event
     @
 

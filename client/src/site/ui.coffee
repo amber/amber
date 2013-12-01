@@ -890,7 +890,7 @@ class App extends amber.ui.App
 
   _resetPage: ->
     @authenticators = []
-    @dispatch 'Unload', new ControlEvent @
+    @oldListeners = @listeners 'Unload'
     @clearListeners 'Unload'
     @pendingRequests = 0
     @spinner.hide()
@@ -909,6 +909,7 @@ class App extends amber.ui.App
     if @pendingRequests is 0
       @wrap.replace @oldPage, @page
       @wrap.element.scrollTop = 0
+      @dispatch 'Unload', new ControlEvent(@), @oldListeners
       @oldPage = undefined
 
     @
