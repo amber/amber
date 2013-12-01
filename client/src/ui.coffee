@@ -526,7 +526,7 @@ class Menu extends Control
     @
 
   popDown: (control, element = control.element, selectedItem) ->
-    target = @findTarget selectedItem
+    target = selectedItem and @findTarget selectedItem
     target.activate() if target ?= @menuItems[0]
     @addClass 'd-menu-pop-down'
     elementBB = element.getBoundingClientRect()
