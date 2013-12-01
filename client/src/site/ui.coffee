@@ -458,11 +458,11 @@ class Post extends Container
         @timestamp.date = new Date(post.modified)
 
   update: ->
-    @body.richText = parse(@source = @editor.text).result
+    @body.richText = parse(@source = @bodyEditor.text).result
     @addClass('pending').add(spinner = new Container('d-r-post-spinner'))
     @app.request 'forums.post.edit',
       post$id: @id,
-      body: @editor.text
+      body: @bodyEditor.text
     , =>
       @removeClass('pending').remove(spinner)
     @cancel()
@@ -474,12 +474,12 @@ class Post extends Container
   edit: =>
     return unless @id
     @form = new Form().onSubmit(@update, @).onCancel(@cancel, @)
-    @form.add(@editor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(@source))
+    @form.add(@bodyEditor = new TextField.Multiline('d-textfield d-r-post-editor').setAutoSize(true).setText(@source))
       .add(@updateButton = new Button().setText(tr 'Update Post').onExecute(@form.submit, @form))
       .add(@cancelButton = new Button('d-button light').setText(tr 'Cancel').onExecute(@form.cancel, @form))
     @replace @body, @form
     @actionButton.hide()
-    setTimeout => @editor.select()
+    setTimeout => @bodyEditor.select()
 
   deletePost: =>
     @pending = true
