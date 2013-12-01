@@ -689,7 +689,7 @@
 }
 .d-chat-line {
   display: block;
-  color: #000;
+  color: rgba(0, 0, 0, .7);
   position: relative;
   padding: 0 6px;
 }
@@ -701,9 +701,9 @@
   height: 1px;
 }
 .d-chat-username {
-  /*font-weight: bold;*/
   display: inline;
-  color: #aaa;
+  color: #000;
+  font-weight: 500;
   margin-right: 6px;
 }
 /*.d-chat-username::before {
