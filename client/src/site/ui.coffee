@@ -219,7 +219,6 @@ views =
 
       loves.text = tr.plural '% Loves', '% Love', project.loves
       viewCount.text = tr.plural '% Views', '% View', project.views
-      remixes.text = tr.plural '% Remixes', '% Remix', project.remixes.length
 
       if isEdit
         player.editMode = true
