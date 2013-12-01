@@ -503,6 +503,7 @@ class Menu extends Control
       addClass item.element, 'd-menu-item-active'
 
   findTarget: (selectedItem) ->
+    return unless selectedItem
     if typeof selectedItem is 'number'
       target = @menuItems[selectedItem]
     else if typeof selectedItem is 'string' or typeof selectedItem is 'object'
@@ -526,7 +527,7 @@ class Menu extends Control
     @
 
   popDown: (control, element = control.element, selectedItem) ->
-    target = selectedItem and @findTarget selectedItem
+    target = @findTarget selectedItem
     target.activate() if target ?= @menuItems[0]
     @addClass 'd-menu-pop-down'
     elementBB = element.getBoundingClientRect()
