@@ -689,9 +689,9 @@
 }
 .d-chat-line {
   display: block;
-  color: #fff;
+  color: #000;
   position: relative;
-  padding: 3px 6px;
+  padding: 0 6px;
 }
 .d-chat-line-hidden {
   display: inline-block;
