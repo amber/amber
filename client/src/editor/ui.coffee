@@ -445,7 +445,8 @@ class StageView extends Control
         @resize()
         @context = @element.getContext '2d'
         @redraw = true
-        @onLive @start
+        @onLive ->
+            @start() if @model
         @onUnlive @stop
 
     @property 'model', apply: (model, old) ->
@@ -491,12 +492,7 @@ class StageView extends Control
 
     draw: ->
         @element.width = @element.width
-        @amber.project.stage.draw @context
-
-    createBackdrop: ->
-        image = @model.filteredImage
-        image.control = @
-        @element.appendChild @image = image, @element.firstChild
+        @model.draw @context
 
 class SpriteList extends Control
     constructor: (@amber) ->
