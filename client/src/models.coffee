@@ -11,9 +11,10 @@ Group =
   ADMINISTRATOR: 1 << 2
 
 class User extends Base
+
   constructor: (server) ->
     super()
-    @setServer server
+    @server = server
 
   @property 'server'
 
@@ -67,8 +68,15 @@ class User extends Base
     u._id = -1
     u
 
+
 class Server extends Base
+
   INITIAL_REOPEN_DELAY: 100
+
+  REQUEST_ERRORS: [
+    'Not found',
+    'Incorrect credentials'
+  ]
 
   constructor: (socketURL, assetStoreURL) ->
     @socketURL = socketURL
@@ -125,17 +133,12 @@ class Server extends Base
       if request.error
         request.error p.code
       else
-        console.error 'RequestError: ' + @requestErrors[p.code] + ' in ' + request.name, request.options
+        console.error 'RequestError: ' + @REQUEST_ERRORS[p.code] + ' in ' + request.name, request.options
 
       delete @requests[p.request$id]
 
     error: (p) ->
       @app.load 'error', p.name, p.message, p.stack
-
-  requestErrors: [
-    'Not found',
-    'Incorrect credentials'
-  ]
 
   listeners:
     open: ->
@@ -197,6 +200,8 @@ class Server extends Base
 
       if hasOwnProperty.call @on, packet.$type
         @on[packet.$type].call @, packet
+      else if @app.currentEditor and hasOwnProperty.call @app.currentEditor.on, packet.$type
+        @app.currentEditor.on[packet.$type].call @app.currentEditor, packet
       else
         console.warn 'Missed packet:', packet
 
@@ -289,30 +294,32 @@ class Server extends Base
   getAsset: (hash) -> @assetStoreURL + hash + '/'
 
   getUser: (name, callback) ->
-    @request 'users.user', { user: name }, (data) ->
+    @request 'users.user', { user: name }, (data) =>
       callback (new User @).fromJSON data
 
+  logObject: (object, dollar) ->
+    for key, value of object when not dollar or key[0] isnt '$'
+      if value and typeof value is 'object'
+        console.group "#{key}:"
+        @logObject value
+        console.groupEnd()
+      else
+        console.log "#{key}:", value
+
   logPacket: (packet) ->
-    log = (object, dollar) ->
-      for key, value of object when not dollar or key[0] isnt '$'
-        if value and typeof value is 'object'
-          console.group "#{key}:"
-          log value
-          console.groupEnd()
-        else
-          console.log "#{key}:", value
 
     time = packet.$time.toLocaleTimeString()
     side = packet.$side
     type = packet.$type
 
     console.groupCollapsed "[#{time}] #{side}:#{type}"
-    log packet, true
+    @logObject packet, true
     console.groupEnd()
 
   showLog: ->
     for log in @log
       @logPacket log
+
 
 module 'amber.models', {
   User

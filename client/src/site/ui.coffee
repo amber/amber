@@ -220,6 +220,7 @@ views =
       loves.text = tr.plural '% Loves', '% Love', project.loves
       viewCount.text = tr.plural '% Views', '% View', project.views
 
+      player.projectAsset = project.latest
       if isEdit
         player.editMode = true
 

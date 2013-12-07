@@ -14,29 +14,41 @@ class Editor extends Control
   selectedCategory: 'motion'
 
   constructor: ->
-    super()
     @blocks = {}
     @objects = {}
+    super()
+
     @initElements 'd-amber d-collapse-user-panel'
+    @element.appendChild @lightbox = @newElement 'd-lightbox'
+
     @preloader = new Dialog().addClass('d-preloader')
       .add(@_progressLabel = new Label)
       .add(@_progressBar = new ProgressBar)
+
     @add @spritePanel = new SpritePanel(@)
+
     @spriteList.hide()
     @spritePanel.toggleVisible = false
+
     document.addEventListener 'keydown', @keyDown
+
+  @property 'lightboxEnabled', apply: (lightboxEnabled) ->
+    @lightbox.style.display = if lightboxEnabled then 'block' else 'none'
 
   keyDown: (e) =>
     none = e.target is document.body
+
     switch e.keyCode
       when 32
         if none
           @chat.show()
           e.preventDefault()
+
       when 27
         if none or e.target is @chat.input
           @userPanel.collapsed = true
           e.preventDefault()
+
       when 'I'.charCodeAt 0
         if (e.metaKey or e.ctrlKey) and not (e.shiftKey or e.altKey)
           e.preventDefault()
@@ -66,14 +78,17 @@ class Editor extends Control
     @add @tabBar = new TabBar(@)
 
     if @project
-      @spriteList.clear()
-      @spriteList.addIcon @project.stage
-      for sprite in @project.stage.children
-        @spriteList.addIcon sprite
-
-      @selectSprite @project.stage.children[0] ? @project.stage
-      @stageView.model = @project.stage
+      @initProject()
     @
+
+  initProject: ->
+    @spriteList.clear()
+    @spriteList.addIcon @project.stage
+    for sprite in @project.stage.children
+      @spriteList.addIcon sprite
+
+    @selectSprite @project.stage.children[0] ? @project.stage
+    @stageView.model = @project.stage
 
   createVariable: ->
     dialog = new Dialog()
@@ -133,11 +148,24 @@ class Editor extends Control
     @tabBar.select @tabBar.selectedIndex ? 0
     @spriteList.select object
 
+  @property 'projectAsset',
+    apply: (projectAsset) ->
+      @preloaderEnabled = true
+      @progressText = tr 'Loading project\u2026'
+      xhr = new XMLHttpRequest
+      xhr.open('GET', @app.server.getAsset(projectAsset), true)
+      xhr.onload = =>
+        @project = JSON.parse(xhr.responseText)
+        @preloaderEnabled = false
+        if @editMode
+          @initProject()
+      xhr.send()
+
   @property 'project',
     set: (project) ->
       # @preloaderEnabled = true
       # @progressText = tr 'Loading project resources\u2026'
-      @_project = new Project().fromJSON project
+      @_project = new Project().fromJSON(project)
       @stageView.model = @project.stage
     get: -> @_project
 
@@ -150,7 +178,7 @@ class Editor extends Control
     scripts = @selectedSprite.scripts
     return block.anyParentSatisfies (parent) -> parent is scripts
 
-  activeRequests: [],
+  activeRequests: []
 
   updateProgress: ->
     p = 0
@@ -218,6 +246,7 @@ class Editor extends Control
   @property 'editMode',
     apply: (editMode) ->
       app = @app
+      app.currentEditor = @
 
       app.redirect app.reverse('project', @projectId, editMode)
 
@@ -228,14 +257,14 @@ class Editor extends Control
         @tab.visible = editMode if @tab
         @userPanel.visible = editMode
         @tabBar.visible = editMode
-        @lightboxEnabled = @lightboxEnabled and editMode or @preloaderEnabled
       else if editMode
         @initEditMode()
 
       if editMode
-        @userList.clear()
-        @userList.addUser @app.user ? User.guest()
         app.onUnload @unload
+        app.request 'editor.connect', project$id: @projectId, (data) =>
+          @userList.clear()
+          @userList.addUser u for u in data.users
       else
         @spritePanel.collapsed = false
         app.unUnload @unload
@@ -252,6 +281,11 @@ class Editor extends Control
   unload: =>
     if @editMode and @parent
       @parent.remove @
+
+  on:
+    'editor.userJoined': (p) ->
+      @app.server.getUser p.user, (user) =>
+        @userList.addUser user
 
 class UserPanel extends Control
 

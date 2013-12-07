@@ -24,7 +24,9 @@ class Project extends Base
 
   fromJSON: (json) ->
     @name = json.name ? null
-    @stage = new Stage().fromJSON(json.stage)
+    @stage = new Stage()
+    @stage.fromJSON(json.stage) if json.stage
+    @
 
 class Scriptable extends Base
   @id: 0
