@@ -465,6 +465,7 @@ class Post extends Container
       body: @bodyEditor.text
     , =>
       @removeClass('pending').remove(spinner)
+      @model = { modified: Date.now() }
     @cancel()
 
   cancel: ->
