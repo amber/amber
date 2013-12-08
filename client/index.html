@@ -4,6 +4,7 @@
 <link rel=stylesheet href=static/app.css>
 <link rel=icon href=static/favicon.png>
 <body>
+<!--
 <script src=src/util.js></script>
 <script src=src/event.js></script>
 <script src=src/models.js></script>
@@ -15,11 +16,31 @@
 <script src=src/editor/ui.js></script>
 <script src=src/site/urls.js></script>
 <script src=src/site/ui.js></script>
+-->
+<script src=markup.js></script>
+<script src=src.js></script>
 <script src=locale/en-US.js></script>
 <script>
-var app = new amber.site.App().setConfig({
+var server = new Amber.Server('25.16.230.239:8080/').set({
+  // rawPacketLog: true,
   livePacketLog: true,
   verbosePackets: true
-}).setElement(document.body).setServer(localStorage.getItem('amber.useCloud9') === 'true' ? new amber.models.Server('ws://am-c9-nd.c9.io/', 'http://am-c9-nd.c9.io/api/assets/') : new amber.models.Server('ws://25.16.230.239:8080/', 'http://25.16.230.239:8080/api/assets/'));
+});
+console.log(server);
 </script>
+<!--
+<script>
+var config = {
+  rawPacketLog: true,
+  livePacketLog: true,
+  verbosePackets: true
+};
+var app = new Amber.Site().set({
+  element: document.body,
+  server: localStorage.getItem('amber.useCloud9') === 'true' ?
+    new Amber.Server('am-c9-nd.c9.io/').set(config) :
+    new Amber.Server('25.16.230.239:8080/').set(config)
+});
+</script>
+-->
 </body>

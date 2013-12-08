@@ -216,7 +216,7 @@ class Server extends Base
       return
 
     if not packet or typeof packet isnt 'object'
-      console.warn 'Invalid packet:', e
+      console.warn 'Invalid packet:', packet
       return
 
     return packet unless packet instanceof Array

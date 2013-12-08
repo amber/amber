@@ -1,5 +1,5 @@
 favicon.xcf
 *.map
-*.js
+src/**/*.js
 **/private/*
 docs/*
