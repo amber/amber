@@ -151,301 +151,9 @@ var Amber = (function () {
   }
 
 
-  function Base() {}
-
-  Base.prototype.on = function(name, handler) {
-    var k = '$l_' + name;
-    if (this[k]) {
-      this[k].push(handler);
-    } else {
-      this[k] = [handler];
-    }
-    return this;
-  };
-
-  Base.prototype.once = function(name, handler) {
-    return this.on(name, function listener() {
-      handler.apply(null, arguments);
-      this.removeListener(name, listener);
-    }.bind(this));
-  };
-
-  Base.prototype.removeListener = function(name, handler) {
-    var k = '$l_' + name;
-    if (this[k]) {
-      var i = this[k].indexOf(handler);
-      this[k].splice(i, 1);
-    }
-    return this;
-  };
-
-  Base.prototype.removeAllListeners = function(name) {
-    delete this['$l_' + name];
-    return this;
-  };
-
-  Base.prototype.listeners = function(name) {
-    return this['$l_' + name] || [];
-  };
-
-  Base.prototype.emit = function(name) {
-    var listeners = this['$l_' + name];
-    if (listeners) {
-      var args = slice.call(arguments, 1);
-      for (var i = 0; i < listeners.length; i++) {
-        listeners[i].apply(null, args);
-      }
-    }
-    return this;
-  };
-
-  Base.prototype.set = function(data) {
-    for (var key in data) if (hasOwnProperty.call(data, key)) {
-      this[key] = data[key];
-    }
-    return this;
-  };
 
 
-  inherits(Promise, Base);
-  function Promise() {
-    this.complete = false;
-  }
-
-  Promise.prototype.isPromise = true;
-
-  Promise.prototype.on = function(event, handler) {
-    if ((event === 'success' || event === 'failure') && this.complete) {
-      if (event === 'success' && this.success) {
-        handler.apply(null, this.results);
-      } else if (event === 'failure' && !this.success) {
-        handler(this.reason);
-      }
-    } else {
-      Base.prototype.on.call(this, event, handler);
-    }
-  };
-
-  Promise.prototype.then = function(success, failure) {
-    var promise = new Promise;
-
-    this.on('success', function(result) {
-      result = success ? success.apply(null, arguments) : result;
-      if (result && result.isPromise) {
-        result.then(promise.fulfill, promise.reject);
-      } else {
-        promise.fulfill(result);
-      }
-    });
-    this.on('failure', function(err) {
-      if (failure) failure(err);
-      promise.reject(err);
-    });
-
-    return promise;
-  };
-
-  Promise.prototype.fulfill = function() {
-    if (this.complete) return;
-    this.complete = true;
-    this.success = true;
-    var args = slice.call(arguments);
-    this.results = args;
-    this.emit.apply(this, ['success'].concat(args));
-    this.emit.apply(this, ['resolve', null].concat(args));
-    return this;
-  };
-
-  Promise.prototype.reject = function(err) {
-    if (this.complete) return;
-    this.complete = true;
-    this.success = false;
-    this.reason = err;
-    this.emit('failure', err);
-    this.emit('resolve', err);
-    return this;
-  };
-
-  Promise.all = function() {
-    var components = slice.call(arguments);
-    var all = new Promise;
-    var results = [];
-    var count = 0;
-    components.forEach(function(promise, i) {
-      promise.then(function(result) {
-        results[i] = result;
-        count += 1;
-        if (count === components.length) {
-          all.fulfill(results);
-        }
-      }, function(err) {
-        promise.reject(err);
-      });
-    });
-    return all;
-  };
-
-  Promise.some = function() {
-    var components = slice.call(arguments);
-    var some = new Promise;
-    var failures = [];
-    var count = 0;
-    components.forEach(function(promise, i) {
-      promise.then(function(result) {
-        some.fulfill(result);
-      }, function(err) {
-        failures[i] = result;
-        count += 1;
-        if (count === components.length) {
-          promise.reject(failures);
-        }
-      });
-    });
-    return some;
-  };
-
-  Promise.any = function() {
-    var components = slice.call(arguments);
-    var any = new Promise;
-    var failures = [];
-    var count = 0;
-    components.forEach(function(promise, i) {
-      promise.then(function(result) {
-        any.fulfill(result);
-      }, function(err) {
-        any.reject(err);
-      });
-    });
-    return any;
-  };
-
-
-  inherits(Locale, Base);
-  function Locale(id, name) {
-    this.id = id;
-    this.name = name;
-  }
-
-  Locale.strings = {};
-  Locale.current = 'en-US';
-
-  Locale.list = [
-    new Locale('en-US', 'English (US)'),
-    new Locale('en-PT', 'Pirate-speak')
-  ];
-
-  Locale.getText = function(id) {
-    var l = Locale.strings[Locale.current];
-    var result;
-    if (hasOwnProperty.call(l, id)) {
-      result = l[id];
-    } else {
-      if (Locale.current !== 'en-US') {
-        console.warn('Missing translation key "' + id + '"');
-      }
-      result = id;
-    }
-
-    if (arguments.length === 1) {
-      return result;
-    }
-    return format.apply(null, [result].concat(slice.call(arguments, 1)));
-  };
-
-  Locale.maybeGetText = function(trans) {
-    return trans && trans.$ ? getText(trans.$) : trans;
-  };
-
-  Locale.getList = function(list) {
-    return (Locale.strings[Locale.current].__list || Locale.strings['en-US'].__list)(list);
-  };
-
-  Locale.getPlural = function(a, b, n) {
-    return n === 1 ? Locale.getText(b, n) : Locale.getText(a, n);
-  };
-
-
-  var T = Locale.getText;
-  T.maybe = Locale.maybeGetText;
-  T.list = Locale.getList;
-  T.plural = Locale.getPlural;
-
-
-  inherits(Event, Base);
-  function Event() {}
-
-  Event.prototype.fromDOM = function(e) {
-    this.alt = e.altKey;
-    this.ctrl = e.ctrlKey;
-    this.meta = e.metaKey;
-    this.shift = e.shiftKey;
-  };
-
-
-  inherits(PropertyEvent, Event);
-  function PropertyEvent(object, value, previousValue) {
-    this.object = object;
-    this.value = value;
-    this.previousValue = previousValue;
-  }
-
-
-  inherits(ControlEvent, Event);
-  function ControlEvent(control) {
-    this.control = control;
-  }
-
-
-  inherits(TouchEvent, Event);
-  function TouchEvent() {}
-
-  TouchEvent.prototype.fromTouch = function(e, touch) {
-    this.fromDOM(e);
-    this.x = touch.clientX;
-    this.y = touch.clientY;
-    this.id = touch.identifier || 0;
-    this.radiusX = touch.radiusX != null ? touch.radiusX : 10;
-    this.radiusY = touch.radiusY != null ? touch.radiusY : 10;
-    this.angle = touch.rotationAngle || 0;
-    this.force = touch.force != null ? touch.force : 1;
-    return this;
-  };
-
-  TouchEvent.prototype.fromMouse = function(e) {
-    this.fromDOM(e);
-    this.x = e.clientX;
-    this.y = e.clientY;
-    this.id = -1;
-    this.radiusX = .5;
-    this.radiusY = .5;
-    this.angle = 0;
-    this.force = 1;
-    return this;
-  };
-
-
-  inherits(WheelEvent, Event);
-  function WheelEvent() {
-    this.allowDefault = false;
-    this.x = 0;
-    this.y = 0;
-  }
-
-  WheelEvent.prototype.fromWebkit = function(e) {
-    this.fromDOM(e);
-    this.x = -e.wheelDeltaX / 3;
-    this.y = -e.wheelDeltaY / 3;
-    return this;
-  };
-
-  WheelEvent.prototype.fromMoz = function(e) {
-    this.fromDOM(e);
-    this.x = 0;
-    this.y = e.detail;
-    return this;
-  };
-
-
+/*
   var UserGroup = {
     ADMINISTRATOR: 'administrator',
     MODERATOR: 'moderator',
@@ -488,289 +196,756 @@ var Amber = (function () {
     this.id = data.scratchId;
     this.group = data.group || 'default';
   };
+*/
 
+  var debug = true;
+  function nameFunction(f, name) {
+    return f.name ? f : new Function('inner', 'return function ' + name + '() { return inner.apply(this, arguments); };')(f);
+  }
+  function create(className, config) {
+    function named(prefix, key, f) {
+      if (!debug) return f;
+      if (f == null) {
+        f = key;
+        key = prefix;
+        prefix = null;
+      }
+      return nameFunction(f, (className ? className + '_' : '') + (prefix ? prefix + '_' : '') + key);
+    }
 
-  inherits(Server, Base);
-  function Server(url) {
-    this.url = url;
-    this.rawPacketLog = false;
-    this.livePacketLog = false;
-    this.verbosePackets = false;
+    if (isObject(className)) {
+      config = className;
+      className = null;
+    }
 
-    this.connected = false;
-    this.log = [];
+    var extend = config.extend || Base;
+    delete config.extend;
 
-    this.$token = localStorage.getItem('Amber.Server.token');
+    var outer = function(c) {
+      var instance = new constructor;
+      instance.init();
+      if (c) instance.set(c);
+      instance.construct();
+      return instance;
+    };
+    var constructor = function () {};
 
-    this.requestMap = {};
-    this.userMap = {};
+    if (className && debug) {
+      outer = nameFunction(outer, className);
+      constructor = nameFunction(constructor, className);
+    }
 
-    this.reopenDelay = Server.INITIAL_REOPEN_DELAY;
-    this.open();
+    constructor.prototype = Object.create(extend ? extend.prototype : Object.prototype);
+    constructor.prototype.constructor = constructor;
+
+    outer.prototype = constructor.prototype;
+
+    if (config.init) {
+      var superInit = extend && extend.prototype.init;
+      var init = config.init;
+      delete config.init;
+
+      constructor.prototype.init = named('init', superInit ? function() {
+        superInit.call(this);
+        init.call(this);
+      } : init);
+    }
+
+    if (config.construct) {
+      var superConstruct = extend && extend.prototype.construct;
+      var construct = config.construct;
+      delete config.construct;
+
+      constructor.prototype.construct = named('construct', superConstruct ? function() {
+        superConstruct.call(this);
+        construct.call(this);
+      } : construct);
+    }
+
+    if (config.data) {
+      var data = config.data;
+      delete config.data;
+
+      Object.keys(data).forEach(function(key) {
+        var k = '$d_' + key;
+
+        Object.defineProperty(constructor.prototype, key, {
+          get: named('get', key, function() {
+            return this[k];
+          }),
+          set: named('set', key, function(value) {
+            var previousValue = this[k];
+            this.emit(key + 'Changed', Event({
+              object: this,
+              value: value,
+              previousValue: previousValue
+            }));
+            this[k] = value;
+          })
+        });
+      });
+    }
+
+    if (config.properties) {
+      var properties = config.properties;
+      delete config.properties;
+
+      Object.keys(properties).forEach(function(key) {
+        var c = properties[key];
+
+        if (isFunction(c)) {
+          Object.defineProperty(constructor.prototype, key, {
+            get: debug ? nameFunction(c, (className ? className + '_' : '') + 'get_' + key) : c,
+          });
+        } else if (c.apply) {
+          var k = '$p_';
+          var apply = c.apply;
+
+          Object.defineProperty(constructor.prototype, key, {
+            get: named('get', key, function() {
+              return this[k];
+            }),
+            set: named('set', key, function(value) {
+              var old = this[k];
+              if (old === value) return;
+              this[k] = value;
+              this[apply](value, old);
+            })
+          });
+        }
+      });
+    }
+
+    if (config.statics) {
+      var statics = config.statics;
+      delete config.statics;
+
+      Object.keys(statics).forEach(function(key) {
+        outer[key] = isFunction(statics[key]) ? named('static', key, statics[key]) : statics[key];
+      });
+    }
+
+    Object.keys(config).forEach(function(key) {
+      constructor.prototype[key] = isFunction(config[key]) ? named(key, config[key]) : config[key];
+    });
+
+    return outer;
   }
 
-  Server.INITIAL_REOPEN_DELAY = 100;
+  function model(name, config) {
+    model[name] = create(name, config);
+  }
 
-  Server.REQUEST_ERRORS = [
-    'Not found',
-    'Incorrect credentials'
+  var Base = create('Base', {
+
+    on: function(name, handler) {
+      var k = '$l_' + name;
+      if (this[k]) {
+        this[k].push(handler);
+      } else {
+        this[k] = [handler];
+      }
+      return this;
+    },
+
+    once: function(name, handler) {
+      return this.on(name, function listener() {
+        handler.apply(null, arguments);
+        this.removeListener(name, listener);
+      }.bind(this));
+    },
+
+    removeListener: function(name, handler) {
+      var k = '$l_' + name;
+      if (this[k]) {
+        var i = this[k].indexOf(handler);
+        this[k].splice(i, 1);
+      }
+      return this;
+    },
+
+    removeAllListeners: function(name) {
+      delete this['$l_' + name];
+      return this;
+    },
+
+    listeners: function(name) {
+      return this['$l_' + name] || [];
+    },
+
+    emit: function(name) {
+      var listeners = this['$l_' + name];
+      if (listeners) {
+        var args = slice.call(arguments, 1);
+        for (var i = 0; i < listeners.length; i++) {
+          listeners[i].apply(null, args);
+        }
+      }
+      return this;
+    },
+
+    set: function(data) {
+      for (var key in data) if (hasOwnProperty.call(data, key)) {
+        this[key] = data[key];
+      }
+      return this;
+    },
+
+
+    init: function() {},
+    construct: function() {}
+
+  });
+
+  var Promise = create('Promise', {
+
+    isPromise: true,
+
+    on: function(event, handler) {
+      if ((event === 'success' || event === 'failure') && this.complete) {
+        if (event === 'success' && this.success) {
+          handler.apply(null, this.results);
+        } else if (event === 'failure' && !this.success) {
+          handler(this.reason);
+        }
+      } else {
+        Base.prototype.on.call(this, event, handler);
+      }
+      return this;
+    },
+
+    then: function(success, failure) {
+      var promise = Promise();
+
+      this.on('success', function(result) {
+        result = success ? success.apply(null, arguments) : result;
+        if (result && result.isPromise) {
+          result.then(promise.fulfill, promise.reject);
+        } else {
+          promise.fulfill(result);
+        }
+      });
+      this.on('failure', function(err) {
+        if (failure) failure(err);
+        promise.reject(err);
+      });
+
+      return promise;
+    },
+
+    fulfill: function() {
+      if (this.complete) return;
+      this.complete = true;
+      this.success = true;
+      var args = slice.call(arguments);
+      this.results = args;
+      this.emit.apply(this, ['success'].concat(args));
+      this.emit.apply(this, ['resolve', null].concat(args));
+      return this;
+    },
+
+    reject: function(err) {
+      if (this.complete) return;
+      this.complete = true;
+      this.success = false;
+      this.reason = err;
+      this.emit('failure', err);
+      this.emit('resolve', err);
+      return this;
+    },
+
+    statics: {
+
+      all: function() {
+        var components = slice.call(arguments);
+        var all = Promise();
+        var results = [];
+        var count = 0;
+        components.forEach(function(promise, i) {
+          promise.then(function(result) {
+            results[i] = result;
+            count += 1;
+            if (count === components.length) {
+              all.fulfill(results);
+            }
+          }, function(err) {
+            promise.reject(err);
+          });
+        });
+        return all;
+      },
+
+      some: function() {
+        var components = slice.call(arguments);
+        var some = Promise();
+        var failures = [];
+        var count = 0;
+        components.forEach(function(promise, i) {
+          promise.then(function(result) {
+            some.fulfill(result);
+          }, function(err) {
+            failures[i] = result;
+            count += 1;
+            if (count === components.length) {
+              promise.reject(failures);
+            }
+          });
+        });
+        return some;
+      },
+
+      any: function() {
+        var components = slice.call(arguments);
+        var any = Promise();
+        var failures = [];
+        var count = 0;
+        components.forEach(function(promise, i) {
+          promise.then(function(result) {
+            any.fulfill(result);
+          }, function(err) {
+            any.reject(err);
+          });
+        });
+        return any;
+      }
+    },
+
+
+    init: function() {
+      this.complete = false;
+    }
+  });
+
+
+  var Locale = create('Locale', {
+
+    statics: {
+      strings: {},
+      impl: {},
+      current: 'en-US',
+
+      getText: function(id) {
+        var l = Locale.strings[Locale.current];
+        var result;
+        if (hasOwnProperty.call(l, id)) {
+          result = l[id];
+        } else {
+          if (Locale.current !== 'en-US') {
+            console.warn('Missing translation key "' + id + '"');
+          }
+          result = id;
+        }
+
+        if (arguments.length === 1) {
+          return result;
+        }
+        return format.apply(null, [result].concat(slice.call(arguments, 1)));
+      },
+
+      maybeGetText: function(trans) {
+        return trans && trans.$ ? getText(trans.$) : trans;
+      },
+
+      getList: function(list) {
+        return (Locale.impl[Locale.current] && Locale.impl[Locale.current].list || Locale.impl['en-US'].list)(list);
+      },
+
+      getPlural: function(a, b, n) {
+        return n === 1 ? Locale.getText(b, n) : Locale.getText(a, n);
+      }
+    }
+  });
+
+  Locale.list = [
+    Locale({ id: 'en-US', name: 'English (US)' }),
+    Locale({ id: 'en-PT', name: 'Pirate-speak' })
   ];
 
-  Server.CENSORED_FIELDS = {
-    'Client:auth.signIn': ['password']
-  };
+  var T = Locale.getText;
+  T.maybe = Locale.maybeGetText;
+  T.list = Locale.getList;
+  T.plural = Locale.getPlural;
 
-  defineGetter(Server.prototype, 'socketURL', function() {
-    return 'ws://' + this.url;
+
+  var Event = create('Event', {
+
+    fromDOM: function(e) {
+      return this.set({
+        alt: e.altKey,
+        ctrl: e.ctrlKey,
+        meta: e.metaKey,
+        shift: e.shiftKey
+      });
+    }
   });
 
-  defineGetter(Server.prototype, 'assetStoreURL', function() {
-    return 'http://' + this.url + 'api/asset/';
-  });
 
-  Server.prototype.getAssetURL = function(hash) {
-    return this.assetStoreURL + hash + '/';
-  };
+  var TouchEvent = create('TouchEvent', {
 
-  defineSetter(Server.prototype, 'token', function(token) {
-    localStorage.setItem('Amber.Server.token', token);
-  });
-
-  Server.prototype.send = function(type, properties) {
-    if (!properties) properties = {};
-    properties.$type = type;
-
-    var p = this.encodePacket('Client', properties);
-    if (!p) return this;
-
-    var log = extend({}, properties);
-    log.$time = new Date;
-    log.$side = 'Client';
-    this.log.push(log);
-
-    if (this.socket.readyState !== 1) {
-      this.queue.push(p);
+    fromTouch: function(e, touch) {
+      return this.fromDOM(e).set({
+        x: touch.clientX,
+        y: touch.clientY,
+        id: touch.identifier || 0,
+        radiusX: touch.radiusX != null ? touch.radiusX : 10,
+        radiusY: touch.radiusY != null ? touch.radiusY : 10,
+        angle: touch.rotationAngle || 0,
+        force: touch.force != null ? touch.force : 1
+      });
       return this;
-    }
-
-    if (this.rawPacketLog) {
-      console.log('C->S:', p);
-    }
-    if (this.livePacketLog) {
-      this.logPacket(log);
-    }
-
-    this.socket.send(p);
-
-    return this;
-  };
-
-  Server.prototype.request = function(type, options) {
-    if (!options) {
-      options = {};
-    }
-
-    var promise = new Promise;
-
-    var id = getUID();
-    this.requestMap[id] = {
-      type: type,
-      options: options,
-      promise: promise
-    };
-
-    options.request$id = id;
-    this.send(type, options);
-
-    return promise;
-  };
-
-  Server.prototype.getUser = function(name) {
-    if (this.userMap[name]) {
-      return new Promise().fulfill(this.userMap[name]);
-    }
-    return this.request('users.user', { user: name }).then(function(data) {
-      return data && this.createUser(data);
-    }.bind(this));
-  };
-
-
-  Server.prototype.on = {
-    connect: function(p) {
-      this.user = p.user && this.createUser(p.user);
-      this.token = p.token;
     },
 
-    result: function(p) {
-      var request = this.popRequest(p.request$id);
-      if (request) {
-        request.promise.fulfill(p.result);
-      }
+    fromMouse: function(e) {
+      return this.fromDOM(e).set({
+        x: e.clientX,
+        y: e.clientY,
+        id: -1,
+        radiusX: .5,
+        radiusY: .5,
+        angle: 0,
+        force: 1
+      });
+    }
+  });
+
+
+  var WheelEvent = create('WheelEvent', {
+
+    fromWebkit: function(e) {
+      return this.fromDOM(e).set({
+        x: -e.wheelDeltaX / 3,
+        y: -e.wheelDeltaY / 3
+      });
+      return this;
     },
 
-    requestError: function(p) {
-      var request = this.popRequest(p.request$id);
-      if (request) {
-        console.error(format('Request error: % in %', Server.REQUEST_ERRORS[p.reason], request.type), request.options);
-        request.promise.reject(p);
+    fromMoz: function(e) {
+      return this.fromDOM(e).set({
+        x: 0,
+        y: e.detail
+      });
+      return this;
+    },
+
+    init: function() {
+      this.allowDefault = false;
+    }
+  });
+
+
+  model('Socket', {
+
+    data: {
+      url: {},
+      connected: {}
+    },
+
+    statics: {
+      REQUEST_ERRORS: ['Not found', 'Incorrect credentials'],
+      INITIAL_REOPEN_DELAY: 100
+    },
+
+    request: function(type, options) {
+      if (!options) options = {};
+
+      var promise = Promise();
+
+      var id = getUID();
+      this.requestMap[id] = {
+        type: type,
+        options: options,
+        promise: promise
+      };
+
+      options.request$id = id;
+      this.send(type, options);
+
+      return promise;
+    },
+
+    send: function(type, properties) {
+      if (!properties) properties = {};
+      properties.$type = type;
+
+      var p = this.encodePacket('Client', properties);
+      if (!p) return this;
+
+      var log = extend({}, properties);
+      log.$time = new Date;
+      log.$side = 'Client';
+      this.log.push(log);
+
+      if (this.socket.readyState !== 1) {
+        this.queue.push(p);
+        return this;
       }
-    }
-  };
 
-
-  Server.prototype.onOpen = function() {
-    var queue = this.queue;
-    this.queue = [];
-
-    this.connected = true;
-    this.reopenDelay = Server.INITIAL_REOPEN_DELAY;
-
-    var p = {
-      $type: 'connect'
-    };
-
-    var encoded = this.encodePacket('Client', p);
-    if (this.rawPacketLog) {
-      console.log('C->S:', encoded);
-    }
-    this.socket.send(encoded);
-
-    p.$time = new Date;
-    p.$side = 'Client';
-    this.log.splice(this.log.length - queue.length, 0, p);
-
-    if (this.livePacketLog) {
-      this.logPacket(p);
-    }
-
-    while (encoded = queue.shift()) {
       if (this.rawPacketLog) {
         console.log('C->S:', p);
       }
       if (this.livePacketLog) {
-        this.logPacket(this.log[this.log.length - queue.length - 1]);
+        this.logPacket(log);
       }
-      this.socket.send(encoded);
-    }
-  };
 
-  Server.prototype.onClose = function() {
-    this.connected = false;
-    console.warn('Lost connection.');
+      this.socket.send(p);
 
-    setTimeout(this.open.bind(this), this.reopenDelay);
-    if (this.reopenDelay < 5 * 60 * 1000) {
-      this.reopenDelay *= 2;
-    }
-  };
+      return this;
+    },
 
-  Server.prototype.onMessage = function(e) {
-    if (this.rawPacketLog) {
-      console.log('S->C:', e.data);
-    }
-
-    var p = this.decodePacket('Server', e.data);
-    if (!p) return;
-
-    p.$time = new Date;
-    p.$side = 'Server';
-
-    if (this.livePacketLog) {
-      this.logPacket(p);
-    }
-
-    if (hasOwnProperty.call(this.on, p.$type)) {
-      this.on[p.$type].call(this, p);
-    }
-    this.emit(p.$type, p);
-  };
-
-  Server.prototype.onError = function(e) {
-    console.warn('Socket error:', e);
-  };
+    close: function() {
+      this.socket.onclose = null;
+      this.socket.close();
+    },
 
 
-  Server.prototype.popRequest = function(id) {
-    var request = this.requestMap[id];
+    init: function() {
+      this.rawPacketLog = false;
+      this.livePacketLog = false;
+      this.verbosePackets = false;
 
-    if (!request) {
-      console.warn('Invalid request ID:', p);
-      return;
-    }
+      this.connected = false;
+      this.log = [];
 
-    delete this.requestMap[id];
-    return request;
-  };
+      this.requestMap = {};
 
-  Server.prototype.createUser = function(data) {
-    if (this.userMap[data.name]) {
-      return this.userMap[data.name];
-    }
+      this.reopenDelay = Socket.INITIAL_REOPEN_DELAY;
+      this.open();
+    },
 
-    var user = new User(this);
-    user.fromJSON(data);
-    this.userMap[user.name] = user;
-    return user;
-  };
 
-  Server.prototype.open = function() {
-    this.socket = new WebSocket(this.socketURL);
-    this.socket.onopen = this.onOpen.bind(this);
-    this.socket.onclose = this.onClose.bind(this);
-    this.socket.onmessage = this.onMessage.bind(this);
-    this.socket.onerror = this.onError.bind(this);
-    this.queue = [];
-  };
+    onOpen: function() {
+      var queue = this.queue;
+      this.queue = [];
 
-  Server.prototype.encodePacket = function(side, p) {
-    if (this.verbosePackets) {
-      return JSON.stringify(p);
-    }
+      this.connected = true;
+      this.reopenDelay = Socket.INITIAL_REOPEN_DELAY;
 
-    unimplemented();
-  };
+      while (encoded = queue.shift()) {
+        if (this.rawPacketLog) {
+          console.log('C->S:', p);
+        }
+        if (this.livePacketLog) {
+          this.logPacket(this.log[this.log.length - queue.length]);
+        }
+        this.socket.send(encoded);
+      }
+    },
 
-  Server.prototype.decodePacket = function(side, p) {
-    try {
-      p = JSON.parse(p);
-    } catch (e) {
-      console.warn('Packet syntax error:', p);
-      return;
-    }
+    onClose: function() {
+      this.connected = false;
+      console.warn('Lost connection.');
 
-    if (!isObject(p)) {
-      console.warn('Invalid packet:', p);
-      return;
-    }
+      setTimeout(this.open.bind(this), this.reopenDelay);
+      if (this.reopenDelay < 5 * 60 * 1000) {
+        this.reopenDelay *= 2;
+      }
+    },
 
-    if (!isArray(p)) {
-      return p;
-    }
+    onMessage: function(e) {
+      if (this.rawPacketLog) {
+        console.log('S->C:', e.data);
+      }
 
-    unimplemented();
-  };
+      var p = this.decodePacket('Server', e.data);
+      if (!p) return;
 
-  Server.prototype.logPacket = function(p) {
-    console.groupCollapsed(format('[%] %:%', p.$time.toLocaleTimeString(), p.$side, p.$type));
-    this.logObject(p, true);
-    console.groupEnd();
-  };
+      p.$time = new Date;
+      p.$side = 'Server';
 
-  Server.prototype.logObject = function(object, dollar) {
-    for (var key in object) if (hasOwnProperty.call(object, key) && (!dollar || key.charAt(0) !== '$')) {
-      if (isObject(object[key])) {
-        console.group(key);
-        this.logObject(object[key]);
-        console.groupEnd();
+      if (this.livePacketLog) {
+        this.logPacket(p);
+      }
+
+      if (p.$type === 'result' || p.$type === 'requestError') {
+        var request = this.popRequest(p.request$id);
+        if (request) {
+          if (p.$type === 'result') {
+            request.promise.fulfill(p.result);
+          } else {
+            request.promise.reject(p);
+          }
+        }
       } else {
-        console.log(key + ':', object[key]);
+        this.emit(p.$type, p);
+      }
+    },
+
+    onError: function(e) {
+      console.warn('Socket error:', e);
+    },
+
+
+    open: function() {
+      this.socket = new WebSocket(this.socketURL);
+      this.socket.onopen = this.onOpen.bind(this);
+      this.socket.onclose = this.onClose.bind(this);
+      this.socket.onmessage = this.onMessage.bind(this);
+      this.socket.onerror = this.onError.bind(this);
+      this.queue = [];
+    },
+
+    popRequest: function(id) {
+      var request = this.requestMap[id];
+
+      if (!request) {
+        console.warn('Invalid request ID:', p);
+        return;
+      }
+
+      delete this.requestMap[id];
+      return request;
+    },
+
+    encodePacket: function(side, p) {
+      if (this.verbosePackets) {
+        return JSON.stringify(p);
+      }
+
+      unimplemented();
+    },
+
+    decodePacket: function(side, p) {
+      try {
+        p = JSON.parse(p);
+      } catch (e) {
+        console.warn('Packet syntax error:', p);
+        return;
+      }
+
+      if (!isObject(p)) {
+        console.warn('Invalid packet:', p);
+        return;
+      }
+
+      if (!isArray(p)) {
+        return p;
+      }
+
+      unimplemented();
+    },
+
+    logPacket: function(p) {
+      console.groupCollapsed(format('[%] %:%', p.$time.toLocaleTimeString(), p.$side, p.$type));
+      this.logObject(p, true);
+      console.groupEnd();
+    },
+
+    logObject: function(object, dollar) {
+      for (var key in object) if (hasOwnProperty.call(object, key) && (!dollar || key.charAt(0) !== '$')) {
+        if (isObject(object[key])) {
+          console.group(key);
+          this.logObject(object[key]);
+          console.groupEnd();
+        } else {
+          console.log(key + ':', object[key]);
+        }
       }
     }
+
+  });
+
+  model('Server', {
+
+    data: {
+      connected: {},
+      user: {}
+    },
+
+    properties: {
+      url: { apply: 'applyURL' },
+      token: { apply: 'applyToken' },
+
+      assetStoreURL: function() {
+        return 'http://' + this.url + 'api/asset/';
+      },
+
+      socketURL: function() {
+        return 'ws://' + this.url;
+      }
+    },
+
+    getAssetURL: function(hash) {
+      return this.assetStoreURL + hash + '/';
+    },
+
+    getUser: function(name) {
+      if (this.userMap[name]) {
+        return Promise().fulfill(this.userMap[name]);
+      }
+      return this.request('users.user', { user: name }).then(function(data) {
+        return data && this.createUser(data);
+      }.bind(this));
+    },
+
+
+    init: function() {
+      this.socket = null;
+      this.token = localStorage.getItem('Amber.Server.token');
+      this.userMap = {};
+    },
+
+
+    applyURL: function() {
+      if (this.socket) {
+        this.socket.close();
+      }
+      this.socket = Socket({ url: this.socketURL });
+    },
+
+    applyToken: function(token) {
+      localStorage.setItem('Amber.Server.token', token);
+    },
+
+    createUser: function(data) {
+      if (this.userMap[data.name]) {
+        return this.userMap[data.name];
+      }
+
+      var user = User({
+        server: this
+      });
+      user.fromJSON(data);
+      this.userMap[user.name] = user;
+      return user;
+    },
+
+    connect: function(p) {
+      this.user = p.user && this.createUser(p.user);
+      this.token = p.token;
+    }
+
+  });
+
+
+/*
+  var routes = {
+    '/': 'Homepage'
   };
 
+  view('Homepage', {
 
+    template: 'amber-homepage',
 
+    subscribe: ['userChanged'],
 
+    init: function (model) {
+      ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
+        this[v] = view.Carousel(model.collection(v));
+      }, this);
+
+      this.userChanged(model);
+    },
+
+    userChanged: function(model) {
+      this.hasUser = !!model.user;
+      this.news = view.Activity(model.activity('all'));
+      ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
+        this[v] = model.user && view.Carousel(model.collection('user.' + v));
+      }, this);
+    }
+
+  });
+*/
 
   return {
     unimplemented: unimplemented,
@@ -795,12 +970,10 @@ var Amber = (function () {
     Promise: Promise,
     Locale: Locale,
     Event: Event,
-    PropertyEvent: PropertyEvent,
-    ControlEvent: ControlEvent,
     TouchEvent: TouchEvent,
     WheelEvent: WheelEvent,
-    User: User,
-    Server: Server
+    // User: User,
+    model: model
   };
 
 })();
