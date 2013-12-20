@@ -20,87 +20,50 @@
 -->
 <script src=markup.js></script>
 <script src=src.js></script>
+<script src=mock.js></script>
 <script src=locale/en-US.js></script>
 
-<script type=text/x-amber-template id=amber-homepage>
-  <span data-exclude="hasUser">
-    <header class="splash">
-      <h1>Amber</h1>
-      <p>Collaborate in realtime with others around the world to create your own interactive stories, games, music, &amp; art.</p>
-    </header>
-    <section class="splash-links">
-      <a href="#projects/new">
-        <h1>Get Started</h1>
-        <p>Make an Amber project</p>
-      </a>
-      <a href="#explore">
-        <h1>Explore</h1>
-        <p>{{ projectCount }} projects</p>
-      </a>
-      <a data-id="signIn">
-        <h1>Sign In</h1>
-        <p>With a Scratch account</p>
-      </a>
-      <a href="#help/about">
-        <h1>About Amber</h1>
-        <p>What is this thing?</p>
-      </a>
-      <a href="#help/tos">
-        <h1>Terms of Service</h1>
-        <p>How can I use it?</p>
-      </a>
-      <a href="#help/educators">
-        <h1>For Educators</h1>
-        <p>How can I teach with it?</p>
-      </a>
-    </section>
-  </span>
-  <div data-require="hasUser">
-    <header>
-      <h1>News Feed</h1>
-      <p>Follow people to see their activity here</p>
-      {{ news }}
-    </header>
-  </div>
-  <section>
-    <h1>Featured Projects</h1>
-    <p>Selected projects from the community</p>
-    {{ featured }}
-  </section>
-  <div data-require="hasUser">
-    <section>
-      <h1>Made by People I'm Following</h1>
-      <p>Follow people to see their projects here</p>
-      {{ byFollowing }}
-    </section>
-    <section>
-      <h1>Loved by people I'm following</h1>
-      <p>Follow people to see their interests here</p>
-      {{ lovedByFollowing }}
-    </section>
-  </div>
-  <section>
-    <h1>Top Remixed</h1>
-    <p>What the community is remixing this week</p>
-    {{ topRemixed }}
-  </section>
-  <section>
-    <h1>Top Loved</h1>
-    <p>What the community is loving this week</p>
-    {{ topLoved }}
-  </section>
-  <section>
-    <h1>Top Viewed</h1>
-    <p>What the community is viewing this week</p>
-    {{ topViewed }}
-  </section>
-</script>
-
 <script>
-am.run({
-  url: 'ws://25.16.230.239:8080/',
-  // rawPacketLog: true,
-  livePacketLog: true,
-  verbosePackets: true
+a = Amber;
+
+a.model('TestModel', {
+
+  data: {
+    name: { value: 'a model' }
+  }
 });
+
+a.view('TestView', {
+
+  template: '<div class=test-view></div>',
+
+  subscribe: ['nameChanged'],
+
+  init: function(model) {
+    this.nameChanged(model);
+  },
+
+  nameChanged: function(model) {
+    this.el.textContent = model.name;
+  }
+});
+
+view = a.view.TestView(a.model.TestModel());
+document.body.appendChild(view.el);
+
+// server = Amber.Server({
+//   socket: socket = Amber.mock.Socket({
+//     backendVerbosePackets: true
+//   })
+// }).connect({
+//   verbosePackets: true,
+//   livePacketLog: true
+// });
+
+// server = Amber.Server({
+//   url: 'am-c9-nd.c9.io/'
+// }).connect({
+//   verbosePackets: true,
+//   livePacketLog: true
+// });
 </script>

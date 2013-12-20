@@ -1,4 +1,4 @@
-var Amber = (function () {
+var Amber = (function(debug) {
   'use strict';
 
 
@@ -18,54 +18,23 @@ var Amber = (function () {
     };
   }
 
+  if (typeof console !== 'undefined') {
+    ['error', 'warn', 'log', 'info', 'debug'].forEach(function(method) {
+      console[method] = console[method].bind(console);
+    });
+  }
+
 
   function unimplemented() {
     debugger;
   }
 
 
-  function inherits(sub, sup) {
-    sub.prototype = Object.create(sup.prototype);
-    sub.prototype.constructor = sub;
-  }
-
   function extend(o, p) {
     for (var key in p) if (hasOwnProperty.call(p, key)) {
       o[key] = p[key];
     }
     return o;
-  }
-
-  function defineSetter(object, name, apply) {
-    var k = '$' + name;
-    defineProperty(object, name, {
-      set: function(value) {
-        if (this[k] === value) return;
-        apply(value, this[k]);
-        this[k] = value;
-      },
-      get: function() {
-        return this[k];
-      }
-    });
-  }
-
-  function defineGetter(object, name, get) {
-    defineProperty(object, name, { get: get });
-  }
-
-  function defineEvented(object, name) {
-    var k = '$' + name;
-    defineProperty(object, name, {
-      set: function(value) {
-        var previous = this[k];
-        this[k] = value;
-        this.emit(name + ' change', new PropertyEvent(this, value, previous));
-      },
-      get: function() {
-        return this[k]
-      }
-    });
   }
 
 
@@ -151,66 +120,21 @@ var Amber = (function () {
   }
 
 
-
-
-/*
-  var UserGroup = {
-    ADMINISTRATOR: 'administrator',
-    MODERATOR: 'moderator',
-    DEFAULT: 'default',
-    LIMITED: 'limited'
-  };
-
-
-  inherits(User, Base);
-  function User(server) {
-    this.server = server;
-    this.name = '';
-    this.id = null;
-    this.group = 'default';
+  function nameFunction(f, name, scope) {
+    if (!scope) scope = {};
+    return f.name ? f : Function.apply(null, Object.keys(scope).concat('return function ' + name + '(' + f.toString().replace(/^.*?\(/, '') + ';')).apply(null, Object.keys(scope).map(function(key) { return scope[key] }));
   }
 
-  defineProperty(User.prototype, 'avatarURL', function() {
-    var id = '' + this.id;
-    return format("http://scratch.mit.edu/static/site/users/avatars/%/%.png", id.slice(0, -4), id.slice(-4));
-  });
-
-  User.prototype.getAvatarURLOfSize = function(size) {
-    return format("http://cdn.scratch.mit.edu/get_image/user/%1_%2x%2.png", this.id, size);
-  };
-
-  defineProperty(User.prototype, 'profileURL', function() {
-    return urls.reverse('user profile', this.name);
-  });
-
-  User.prototype.toJSON = function() {
-    return {
-      scratchId: this.id,
-      name: this.name,
-      group: this.group === 'default' ? undefined : group
-    };
-  };
-
-  User.prototype.fromJSON = function(data) {
-    this.name = data.name;
-    this.id = data.scratchId;
-    this.group = data.group || 'default';
-  };
-*/
-
-  var debug = true;
-  function nameFunction(f, name) {
-    return f.name ? f : new Function('inner', 'return function ' + name + '() { return inner.apply(this, arguments); };')(f);
-  }
   function create(className, config) {
-    function named(prefix, key, f) {
+    function named(prefix, key, f, scope) {
       if (!debug) return f;
-      if (f == null) {
+      if (!isFunction(f)) {
+        scope = f;
         f = key;
         key = prefix;
         prefix = null;
       }
-      return nameFunction(f, (className ? className + '_' : '') + (prefix ? prefix + '_' : '') + key);
+      return nameFunction(f, (className ? className + '_' : '') + (prefix ? prefix + '_' : '') + key, scope);
     }
 
     if (isObject(className)) {
@@ -218,48 +142,46 @@ var Amber = (function () {
       className = null;
     }
 
-    var extend = config.extend || Base;
+    var parent = config.extend || Base;
     delete config.extend;
 
-    var outer = function(c) {
+    var outer = function() {
       var instance = new constructor;
-      instance.init();
-      if (c) instance.set(c);
-      instance.construct();
+      instance.construct.apply(instance, arguments);
       return instance;
     };
     var constructor = function () {};
 
     if (className && debug) {
-      outer = nameFunction(outer, className);
       constructor = nameFunction(constructor, className);
+      outer = nameFunction(outer, className, { constructor: constructor });
     }
 
-    constructor.prototype = Object.create(extend ? extend.prototype : Object.prototype);
+    constructor.prototype = Object.create(parent ? parent.prototype : Object.prototype);
     constructor.prototype.constructor = constructor;
 
     outer.prototype = constructor.prototype;
 
     if (config.init) {
-      var superInit = extend && extend.prototype.init;
+      var superInit = parent && parent.prototype.init;
       var init = config.init;
       delete config.init;
 
-      constructor.prototype.init = named('init', superInit ? function() {
-        superInit.call(this);
-        init.call(this);
-      } : init);
+      constructor.prototype.init = superInit ? named('init', function() {
+        superInit.apply(this, arguments);
+        init.apply(this, arguments);
+      }, { superInit: superInit, init: init }) : init;
     }
 
-    if (config.construct) {
-      var superConstruct = extend && extend.prototype.construct;
-      var construct = config.construct;
-      delete config.construct;
+    if (config.finalize) {
+      var superFinalize = parent && parent.prototype.finalize;
+      var finalize = config.finalize;
+      delete config.finalize;
 
-      constructor.prototype.construct = named('construct', superConstruct ? function() {
-        superConstruct.call(this);
-        construct.call(this);
-      } : construct);
+      constructor.prototype.finalize = superFinalize ? named('finalize', function() {
+        superFinalize.apply(this, arguments);
+        finalize.apply(this, arguments);
+      }, { superFinalize: superFinalize, finalize: finalize }) : finalize;
     }
 
     if (config.data) {
@@ -269,21 +191,27 @@ var Amber = (function () {
       Object.keys(data).forEach(function(key) {
         var k = '$d_' + key;
 
+        constructor.prototype[k] = data[key].value === null ? undefined : data[key].value;
+
         Object.defineProperty(constructor.prototype, key, {
           get: named('get', key, function() {
             return this[k];
-          }),
+          }, { k: k }),
           set: named('set', key, function(value) {
+            if (value === null) value = undefined;
             var previousValue = this[k];
+            if (previousValue === value) return;
+            this[k] = value;
             this.emit(key + 'Changed', Event({
               object: this,
               value: value,
               previousValue: previousValue
             }));
-            this[k] = value;
-          })
+          }, { k: k, key: key, Event: Event })
         });
       });
+
+      constructor.data = outer.data = extend(parent ? extend({}, parent.data) : {}, data);
     }
 
     if (config.properties) {
@@ -294,46 +222,39 @@ var Amber = (function () {
         var c = properties[key];
 
         if (isFunction(c)) {
-          Object.defineProperty(constructor.prototype, key, {
-            get: debug ? nameFunction(c, (className ? className + '_' : '') + 'get_' + key) : c,
-          });
+          Object.defineProperty(constructor.prototype, key, { get: c });
         } else if (c.apply) {
-          var k = '$p_';
+          var k = '$p_' + key;
           var apply = c.apply;
 
           Object.defineProperty(constructor.prototype, key, {
             get: named('get', key, function() {
               return this[k];
-            }),
+            }, { k: k }),
             set: named('set', key, function(value) {
+              if (value === null) value = undefined;
               var old = this[k];
               if (old === value) return;
               this[k] = value;
               this[apply](value, old);
-            })
+            }, { apply: apply, k: k })
           });
         }
       });
+
+      constructor.properties = outer.properties = extend(parent ? extend({}, parent.properties) : {}, properties);
     }
 
     if (config.statics) {
       var statics = config.statics;
       delete config.statics;
 
-      Object.keys(statics).forEach(function(key) {
-        outer[key] = isFunction(statics[key]) ? named('static', key, statics[key]) : statics[key];
-      });
+      extend(outer, statics);
     }
 
-    Object.keys(config).forEach(function(key) {
-      constructor.prototype[key] = isFunction(config[key]) ? named(key, config[key]) : config[key];
-    });
+    extend(constructor.prototype, config);
 
     return outer;
-  }
-
-  function model(name, config) {
-    model[name] = create(name, config);
   }
 
   var Base = create('Base', {
@@ -375,6 +296,7 @@ var Amber = (function () {
 
     emit: function(name) {
       var listeners = this['$l_' + name];
+      console.debug.apply(console, arguments);
       if (listeners) {
         var args = slice.call(arguments, 1);
         for (var i = 0; i < listeners.length; i++) {
@@ -392,8 +314,13 @@ var Amber = (function () {
     },
 
 
+    construct: function(c) {
+      this.init();
+      if (c) this.set(c);
+      this.finalize();
+    },
     init: function() {},
-    construct: function() {}
+    finalize: function() {}
 
   });
 
@@ -402,11 +329,13 @@ var Amber = (function () {
     isPromise: true,
 
     on: function(event, handler) {
-      if ((event === 'success' || event === 'failure') && this.complete) {
+      if ((event === 'success' || event === 'failure' || event === 'complete') && this.complete) {
         if (event === 'success' && this.success) {
           handler.apply(null, this.results);
         } else if (event === 'failure' && !this.success) {
           handler(this.reason);
+        } else if (event === 'complete') {
+          handler.apply(null, this.success ? [null].concat(this.results) : [this.reason]);
         }
       } else {
         Base.prototype.on.call(this, event, handler);
@@ -414,11 +343,16 @@ var Amber = (function () {
       return this;
     },
 
-    then: function(success, failure) {
+    then: function(success, failure, context) {
+      if (!isFunction(failure)) {
+        context = failure;
+        failure = null;
+      }
+
       var promise = Promise();
 
       this.on('success', function(result) {
-        result = success ? success.apply(null, arguments) : result;
+        result = success && success.apply(context, arguments) || result;
         if (result && result.isPromise) {
           result.then(promise.fulfill, promise.reject);
         } else {
@@ -426,7 +360,7 @@ var Amber = (function () {
         }
       });
       this.on('failure', function(err) {
-        if (failure) failure(err);
+        if (failure) failure.call(context, err);
         promise.reject(err);
       });
 
@@ -440,7 +374,7 @@ var Amber = (function () {
       var args = slice.call(arguments);
       this.results = args;
       this.emit.apply(this, ['success'].concat(args));
-      this.emit.apply(this, ['resolve', null].concat(args));
+      this.emit.apply(this, ['complete', null].concat(args));
       return this;
     },
 
@@ -450,15 +384,31 @@ var Amber = (function () {
       this.success = false;
       this.reason = err;
       this.emit('failure', err);
-      this.emit('resolve', err);
+      this.emit('complete', err);
       return this;
     },
 
     statics: {
 
+      fulfilled: function() {
+        return this({
+          complete: true,
+          success: true,
+          results: slice.call(arguments)
+        });
+      },
+
+      rejected: function(err) {
+        return this({
+          complete: true,
+          success: false,
+          reason: err
+        });
+      },
+
       all: function() {
         var components = slice.call(arguments);
-        var all = Promise();
+        var all = this();
         var results = [];
         var count = 0;
         components.forEach(function(promise, i) {
@@ -477,7 +427,7 @@ var Amber = (function () {
 
       some: function() {
         var components = slice.call(arguments);
-        var some = Promise();
+        var some = this();
         var failures = [];
         var count = 0;
         components.forEach(function(promise, i) {
@@ -496,7 +446,7 @@ var Amber = (function () {
 
       any: function() {
         var components = slice.call(arguments);
-        var any = Promise();
+        var any = this();
         var failures = [];
         var count = 0;
         components.forEach(function(promise, i) {
@@ -633,11 +583,11 @@ var Amber = (function () {
   });
 
 
-  model('Socket', {
+  var Socket = create('Socket', {
 
     data: {
       url: {},
-      connected: {}
+      connected: { value: false }
     },
 
     statics: {
@@ -657,10 +607,30 @@ var Amber = (function () {
         promise: promise
       };
 
-      options.request$id = id;
+      options.request = id;
       this.send(type, options);
 
       return promise;
+    },
+
+    watch: function(model, type, options) {
+      var promise = this.request(type, options);
+
+      model.watch = options.request;
+      this.watchMap[model.watch] = model;
+
+      return promise.then(function(data) {
+        return model.fromJSON(data);
+      });
+    },
+
+    unwatch: function(model) {
+      if (!model.watch) return;
+
+      delete this.watchMap[model.watch];
+      this.send('unwatch', { watch: model.watch });
+
+      delete model.watch;
     },
 
     send: function(type, properties) {
@@ -695,6 +665,16 @@ var Amber = (function () {
     close: function() {
       this.socket.onclose = null;
       this.socket.close();
+      return this;
+    },
+
+    connect: function() {
+      this.socket = this.createSocket();
+      this.socket.onopen = this.onOpen.bind(this);
+      this.socket.onclose = this.onClose.bind(this);
+      this.socket.onmessage = this.onMessage.bind(this);
+      this.socket.onerror = this.onError.bind(this);
+      this.queue = [];
     },
 
 
@@ -707,9 +687,9 @@ var Amber = (function () {
       this.log = [];
 
       this.requestMap = {};
+      this.watchMap = {};
 
       this.reopenDelay = Socket.INITIAL_REOPEN_DELAY;
-      this.open();
     },
 
 
@@ -720,22 +700,27 @@ var Amber = (function () {
       this.connected = true;
       this.reopenDelay = Socket.INITIAL_REOPEN_DELAY;
 
-      while (encoded = queue.shift()) {
+      var p;
+      while (p = queue.shift()) {
         if (this.rawPacketLog) {
           console.log('C->S:', p);
         }
         if (this.livePacketLog) {
-          this.logPacket(this.log[this.log.length - queue.length]);
+          this.logPacket(this.log[this.log.length - queue.length - 1]);
         }
-        this.socket.send(encoded);
+        this.socket.send(p);
       }
+      this.emit('open', Event({ object: this }));
     },
 
-    onClose: function() {
+    onClose: function(e) {
+      if (this.connected) {
+        this.emit('close', Event({ object: this }));
+      }
       this.connected = false;
-      console.warn('Lost connection.');
+      console.warn('Lost connection.', e);
 
-      setTimeout(this.open.bind(this), this.reopenDelay);
+      setTimeout(this.connect.bind(this), this.reopenDelay);
       if (this.reopenDelay < 5 * 60 * 1000) {
         this.reopenDelay *= 2;
       }
@@ -752,18 +737,26 @@ var Amber = (function () {
       p.$time = new Date;
       p.$side = 'Server';
 
+      this.log.push(p);
+
       if (this.livePacketLog) {
         this.logPacket(p);
       }
 
       if (p.$type === 'result' || p.$type === 'requestError') {
-        var request = this.popRequest(p.request$id);
+        var request = this.popRequest(p.request);
         if (request) {
           if (p.$type === 'result') {
             request.promise.fulfill(p.result);
           } else {
             request.promise.reject(p);
           }
+        }
+      } else if (p.$type === 'update') {
+        if (this.watchMap[p.watch]) {
+          this.watchMap[p.watch].update(p.data);
+        } else {
+          console.warn('Invalid watcher ID:', p.watch);
         }
       } else {
         this.emit(p.$type, p);
@@ -775,20 +768,11 @@ var Amber = (function () {
     },
 
 
-    open: function() {
-      this.socket = new WebSocket(this.socketURL);
-      this.socket.onopen = this.onOpen.bind(this);
-      this.socket.onclose = this.onClose.bind(this);
-      this.socket.onmessage = this.onMessage.bind(this);
-      this.socket.onerror = this.onError.bind(this);
-      this.queue = [];
-    },
-
     popRequest: function(id) {
       var request = this.requestMap[id];
 
       if (!request) {
-        console.warn('Invalid request ID:', p);
+        console.warn('Invalid request ID:', id);
         return;
       }
 
@@ -840,20 +824,27 @@ var Amber = (function () {
           console.log(key + ':', object[key]);
         }
       }
+    },
+
+    createSocket: function() {
+      return new WebSocket(this.url);
     }
 
   });
 
-  model('Server', {
+
+  var Server = create('Server', {
 
     data: {
-      connected: {},
+      connected: { value: false },
       user: {}
     },
 
     properties: {
-      url: { apply: 'applyURL' },
+      url: {},
       token: { apply: 'applyToken' },
+      lastUser: { apply: 'applyLastUser' },
+      socket: { apply: 'applySocket' },
 
       assetStoreURL: function() {
         return 'http://' + this.url + 'api/asset/';
@@ -868,69 +859,431 @@ var Amber = (function () {
       return this.assetStoreURL + hash + '/';
     },
 
+    signIn: function(user, password) {
+      return this.socket.request('auth.signIn', {
+        user: user,
+        password: password
+      }).then(function(data) {
+        this.user = data && this.makeUserInfo(data, user);
+        return this.user;
+      }, this);
+    },
+
+    signOut: function() {
+      return this.socket.request('auth.signOut').then(function() {
+        this.user = null;
+      }, this);
+    },
+
+    getProject: function(id) {
+      if (this.projectMap[id]) {
+        return Promise.fulfilled(this.projectMap[id]);
+      }
+      return this.socket.watch(this.makeProject(id), 'project', {
+        project: id
+      });
+    },
+
+    createProject: function() {
+      return this.socket.request('project.create');
+    },
+
     getUser: function(name) {
       if (this.userMap[name]) {
-        return Promise().fulfill(this.userMap[name]);
+        return Promise.fulfilled(this.userMap[name]);
       }
-      return this.request('users.user', { user: name }).then(function(data) {
-        return data && this.createUser(data);
-      }.bind(this));
+      return this.socket.watch(this.makeUser(name), 'user', {
+        user: name
+      });
+    },
+
+    getUserInfo: function(name) {
+      if (this.userInfoMap[name]) {
+        return Promise.fulfilled(this.userInfoMap[name]);
+      }
+      return this.socket.request('user.info', {
+        user: name
+      }).then(function(data) {
+        return data && this.makeUserInfo(data, name);
+      }, this);
+    },
+
+    getList: function(contents) {
+      return WatchList({
+        server: this,
+        contents: contents
+      });
+    },
+
+    getModel: function(type, data) {
+      if (type === 'date') {
+        return new Date(data);
+      }
+      return this['get' + type.charAt(0).toUpperCase() + type.slice(1)](data);
+    },
+
+
+    connect: function(config) {
+      if (this.socket) {
+        this.socket.set(config || {});
+      } else {
+        this.socket = Socket(extend({
+          url: this.socketURL
+        }, config || {}));
+      }
+
+      this.socket.connect();
+
+      return this;
+    },
+
+    applySocket: function(socket, old) {
+      if (old) {
+        old.close();
+      }
+
+      Object.keys(this.handle).forEach(function(event) {
+        socket.on(event, this.handle[event].bind(this));
+      }, this);
     },
 
 
     init: function() {
       this.socket = null;
-      this.token = localStorage.getItem('Amber.Server.token');
+      this.token = localStorage.getItem('Amber.token') || null;
+      this.lastUser = localStorage.getItem('Amber.lastUser') || null;
+      this.userInfoMap = {};
       this.userMap = {};
+      this.projectMap = {};
     },
 
 
-    applyURL: function() {
-      if (this.socket) {
-        this.socket.close();
+    handle: {
+
+      open: function() {
+        this.socket.send('connect', {
+          token: this.token,
+          user: this.lastUser
+        });
+      },
+
+      close: function() {
+        this.connected = false;
+      },
+
+      connect: function(p) {
+        this.connected = true;
+        this.user = p.user && this.makeUserInfo(p.user, this.lastUser);
+        this.token = p.token;
       }
-      this.socket = Socket({ url: this.socketURL });
     },
+
 
     applyToken: function(token) {
-      localStorage.setItem('Amber.Server.token', token);
+      localStorage.setItem('Amber.token', token);
     },
 
-    createUser: function(data) {
-      if (this.userMap[data.name]) {
-        return this.userMap[data.name];
+    applyLastUser: function(lastUser) {
+      localStorage.setItem('Amber.lastUser', lastUser);
+    },
+
+    makeUserInfo: function(data, name) {
+      if (this.userInfoMap[name]) {
+        return this.userInfoMap[name];
       }
 
-      var user = User({
-        server: this
+      return UserInfo({
+        name: name,
+        scratchId: data.scratchId,
+        group: data.group || 'default'
       });
-      user.fromJSON(data);
-      this.userMap[user.name] = user;
-      return user;
     },
 
-    connect: function(p) {
-      this.user = p.user && this.createUser(p.user);
-      this.token = p.token;
+    makeUser: function(name) {
+      if (this.userMap[name]) {
+        return this.userMap[name];
+      }
+
+      return this.userMap[name] = model.User({
+        server: this,
+        name: name
+      });
+    },
+
+    makeProject: function(id) {
+      if (this.projectMap[id]) {
+        return Promise.fulfilled(this.projectMap[id]);
+      }
+
+      return this.projectMap[id] = model.Project({
+        server: this,
+        id: id
+      });
+    }
+  });
+
+
+  var UserInfo = create('UserInfo', {});
+
+
+  function model(name, config) {
+    config.extend = config.extend || model.Model;
+    model[name] = create(name, config);
+  }
+
+
+  model('Model', {
+
+    extend: Base,
+
+    isModel: true,
+
+
+    fromJSON: function(data) {
+      Object.keys(data).forEach(function(key) {
+        var config = this.constructor.data[key];
+        if (config && config.type) {
+          this[key] = this.server.getModel(config.type, data[key])
+        } else {
+          this[key] = data[key];
+        }
+      }, this);
+      return this;
+    },
+
+    update: function(data) {
+      Object.keys(data).forEach(function(key) {
+        this.updateKey(key, data[key]);
+      }, this);
+      return this;
+    },
+
+    updateKey: function(key, data) {
+      if (this[key].isPromise) {
+        this[key].then(function(model) {
+          model.update(data[key]);
+        });
+      } else if (this[key].isModel) {
+        this[key].update(data[key]);
+      } else {
+        this[key] = data[key];
+      }
+    },
+
+    destroy: function() {
+      if (this.watch) {
+        this.server.socket.unwatch(this);
+      }
+      Object.keys(this.constructor.data).forEach(function(key) {
+        if (this[key] && this[key].isModel) {
+          this[key].destroy();
+        }
+      }, this);
     }
 
   });
 
 
-/*
+  var ListChangeType = {
+    ADD: 1,
+    CHANGE: 2,
+    REMOVE: 3
+  };
+
+  var WatchList = create('WatchList', {
+
+    data: {
+      contents: {}
+    },
+
+    update: function(data) {
+      data.forEach(this.updateTuple, this);
+    },
+
+    updateTuple: function(u) {
+      var i = u[1];
+      var x = u[2];
+      switch (u[0]) {
+        case ListChangeType.ADD:
+          if (i >= this.contents.length) return;
+          if (i === this.contents.length) {
+            this.contents.push(x);
+            return;
+          }
+          this.insert(i, x);
+          return;
+        case ListChangeType.CHANGE:
+          if (i >= this.contents.length) return;
+          this.contents[i] = x;
+          return;
+        case ListChangeType.REMOVE:
+          this.contents.splice(i, 1);
+          return;
+      }
+    }
+
+  });
+
+
+  model('User', {
+
+    data: {
+      scratchId: {},
+      group: { value: 'default' },
+      about: {},
+      featuredProject: { type: 'project' },
+      activity: { type: 'activity' },
+      projects: { type: 'collection' },
+      lovedProjects: { type: 'collection' },
+      collections: { type: 'list' },
+      followers: { type: 'list' },
+      following: { type: 'list' },
+      topic: { type: 'topic' },
+      isFollowing: { type: 'boolean' }
+    },
+
+    properties: {
+
+      avatarURL: function() {
+        var id = '' + this.scratchId;
+        return format("http://scratch.mit.edu/static/site/users/avatars/%/%.png", id.slice(0, -4), id.slice(-4));
+      },
+
+      profileURL: function() {
+        return urls.reverse('user profile', this.name);
+      }
+    },
+
+    statics: {
+
+      ADMINISTRATOR: 'administrator',
+      MODERATOR: 'moderator',
+      DEFAULT: 'default',
+      LIMITED: 'limited'
+    },
+
+    avatarURLOfSize: function(size) {
+      return format("http://cdn.scratch.mit.edu/get_image/user/%1_%2x%2.png", this.scratchId, size);
+    }
+  });
+
+
+  model('Project', {
+
+    data: {
+      name: {},
+      authors: { type: 'list' },
+      created: { type: 'date' },
+      modified: { type: 'date' },
+      thumbnail: {},
+      notes: {},
+      topic: { type: 'topic' },
+      scriptCount: {},
+      spriteCount: {},
+      viewCount: {},
+      loveCount: {},
+      remixCount: {},
+      activity: { type: 'activity' },
+      tags: { type: 'list' },
+      remixes: { type: 'collection' },
+      collections: { type: 'list' },
+      isLoved: {}
+    },
+
+    properties: {
+
+      thumbnailURL: function() {
+        return this.server.getAssetURL(this.thumbnail);
+      }
+    },
+
+    view: function() {
+      return this.server.socket.send('project.view', {
+        project: this.id
+      });
+    },
+
+    love: function() {
+      return this.server.socket.send('project.love', {
+        project: this.id
+      });
+    },
+
+    addTag: function(name) {
+      return this.server.socket.send('project.addTag', {
+        project: this.id,
+        tag: name
+      });
+    },
+
+    removeTag: function(name) {
+      return this.server.socket.send('project.removeTag', {
+        project: this.id,
+        tag: name
+      });
+    }
+  });
+
+
   var routes = {
     '/': 'Homepage'
   };
 
+
+  var view = function(name, config) {
+    config.extend = config.extend || view.View;
+    view[name] = create(name, config);
+  };
+
+
+  view('View', {
+    extend: Base,
+
+    template: '<div></div>',
+    subscribe: [],
+
+    construct: function(model, c) {
+      if (model.isPromise) {
+        model.then(function(model) {
+          this.constructWithModel(model, c);
+        }.bind(this));
+      } else {
+        this.constructWithModel(model);
+      }
+    },
+
+
+    constructWithModel: function(model, c) {
+      this.model = model;
+
+      this.subscribe.forEach(function(event) {
+        model.on(event, function(e) {
+          this[event](model, e);
+        }.bind(this));
+      }, this);
+
+      this.el = this.renderTemplate(this.template);
+
+      this.init(model);
+      if (c) this.set(c);
+      this.finalize();
+    },
+
+    renderTemplate: function(template) {
+      var d = document.createElement('div');
+      d.innerHTML = template;
+      return d.children[0];
+    }
+  });
+
+
   view('Homepage', {
-
     template: 'amber-homepage',
-
     subscribe: ['userChanged'],
 
     init: function (model) {
       ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
-        this[v] = view.Carousel(model.collection(v));
+        this[v] = view.Carousel(model.getCollection(v));
       }, this);
 
       this.userChanged(model);
@@ -938,21 +1291,16 @@ var Amber = (function () {
 
     userChanged: function(model) {
       this.hasUser = !!model.user;
-      this.news = view.Activity(model.activity('all'));
+      this.news = view.Activity(model.getActivity('all'));
       ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
-        this[v] = model.user && view.Carousel(model.collection('user.' + v));
+        this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
       }, this);
     }
-
   });
-*/
+
 
   return {
     unimplemented: unimplemented,
-    inherits: inherits,
-    defineSetter: defineSetter,
-    defineGetter: defineGetter,
-    defineEvented: defineEvented,
     getUID: getUID,
     isObject: isObject,
     isFunction: isFunction,
@@ -966,14 +1314,17 @@ var Amber = (function () {
     escapeXML: escapeXML,
     bbTouch: bbTouch,
     inBB: inBB,
+    create: create,
     Base: Base,
     Promise: Promise,
     Locale: Locale,
     Event: Event,
     TouchEvent: TouchEvent,
     WheelEvent: WheelEvent,
-    // User: User,
-    model: model
+    Server: Server,
+    Socket: Socket,
+    model: model,
+    view: view
   };
 
-})();
+})(true);
