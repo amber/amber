@@ -1,0 +1,35 @@
+body {
+  background: #eee;
+}
+
+section {
+  display: inline-block;
+  vertical-align: top;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  margin: 8px;
+  padding: 8px;
+  font: 13px Lucida Grande, Tahoma, sans-serif;
+  width: 200px;
+  height: 100px;
+}
+
+header {
+  font-size: 1em;
+  margin: 0 0 8px;
+}
+
+.handle {
+  color: rgba(0, 0, 0, .4);
+}
+.handle a {
+  color: inherit;
+  text-decoration: none;
+}
+.handle a:hover {
+  text-decoration: underline;
+}
+
+p {
+  margin: 0;
+}

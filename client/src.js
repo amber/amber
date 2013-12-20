@@ -296,7 +296,7 @@ var Amber = (function(debug) {
 
     emit: function(name) {
       var listeners = this['$l_' + name];
-      console.debug.apply(console, arguments);
+      // console.debug.apply(console, arguments);
       if (listeners) {
         var args = slice.call(arguments, 1);
         for (var i = 0; i < listeners.length; i++) {
@@ -1344,6 +1344,25 @@ var Amber = (function(debug) {
 
       var el = d.children[0];
       this.el = el;
+
+      this.renderNode(this.el);
+    },
+
+    renderNode: function(el) {
+      if (el.nodeType === 3) {
+
+
+
+      } else if (el.nodeType === 1) {
+
+        if (el.dataset.id) {
+          this[el.dataset.id] = el;
+        }
+
+        for (var i = 0; i < el.childNodes.length; i++) {
+          this.renderNode(el.childNodes[i]);
+        }
+      }
     }
   });
 

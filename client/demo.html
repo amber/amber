@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>UI Demo</title>
+
+<link rel=stylesheet href=static/demo.css>
+<link rel=icon href=static/favicon.png>
+<body>
+<script src=markup.js></script>
+<script src=src.js></script>
+<script src=locale/en-US.js></script>
+
+<script>
+
+var a = Amber;
+
+a.model('TestModel', {
+
+  data: {
+    name: {},
+    handle: {},
+    about: {}
+  }
+});
+
+a.view('TestView', {
+
+  template: 'demo-template',
+
+  subscribe: ['nameChanged', 'aboutChanged'],
+
+  render: function(model) {
+    this.nameChanged(model);
+    this.handleChanged(model);
+    this.aboutChanged(model);
+  },
+
+  nameChanged: function(model) {
+    this.name.textContent = model.name;
+  },
+
+  handleChanged: function(model) {
+    this.handle.textContent = model.handle;
+  },
+
+  aboutChanged: function(model) {
+    this.about.textContent = model.about;
+  }
+});
+
+var models = [
+  a.model.TestModel({
+    name: "Nathan Dinsmore",
+    handle: "nathan",
+    about: "Nathan writes the Amber client."
+  }),
+  a.model.TestModel({
+    name: "Truman Kilen",
+    handle: "MathWizz",
+    about: "Truman writes the Amber server and puts up with Nathan."
+  }),
+  a.model.TestModel({
+    name: "Amber",
+    handle: "amber",
+    about: "The Github organization for Amber and related projects."
+  })
+];
+
+Array(50).join('.').split('.').forEach(function(_, i) {
+  var view = a.view.TestView(models[Math.random() * models.length | 0]);
+  view.on('load', function() {
+    document.body.appendChild(view.el);
+  });
+});
+
+</script>

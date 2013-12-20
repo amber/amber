@@ -24,51 +24,16 @@
 <script src=locale/en-US.js></script>
 
 <script>
-var a = Amber;
-
-a.model('TestModel', {
-
-  data: {
-    name: { value: 'a model' }
-  }
+server = Amber.Server({
+  socket: socket = Amber.mock.Socket({
+    backendVerbosePackets: true
+  })
+}).connect({
+  verbosePackets: true,
+  livePacketLog: true
 });
 
-a.view('TestView', {
-
-  template: 'test-template',
-
-  subscribe: ['nameChanged'],
-
-  render: function(model) {
-    this.nameChanged(model);
-  },
-
-  nameChanged: function(model) {
-    this.el.textContent = model.name;
-  }
-});
-
-var models = Array(10).join('.').split('.').map(function() {
-  return a.model.TestModel();
-});
-
-Array(100).join('.').split('.').forEach(function(_, i) {
-  var view = a.view.TestView(models[Math.random() * models.length | 0]);
-  view.on('load', function() {
-    document.body.appendChild(view.el);
-  });
-});
-
-// server = a.Server({
-//   socket: socket = a.mock.Socket({
-//     backendVerbosePackets: true
-//   })
-// }).connect({
-//   verbosePackets: true,
-//   livePacketLog: true
-// });
-
-// server = a.Server({
+// server = Amber.Server({
 //   url: 'am-c9-nd.c9.io/'
 // }).connect({
 //   verbosePackets: true,
