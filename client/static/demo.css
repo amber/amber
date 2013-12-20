@@ -12,6 +12,7 @@ section {
   font: 13px Lucida Grande, Tahoma, sans-serif;
   width: 200px;
   height: 100px;
+  overflow: auto;
 }
 
 header {

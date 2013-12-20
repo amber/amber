@@ -1351,16 +1351,53 @@ var Amber = (function(debug) {
     renderNode: function(el) {
       if (el.nodeType === 3) {
 
+        var text = el.nodeValue;
+        var changed = false;
+        for (;;) {
+          var x = /^(.*?)\{\{\s*(\w+)\s*\}\}/.exec(text);
 
+          if (!x) {
+            if (changed) el.nodeValue = text;
+            break;
+          }
+
+          changed = true;
+          el.parentNode.insertBefore(document.createTextNode(x[1]), el);
+
+          (function(name) {
+            var k = '$v_' + name;
+            var ck = '$c_' + x[2];
+
+            el.parentNode.insertBefore(this[ck] = document.createElement('span'), el);
+
+            Object.defineProperty(this, x[2], {
+              set: function(value) {
+                if (this[k]) {
+                  this[ck].removeChild(this[k].el);
+                }
+                this[ck].style.display = value ? 'inline' : 'none';
+                if (value) {
+                  this[ck].appendChild(value.el);
+                }
+                this[k] = value;
+              },
+              get: function() {
+                return this[k];
+              }
+            });
+          }).call(this, x[2]);
+
+          text = text.slice(x[0].length);
+        }
 
       } else if (el.nodeType === 1) {
 
-        if (el.dataset.id) {
-          this[el.dataset.id] = el;
-        }
+        var id = el.dataset.id;
+        if (id) this[id] = el;
 
-        for (var i = 0; i < el.childNodes.length; i++) {
-          this.renderNode(el.childNodes[i]);
+        var nodes = el.childNodes;
+        for (var i = 0; i < nodes.length; i++) {
+          this.renderNode(nodes[i]);
         }
       }
     }

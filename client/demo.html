@@ -13,7 +13,7 @@
 
 var a = Amber;
 
-a.model('TestModel', {
+a.model('DemoUser', {
 
   data: {
     name: {},
@@ -22,51 +22,58 @@ a.model('TestModel', {
   }
 });
 
-a.view('TestView', {
+a.view('DemoView', {
 
   template: 'demo-template',
 
-  subscribe: ['nameChanged', 'aboutChanged'],
+  render: function(model) {
+    ['name', 'handle', 'about'].forEach(function(key) {
+      this[key] = a.view.DemoEditView(model, { key: key });
+    }, this);
+  }
+});
+
+a.view('DemoEditView', {
+
+  template: '<span style="display: inline-block; white-space: pre-wrap; -webkit-user-modify: read-write-plaintext-only;"></span>',
 
   render: function(model) {
-    this.nameChanged(model);
-    this.handleChanged(model);
-    this.aboutChanged(model);
+    model.on(this.key + 'Changed', this.contentChanged.bind(this));
+
+    this.el.addEventListener('input', function() {
+      model[this.key] = this.el.textContent;
+    }.bind(this));
+    this.contentChanged();
   },
 
-  nameChanged: function(model) {
-    this.name.textContent = model.name;
-  },
-
-  handleChanged: function(model) {
-    this.handle.textContent = model.handle;
-  },
-
-  aboutChanged: function(model) {
-    this.about.textContent = model.about;
+  contentChanged: function() {
+    var value = this.model[this.key];
+    if (this.el.textContent !== value) {
+      this.el.textContent = value;
+    }
   }
 });
 
 var models = [
-  a.model.TestModel({
+  a.model.DemoUser({
     name: "Nathan Dinsmore",
     handle: "nathan",
     about: "Nathan writes the Amber client."
   }),
-  a.model.TestModel({
+  a.model.DemoUser({
     name: "Truman Kilen",
     handle: "MathWizz",
     about: "Truman writes the Amber server and puts up with Nathan."
   }),
-  a.model.TestModel({
+  a.model.DemoUser({
     name: "Amber",
     handle: "amber",
     about: "The Github organization for Amber and related projects."
   })
 ];
 
-Array(50).join('.').split('.').forEach(function(_, i) {
-  var view = a.view.TestView(models[Math.random() * models.length | 0]);
+models.forEach(function(m) {
+  var view = a.view.DemoView(m);
   view.on('load', function() {
     document.body.appendChild(view.el);
   });
