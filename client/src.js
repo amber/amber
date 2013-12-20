@@ -467,6 +467,35 @@ var Amber = (function(debug) {
   });
 
 
+  function http(method, url, body) {
+    if (!url) {
+      url = method;
+      method = 'GET';
+    }
+
+    var promise = Promise();
+
+    var xhr = new XMLHttpRequest;
+    xhr.open(method, url, true);
+
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        promise.fulfill(xhr.responseText);
+      } else {
+        promise.reject(xhr);
+      }
+    };
+
+    xhr.onerror = function(e) {
+      promise.reject(xhr);
+    };
+
+    xhr.send(body);
+
+    return promise;
+  }
+
+
   var Locale = create('Locale', {
 
     statics: {
@@ -1225,24 +1254,53 @@ var Amber = (function(debug) {
   });
 
 
-  var routes = {
-    '/': 'Homepage'
+  function view(name, config) {
+    config.extend = config.extend || view.View;
+
+    if (config.template && config.template.charAt(0) !== '<') {
+      config.template = view.getTemplate(config.template);
+    }
+
+    view[name] = create(name, config);
+  }
+
+
+  view.getTemplate = function(id) {
+    if (view.templates) {
+      return Promise.fulfilled(view.getCachedTemplate(id));
+    }
+
+    if (!view.templateRequest) {
+      view.templateRequest = http('templates.html');
+    }
+
+    return view.templateRequest.then(function(result) {
+      view.templates = document.createElement('div');
+      view.templates.innerHTML = result;
+
+      return view.getCachedTemplate(id);
+    });
   };
 
-
-  var view = function(name, config) {
-    config.extend = config.extend || view.View;
-    view[name] = create(name, config);
+  view.getCachedTemplate = function(id) {
+    var el = view.templates.querySelector('[id=' + JSON.stringify(id) + ']');
+    return el && el.textContent;
   };
 
 
   view('View', {
+
     extend: Base,
 
     template: '<div></div>',
     subscribe: [],
 
+
     construct: function(model, c) {
+      this.init();
+      if (c) this.set(c);
+      this.finalize();
+
       if (model.isPromise) {
         model.then(function(model) {
           this.constructWithModel(model, c);
@@ -1262,26 +1320,41 @@ var Amber = (function(debug) {
         }.bind(this));
       }, this);
 
-      this.el = this.renderTemplate(this.template);
+      if (this.template.isPromise) {
+        this.template.then(function(template) {
+          this.constructor.prototype.template = template;
+          this.constructWithTemplate(template, c);
+        }.bind(this));
 
-      this.init(model);
-      if (c) this.set(c);
-      this.finalize();
+      } else {
+        this.constructWithTemplate(this.template, c);
+      }
+    },
+
+    constructWithTemplate: function(template, c) {
+      this.renderTemplate(template);
+
+      this.render(this.model);
+      this.emit('load', Event({ object: this }));
     },
 
     renderTemplate: function(template) {
       var d = document.createElement('div');
       d.innerHTML = template;
-      return d.children[0];
+
+      var el = d.children[0];
+      this.el = el;
     }
   });
 
 
   view('Homepage', {
+
     template: 'amber-homepage',
+
     subscribe: ['userChanged'],
 
-    init: function (model) {
+    render: function (model) {
       ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
         this[v] = view.Carousel(model.getCollection(v));
       }, this);
@@ -1297,6 +1370,11 @@ var Amber = (function(debug) {
       }, this);
     }
   });
+
+
+  var routes = {
+    '/': 'Homepage'
+  };
 
 
   return {

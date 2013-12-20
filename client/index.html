@@ -24,7 +24,7 @@
 <script src=locale/en-US.js></script>
 
 <script>
-a = Amber;
+var a = Amber;
 
 a.model('TestModel', {
 
@@ -35,11 +35,11 @@ a.model('TestModel', {
 
 a.view('TestView', {
 
-  template: '<div class=test-view></div>',
+  template: 'test-template',
 
   subscribe: ['nameChanged'],
 
-  init: function(model) {
+  render: function(model) {
     this.nameChanged(model);
   },
 
@@ -48,11 +48,19 @@ a.view('TestView', {
   }
 });
 
-view = a.view.TestView(a.model.TestModel());
-document.body.appendChild(view.el);
+var models = Array(10).join('.').split('.').map(function() {
+  return a.model.TestModel();
+});
 
-// server = Amber.Server({
-//   socket: socket = Amber.mock.Socket({
+Array(100).join('.').split('.').forEach(function(_, i) {
+  var view = a.view.TestView(models[Math.random() * models.length | 0]);
+  view.on('load', function() {
+    document.body.appendChild(view.el);
+  });
+});
+
+// server = a.Server({
+//   socket: socket = a.mock.Socket({
 //     backendVerbosePackets: true
 //   })
 // }).connect({
@@ -60,7 +68,7 @@ document.body.appendChild(view.el);
 //   livePacketLog: true
 // });
 
-// server = Amber.Server({
+// server = a.Server({
 //   url: 'am-c9-nd.c9.io/'
 // }).connect({
 //   verbosePackets: true,
