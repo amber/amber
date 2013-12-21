@@ -38,7 +38,7 @@ a.view('DemoListItem', {
   template: '<li>{{name}}</li>',
 
   render: function(model) {
-    this.name = a.view.DemoEditor(model, { key: 'name' });
+    this.name = a.view.Key(model, 'name');
   }
 });
 

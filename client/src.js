@@ -296,7 +296,6 @@ var Amber = (function(debug) {
 
     emit: function(name) {
       var listeners = this['$l_' + name];
-      // console.debug.apply(console, arguments);
       if (listeners) {
         var args = slice.call(arguments, 1);
         for (var i = 0; i < listeners.length; i++) {
@@ -1505,6 +1504,27 @@ var Amber = (function(debug) {
 
       this.promise.fulfill(this);
     }
+  });
+
+
+  view('Key', {
+
+    template: '<span></span>',
+
+    construct: function(model, key, config) {
+      this.key = key;
+      view.View.prototype.construct.call(this, model, config);
+    },
+
+    render: function(model) {
+      model.on(this.key + 'Changed', this.keyChanged.bind(this));
+      this.keyChanged();
+    },
+
+    keyChanged: function() {
+      this.el.textContent = this.model[this.key];
+    }
+
   });
 
 
