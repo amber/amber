@@ -1189,8 +1189,9 @@ var Amber = (function(debug) {
 
     follow: function() {
       this.isFollowing = !this.isFollowing;
-      this.server.socket.send('user.follow', {
-        user: this.name
+      return this.server.socket.request('user.follow', {
+        user: this.name,
+        isFollowing: this.isFollowing
       });
     }
   });
@@ -1227,27 +1228,27 @@ var Amber = (function(debug) {
 
     view: function() {
       this.viewCount += 1;
-      return this.server.socket.send('project.view', {
+      return this.server.socket.request('project.view', {
         project: this.id
       });
     },
 
     love: function() {
       this.loveCount += this.isLoved ? -1 : 1;
-      return this.server.socket.send('project.love', {
+      return this.server.socket.request('project.love', {
         project: this.id
       });
     },
 
     addTag: function(name) {
-      return this.server.socket.send('project.addTag', {
+      return this.server.socket.request('project.addTag', {
         project: this.id,
         tag: name
       });
     },
 
     removeTag: function(name) {
-      return this.server.socket.send('project.removeTag', {
+      return this.server.socket.request('project.removeTag', {
         project: this.id,
         tag: name
       });
