@@ -1192,6 +1192,14 @@ var Amber = (function(debug) {
 
     avatarURLOfSize: function(size) {
       return format("http://cdn.scratch.mit.edu/get_image/user/%1_%2x%2.png", this.scratchId, size);
+    },
+
+    follow: function() {
+      return this.server.request('user.follow', {
+        user: this.name
+      }).then(function() {
+        this.isFollowing = !this.isFollowing;
+      });
     }
   });
 
@@ -1718,8 +1726,8 @@ var Amber = (function(debug) {
 
     events: {
 
-      'click follow': function() {
-        this.model.isFollowing = !this.model.isFollowing;
+      'click follow': function(e) {
+        this.model.follow();
       }
     },
 

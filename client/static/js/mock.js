@@ -115,6 +115,12 @@ Amber.mock = (function() {
         } else {
           promise.fulfill(this.makeUser(p.user));
         }
+      },
+
+      'user.follow': function(p, promise) {
+        var user = this.makeUser(p.user);
+        user.isFollowing = !user.isFollowing;
+        promise.fulfill();
       }
     },
 
@@ -233,7 +239,6 @@ Amber.mock = (function() {
         }), this.latency);
       }
     }
-
   });
 
   var Socket = create('Socket', {
