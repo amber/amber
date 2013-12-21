@@ -1534,8 +1534,7 @@ var Amber = (function(debug) {
 
     routes: {
 
-      '/': 'Homepage',
-      '/hello': 'HelloWorld'
+      '/': 'HelloWorld'
     },
 
     render: function(model) {
