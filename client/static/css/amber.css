@@ -97,18 +97,110 @@ html.amber-host > body {
   text-decoration: underline;
   color: #028;
 }
-
-.amber-wrap h1 {
+.amber-wrap h1,
+.amber-wrap h2,
+.amber-wrap h3,
+.amber-wrap h4,
+.amber-wrap h5,
+.amber-wrap h6 {
   margin: 24px 0 0;
   font-size: 36px;
   line-height: 40px;
 }
-.amber-wrap p {
+.amber-wrap h2 {
+  margin: 16px 0 0;
+  font-size: 30px;
+  line-height: 34px;
+}
+.amber-wrap h3 {
+  font-size: 24px;
+  line-height: 32px;
+}
+.amber-wrap h4 {
+  font-size: 20px;
+  line-height: 28px;
+}
+.amber-wrap h5 {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+}
+.amber-wrap h6 {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+}
+.amber-wrap p,
+.amber-wrap pre,
+.amber-wrap ul,
+.amber-wrap ol {
   margin: 0 0 16px;
 }
-
+.amber-wrap pre {
+  max-height: 300px;
+  overflow: auto;
+  background: #eee;
+  padding: 12px;
+}
+.amber-wrap pre,
 .amber-wrap code {
-  font: 11px Menlo, Monaco, Consolas, Courier New, monospace;
+  font: 13px/1.15 Menlo, Monaco, Consolas, Courier New, monospace;
+}
+.amber-wrap .md-image {
+  max-width: 100%;
+  vertical-align: text-bottom;
+}
+.amber-wrap .md-emoticon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  color: transparent;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 16px;
+  vertical-align: text-bottom;
+}
+.amber-wrap .md-emoticon.smile {
+  background: url(/static/img/emoticon/smile.svg);
+}
+.amber-wrap .md-emoticon.wink {
+  background: url(/static/img/emoticon/wink.svg);
+}
+.amber-wrap .md-emoticon.wide-eyed {
+  background: url(/static/img/emoticon/wide-eyed.svg);
+}
+.amber-wrap .md-emoticon.big-smile {
+  background: url(/static/img/emoticon/big-smile.svg);
+}
+.amber-wrap .md-emoticon.slant {
+  background: url(/static/img/emoticon/slant.svg);
+}
+.amber-wrap .md-emoticon.tongue {
+  background: url(/static/img/emoticon/tongue.svg);
+}
+.amber-wrap .md-emoticon.neutral {
+  background: url(/static/img/emoticon/neutral.svg);
+}
+.amber-wrap .md-emoticon.frown {
+  background: url(/static/img/emoticon/frown.svg);
+}
+.amber-wrap .md-emoticon.cry {
+  background: url(/static/img/emoticon/cry.svg);
+}
+.amber-wrap .md-emoticon.confused {
+  background: url(/static/img/emoticon/confused.svg);
+}
+.amber-wrap .md-emoticon.big-frown {
+  background: url(/static/img/emoticon/big-frown.svg);
+}
+.amber-wrap .md-emoticon.heart {
+  background: url(/static/img/emoticon/heart.svg);
+}
+.amber-wrap .md-error {
+  color: #f00;
+}
+.amber-wrap .md-email {
+  display: none;
 }
 
 .amber footer {

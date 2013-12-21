@@ -43,16 +43,6 @@ var Markup = function() {
       x.config.title = title;
       return '';
     },
-    'splash-link': function(x, href, title, subtitle) {
-      return format([
-        '<a class=d-r-splash-link href="%">',
-        '  <div class=d-r-splash-link-title>%</div>',
-        '  <div class=d-r-splash-link-subtitle>%</div>',
-        '</a>'].join('\n'), htmle(linkHref(href)), title, subtitle);
-    },
-    'splash-links': function(x, content) {
-      return format('<div style="overflow: hidden">%</div>', content);
-    },
     echo: function(x, content) {
       return content;
     }
@@ -60,7 +50,7 @@ var Markup = function() {
 
 
   var REFERENCE = /^ {0,3}\[([^[\]]+)\]:\s*(.+?)\s*((?:"(?:[^"]|\\[\\"])+"|'(?:[^']|\\[\\'])+'|\((?:[^()]|\\[\\()])+\))?)\s*$/gm;
-  var VALID_LINK = /^\w+:|^$|^#/;
+  var VALID_LINK = /^\w+:|^$|^\//;
 
   var HORIZONTAL_RULE = /^\s*(?:\*(?:\s*\*){2,}|-(?:\s*-){2,})\s*\n\n+/;
   var HEADING = /^(#{1,6})([^#][^\n]*?)#{0,6}(\n|$)/;
@@ -88,25 +78,16 @@ var Markup = function() {
 
 
   function linkHref(href) {
-    if (href[0] === ':') {
-      var parts = href.substr(1).split(' ');
-      return urls.abs(amber.site.App.prototype.reverse.apply(null, parts));
-    } else if (href[0] === '%') {
-      return amber.site.App.prototype.abs(amber.site.App.prototype.reverse('wiki', href.substr(1)));
-    } else if (!VALID_LINK.test(href)) {
-      return 'http://' + href;
-    } else {
-      return href;
-    }
+    return VALID_LINK.test(href) ? href : 'http://' + href;
   }
 
 
   function link(image, label, href, title) {
     href = linkHref(href);
     if (image) {
-      return '<img title="' + title + '" src="' + href + '" alt="' + label + '">';
+      return '<img class=md-image title="' + title + '" src="' + href + '" alt="' + label + '">';
     } else {
-      return '<a class=d-r-link title="' + title + '" href="' + href + '">' + label + '</a>';
+      return '<a title="' + title + '" href="' + href + '">' + label + '</a>';
     }
   }
 
@@ -261,7 +242,7 @@ var Markup = function() {
           result = "```";
         } else {
           code = htmle(p.substr(0, i));
-          result = "<pre class=d-scrollable>" + code + "</pre>\n";
+          result = "<pre><code>" + code + "</code></pre>\n";
           index += i + 3;
         }
       } else if (e = HORIZONTAL_RULE.exec(text)) {
@@ -274,7 +255,7 @@ var Markup = function() {
         }
         code = text.substr(0, i);
         code = htmle(code.replace(/^    /gm, ''));
-        result = "<pre class=d-scrollable>" + code + "</pre>\n";
+        result = "<pre><code>" + code + "</code></pre>\n";
         index += i;
       } else {
         i = text.search(/\n\n+/);
@@ -282,7 +263,7 @@ var Markup = function() {
           i = text.length;
         }
         s = parseParagraph(text.substr(0, i));
-        result = "<div class=d-r-md-paragraph>" + s + "</div>\n";
+        result = "<p>" + s + "</p>\n";
         index += i;
       }
       return {
@@ -356,7 +337,7 @@ var Markup = function() {
           if (e = regex.exec(sub)) {
             name = htmle(name);
             label = htmle(e[0]);
-            s += "<span class=\"d-r-md-emoticon " + name + "\">" + label + "</span>";
+            s += "<span class=\"md-emoticon " + name + "\">" + label + "</span>";
             done = true;
             break;
           }
@@ -431,11 +412,11 @@ var Markup = function() {
               obfuscator += String.fromCharCode(Math.floor(Math.random() * 26 + 97));
             }
             chunked += htmle(left.substr(0, 6));
-            chunked += "<span class=d-r-md-email>" + obfuscator + "</span>";
+            chunked += "<span class=md-email>" + obfuscator + "</span>";
             left = left.substr(6);
           }
           url = htmle(e[1].split('').reverse().join('').replace(/\\/g, '\\\\').replace(/'/g, '\\\''));
-          s += "<a class=d-r-link href=\"javascript:window.open('mailto:'+'" + url + "'.split('').reverse().join(''))\">" + chunked + "</a>";
+          s += "<a href=\"javascript:window.open('mailto:'+'" + url + "'.split('').reverse().join(''))\">" + chunked + "</a>";
         } else if (e = LINK.exec(sub)) {
           label = htmle(e[2]);
           href = e[3];
@@ -451,14 +432,14 @@ var Markup = function() {
             title = htmle(ref.title);
             s += link(e[1], label, href, title);
           } else {
-            s += "<span class=d-r-md-error title=\"" + (htmle(tr('Missing reference "%"', href))) + "\">" + label + "</span>";
+            s += "<span class=md-error title=\"" + (htmle(tr('Missing reference "%"', href))) + "\">" + label + "</span>";
           }
         } else if (e = AUTOMATIC_LINK.exec(sub)) {
           url = e[1];
           href = url;
           url = htmle(url);
           href = htmle(href);
-          s += "<a class=d-r-link href=\"" + href + "\">" + url + "</a>";
+          s += "<a href=\"" + href + "\">" + url + "</a>";
         } else {
           e = null;
           if (!e) {
@@ -492,8 +473,7 @@ var Markup = function() {
       content += result.content;
       index += result.length;
     }
-    context.rawResult = content;
-    context.result = "<div class=d-r-md>" + content + "</div>";
+    context.result = content;
     return context;
   };
 

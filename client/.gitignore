@@ -3,3 +3,4 @@ favicon.xcf
 src/**/*.js
 **/private/*
 docs/*
+static/wiki/*

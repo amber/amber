@@ -1538,7 +1538,8 @@ var Amber = (function(debug) {
 
     routes: {
 
-      '/': 'HelloWorld'
+      '/': 'HelloWorld',
+      '/wiki/:slug': 'Wiki'
     },
 
     events: {
@@ -1557,7 +1558,7 @@ var Amber = (function(debug) {
         var names = [];
         var source = '^' + url.replace(/:(\w+)/g, function(_, name) {
           names.push(name);
-          return '[^/]+';
+          return '([^/]+)';
         }) + '$';
         this.compiledRoutes.push({
           template: url,
@@ -1599,15 +1600,18 @@ var Amber = (function(debug) {
         });
       }
 
-      var title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
+      this.page.app = this;
 
-      this.title = (title ? title + ' \xb7 ' : '') + this.name;
+      this.title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
     },
 
     click: function(e) {
       var t = e.target;
       while (t) {
         if (t.nodeName === 'A') {
+          var host = location.protocol + '//' + location.host;
+          if (t.href.slice(0, host.length) !== host) return;
+
           history.pushState(null, null, t.href);
           this.route();
           e.preventDefault();
@@ -1618,7 +1622,7 @@ var Amber = (function(debug) {
     },
 
     applyTitle: function(title) {
-      document.title = title;
+      document.title = (title ? title + ' \xb7 ' : '') + this.name;
     }
   });
 
@@ -1656,6 +1660,24 @@ var Amber = (function(debug) {
       ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
         this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
       }, this);
+    }
+  });
+
+
+  view('Wiki', {
+
+    template: 'amber-wiki',
+
+    render: function(model) {
+      http('/static/wiki/' + this.slug + '.md').then(function(source) {
+        var context = Markup.parse(source);
+        this.header.textContent = this.app.title = context.config.title || this.title();
+        this.content.innerHTML = context.result;
+      }.bind(this));
+    },
+
+    title: function() {
+      return this.slug.charAt(0).toUpperCase() + this.slug.slice(1);
     }
   });
 
