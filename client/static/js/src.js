@@ -1458,6 +1458,8 @@ var Amber = (function(debug) {
     },
 
 
+    render: function() {},
+
     construct: function(model, c) {
       this.promise = Promise();
 
@@ -1530,6 +1532,8 @@ var Amber = (function(debug) {
 
   view('App', {
 
+    name: 'Amber',
+
     template: 'amber-app',
 
     routes: {
@@ -1540,6 +1544,11 @@ var Amber = (function(debug) {
     events: {
 
       'click el': 'click'
+    },
+
+    properties: {
+
+      title: { apply: 'applyTitle' }
     },
 
     render: function(model) {
@@ -1564,6 +1573,8 @@ var Amber = (function(debug) {
 
     route: function() {
       var url = this.url = location.pathname;
+      var success = false;
+
       for (var i = 0; i < this.compiledRoutes.length; i++) {
         var route = this.compiledRoutes[i];
 
@@ -1576,14 +1587,21 @@ var Amber = (function(debug) {
           }
 
           this.page = view[route.view].call(this, this.model, dict);
+          success = true;
 
-          return;
+          break;
         }
       }
 
-      this.page = view.NotFound.call(this, this.model, {
-        requestURL: url
-      });
+      if (!success) {
+        this.page = view.NotFound.call(this, this.model, {
+          requestURL: url
+        });
+      }
+
+      var title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
+
+      this.title = (title ? title + ' \xb7 ' : '') + this.name;
     },
 
     click: function(e) {
@@ -1597,6 +1615,10 @@ var Amber = (function(debug) {
         }
         t = t.parentNode;
       }
+    },
+
+    applyTitle: function(title) {
+      document.title = title;
     }
   });
 
@@ -1604,6 +1626,8 @@ var Amber = (function(debug) {
   view('NotFound', {
 
     template: 'amber-notfound',
+
+    title: 'Not Found',
 
     render: function() {
       this.url.textContent = this.requestURL;
@@ -1640,9 +1664,7 @@ var Amber = (function(debug) {
 
     template: 'amber-helloworld',
 
-    render: function(model) {
-
-    }
+    title: 'Hello World'
 
   });
 
