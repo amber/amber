@@ -54,6 +54,7 @@ ul {
   width: 200px;
   padding-left: 16px;
   margin: 8px;
+  overflow: auto;
 }
 
 .editable {
