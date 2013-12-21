@@ -121,7 +121,9 @@ Amber.mock = (function() {
         var user = this.makeUser(p.user);
         user.isFollowing = !user.isFollowing;
         promise.fulfill();
-      }
+      },
+
+      'unwatch': function() {}
     },
 
 
