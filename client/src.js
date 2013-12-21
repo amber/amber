@@ -1339,7 +1339,7 @@ var Amber = (function(debug) {
       getCached: function(id, prototype) {
         var el = Template.cache.querySelector('[id=' + JSON.stringify(id) + ']');
         return el && Template({
-          source: el.textContent,
+          el: el,
           prototype: prototype
         });
       }
@@ -1351,11 +1351,11 @@ var Amber = (function(debug) {
     },
 
     finalize: function() {
-      var d = document.createElement('div');
-      d.innerHTML = this.source;
-
-      var el = d.children[0];
-      this.el = el;
+      if (!this.el) {
+        var d = document.createElement('div');
+        d.innerHTML = this.source;
+        this.el = d.children[0];
+      }
 
       this.renderNode(this.el);
     },

@@ -1,33 +1,29 @@
-<script type=text/x-template id=amber-app>
-  <div class="amber">
-    <header>
-      <a href="/">Amber</a>
-      <a href="/new">Create</a>
-      <a href="/explore">Explore</a>
-      <a href="/forums">Discuss</a>
-    </header>
-    <div class="amber-wrap">
-      {{page}}
-      <footer>
-        <a href="/wiki/help">Help</a>
-        <a href="/wiki/about">About</a>
-        <a href="/forums/feedback">Feedback</a>
-        <a href="/contact">Contact</a>
-      </footer>
-    </div>
+<div class="amber" id=amber-app>
+  <header>
+    <a href="/">Amber</a>
+    <a href="/new">Create</a>
+    <a href="/explore">Explore</a>
+    <a href="/forums">Discuss</a>
+  </header>
+  <div class="amber-wrap">
+    {{page}}
+    <footer>
+      <a href="/wiki/help">Help</a>
+      <a href="/wiki/about">About</a>
+      <a href="/forums/feedback">Feedback</a>
+      <a href="/contact">Contact</a>
+    </footer>
   </div>
-</script>
+</div>
 
 
-<script type=text/x-template id=amber-helloworld>
-  <article>
-    <h1>Hello, world!</h1>
-    <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
-  </article>
-</script>
+<article id=amber-helloworld>
+  <h1>Hello, world!</h1>
+  <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
+</article>
 
 
-<script type=text/x-template id=amber-homepage>
+<article id=amber-homepage>
   <span data-exclude="hasUser">
     <header class="splash">
       <h1>Amber</h1>
@@ -99,15 +95,13 @@
     <p>What the community is viewing this week</p>
     {{ topViewed }}
   </section>
-</script>
+</article>
 
 
-<script type=text/x-template id=demo-template>
-  <section>
-    <header>
-      <strong>{{name}}</strong>
-      <span class="handle">(@{{handle}})</span>
-    </header>
-    <p>{{about}}</p>
-  </section>
-</script>
+<section id=demo-template>
+  <header>
+    <strong>{{name}}</strong>
+    <span class="handle">(@{{handle}})</span>
+  </header>
+  <p>{{about}}</p>
+</section>
