@@ -1537,6 +1537,11 @@ var Amber = (function(debug) {
       '/': 'HelloWorld'
     },
 
+    events: {
+
+      'click el': 'click'
+    },
+
     render: function(model) {
       this.compiledRoutes = [];
       for (var url in this.routes) if (this.routes.hasOwnProperty(url)) {
@@ -1554,7 +1559,7 @@ var Amber = (function(debug) {
       }
 
       this.route();
-      window.addEventListener('hashchange', this.route.bind(this));
+      window.addEventListener('popstate', this.route.bind(this));
     },
 
     route: function() {
@@ -1579,8 +1584,20 @@ var Amber = (function(debug) {
       this.page = view.NotFound.call(this, this.model, {
         requestURL: url
       });
-    }
+    },
 
+    click: function(e) {
+      var t = e.target;
+      while (t) {
+        if (t.nodeName === 'A') {
+          history.pushState(null, null, t.href);
+          this.route();
+          e.preventDefault();
+          return;
+        }
+        t = t.parentNode;
+      }
+    }
   });
 
 
