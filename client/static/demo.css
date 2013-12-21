@@ -1,18 +1,29 @@
 body {
   background: #eee;
+  font: 13px Lucida Grande, Tahoma, sans-serif;
+  margin: 0 0 0 232px;
 }
 
-section {
+section,
+.template {
   display: inline-block;
   vertical-align: top;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
   margin: 8px;
   padding: 8px;
-  font: 13px Lucida Grande, Tahoma, sans-serif;
   width: 200px;
   height: 100px;
   overflow: auto;
+}
+
+.template {
+  border: 0;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  cursor: pointer;
+  background: #ddd;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
 }
 
 header {
@@ -33,4 +44,19 @@ header {
 
 p {
   margin: 0;
+}
+
+ul {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  padding-left: 16px;
+  margin: 8px;
+}
+
+.editable {
+  display: inline-block;
+  white-space: pre-wrap;
 }

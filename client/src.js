@@ -1257,95 +1257,113 @@ var Amber = (function(debug) {
   function view(name, config) {
     config.extend = config.extend || view.View;
 
-    if (config.template && config.template.charAt(0) !== '<') {
-      config.template = view.getTemplate(config.template);
+    if (config.template) {
+      var template = config.template;
+      delete config.template;
     }
 
-    view[name] = create(name, config);
+    var v = create(name, config);
+
+    if (template) {
+      if (template.charAt(0) === '<') {
+        v.prototype.template = Template({
+          prototype: v.prototype,
+          source: template
+        });
+      } else {
+        v.prototype.template = Template.getTemplate(template, v.prototype).then(function(template) {
+          v.prototype.template = template;
+          return template;
+        });
+      }
+    }
+
+    view[name] = v;
+    return v;
   }
 
 
-  view.getTemplate = function(id) {
-    if (view.templates) {
-      return Promise.fulfilled(view.getCachedTemplate(id));
-    }
+  var Template = create('Template', {
 
-    if (!view.templateRequest) {
-      view.templateRequest = http('templates.html');
-    }
+    install: function(instance) {
 
-    return view.templateRequest.then(function(result) {
-      view.templates = document.createElement('div');
-      view.templates.innerHTML = result;
+      instance.el = this.el.cloneNode(true);
 
-      return view.getCachedTemplate(id);
-    });
-  };
+      for (var i = 0; i < this.references.length; i++) {
+        var ref = this.references[i];
 
-  view.getCachedTemplate = function(id) {
-    var el = view.templates.querySelector('[id=' + JSON.stringify(id) + ']');
-    return el && el.textContent;
-  };
+        var el = instance.el;
+        for (var j = 0; j < ref.path.length; j++) {
+          el = el.childNodes[ref.path[j]];
+        }
 
-
-  view('View', {
-
-    extend: Base,
-
-    template: '<div></div>',
-    subscribe: [],
-
-
-    construct: function(model, c) {
-      this.init();
-      if (c) this.set(c);
-      this.finalize();
-
-      if (model.isPromise) {
-        model.then(function(model) {
-          this.constructWithModel(model, c);
-        }.bind(this));
-      } else {
-        this.constructWithModel(model);
+        instance[ref.name] = el;
       }
     },
 
 
-    constructWithModel: function(model, c) {
-      this.model = model;
+    statics: {
 
-      this.subscribe.forEach(function(event) {
-        model.on(event, function(e) {
-          this[event](model, e);
-        }.bind(this));
-      }, this);
+      getTemplate: function(id, prototype) {
+        if (Template.cache) {
+          return Promise.fulfilled(Template.getCached(id, prototype));
+        }
 
-      if (this.template.isPromise) {
-        this.template.then(function(template) {
-          this.constructor.prototype.template = template;
-          this.constructWithTemplate(template, c);
-        }.bind(this));
+        if (!Template.httpRequest) {
+          Template.httpRequest = http('templates.html');
+        }
 
-      } else {
-        this.constructWithTemplate(this.template, c);
+        return Template.httpRequest.then(function(result) {
+          Template.cache = document.createElement('div');
+          Template.cache.innerHTML = result;
+
+          return Template.getCached(id, prototype);
+        });
+      },
+
+
+      getCached: function(id, prototype) {
+        var el = Template.cache.querySelector('[id=' + JSON.stringify(id) + ']');
+        return el && Template({
+          source: el.textContent,
+          prototype: prototype
+        });
       }
     },
 
-    constructWithTemplate: function(template, c) {
-      this.renderTemplate(template);
 
-      this.render(this.model);
-      this.emit('load', Event({ object: this }));
+    init: function() {
+      this.references = [];
     },
 
-    renderTemplate: function(template) {
+    finalize: function() {
       var d = document.createElement('div');
-      d.innerHTML = template;
+      d.innerHTML = this.source;
 
       var el = d.children[0];
       this.el = el;
 
       this.renderNode(this.el);
+    },
+
+    addReference: function(name, el) {
+      var path = [];
+
+      while (el !== this.el) {
+        var p = el.parentNode;
+        if (!p) throw new Error("Can't add a reference to an orphan");
+
+        var i = [].indexOf.call(p.childNodes, el);
+        path.push(i);
+
+        el = p;
+      }
+
+      path.reverse();
+      this.references.push({
+        name: name,
+        path: path
+      });
     },
 
     renderNode: function(el) {
@@ -1365,19 +1383,24 @@ var Amber = (function(debug) {
           el.parentNode.insertBefore(document.createTextNode(x[1]), el);
 
           (function(name) {
+
             var k = '$v_' + name;
-            var ck = '$c_' + x[2];
+            var ck = '$c_' + name;
 
-            el.parentNode.insertBefore(this[ck] = document.createElement('span'), el);
+            var container = document.createElement('span');
+            el.parentNode.insertBefore(container, el);
+            this.addReference(ck, container);
 
-            Object.defineProperty(this, x[2], {
+            Object.defineProperty(this.prototype, name, {
               set: function(value) {
                 if (this[k]) {
                   this[ck].removeChild(this[k].el);
                 }
                 this[ck].style.display = value ? 'inline' : 'none';
                 if (value) {
-                  this[ck].appendChild(value.el);
+                  value.use(function() {
+                    this[ck].appendChild(value.el);
+                  }.bind(this));
                 }
                 this[k] = value;
               },
@@ -1393,13 +1416,71 @@ var Amber = (function(debug) {
       } else if (el.nodeType === 1) {
 
         var id = el.dataset.id;
-        if (id) this[id] = el;
+        if (id) this.addReference(id, el);
 
         var nodes = el.childNodes;
         for (var i = 0; i < nodes.length; i++) {
           this.renderNode(nodes[i]);
         }
       }
+    }
+
+  });
+
+
+  view('View', {
+
+    extend: Base,
+
+    template: '<div></div>',
+    subscribe: [],
+
+
+    use: function(cb) {
+      this.promise.then(cb);
+      return this;
+    },
+
+
+    construct: function(model, c) {
+      this.promise = Promise();
+
+      this.init();
+      if (c) this.set(c);
+      this.finalize();
+
+      if (model.isPromise) {
+        model.then(function(model) {
+          this.constructWithModel(model, c);
+        }.bind(this));
+      } else {
+        this.constructWithModel(model);
+      }
+    },
+
+    constructWithModel: function(model, c) {
+      this.model = model;
+
+      this.subscribe.forEach(function(event) {
+        model.on(event, function(e) {
+          this[event](model, e);
+        }.bind(this));
+      }, this);
+
+      if (this.template.isPromise) {
+        this.template.then(function(template) {
+          this.constructWithTemplate(template, c);
+        }.bind(this));
+      } else {
+        this.constructWithTemplate(this.template, c);
+      }
+    },
+
+    constructWithTemplate: function(template, c) {
+      template.install(this);
+      this.render(this.model);
+
+      this.promise.fulfill(this);
     }
   });
 

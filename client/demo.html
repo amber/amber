@@ -22,20 +22,29 @@ a.model('DemoUser', {
   }
 });
 
-a.view('DemoView', {
+a.view('Demo', {
 
   template: 'demo-template',
 
   render: function(model) {
     ['name', 'handle', 'about'].forEach(function(key) {
-      this[key] = a.view.DemoEditView(model, { key: key });
+      this[key] = a.view.DemoEditor(model, { key: key });
     }, this);
   }
 });
 
-a.view('DemoEditView', {
+a.view('DemoListItem', {
 
-  template: '<span style="display: inline-block; white-space: pre-wrap; -webkit-user-modify: read-write-plaintext-only;"></span>',
+  template: '<li>{{name}}</li>',
+
+  render: function(model) {
+    this.name = a.view.DemoEditor(model, { key: 'name' });
+  }
+});
+
+a.view('DemoEditor', {
+
+  template: '<span class="editable" tabindex="0"></span>',
 
   render: function(model) {
     model.on(this.key + 'Changed', this.contentChanged.bind(this));
@@ -43,6 +52,18 @@ a.view('DemoEditView', {
     this.el.addEventListener('input', function() {
       model[this.key] = this.el.textContent;
     }.bind(this));
+    this.el.addEventListener('focus', function() {
+      this.style.WebkitUserModify = 'read-write-plaintext-only';
+
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      var range = document.createRange();
+      range.selectNodeContents(this);
+      sel.addRange(range);
+    });
+    this.el.addEventListener('blur', function() {
+      this.style.WebkitUserModify = 'read-only';
+    });
     this.contentChanged();
   },
 
@@ -51,10 +72,39 @@ a.view('DemoEditView', {
     if (this.el.textContent !== value) {
       this.el.textContent = value;
     }
+  },
+
+  focus: function() {
+    this.el.focus();
   }
 });
 
-var models = [
+function addUser(model) {
+  a.view.DemoListItem(model).use(function(view) {
+    list.appendChild(view.el);
+  });
+  return a.view.Demo(model).use(function(view) {
+    document.body.insertBefore(view.el, template);
+  });
+}
+
+var list = document.createElement('ul');
+document.body.appendChild(list);
+
+var template = document.createElement('button');
+template.className = 'template';
+template.addEventListener('click', function() {
+  addUser(a.model.DemoUser({
+    name: "Name",
+    handle: "handle",
+    about: "About me..."
+  })).use(function(view) {
+    view.name.focus();
+  });
+});
+document.body.appendChild(template);
+
+[
   a.model.DemoUser({
     name: "Nathan Dinsmore",
     handle: "nathan",
@@ -70,13 +120,7 @@ var models = [
     handle: "amber",
     about: "The Github organization for Amber and related projects."
   })
-];
-
-models.forEach(function(m) {
-  var view = a.view.DemoView(m);
-  view.on('load', function() {
-    document.body.appendChild(view.el);
-  });
-});
+].forEach(addUser);
 
 </script>
+
