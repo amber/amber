@@ -1195,10 +1195,9 @@ var Amber = (function(debug) {
     },
 
     follow: function() {
-      return this.server.request('user.follow', {
+      this.isFollowing = !this.isFollowing;
+      this.server.socket.send('user.follow', {
         user: this.name
-      }).then(function() {
-        this.isFollowing = !this.isFollowing;
       });
     }
   });
@@ -1234,12 +1233,14 @@ var Amber = (function(debug) {
     },
 
     view: function() {
+      this.viewCount += 1;
       return this.server.socket.send('project.view', {
         project: this.id
       });
     },
 
     love: function() {
+      this.loveCount += this.isLoved ? -1 : 1;
       return this.server.socket.send('project.love', {
         project: this.id
       });
@@ -1280,7 +1281,16 @@ var Amber = (function(debug) {
       });
       var superEvents = config.extend && config.extend.prototype.events;
       if (superEvents) {
-        config.events = config.events.concat(superEvents);
+        config.events = superEvents.concat(config.events);
+      }
+    }
+
+    if (config.subscribe) {
+      config.subscriptions = config.subscribe;
+      delete config.subscribe;
+      var superSubscriptions = config.extend && config.extend.prototype.subscriptions;
+      if (superSubscriptions) {
+        config.subscriptions = superSubscriptions.concat(config.subscriptions);
       }
     }
 
@@ -1450,14 +1460,12 @@ var Amber = (function(debug) {
   });
 
 
-  view('View', {
-
-    extend: Base,
+  view.View = create('View', {
 
     template: '<div></div>',
 
-    subscribe: [],
-    events: {},
+    subscriptions: [],
+    events: [],
 
 
     use: function(cb) {
@@ -1465,6 +1473,21 @@ var Amber = (function(debug) {
       return this;
     },
 
+
+    subscribe: function(event, handler) {
+      if (typeof handler !== 'function') {
+        var name = handler || event;
+
+        handler = function(e) {
+          this[name](this.model, e);
+        }.bind(this);
+      }
+      this.model.on(event, handler);
+      this.listeners.push({
+        event: event,
+        handler: handler
+      });
+    },
 
     render: function() {},
 
@@ -1487,11 +1510,8 @@ var Amber = (function(debug) {
     constructWithModel: function(model, c) {
       this.model = model;
 
-      this.subscribe.forEach(function(event) {
-        model.on(event, function(e) {
-          this[event](model, e);
-        }.bind(this));
-      }, this);
+      this.listeners = [];
+      this.subscriptions.forEach(this.subscribe, this);
 
       if (this.template.isPromise) {
         this.template.then(function(template) {
@@ -1513,6 +1533,13 @@ var Amber = (function(debug) {
       this.render(this.model);
 
       this.promise.fulfill(this);
+    },
+
+    destroy: function() {
+      this.listeners.forEach(function(listener) {
+        this.model.removeListener(listener.event, listener.handler);
+      }, this);
+      this.destroyed = true;
     }
   });
 
@@ -1529,7 +1556,7 @@ var Amber = (function(debug) {
     },
 
     render: function(model) {
-      model.on(this.key + 'Changed', this.keyChanged.bind(this));
+      this.subscribe(this.key + 'Changed', 'keyChanged');
       this.keyChanged();
     },
 
