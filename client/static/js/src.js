@@ -723,10 +723,13 @@ var Amber = (function(debug) {
 
     onOpen: function() {
       var queue = this.queue;
+      var length = this.log.length;
       this.queue = [];
 
       this.connected = true;
       this.reopenDelay = Socket.INITIAL_REOPEN_DELAY;
+
+      this.emit('open', Event({ object: this }));
 
       var p;
       while (p = queue.shift()) {
@@ -734,11 +737,10 @@ var Amber = (function(debug) {
           console.log('C->S:', p);
         }
         if (this.livePacketLog) {
-          this.logPacket(this.log[this.log.length - queue.length - 1]);
+          this.logPacket(this.log[length - queue.length - 1]);
         }
         this.socket.send(p);
       }
-      this.emit('open', Event({ object: this }));
     },
 
     onClose: function(e) {
