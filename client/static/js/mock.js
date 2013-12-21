@@ -26,8 +26,8 @@ Amber.mock = (function() {
 
       if (!p) return;
 
+      var promise = Amber.Promise();
       if (p.request) {
-        var promise = Amber.Promise();
         promise.then(function(data) {
           this.yield('result', {
             request: p.request,
