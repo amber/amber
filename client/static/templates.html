@@ -1,3 +1,32 @@
+<script type=text/x-template id=amber-app>
+  <div class="amber">
+    <header>
+      <a href="/">Amber</a>
+      <a href="/new">Create</a>
+      <a href="/explore">Explore</a>
+      <a href="/forums">Discuss</a>
+    </header>
+    <div class="amber-wrap">
+      {{page}}
+      <footer>
+        <a href="/wiki/help">Help</a>
+        <a href="/wiki/about">About</a>
+        <a href="/forums/feedback">Feedback</a>
+        <a href="/contact">Contact</a>
+      </footer>
+    </div>
+  </div>
+</script>
+
+
+<script type=text/x-template id=amber-helloworld>
+  <article>
+    <h1>Hello, world!</h1>
+    <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
+  </article>
+</script>
+
+
 <script type=text/x-template id=amber-homepage>
   <span data-exclude="hasUser">
     <header class="splash">
@@ -5,27 +34,27 @@
       <p>Collaborate in realtime with others around the world to create your own interactive stories, games, music, &amp; art.</p>
     </header>
     <section class="splash-links">
-      <a href="#projects/new">
+      <a href="/new">
         <h1>Get Started</h1>
         <p>Make an Amber project</p>
       </a>
-      <a href="#explore">
+      <a href="/explore">
         <h1>Explore</h1>
         <p>{{ projectCount }} projects</p>
       </a>
-      <a data-id="signIn">
+      <a href="/sign-in">
         <h1>Sign In</h1>
         <p>With a Scratch account</p>
       </a>
-      <a href="#help/about">
+      <a href="/wiki/about">
         <h1>About Amber</h1>
         <p>What is this thing?</p>
       </a>
-      <a href="#help/tos">
+      <a href="/wiki/tos">
         <h1>Terms of Service</h1>
         <p>How can I use it?</p>
       </a>
-      <a href="#help/educators">
+      <a href="/wiki/educators">
         <h1>For Educators</h1>
         <p>How can I teach with it?</p>
       </a>

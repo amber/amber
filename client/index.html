@@ -2,8 +2,8 @@
 <meta charset=utf-8>
 <title>Amber</title>
 
-<link rel=stylesheet href=static/app.css>
 <link rel=icon href=static/favicon.png>
+<link rel=stylesheet href=static/amber.css>
 <body>
 <!--
 <script src=src/util.js></script>
@@ -24,16 +24,21 @@
 <script src=locale/en-US.js></script>
 
 <script>
-server = Amber.Server({
-  socket: socket = Amber.mock.Socket({
-    backendVerbosePackets: true
-  })
-}).connect({
-  verbosePackets: true,
-  livePacketLog: true
-});
 
-// server = Amber.Server({
+a = Amber;
+
+a.host(document.body, app = a.view.App({
+  model: server = a.Server({
+    socket: socket = a.mock.Socket({
+      backendVerbosePackets: true
+    })
+  }).connect({
+    verbosePackets: true,
+    livePacketLog: true
+  })
+}));
+
+// server = a.Server({
 //   url: 'am-c9-nd.c9.io/'
 // }).connect({
 //   verbosePackets: true,

@@ -1,0 +1,127 @@
+/* Hosting */
+
+.amber-host {
+  position: relative;
+  background: #fff;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  overflow: hidden;
+
+  -webkit-transform: translateZ(0);
+}
+html.amber-host {
+  height: 100%;
+}
+html.amber-host > body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.amber-hosted {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* view.App */
+
+.amber {
+  font: 300 16px/1.5 Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.amber header {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 8px;
+  background: #333;
+  z-index: 1;
+}
+.amber header a {
+  display: inline-block;
+  color: #fff;
+  text-shadow: 0 1px 1px #222;
+  padding: 0 8px;
+  text-decoration: none;
+  outline: 0;
+}
+.amber header a:hover {
+  background: #444;
+  box-shadow: 0 1px 2px #222;
+}
+.amber header a:active {
+  color: #aaa;
+  background: #222;
+  box-shadow: inset 0 2px 3px #000;
+}
+
+.amber-wrap {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 16px 40px;
+  overflow: auto;
+
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  user-select: auto;
+}
+.amber article {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.amber-wrap a {
+  text-decoration: none;
+  color: #05d;
+}
+.amber-wrap a:hover {
+  text-decoration: underline;
+  color: #05d;
+}
+.amber-wrap a:active {
+  text-decoration: underline;
+  color: #028;
+}
+
+.amber-wrap h1 {
+  margin: 24px 0 0;
+  font-size: 36px;
+  line-height: 40px;
+}
+.amber-wrap p {
+  margin: 0 0 16px;
+}
+
+.amber footer {
+  position: relative;
+  margin: 0 0 -40px;
+  padding: 8px;
+  z-index: 1;
+  text-align: center;
+}
+.amber footer a {
+  display: inline-block;
+  padding: 4px 8px;
+  margin: -4px 0;
+  color: #555;
+}
+.amber footer a:active {
+  color: #000;
+}
+
+

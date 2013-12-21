@@ -1386,7 +1386,7 @@ var Amber = (function(debug) {
         var text = el.nodeValue;
         var changed = false;
         for (;;) {
-          var x = /^(.*?)\{\{\s*(\w+)\s*\}\}/.exec(text);
+          var x = /^([^]*?)\{\{\s*(\w+)\s*\}\}/.exec(text);
 
           if (!x) {
             if (changed) el.nodeValue = text;
@@ -1528,6 +1528,21 @@ var Amber = (function(debug) {
   });
 
 
+  view('App', {
+
+    template: 'amber-app',
+
+    routes: {
+      '/': 'HelloWorld'
+    },
+
+    render: function(model) {
+      this.page = view.HelloWorld(model);
+    }
+
+  });
+
+
   view('Homepage', {
 
     template: 'amber-homepage',
@@ -1552,12 +1567,25 @@ var Amber = (function(debug) {
   });
 
 
-  var routes = {
-    '/': 'Homepage'
-  };
+  view('HelloWorld', {
+
+    template: 'amber-helloworld',
+
+    render: function(model) {
+
+    }
+
+  });
 
 
+  function host(el, view) {
+    view.use(function() {
+      addClass(el === document.body ? document.documentElement : el, 'amber-host');
+      addClass(view.el, 'amber-hosted');
 
+      el.appendChild(view.el);
+    });
+  }
 
 
   return {
@@ -1585,7 +1613,8 @@ var Amber = (function(debug) {
     Server: Server,
     Socket: Socket,
     model: model,
-    view: view
+    view: view,
+    host: host
   };
 
 })(true);
