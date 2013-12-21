@@ -127,13 +127,13 @@ var Amber = (function(debug) {
 
   function create(className, config) {
     function named(prefix, key, f, scope) {
-      if (!debug) return f;
       if (!isFunction(f)) {
         scope = f;
         f = key;
         key = prefix;
         prefix = null;
       }
+      if (!debug) return f;
       return nameFunction(f, (className ? className + '_' : '') + (prefix ? prefix + '_' : '') + key, scope);
     }
 
