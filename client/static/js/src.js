@@ -1539,7 +1539,8 @@ var Amber = (function(debug) {
     routes: {
 
       '/': 'HelloWorld',
-      '/wiki/:slug': 'Wiki'
+      '/wiki/:slug': 'Wiki',
+      '/wiki': { view: 'Wiki', slug: 'main' }
     },
 
     events: {
@@ -1560,12 +1561,18 @@ var Amber = (function(debug) {
           names.push(name);
           return '([^/]+)';
         }) + '$';
+        var route = this.routes[url];
+        if (typeof route === 'string') {
+          route = { view: route };
+        }
         this.compiledRoutes.push({
           template: url,
           regex: new RegExp(source),
           names: names,
-          view: this.routes[url]
+          view: route.view,
+          args: route
         });
+        delete route.view;
       }
 
       this.route();
@@ -1582,9 +1589,13 @@ var Amber = (function(debug) {
         var x = route.regex.exec(url);
         if (x) {
 
-          var dict = {};
+          var dict = { app: this };
           for (var j = 0; j < route.names.length; j++) {
             dict[route.names[j]] = x[j + 1];
+          }
+
+          for (var key in route.args) if (route.args.hasOwnProperty(key)) {
+            dict[key] = route.args[key];
           }
 
           this.page = view[route.view].call(this, this.model, dict);
@@ -1595,12 +1606,8 @@ var Amber = (function(debug) {
       }
 
       if (!success) {
-        this.page = view.NotFound.call(this, this.model, {
-          requestURL: url
-        });
+        this.page = view.NotFound(this.model, { app: this });
       }
-
-      this.page.app = this;
 
       this.title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
     },
@@ -1634,7 +1641,7 @@ var Amber = (function(debug) {
     title: 'Not Found',
 
     render: function() {
-      this.url.textContent = this.requestURL;
+      this.url.textContent = this.app.url;
     }
 
   });
@@ -1673,6 +1680,8 @@ var Amber = (function(debug) {
         var context = Markup.parse(source);
         this.header.textContent = this.app.title = context.config.title || this.title();
         this.content.innerHTML = context.result;
+      }.bind(this), function() {
+        this.app.page = view.NotFound(this.model, { app: this.app });
       }.bind(this));
     },
 
