@@ -906,7 +906,10 @@ var Amber = (function(debug) {
       if (this.projectMap[id]) {
         return Promise.fulfilled(this.projectMap[id]);
       }
-      return this.socket.watch(this.makeProject(id), 'project', {
+      return this.socket.watch(model.Project({
+        server: this,
+        id: id
+      }), 'project', {
         project: id
       });
     },
@@ -916,10 +919,10 @@ var Amber = (function(debug) {
     },
 
     getUser: function(name) {
-      if (this.userMap[name]) {
-        return Promise.fulfilled(this.userMap[name]);
-      }
-      return this.socket.watch(this.makeUser(name), 'user', {
+      return this.socket.watch(model.User({
+        server: this,
+        name: name
+      }), 'user', {
         user: name
       });
     },
@@ -980,8 +983,6 @@ var Amber = (function(debug) {
       this.token = localStorage.getItem('Amber.token') || null;
       this.lastUser = localStorage.getItem('Amber.lastUser') || null;
       this.userInfoMap = {};
-      this.userMap = {};
-      this.projectMap = {};
     },
 
 
@@ -1023,28 +1024,6 @@ var Amber = (function(debug) {
         name: name,
         scratchId: data.scratchId,
         group: data.group || 'default'
-      });
-    },
-
-    makeUser: function(name) {
-      if (this.userMap[name]) {
-        return this.userMap[name];
-      }
-
-      return this.userMap[name] = model.User({
-        server: this,
-        name: name
-      });
-    },
-
-    makeProject: function(id) {
-      if (this.projectMap[id]) {
-        return Promise.fulfilled(this.projectMap[id]);
-      }
-
-      return this.projectMap[id] = model.Project({
-        server: this,
-        id: id
       });
     }
   });
