@@ -1533,11 +1533,64 @@ var Amber = (function(debug) {
     template: 'amber-app',
 
     routes: {
-      '/': 'HelloWorld'
+
+      '/': 'Homepage',
+      '/hello': 'HelloWorld'
     },
 
     render: function(model) {
-      this.page = view.HelloWorld(model);
+      this.compiledRoutes = [];
+      for (var url in this.routes) if (this.routes.hasOwnProperty(url)) {
+        var names = [];
+        var source = '^' + url.replace(/:(\w+)/g, function(_, name) {
+          names.push(name);
+          return '[^/]+';
+        }) + '$';
+        this.compiledRoutes.push({
+          template: url,
+          regex: new RegExp(source),
+          names: names,
+          view: this.routes[url]
+        });
+      }
+
+      this.route();
+      window.addEventListener('hashchange', this.route.bind(this));
+    },
+
+    route: function() {
+      var url = this.url = location.pathname;
+      for (var i = 0; i < this.compiledRoutes.length; i++) {
+        var route = this.compiledRoutes[i];
+
+        var x = route.regex.exec(url);
+        if (x) {
+
+          var dict = {};
+          for (var j = 0; j < route.names.length; j++) {
+            dict[route.names[j]] = x[j + 1];
+          }
+
+          this.page = view[route.view].call(this, this.model, dict);
+
+          return;
+        }
+      }
+
+      this.page = view.NotFound.call(this, this.model, {
+        requestURL: url
+      });
+    }
+
+  });
+
+
+  view('NotFound', {
+
+    template: 'amber-notfound',
+
+    render: function() {
+      this.url.textContent = this.requestURL;
     }
 
   });

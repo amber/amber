@@ -2,41 +2,26 @@
 <meta charset=utf-8>
 <title>Amber</title>
 
-<link rel=icon href=static/favicon.png>
-<link rel=stylesheet href=static/amber.css>
+<link rel=icon href=static/img/favicon.png>
+<link rel=stylesheet href=static/css/amber.css>
 <body>
-<!--
-<script src=src/util.js></script>
-<script src=src/event.js></script>
-<script src=src/models.js></script>
-<script src=src/markup.js></script>
-<script src=src/locale.js></script>
-<script src=src/ui.js></script>
-<script src=src/editor/specs.js></script>
-<script src=src/editor/models.js></script>
-<script src=src/editor/ui.js></script>
-<script src=src/site/urls.js></script>
-<script src=src/site/ui.js></script>
--->
-<script src=markup.js></script>
-<script src=src.js></script>
-<script src=mock.js></script>
-<script src=locale/en-US.js></script>
+<script src=static/js/markup.js></script>
+<script src=static/js/src.js></script>
+<script src=static/js/mock.js></script>
+<script src=static/locale/en-US.js></script>
 
 <script>
 
 a = Amber;
 
-a.host(document.body, app = a.view.App({
-  model: server = a.Server({
-    socket: socket = a.mock.Socket({
-      backendVerbosePackets: true
-    })
-  }).connect({
-    verbosePackets: true,
-    livePacketLog: true
+a.host(document.body, app = a.view.App(server = a.Server({
+  socket: socket = a.mock.Socket({
+    backendVerbosePackets: true
   })
-}));
+}).connect({
+  verbosePackets: true,
+  livePacketLog: true
+})));
 
 // server = a.Server({
 //   url: 'am-c9-nd.c9.io/'

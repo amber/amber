@@ -107,6 +107,10 @@ html.amber-host > body {
   margin: 0 0 16px;
 }
 
+.amber-wrap code {
+  font: 11px Menlo, Monaco, Consolas, Courier New, monospace;
+}
+
 .amber footer {
   position: relative;
   margin: 0 0 -40px;
