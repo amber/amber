@@ -44,26 +44,34 @@ a.view('DemoListItem', {
 
 a.view('DemoEditor', {
 
+  focus: function() {
+    this.el.focus();
+  },
+
+
   template: '<span class="editable" tabindex="0"></span>',
 
-  render: function(model) {
-    model.on(this.key + 'Changed', this.contentChanged.bind(this));
-
-    this.el.addEventListener('input', function() {
-      model[this.key] = this.el.textContent;
-    }.bind(this));
-    this.el.addEventListener('focus', function() {
-      this.style.WebkitUserModify = 'read-write-plaintext-only';
+  events: {
+    'input el': function() {
+      this.model[this.key] = this.el.textContent;
+    },
+    'focus el': function() {
+      this.el.style.WebkitUserModify = 'read-write-plaintext-only';
 
       var sel = window.getSelection();
       sel.removeAllRanges();
       var range = document.createRange();
-      range.selectNodeContents(this);
+      range.selectNodeContents(this.el);
       sel.addRange(range);
-    });
-    this.el.addEventListener('blur', function() {
-      this.style.WebkitUserModify = 'read-only';
-    });
+    },
+    'blur el': function() {
+      this.el.style.WebkitUserModify = 'read-only';
+    }
+  },
+
+  render: function(model) {
+    model.on(this.key + 'Changed', this.contentChanged.bind(this));
+
     this.contentChanged();
   },
 
@@ -72,10 +80,6 @@ a.view('DemoEditor', {
     if (this.el.textContent !== value) {
       this.el.textContent = value;
     }
-  },
-
-  focus: function() {
-    this.el.focus();
   }
 });
 

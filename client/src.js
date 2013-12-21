@@ -1262,6 +1262,21 @@ var Amber = (function(debug) {
       delete config.template;
     }
 
+    if (config.events) {
+      config.events = Object.keys(config.events).map(function(description) {
+        var parts = description.trim().split(/\s+/);
+        return {
+          event: parts[0],
+          name: parts[1],
+          handler: config.events[description]
+        };
+      });
+      var superEvents = config.extend && config.extend.prototype.events;
+      if (superEvents) {
+        config.events = config.events.concat(superEvents);
+      }
+    }
+
     var v = create(name, config);
 
     if (template) {
@@ -1433,7 +1448,9 @@ var Amber = (function(debug) {
     extend: Base,
 
     template: '<div></div>',
+
     subscribe: [],
+    events: {},
 
 
     use: function(cb) {
@@ -1478,6 +1495,12 @@ var Amber = (function(debug) {
 
     constructWithTemplate: function(template, c) {
       template.install(this);
+
+      this.events.forEach(function(e) {
+        var handler = typeof e.handler === 'string' ? this[e.handler] : e.handler;
+        this[e.name].addEventListener(e.event, handler.bind(this));
+      }, this);
+
       this.render(this.model);
 
       this.promise.fulfill(this);
