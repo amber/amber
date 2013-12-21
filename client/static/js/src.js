@@ -857,7 +857,6 @@ var Amber = (function(debug) {
     createSocket: function() {
       return new WebSocket(this.url);
     }
-
   });
 
 
@@ -1107,8 +1106,22 @@ var Amber = (function(debug) {
           this[key].destroy();
         }
       }, this);
-    }
+    },
 
+    init: function() {
+      this.referenceCount = 0;
+    },
+
+    addReference: function() {
+      this.referenceCount += 1;
+    },
+
+    removeReference: function() {
+      this.referenceCount -= 1;
+      if (!this.referenceCount) {
+        this.destroy();
+      }
+    }
   });
 
 
@@ -1149,7 +1162,6 @@ var Amber = (function(debug) {
           return;
       }
     }
-
   });
 
 
@@ -1320,6 +1332,7 @@ var Amber = (function(debug) {
     install: function(instance) {
 
       instance.el = this.el.cloneNode(true);
+      instance.el.id = '';
 
       for (var i = 0; i < this.references.length; i++) {
         var ref = this.references[i];
@@ -1425,16 +1438,21 @@ var Amber = (function(debug) {
 
             Object.defineProperty(this.prototype, name, {
               set: function(value) {
-                if (this[k] && this[k].el) {
-                  this[ck].removeChild(this[k].el);
-                }
-                this[ck].style.display = value ? 'inline' : 'none';
-                if (value) {
-                  value.use(function() {
-                    this[ck].appendChild(value.el);
-                  }.bind(this));
+                this[ck].style.display = 'none';
+                if (this[k]) {
+                  this.remove(this[k]);
+                  if (this[k].el) {
+                    this[ck].removeChild(this[k].el);
+                  }
                 }
                 this[k] = value;
+                if (value) {
+                  this.add(value);
+                  value.use(function() {
+                    this[ck].appendChild(value.el);
+                    this[ck].style.display = 'inline';
+                  }.bind(this));
+                }
               },
               get: function() {
                 return this[k];
@@ -1456,7 +1474,6 @@ var Amber = (function(debug) {
         }
       }
     }
-
   });
 
 
@@ -1469,6 +1486,9 @@ var Amber = (function(debug) {
 
 
     use: function(cb) {
+      if (this.destroyed) {
+        throw new TypeError('Cannot use a destroyed view.');
+      }
       this.promise.then(cb);
       return this;
     },
@@ -1489,10 +1509,42 @@ var Amber = (function(debug) {
       });
     },
 
+    add: function(subview) {
+      if (!subview) return this;
+
+      if (subview.parent) {
+        subview.parent.remove(subview, true);
+      }
+
+      this.subviews.push(subview);
+      subview.parent = this;
+
+      return this;
+    },
+
+    remove: function(subview, swap) {
+      if (!subview || subview.parent !== this) return this;
+
+      var i = this.subviews.indexOf(subview);
+      if (i !== -1) {
+        this.subviews.splice(i, 1);
+      }
+
+      if (!swap) {
+        subview.destroy();
+        subview.parent = null;
+      }
+
+      return this;
+    },
+
     render: function() {},
 
     construct: function(model, c) {
       this.promise = Promise();
+
+      this.listeners = [];
+      this.subviews = [];
 
       this.init();
       if (c) this.set(c);
@@ -1509,8 +1561,8 @@ var Amber = (function(debug) {
 
     constructWithModel: function(model, c) {
       this.model = model;
+      if (this.model.addReference) this.model.addReference();
 
-      this.listeners = [];
       this.subscriptions.forEach(this.subscribe, this);
 
       if (this.template.isPromise) {
@@ -1536,10 +1588,15 @@ var Amber = (function(debug) {
     },
 
     destroy: function() {
+      if (!this.model) return;
       this.listeners.forEach(function(listener) {
         this.model.removeListener(listener.event, listener.handler);
       }, this);
+      this.subviews.forEach(function(subview) {
+        subview.destroy();
+      });
       this.destroyed = true;
+      if (this.model.removeReference) this.model.removeReference();
     }
   });
 
@@ -1663,7 +1720,9 @@ var Amber = (function(debug) {
         this.page = view.NotFound(this.model, { app: this });
       }
 
-      this.title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
+      this.page.use(function() {
+        this.title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
+      }.bind(this));
     },
 
     click: function(e) {
@@ -1697,7 +1756,6 @@ var Amber = (function(debug) {
     render: function() {
       this.url.textContent = this.app.url;
     }
-
   });
 
 
@@ -1763,6 +1821,10 @@ var Amber = (function(debug) {
       this.about = view.Markup(model, 'about');
 
       this.isFollowingChanged(model);
+    },
+
+    title: function() {
+      return this.model.name;
     },
 
     isFollowingChanged: function (model) {
