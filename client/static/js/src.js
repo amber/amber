@@ -1324,7 +1324,7 @@ var Amber = (function(debug) {
         }
 
         if (!Template.httpRequest) {
-          Template.httpRequest = http('static/templates.html');
+          Template.httpRequest = http('/static/templates.html');
         }
 
         return Template.httpRequest.then(function(result) {
