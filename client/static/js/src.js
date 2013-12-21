@@ -1167,7 +1167,7 @@ var Amber = (function(debug) {
       followers: { type: 'list' },
       following: { type: 'list' },
       topic: { type: 'topic' },
-      isFollowing: { type: 'boolean' }
+      isFollowing: {}
     },
 
     properties: {
@@ -1407,7 +1407,7 @@ var Amber = (function(debug) {
 
             Object.defineProperty(this.prototype, name, {
               set: function(value) {
-                if (this[k]) {
+                if (this[k] && this[k].el) {
                   this[ck].removeChild(this[k].el);
                 }
                 this[ck].style.display = value ? 'inline' : 'none';
@@ -1470,7 +1470,7 @@ var Amber = (function(debug) {
       if (model.isPromise) {
         model.then(function(model) {
           this.constructWithModel(model, c);
-        }.bind(this));
+        }, this);
       } else {
         this.constructWithModel(model);
       }
@@ -1488,7 +1488,7 @@ var Amber = (function(debug) {
       if (this.template.isPromise) {
         this.template.then(function(template) {
           this.constructWithTemplate(template, c);
-        }.bind(this));
+        }, this);
       } else {
         this.constructWithTemplate(this.template, c);
       }
@@ -1513,8 +1513,10 @@ var Amber = (function(debug) {
 
     template: '<span></span>',
 
-    construct: function(model, key, config) {
-      this.key = key;
+    construct: function(model, config) {
+      if (typeof config === 'string') {
+        config = { key: config };
+      }
       view.View.prototype.construct.call(this, model, config);
     },
 
@@ -1523,10 +1525,25 @@ var Amber = (function(debug) {
       this.keyChanged();
     },
 
-    keyChanged: function() {
-      this.el.textContent = this.model[this.key];
-    }
+    format: function(string) {
+      return string;
+    },
 
+    keyChanged: function() {
+      this.el.textContent = this.format(this.model[this.key]);
+    }
+  });
+
+
+  view('Markup', {
+
+    extend: view.Key,
+
+    template: '<span></span>',
+
+    keyChanged: function() {
+      this.el.innerHTML = Markup.parse(this.model[this.key]).result;
+    }
   });
 
 
@@ -1539,6 +1556,9 @@ var Amber = (function(debug) {
     routes: {
 
       '/': 'HelloWorld',
+      '/users/:slug': function(model, args) {
+        return view.Profile(model.getUser(args.slug));
+      },
       '/wiki/:slug': 'Wiki',
       '/wiki': { view: 'Wiki', slug: 'main' }
     },
@@ -1562,14 +1582,14 @@ var Amber = (function(debug) {
           return '([^/]+)';
         }) + '$';
         var route = this.routes[url];
-        if (typeof route === 'string') {
+        if (typeof route !== 'object') {
           route = { view: route };
         }
         this.compiledRoutes.push({
           template: url,
           regex: new RegExp(source),
           names: names,
-          view: route.view,
+          view: typeof route.view === 'string' ? view[route.view] : route.view,
           args: route
         });
         delete route.view;
@@ -1593,12 +1613,11 @@ var Amber = (function(debug) {
           for (var j = 0; j < route.names.length; j++) {
             dict[route.names[j]] = x[j + 1];
           }
-
           for (var key in route.args) if (route.args.hasOwnProperty(key)) {
             dict[key] = route.args[key];
           }
 
-          this.page = view[route.view].call(this, this.model, dict);
+          this.page = route.view.call(this, this.model, dict);
           success = true;
 
           break;
@@ -1680,13 +1699,40 @@ var Amber = (function(debug) {
         var context = Markup.parse(source);
         this.header.textContent = this.app.title = context.config.title || this.title();
         this.content.innerHTML = context.result;
-      }.bind(this), function() {
+      }, function() {
         this.app.page = view.NotFound(this.model, { app: this.app });
-      }.bind(this));
+      }, this);
     },
 
     title: function() {
       return this.slug.charAt(0).toUpperCase() + this.slug.slice(1);
+    }
+  });
+
+
+  view('Profile', {
+
+    template: 'amber-profile',
+
+    subscribe: ['isFollowingChanged'],
+
+    events: {
+
+      'click follow': function() {
+        this.model.isFollowing = !this.model.isFollowing;
+      }
+    },
+
+    render: function(model) {
+      this.header = view.Key(model, 'name');
+      this.about = view.Markup(model, 'about');
+
+      this.isFollowingChanged(model);
+    },
+
+    isFollowingChanged: function (model) {
+      this.follow.textContent = model.isFollowing ? 'Unfollow' : 'Follow';
+      toggleClass(this.follow, 'light', model.isFollowing);
     }
   });
 
@@ -1696,7 +1742,6 @@ var Amber = (function(debug) {
     template: 'amber-helloworld',
 
     title: 'Hello World'
-
   });
 
 

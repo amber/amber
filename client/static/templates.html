@@ -23,15 +23,48 @@
 </article>
 
 
+<article id=amber-helloworld>
+  <h1>Hello World</h1>
+  <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
+  <h2>Links</h2>
+  <ul>
+    <li><a href="/wiki">The wiki</a>
+    <li><a href="/users/nXIII">Nathan's profile</a>
+    <li><a href="/users/MathWizz">Truman's profile</a>
+    <li><a href="/users/following">A user you're following</a>
+    <li><a href="/users/invalid">A user that doesn't exist</a>
+  </ul>
+</article>
+
+
 <article id=amber-wiki>
   <h1 data-id="header"></h1>
   <span data-id="content"></span>
 </article>
 
 
-<article id=amber-helloworld>
-  <h1>Hello World</h1>
-  <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
+<article id=amber-profile>
+  <h1>
+    {{header}}
+    <button class="small" data-id="follow"></button>
+  </h1>
+  {{activity}}
+  <h2>About</h2>
+  {{about}}
+  <h2>Featured Project</h2>
+  {{featuredProject}}
+  <h2>All Projects</h2>
+  {{projects}}
+  <h2>Loved Projects</h2>
+  {{lovedProjects}}
+  <h2>All Collections</h2>
+  {{collections}}
+  <h2>Followers</h2>
+  {{followers}}
+  <h2>Following</h2>
+  {{following}}
+  <h2>Comment</h2>
+  {{topic}}
 </article>
 
 

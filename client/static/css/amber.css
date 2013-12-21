@@ -30,7 +30,8 @@ html.amber-host > body {
 
 /* view.App */
 
-.amber {
+.amber,
+.amber-wrap button {
   font: 300 16px/1.5 Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
@@ -52,7 +53,6 @@ html.amber-host > body {
   text-shadow: 0 1px 1px #222;
   padding: 0 8px;
   text-decoration: none;
-  outline: 0;
 }
 .amber header a:hover {
   background: #444;
@@ -72,17 +72,24 @@ html.amber-host > body {
   bottom: 0;
   padding: 0 16px 40px;
   overflow: auto;
+}
+.amber article {
+  position: relative;
+  min-height: 100%;
+  max-width: 720px;
+  margin: 0 auto;
 
   -webkit-user-select: auto;
   -moz-user-select: auto;
   user-select: auto;
 }
-.amber article {
-  position: relative;
-  min-height: 100%;
-  overflow: hidden;
-  max-width: 720px;
-  margin: 0 auto;
+.amber article::before,
+.amber article::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: -1px;
+  clear: both;
 }
 
 .amber-wrap a {
@@ -146,6 +153,40 @@ html.amber-host > body {
 .amber-wrap code {
   font: 13px/1.15 Menlo, Monaco, Consolas, Courier New, monospace;
 }
+.amber-wrap button {
+  margin: 0;
+  border: 0;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  vertical-align: middle;
+
+  background: #555;
+  color: #fff;
+  font-size: 16px;
+  line-height: 20px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.amber-wrap button.small {
+  padding: 2px 6px;
+}
+.amber-wrap button:hover {
+  background: #666;
+}
+.amber-wrap button:active {
+  background: #444;
+}
+.amber-wrap button.light {
+  background: #ccc;
+  color: #000;
+}
+.amber-wrap button.light:hover {
+  background: #ddd;
+}
+.amber-wrap button.light:active {
+  background: #aaa;
+}
+
 .amber-wrap .md-image {
   max-width: 100%;
   vertical-align: text-bottom;
@@ -219,5 +260,3 @@ html.amber-host > body {
 .amber footer a:active {
   color: #000;
 }
-
-

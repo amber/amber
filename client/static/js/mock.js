@@ -4,21 +4,15 @@ Amber.mock = (function() {
   var create = Amber.create;
 
   var RequestError = {
-    NOT_FOUND: 0,
-    INCORRECT_CREDENTIALS: 1,
-    INVALID_REQUEST: 2
+    NOT_FOUND: 1,
+    INCORRECT_CREDENTIALS: 2,
+    INVALID_REQUEST: 3
   };
 
   var Backend = create('Backend', {
 
     data: {
       latency: { value: 50 },
-    },
-
-    objects: {
-      user: {
-
-      }
     },
 
     onopen: null,
@@ -75,7 +69,7 @@ Amber.mock = (function() {
       'connect': function(p) {
         if (p.user && p.token) {
           this.yield('connect', {
-            user: this.user = this.makeUser(p.user),
+            user: this.userInfo(this.user = this.makeUser(p.user)),
             token: this.makeToken()
           });
         } else {
@@ -96,7 +90,7 @@ Amber.mock = (function() {
         if (p.password === 'invalid') {
           promise.reject(RequestError.INCORRECT_CREDENTIALS);
         } else {
-          promise.fulfill(this.makeUser(p.user));
+          promise.fulfill(this.userInfo(this.makeUser(p.user)));
         }
       },
 
@@ -108,6 +102,14 @@ Amber.mock = (function() {
       },
 
       'user.info': function(p, promise) {
+        if (p.user === 'invalid') {
+          promise.reject(RequestError.NOT_FOUND);
+        } else {
+          promise.fulfill(this.userInfo(this.makeUser(p.user)));
+        }
+      },
+
+      'user': function(p, promise) {
         if (p.user === 'invalid') {
           promise.reject(RequestError.NOT_FOUND);
         } else {
@@ -146,7 +148,24 @@ Amber.mock = (function() {
       return this.userMap[name] = {
         name: name,
         scratchId: this.makeToken(),
-        group: name === 'administrator' || name === 'moderator' || name === 'limited' ? name : 'default'
+        group: name === 'administrator' || name === 'moderator' || name === 'limited' ? name : 'default',
+        about: this.makePhrase(name, 'about'),
+        // objectId(Project) __featuredProject__
+        // objectId(ActivityFeed) __activity__
+        // objectId(Collection) __projects__
+        // objectId(Collection) __lovedProjects__
+        // CollectionStub[] __collections__
+        followers: [],
+        following: [],
+        // objectId(Topic) __topic__
+        isFollowing: name === 'following'
+      };
+    },
+
+    userInfo: function(user) {
+      return {
+        scratchId: user.scratchId,
+        group: user.group
       };
     },
 
@@ -173,6 +192,15 @@ Amber.mock = (function() {
         // collections: ,
         // isLoved:
       }
+    },
+
+    makePhrase: function(seed, key) {
+      var result = '';
+      for (var i = this.makeInt(seed, key, 7) + 3; i > 0; i--) {
+        var word = this.makeWord(seed, key + i);
+        result += result ? ' ' + word.toLowerCase() : word;
+      }
+      return result;
     },
 
     makeWord: function(seed, key) {
