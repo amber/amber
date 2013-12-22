@@ -1682,12 +1682,23 @@ var Amber = (function(debug) {
     routes: {
 
       '/': 'HelloWorld',
+      '/contact': '',
+      '/settings': '',
+      '/explore': '',
       '/new': '',
+      '/project/:id': '',
+      '/project/:id/edit': '',
+      '/collection/:id': '',
       '/wiki/:slug': 'Wiki',
+      '/wiki/:slug/edit': 'Wiki',
+      '/wiki/:slug/history': 'Wiki',
       '/wiki': { view: 'Wiki', slug: 'main' },
       '/forums': function(model) {
         return view.ForumList(model.getForumCategories());
       },
+      '/forum/:slug': '',
+      '/topic/:id': '',
+      '/post/:id': '',
       '/:slug': function(model, args) {
         return view.Profile(model.getUser(args.slug));
       }
@@ -1738,6 +1749,7 @@ var Amber = (function(debug) {
 
         var x = route.regex.exec(url);
         if (x) {
+          if (!route.view) break;
 
           var dict = { app: this };
           for (var j = 0; j < route.names.length; j++) {
