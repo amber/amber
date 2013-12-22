@@ -1340,7 +1340,7 @@ var Amber = (function(debug) {
     install: function(instance) {
 
       instance.el = this.el.cloneNode(true);
-      instance.el.id = '';
+      instance.el.removeAttribute('id');
 
       for (var i = 0; i < this.references.length; i++) {
         var ref = this.references[i];
@@ -1377,7 +1377,8 @@ var Amber = (function(debug) {
 
       getCached: function(id, prototype) {
         var el = Template.cache.querySelector('[id=' + JSON.stringify(id) + ']');
-        return el && Template({
+        if (!el) throw new Error('Missing template "' + id + '"');
+        return Template({
           el: el,
           prototype: prototype
         });
@@ -1475,6 +1476,14 @@ var Amber = (function(debug) {
 
         var id = el.dataset.id;
         if (id) this.addReference(id, el);
+
+        var require = el.dataset.require;
+        if (require) {
+          var requireParts = require.trim().split(/\s+/);
+          if (requireParts[0]) {
+            el.style.display = 'none';
+          }
+        }
 
         var nodes = el.childNodes;
         for (var i = 0; i < nodes.length; i++) {
@@ -1681,7 +1690,9 @@ var Amber = (function(debug) {
 
     routes: {
 
-      '/': 'HelloWorld',
+      '/': 'Homepage',
+      '/join': '',
+      '/login': '',
       '/contact': '',
       '/settings': '',
       '/explore': '',
@@ -1816,19 +1827,19 @@ var Amber = (function(debug) {
     subscribe: ['userChanged'],
 
     render: function (model) {
-      ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
-        this[v] = view.Carousel(model.getCollection(v));
-      }, this);
+      // ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
+      //   this[v] = view.Carousel(model.getCollection(v));
+      // }, this);
 
       this.userChanged(model);
     },
 
     userChanged: function(model) {
       this.hasUser = !!model.user;
-      this.news = view.Activity(model.getActivity('all'));
-      ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
-        this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
-      }, this);
+      // this.news = view.Activity(model.getActivity('all'));
+      // ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
+      //   this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
+      // }, this);
     }
   });
 
@@ -1917,16 +1928,8 @@ var Amber = (function(debug) {
     render: function(model) {
       this.name = view.Key(model, { key: 'name', format: T.maybe });
       this.description = view.Key(model, { key: 'description', format: T.maybe });
-      this.link.href = '/forums/' + model.id;
+      this.el.href = '/forums/' + model.id;
     }
-  });
-
-
-  view('HelloWorld', {
-
-    template: 'amber-helloworld',
-
-    title: 'Hello World'
   });
 
 

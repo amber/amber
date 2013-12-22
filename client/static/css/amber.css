@@ -82,7 +82,8 @@ html.amber-host > body {
   user-select: auto;
 }
 .amber article::before,
-.amber article::after {
+.amber article::after,
+.amber .splash section > div::after {
   content: '';
   display: block;
   height: 1px;
@@ -103,12 +104,18 @@ html.amber-host > body {
   max-width: 720px;
 }
 
-.amber-wrap a {
+.amber-wrap a,
+.amber .splash a h1 {
   text-decoration: none;
   color: #05d;
   cursor: pointer;
 }
-.amber-wrap a.black {
+.amber-wrap a:visited,
+.amber a.block:visited h1 {
+  color: #50a;
+}
+.amber-wrap a.black,
+.amber a.block h1.black {
   color: #000;
   font-weight: bold;
 }
@@ -118,14 +125,38 @@ html.amber-host > body {
   text-decoration: none;
   color: #000;
 }
-.amber-wrap a:hover {
+.amber-wrap a:hover,
+.amber-wrap a:visited:hover,
+.amber .splash a:hover h1,
+.amber a.block:hover h1 {
   text-decoration: underline;
   color: #05d;
 }
-.amber-wrap a:active {
+.amber-wrap a:active,
+.amber-wrap a:visited:active,
+.amber .splash a:active h1,
+.amber a.block:active h1 {
   text-decoration: underline;
   color: #028;
 }
+
+.amber a.block,
+.amber .splash a {
+  color: #000 !important;
+  display: block;
+}
+.amber a.block:hover,
+.amber a.block:active,
+.amber .splash a:hover,
+.amber .splash a:active {
+  text-decoration: none;
+}
+.amber-wrap a.block h1,
+.amber .splash a h1 {
+  margin: 0;
+  font: inherit;
+}
+
 .amber-wrap h1,
 .amber-wrap h2,
 .amber-wrap h3,
@@ -273,7 +304,8 @@ html.amber-host > body {
   z-index: 1;
   text-align: center;
 }
-.amber footer a {
+.amber footer a,
+.amber footer a:visited {
   display: inline-block;
   padding: 4px 8px;
   margin: -4px 0;
@@ -281,4 +313,54 @@ html.amber-host > body {
 }
 .amber footer a:active {
   color: #000;
+}
+
+/* Splash */
+
+.amber .splash h1 {
+  font-size: 96px;
+  line-height: 96px;
+  margin-top: 48px;
+}
+.amber .splash section > div {
+  margin: 0 -48px 0 -16px;
+}
+.amber .splash a {
+  display: block;
+  float: left;
+  width: 33.33%;
+  cursor: pointer;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 16px;
+  margin: -16px -16px 0 0;
+}
+.amber .splash a p {
+  margin: 0;
+}
+
+@media screen and (max-width: 752px) {
+  .amber .splash section > div {
+    margin: 0 -32px 0 -16px;
+  }
+  .amber .splash a {
+    width: 49.99%;
+  }
+}
+
+@media screen and (max-width: 532px) {
+  .amber .splash section > div {
+    margin: 0 -16px;
+  }
+  .amber .splash a {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 372px) {
+  .amber .splash > h1 {
+    font-size: 72px;
+    line-height: 72px;
+    margin-top: 24px;
+  }
 }

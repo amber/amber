@@ -2,11 +2,12 @@
   <header>
     <a href="/">Amber</a>
     <a href="/new">Create</a>
-    <a href="/explore">Explore</a>
     <a href="/forums">Discuss</a>
+    <a href="/wiki/help">Help</a>
   </header>
   <div class="amber-wrap">
     {{page}}
+    <article data-exclude="page"></article>
     <footer>
       <a href="/wiki/help">Help</a>
       <a href="/wiki/about">About</a>
@@ -23,17 +24,77 @@
 </article>
 
 
-<article id=amber-helloworld>
-  <h1>Hello World</h1>
-  <p>This is an <code>Amber.view.HelloWorld()</code>.</p>
-  <h2>Links</h2>
-  <ul>
-    <li><a href="/wiki">The wiki</a>
-    <li><a href="/n">Nathan's profile</a>
-    <li><a href="/MathWizz">Truman's profile</a>
-    <li><a href="/following">A user you're following</a>
-    <li><a href="/invalid">A user that doesn't exist</a>
-  </ul>
+<article id=amber-homepage>
+  <span class="splash" data-exclude="hasUser">
+    <h1>Amber</h1>
+    <p>Collaborate in realtime with others around the world to create interactive stories, games, music &amp; art.</p>
+    <section>
+      <div>
+        <a href="/new">
+          <h1>Get Started</h1>
+          <p>Make an Amber project</p>
+        </a>
+        <a href="/explore">
+          <h1>Explore</h1>
+          <p data-require="projectCount">{{ projectCount }} projects</p>
+          <p data-exclude="projectCount">Others' projects</p>
+        </a>
+        <a href="/join">
+          <h1>Sign Up</h1>
+          <p>Join the Amber community</p>
+        </a>
+        <a href="/wiki/about">
+          <h1>About Amber</h1>
+          <p>What is this thing?</p>
+        </a>
+        <a href="/wiki/tos">
+          <h1>Terms of Service</h1>
+          <p>How can I use it?</p>
+        </a>
+        <a href="/wiki/educators">
+          <h1>For Educators</h1>
+          <p>How can I teach with it?</p>
+        </a>
+      </div>
+    </section>
+  </span>
+  <span data-require="hasUser">
+    <h1>News Feed</h1>
+    <p>Follow people to see their activity here</p>
+    {{ news }}
+  </span>
+  <section>
+    <h1>Featured Projects</h1>
+    <p>Selected projects from the community</p>
+    {{ featured }}
+  </section>
+  <div data-require="hasUser">
+    <section>
+      <h1>Made by People I'm Following</h1>
+      <p>Follow people to see their projects here</p>
+      {{ byFollowing }}
+    </section>
+    <section>
+      <h1>Loved by people I'm following</h1>
+      <p>Follow people to see their interests here</p>
+      {{ lovedByFollowing }}
+    </section>
+  </div>
+  <section>
+    <h1>Top Remixed</h1>
+    <p>What the community is remixing this week</p>
+    {{ topRemixed }}
+  </section>
+  <section>
+    <h1>Top Loved</h1>
+    <p>What the community is loving this week</p>
+    {{ topLoved }}
+  </section>
+  <section>
+    <h1>Top Viewed</h1>
+    <p>What the community is viewing this week</p>
+    {{ topViewed }}
+  </section>
 </article>
 
 
@@ -78,85 +139,10 @@
 </section>
 
 
-<section id=amber-forum-list-item>
-  <div><a class=black data-id="link">{{name}}</a></div>
-  <div>{{description}}</div>
-</section>
-
-
-<article id=amber-homepage>
-  <span data-exclude="hasUser">
-    <header class="splash">
-      <h1>Amber</h1>
-      <p>Collaborate in realtime with others around the world to create your own interactive stories, games, music, &amp; art.</p>
-    </header>
-    <section class="splash-links">
-      <a href="/new">
-        <h1>Get Started</h1>
-        <p>Make an Amber project</p>
-      </a>
-      <a href="/explore">
-        <h1>Explore</h1>
-        <p>{{ projectCount }} projects</p>
-      </a>
-      <a href="/sign-in">
-        <h1>Sign In</h1>
-        <p>With a Scratch account</p>
-      </a>
-      <a href="/wiki/about">
-        <h1>About Amber</h1>
-        <p>What is this thing?</p>
-      </a>
-      <a href="/wiki/tos">
-        <h1>Terms of Service</h1>
-        <p>How can I use it?</p>
-      </a>
-      <a href="/wiki/educators">
-        <h1>For Educators</h1>
-        <p>How can I teach with it?</p>
-      </a>
-    </section>
-  </span>
-  <div data-require="hasUser">
-    <header>
-      <h1>News Feed</h1>
-      <p>Follow people to see their activity here</p>
-      {{ news }}
-    </header>
-  </div>
-  <section>
-    <h1>Featured Projects</h1>
-    <p>Selected projects from the community</p>
-    {{ featured }}
-  </section>
-  <div data-require="hasUser">
-    <section>
-      <h1>Made by People I'm Following</h1>
-      <p>Follow people to see their projects here</p>
-      {{ byFollowing }}
-    </section>
-    <section>
-      <h1>Loved by people I'm following</h1>
-      <p>Follow people to see their interests here</p>
-      {{ lovedByFollowing }}
-    </section>
-  </div>
-  <section>
-    <h1>Top Remixed</h1>
-    <p>What the community is remixing this week</p>
-    {{ topRemixed }}
-  </section>
-  <section>
-    <h1>Top Loved</h1>
-    <p>What the community is loving this week</p>
-    {{ topLoved }}
-  </section>
-  <section>
-    <h1>Top Viewed</h1>
-    <p>What the community is viewing this week</p>
-    {{ topViewed }}
-  </section>
-</article>
+<a id=amber-forum-list-item class="block">
+  <h1 class=black>{{name}}</h1>
+  <p>{{description}}</p>
+</a>
 
 
 <section id=demo-template>
