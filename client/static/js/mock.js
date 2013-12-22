@@ -123,7 +123,46 @@ Amber.mock = (function() {
         promise.fulfill();
       },
 
-      'unwatch': function() {}
+      'unwatch': function() {},
+
+      'forumCategories': function(p, promise) {
+        promise.fulfill([
+          {
+            name: {$:'Welcome to Amber'},
+            forums: [
+              {
+                id: 'announcements',
+                name: {$:'Announcements'},
+                description: {$:'Updates from the Amber team'},
+                isUnread: false,
+                topicCount: 20,
+                postCount: 442
+              }
+            ]
+          },
+          {
+            name: {$:'About Amber'},
+            forums: [
+              {
+                id: 'feedback',
+                name: {$:'Feedback'},
+                description: {$:'Report bugs and share your thoughts and ideas'},
+                isUnread: false,
+                topicCount: 723,
+                postCount: 1987
+              },
+              {
+                id: 'questions',
+                name: {$:'Questions'},
+                description: {$:'Ask anything about Amber'},
+                isUnread: true,
+                topicCount: 142,
+                postCount: 1847
+              }
+            ]
+          }
+        ]);
+      }
     },
 
 

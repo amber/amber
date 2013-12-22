@@ -521,7 +521,7 @@ var Amber = (function(debug) {
       },
 
       maybeGetText: function(trans) {
-        return trans && trans.$ ? getText(trans.$) : trans;
+        return trans && trans.$ ? Locale.getText(trans.$) : trans;
       },
 
       getList: function(list) {
@@ -920,6 +920,12 @@ var Amber = (function(debug) {
       return this.socket.request('project.create');
     },
 
+    getForumCategories: function() {
+      return this.socket.request('forumCategories').then(function(categories) {
+        return categories.map(this.makeForumCategory, this);
+      }, this);
+    },
+
     getUser: function(name) {
       return this.socket.watch(model.User({
         server: this,
@@ -1027,11 +1033,31 @@ var Amber = (function(debug) {
         scratchId: data.scratchId,
         group: data.group || 'default'
       });
+    },
+
+    makeForumCategory: function(data) {
+      return ForumCategory({
+        name: data.name,
+        forums: (data.forums || []).map(this.makeForumStub, this)
+      });
+    },
+
+    makeForumStub: function(data) {
+      return ForumStub({
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        isUnread: data.isUnread,
+        topicCount: data.topicCount,
+        postCount: data.postCount
+      });
     }
   });
 
 
   var UserInfo = create('UserInfo', {});
+  var ForumCategory = create('ForumCategory', {});
+  var ForumStub = create('ForumStub', {});
 
 
   function model(name, config) {
@@ -1422,14 +1448,14 @@ var Amber = (function(debug) {
               set: function(value) {
                 this[ck].style.display = 'none';
                 if (this[k]) {
-                  this.remove(this[k]);
+                  this.removeSubview(this[k]);
                   if (this[k].el) {
                     this[ck].removeChild(this[k].el);
                   }
                 }
                 this[k] = value;
                 if (value) {
-                  this.add(value);
+                  this.addSubview(value);
                   value.use(function() {
                     this[ck].appendChild(value.el);
                     this[ck].style.display = 'inline';
@@ -1491,21 +1517,47 @@ var Amber = (function(debug) {
       });
     },
 
-    add: function(subview) {
+    add: function(subview, mount) {
+      if (!mount) mount = this.el;
+
+      if (this.addSubview(subview)) {
+        subview.use(function() {
+          mount.appendChild(subview.el);
+        }.bind(this));
+      }
+
+      return this;
+    },
+
+    remove: function(subview) {
       if (!subview) return this;
 
+      if (this.removeSubview(subview)) {
+        subview.use(function() {
+          if (subview.el.parentNode) {
+            subview.el.parentNode.removeChild(subview.el);
+          }
+        });
+      }
+
+      return this;
+    },
+
+    addSubview: function(subview) {
+      if (!subview) return false;
+
       if (subview.parent) {
-        subview.parent.remove(subview, true);
+        subview.parent.removeSubview(subview, true);
       }
 
       this.subviews.push(subview);
       subview.parent = this;
 
-      return this;
+      return true;
     },
 
-    remove: function(subview, swap) {
-      if (!subview || subview.parent !== this) return this;
+    removeSubview: function(subview, swap) {
+      if (!subview || subview.parent !== this) return false;
 
       var i = this.subviews.indexOf(subview);
       if (i !== -1) {
@@ -1517,7 +1569,7 @@ var Amber = (function(debug) {
         subview.parent = null;
       }
 
-      return this;
+      return true;
     },
 
     render: function() {},
@@ -1630,11 +1682,15 @@ var Amber = (function(debug) {
     routes: {
 
       '/': 'HelloWorld',
-      '/users/:slug': function(model, args) {
-        return view.Profile(model.getUser(args.slug));
-      },
+      '/new': '',
       '/wiki/:slug': 'Wiki',
-      '/wiki': { view: 'Wiki', slug: 'main' }
+      '/wiki': { view: 'Wiki', slug: 'main' },
+      '/forums': function(model) {
+        return view.ForumList(model.getForumCategories());
+      },
+      '/:slug': function(model, args) {
+        return view.Profile(model.getUser(args.slug));
+      }
     },
 
     events: {
@@ -1812,6 +1868,44 @@ var Amber = (function(debug) {
     isFollowingChanged: function (model) {
       this.follow.textContent = model.isFollowing ? 'Unfollow' : 'Follow';
       toggleClass(this.follow, 'light', model.isFollowing);
+    }
+  });
+
+
+  view('ForumList', {
+
+    template: 'amber-forum-list',
+
+    title: 'Forums',
+
+    render: function(list) {
+      list.forEach(function(category) {
+        this.add(view.ForumListCategory(category));
+      }, this);
+    }
+  });
+
+
+  view('ForumListCategory', {
+
+    template: 'amber-forum-list-category',
+
+    render: function(model) {
+      this.header = view.Key(model, { key: 'name', format: T.maybe });
+      model.forums.forEach(function(forum) {
+        this.add(view.ForumListItem(forum));
+      }, this);
+    }
+  });
+
+  view('ForumListItem', {
+
+    template: 'amber-forum-list-item',
+
+    render: function(model) {
+      this.name = view.Key(model, { key: 'name', format: T.maybe });
+      this.description = view.Key(model, { key: 'description', format: T.maybe });
+      this.link.href = '/forums/' + model.id;
     }
   });
 

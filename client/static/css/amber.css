@@ -95,6 +95,17 @@ html.amber-host > body {
 .amber-wrap a {
   text-decoration: none;
   color: #05d;
+  cursor: pointer;
+}
+.amber-wrap a.black {
+  color: #000;
+  font-weight: bold;
+}
+.amber-wrap a.subtle,
+.amber-wrap a.subtle:hover,
+.amber-wrap a.subtle:active {
+  text-decoration: none;
+  color: #000;
 }
 .amber-wrap a:hover {
   text-decoration: underline;
@@ -110,12 +121,11 @@ html.amber-host > body {
 .amber-wrap h4,
 .amber-wrap h5,
 .amber-wrap h6 {
-  margin: 24px 0 0;
+  margin: 24px 0 16px;
   font-size: 36px;
   line-height: 40px;
 }
 .amber-wrap h2 {
-  margin: 16px 0 0;
   font-size: 30px;
   line-height: 34px;
 }
@@ -137,6 +147,7 @@ html.amber-host > body {
   font-size: 12px;
   line-height: 16px;
 }
+.amber-wrap section,
 .amber-wrap p,
 .amber-wrap pre,
 .amber-wrap ul,
