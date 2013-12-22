@@ -76,8 +76,6 @@ html.amber-host > body {
 .amber article {
   position: relative;
   min-height: 100%;
-  max-width: 720px;
-  margin: 0 auto;
 
   -webkit-user-select: auto;
   -moz-user-select: auto;
@@ -90,6 +88,19 @@ html.amber-host > body {
   height: 1px;
   margin-top: -1px;
   clear: both;
+}
+.amber-wrap h1,
+.amber-wrap h2,
+.amber-wrap h3,
+.amber-wrap h4,
+.amber-wrap h5,
+.amber-wrap h6,
+.amber-wrap section,
+.amber-wrap p,
+.amber-wrap pre,
+.amber-wrap ul,
+.amber-wrap ol {
+  max-width: 720px;
 }
 
 .amber-wrap a {
@@ -121,7 +132,7 @@ html.amber-host > body {
 .amber-wrap h4,
 .amber-wrap h5,
 .amber-wrap h6 {
-  margin: 24px 0 16px;
+  margin: 24px auto 16px;
   font-size: 36px;
   line-height: 40px;
 }
@@ -152,7 +163,7 @@ html.amber-host > body {
 .amber-wrap pre,
 .amber-wrap ul,
 .amber-wrap ol {
-  margin: 0 0 16px;
+  margin: 0 auto 16px;
 }
 .amber-wrap pre {
   max-height: 300px;
