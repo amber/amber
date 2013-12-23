@@ -373,10 +373,47 @@ html.amber-host > body {
 .amber .carousel {
   margin: 0 -16px;
   max-width: none;
-  padding: 16px;
-  white-space: nowrap;
+  position: relative;
+}
+.amber .carousel button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 152px;
+  padding: 0;
+  background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+  color: #000;
+}
+.amber .carousel button.right {
+  left: auto;
+  right: 0;
+  background: linear-gradient(to left, #fff, rgba(255, 255, 255, 0));
+}
+.amber .carousel button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: .3;
+  background: url(/static/img/carousel/left.svg) center center no-repeat;
+}
+.amber .carousel button.right::before {
+  background-image: url(/static/img/carousel/right.svg);
+}
+.amber .carousel button:hover::before {
+  opacity: .5;
+}
+.amber .carousel button:active::before {
+  opacity: .7;
+}
+.amber .carousel-content {
   overflow-x: auto;
   overflow-y: hidden;
+  padding: 16px 48px 16px 64px;
+  white-space: nowrap;
 }
 .amber .carousel a {
   display: inline-block;

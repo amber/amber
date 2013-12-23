@@ -1780,7 +1780,7 @@ var Amber = (function(debug) {
 
     render: function(model) {
       for (var i = 0; i < 20; i++) {
-        this.add(view.CarouselItem({}));
+        this.add(view.CarouselItem({}), this.content);
       }
     }
   });
