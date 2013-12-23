@@ -322,6 +322,9 @@ html.amber-host > body {
   line-height: 96px;
   margin-top: 48px;
 }
+.amber .splash section {
+  overflow: hidden;
+}
 .amber .splash section > div {
   margin: 0 -48px 0 -16px;
 }
