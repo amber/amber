@@ -1352,6 +1352,24 @@ var Amber = (function(debug) {
 
         instance[ref.name] = el;
       }
+
+      for (var key in this.requirements) if (this.requirements.hasOwnProperty(key)) {
+        (function(key) {
+          var list = this.requirements[key];
+          instance.on(key + 'Changed', function() {
+            each: for (var i = 0; i < list.length; i++) {
+              for (var j = 0; j < list[i].length; j++) {
+                var req = list[i][j];
+                if (!!instance[req.name] !== req.state) {
+                  instance[list[i].node].style.display = 'none';
+                  continue each;
+                }
+              }
+              instance[list[i].node].style.display = 'inline';
+            }
+          });
+        }).call(this, key);
+      }
     },
 
 
@@ -1388,6 +1406,8 @@ var Amber = (function(debug) {
 
     init: function() {
       this.references = [];
+      this.requirements = {};
+      this.nodeId = 1;
     },
 
     finalize: function() {
@@ -1452,14 +1472,24 @@ var Amber = (function(debug) {
 
             Object.defineProperty(this.prototype, name, {
               set: function(value) {
+                if (value === this[k]) return;
+
+                var old = this[k];
                 this[ck].style.display = 'none';
-                if (this[k]) {
-                  this.removeSubview(this[k]);
-                  if (this[k].el) {
-                    this[ck].removeChild(this[k].el);
+                if (old) {
+                  this.removeSubview(old);
+                  if (old.el) {
+                    this[ck].removeChild(old.el);
                   }
                 }
+
                 this[k] = value;
+                this.emit(name + 'Changed', Event({
+                  object: this,
+                  value: value,
+                  previousValue: old
+                }));
+
                 if (value) {
                   this.addSubview(value);
                   value.use(function() {
@@ -1479,22 +1509,57 @@ var Amber = (function(debug) {
 
       } else if (el.nodeType === 1) {
 
-        var id = el.dataset.id;
-        if (id) this.addReference(id, el);
+        var requirements = [];
+        var required = false;
+        var hidden = false;
 
         var require = el.dataset.require;
-        if (require) {
-          var requireParts = require.trim().split(/\s+/);
-          if (requireParts[0]) {
-            el.style.display = 'none';
-          }
+        if (require && this.addRequirements(requirements, require, true)) {
+          hidden = true;
+          required = true;
         }
+
+        var exclude = el.dataset.exclude;
+        if (exclude && this.addRequirements(requirements, exclude, false)) {
+          required = true;
+        }
+
+        if (required) {
+          var span = document.createElement('span');
+          if (hidden) {
+            span.style.display = 'none';
+          }
+          el.parentNode.replaceChild(span, el);
+          span.appendChild(el);
+          requirements.node = '$r_' + this.nodeId;
+          this.addReference(requirements.node, span);
+          this.nodeId += 1;
+        }
+
+        var id = el.dataset.id;
+        if (id) this.addReference(id, el);
 
         var nodes = el.childNodes;
         for (var i = 0; i < nodes.length; i++) {
           this.renderNode(nodes[i]);
         }
       }
+    },
+
+    addRequirements: function(requirements, string, state) {
+      var parts = string.trim().split(/\s+/);
+      if (parts[0]) {
+        parts.forEach(function(p) {
+          requirements.push({
+            name: p,
+            state: state
+          });
+          if (!this.requirements[p]) this.requirements[p] = [];
+          this.requirements[p].push(requirements);
+        }, this);
+        return true;
+      }
+      return false;
     }
   });
 
@@ -1830,6 +1895,11 @@ var Amber = (function(debug) {
     template: 'amber-homepage',
 
     subscribe: ['userChanged'],
+
+    data: {
+
+      hasUser: {}
+    },
 
     render: function (model) {
       // ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
