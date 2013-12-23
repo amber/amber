@@ -1424,6 +1424,11 @@ var Amber = (function(debug) {
       if (el.nodeType === 3) {
 
         var text = el.nodeValue;
+        if (/^[ \t\n]+$/.test(text)) {
+          el.nodeValue = '';
+          return;
+        }
+
         var changed = false;
         for (;;) {
           var x = /^([^]*?)\{\{\s*(\w+)\s*\}\}/.exec(text);
