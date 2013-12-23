@@ -90,7 +90,10 @@ Amber.mock = (function() {
         if (p.password === 'invalid') {
           promise.reject(RequestError.INCORRECT_CREDENTIALS);
         } else {
-          promise.fulfill(this.userInfo(this.makeUser(p.user)));
+          promise.fulfill({
+            user: this.userInfo(this.makeUser(p.user)),
+            token: this.makeToken()
+          });
         }
       },
 

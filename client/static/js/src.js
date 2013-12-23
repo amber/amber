@@ -893,7 +893,9 @@ var Amber = (function(debug) {
         user: user,
         password: password
       }).then(function(data) {
-        this.user = data && this.makeUserInfo(data, user);
+        this.user = this.makeUserInfo(data.user, user);
+        this.lastUser = user;
+        this.token = data.token;
         return this.user;
       }, this);
     },
@@ -901,6 +903,8 @@ var Amber = (function(debug) {
     signOut: function() {
       return this.socket.request('auth.signOut').then(function() {
         this.user = null;
+        this.lastUser = null;
+        this.token = null;
       }, this);
     },
 
@@ -1022,11 +1026,11 @@ var Amber = (function(debug) {
 
 
     applyToken: function(token) {
-      localStorage.setItem('Amber.token', token);
+      localStorage.setItem('Amber.token', token || '');
     },
 
     applyLastUser: function(lastUser) {
-      localStorage.setItem('Amber.lastUser', lastUser);
+      localStorage.setItem('Amber.lastUser', lastUser || '');
     },
 
     makeUserInfo: function(data, name) {
