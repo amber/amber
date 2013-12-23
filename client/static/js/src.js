@@ -905,14 +905,20 @@ var Amber = (function(debug) {
     },
 
     getProject: function(id) {
-      if (this.projectMap[id]) {
-        return Promise.fulfilled(this.projectMap[id]);
-      }
       return this.socket.watch(model.Project({
         server: this,
         id: id
       }), 'project', {
         project: id
+      });
+    },
+
+    getCollection: function(id) {
+      return this.socket.watch(model.Collection({
+        server: this,
+        id: id
+      }), 'collection', {
+        collection: id
       });
     },
 
@@ -1278,6 +1284,18 @@ var Amber = (function(debug) {
         project: this.id,
         tag: name
       });
+    }
+  });
+
+
+  model('Collection', {
+
+    data: {
+      name: {},
+      description: {},
+      curators: { type: 'list' },
+      tags: {},
+      projects: {}
     }
   });
 
@@ -1752,6 +1770,24 @@ var Amber = (function(debug) {
   });
 
 
+  view('Carousel', {
+
+    template: 'amber-carousel',
+
+    render: function(model) {
+      for (var i = 0; i < 20; i++) {
+        this.add(view.CarouselItem({}));
+      }
+    }
+  });
+
+
+  view('CarouselItem', {
+
+    template: 'amber-carousel-item'
+  });
+
+
   view('App', {
 
     name: 'Amber',
@@ -1902,9 +1938,9 @@ var Amber = (function(debug) {
     },
 
     render: function (model) {
-      // ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
-      //   this[v] = view.Carousel(model.getCollection(v));
-      // }, this);
+      ['featured', 'topRemixed', 'topLoved', 'topViewed'].forEach(function(v) {
+        this[v] = view.Carousel(model.getCollection(v));
+      }, this);
 
       this.userChanged(model);
     },
@@ -1912,9 +1948,9 @@ var Amber = (function(debug) {
     userChanged: function(model) {
       this.hasUser = !!model.user;
       // this.news = view.Activity(model.getActivity('all'));
-      // ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
-      //   this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
-      // }, this);
+      ['byFollowing', 'lovedByFollowing'].forEach(function(v) {
+        this[v] = model.user && view.Carousel(model.getCollection('user.' + v));
+      }, this);
     }
   });
 

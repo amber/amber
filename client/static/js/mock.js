@@ -95,10 +95,17 @@ Amber.mock = (function() {
       },
 
       'project': function(p, promise) {
-        if (p.project === 404) {
+        if (p.project === '404') {
           return promise.reject(RequestError.NOT_FOUND);
         }
         promise.fulfill(this.makeProject(p.project));
+      },
+
+      'collection': function(p, promise) {
+        if (p.collection === '404') {
+          return promise.reject(RequestError.NOT_FOUND);
+        }
+        promise.fulfill(this.makeCollection(p.collection));
       },
 
       'user.info': function(p, promise) {
@@ -169,6 +176,7 @@ Amber.mock = (function() {
     init: function() {
       this.userMap = {};
       this.projectMap = {};
+      this.collectionMap = {};
 
       setTimeout(function() {
         this.readyState = 1;
@@ -239,6 +247,19 @@ Amber.mock = (function() {
         // collections: ,
         // isLoved:
       }
+    },
+
+    makeCollection: function(id) {
+      if (this.collectionMap[id]) {
+        return this.collectionMap[id];
+      }
+      return this.collectionMap[id] = {
+        name: this.makeWord(id, 'name'),
+        description: this.makePhrase(id, 'description'),
+        curators: this.makeUsers(id, 'curators'),
+        tags: [],
+        projects: []
+      };
     },
 
     makePhrase: function(seed, key) {

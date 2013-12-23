@@ -28,7 +28,7 @@ html.amber-host > body {
   bottom: 0;
 }
 
-/* view.App */
+/* App */
 
 .amber,
 .amber-wrap button {
@@ -363,4 +363,29 @@ html.amber-host > body {
     line-height: 72px;
     margin-top: 24px;
   }
+}
+
+/* Carousels */
+
+.amber .carousel {
+  margin: 0 -16px;
+  max-width: none;
+  padding: 16px;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.amber .carousel a {
+  display: inline-block;
+  margin: 0 16px 0 0;
+}
+.amber .carousel img {
+  width: 120px;
+  height: 90px;
+}
+.amber .carousel p {
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

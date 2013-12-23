@@ -63,38 +63,26 @@
     <p>Follow people to see their activity here</p>
     {{ news }}
   </span>
-  <section>
-    <h1>Featured projects</h1>
-    <p>Selected projects from the community</p>
-    {{ featured }}
-  </section>
+  <h1>Featured projects</h1>
+  <p>Selected projects from the community</p>
+  {{ featured }}
   <div data-require="hasUser">
-    <section>
-      <h1>Made by people I'm following</h1>
-      <p>Follow people to see their projects here</p>
-      {{ byFollowing }}
-    </section>
-    <section>
-      <h1>Loved by people I'm following</h1>
-      <p>Follow people to see their interests here</p>
-      {{ lovedByFollowing }}
-    </section>
+    <h1>Made by people I'm following</h1>
+    <p>Follow people to see their projects here</p>
+    {{ byFollowing }}
+    <h1>Loved by people I'm following</h1>
+    <p>Follow people to see their interests here</p>
+    {{ lovedByFollowing }}
   </div>
-  <section>
-    <h1>Top remixed</h1>
-    <p>What the community is remixing this week</p>
-    {{ topRemixed }}
-  </section>
-  <section>
-    <h1>Top loved</h1>
-    <p>What the community is loving this week</p>
-    {{ topLoved }}
-  </section>
-  <section>
-    <h1>Top viewed</h1>
-    <p>What the community is viewing this week</p>
-    {{ topViewed }}
-  </section>
+  <h1>Top remixed</h1>
+  <p>What the community is remixing this week</p>
+  {{ topRemixed }}
+  <h1>Top loved</h1>
+  <p>What the community is loving this week</p>
+  {{ topLoved }}
+  <h1>Top viewed</h1>
+  <p>What the community is viewing this week</p>
+  {{ topViewed }}
 </article>
 
 
@@ -142,6 +130,16 @@
 <a id=amber-forum-list-item class="block">
   <h1 class=black>{{name}}</h1>
   <p>{{description}}</p>
+</a>
+
+
+<section id=amber-carousel class="carousel">
+
+</section>
+
+<a id=amber-carousel-item href="/projects/example">
+  <img src="">
+  <p>A project</p>
 </a>
 
 
