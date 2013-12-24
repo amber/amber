@@ -43,4 +43,4 @@ http.createServer(function(req, res) {
   });
 
 }).listen(PORT, HOST);
-console.log('Server running at http://' + HOST + ':' + PORT + '/');
+console.log('Serving ' + APP_FILE + ' at http://' + HOST + ':' + PORT + '/');
