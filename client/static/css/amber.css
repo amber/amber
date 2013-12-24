@@ -166,7 +166,8 @@ html.amber-host > body {
 .amber-wrap p,
 .amber-wrap pre,
 .amber-wrap ul,
-.amber-wrap ol {
+.amber-wrap ol,
+.amber-wrap label {
   margin: 0 auto 16px;
 }
 .amber-wrap pre {
@@ -376,7 +377,7 @@ html.amber-host > body {
   margin: 0;
 }
 
-@media screen and (max-width: 752px) {
+@media screen and (max-width: 751px) {
   .amber .splash section > div {
     margin: 0 -32px 0 -16px;
   }
@@ -385,7 +386,7 @@ html.amber-host > body {
   }
 }
 
-@media screen and (max-width: 532px) {
+@media screen and (max-width: 531px) {
   .amber .splash section > div {
     margin: 0 -16px;
   }
@@ -394,7 +395,7 @@ html.amber-host > body {
   }
 }
 
-@media screen and (max-width: 372px) {
+@media screen and (max-width: 371px) {
   .amber .splash > h1 {
     font-size: 72px;
     line-height: 72px;
@@ -478,4 +479,32 @@ html.amber-host > body {
   box-shadow: none;
   -webkit-border-radius: 0;
   outline-offset: 0;
+}
+.amber-wrap form label {
+  display: block;
+  cursor: pointer;
+  padding-left: 200px;
+  position: relative;
+}
+.amber-wrap form label span {
+  display: inline-block;
+  margin-left: -200px;
+  width: 200px;
+}
+.amber-wrap form label input {
+  display: inline-block;
+}
+
+@media screen and (max-width: 531px) {
+  .amber-wrap form label {
+    padding-left: 0;
+  }
+  .amber-wrap form label span {
+    display: block;
+    margin-left: 0;
+    width: auto;
+  }
+  .amber-wrap form label input {
+    display: block;
+  }
 }

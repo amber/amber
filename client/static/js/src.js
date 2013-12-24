@@ -1809,7 +1809,7 @@ var Amber = (function(debug) {
         model.signOut();
       },
       '/contact': '',
-      '/settings': '',
+      '/settings': 'Settings',
       '/explore': '',
       '/new': '',
       '/project/:id': '',
@@ -2101,6 +2101,14 @@ var Amber = (function(debug) {
         this.username.focus();
       }.bind(this));
     }
+  });
+
+
+  view('Settings', {
+
+    template: 'amber-settings',
+
+    title: 'Settings'
   });
 
 
