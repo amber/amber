@@ -305,6 +305,7 @@ html.amber-host > body {
 }
 .amber header a {
   display: inline-block;
+  vertical-align: top;
   color: #fff;
   text-shadow: 0 1px 1px #222;
   padding: 0 8px;
@@ -326,6 +327,24 @@ html.amber-host > body {
 .amber header .dropdown::after {
   content: '\25BE';
   margin-left: 6px;
+}
+.amber header .icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+.amber header .icon::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: center center no-repeat;
+}
+.amber header .settings::before {
+  background-image: url(/static/img/settings.svg);
+}
+.amber header .logout::before {
+  background-image: url(/static/img/logout.svg);
 }
 
 /* Splash */

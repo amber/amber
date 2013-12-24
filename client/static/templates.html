@@ -6,7 +6,11 @@
     <a href="/wiki/help">Help</a>
     <div class="right">
       <a data-exclude="user" href="/login">Sign In</a>
-      <a data-require="user" class="dropdown">{{user}}</a>
+      <span data-require="user">
+        <a>{{user}}</a>
+        <a href="/settings" class="icon settings" title="Settings"></a>
+        <a href="/logout" class="icon logout" title="Sign Out"></a>
+      </span>
     </div>
   </header>
   <div class="amber-wrap">

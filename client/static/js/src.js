@@ -1803,6 +1803,9 @@ var Amber = (function(debug) {
       '/': 'Homepage',
       '/join': '',
       '/login': '',
+      '/logout': function(server) {
+        server.signOut();
+      },
       '/contact': '',
       '/settings': '',
       '/explore': '',
@@ -1866,7 +1869,7 @@ var Amber = (function(debug) {
     },
 
     route: function() {
-      var url = this.url = location.pathname;
+      var url = location.pathname;
       var success = false;
 
       for (var i = 0; i < this.compiledRoutes.length; i++) {
@@ -1884,12 +1887,22 @@ var Amber = (function(debug) {
             dict[key] = route.args[key];
           }
 
-          this.page = route.view.call(this, this.model, dict);
+          var page = route.view.call(this, this.model, dict);
+          if (!page) {
+            history.pushState(null, null, this.url || '/');
+            if (!this.url) {
+              setTimeout(this.route.bind(this));
+            }
+            return;
+          }
+          this.page = page;
           success = true;
 
           break;
         }
       }
+
+      this.url = location.pathname;
 
       if (!success) {
         this.page = view.NotFound(this.model, { app: this });
