@@ -1919,6 +1919,7 @@ var Amber = (function(debug) {
 
     userChanged: function(model) {
       this.user = model.user && view.Key(model.user, 'name');
+      this.profile.href = model.user && '/' + model.user.name;
     },
 
     click: function(e) {
