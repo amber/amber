@@ -1892,10 +1892,8 @@ var Amber = (function(debug) {
 
           var page = route.view.call(this, this.model, dict);
           if (!page) {
-            if (this.url) {
-              history.replaceState(null, null, this.url);
-            } else {
-              history.replaceState(null, null, '/');
+            history.replaceState(null, null, this.url || '/');
+            if (!this.url) {
               this.route();
             }
             return;
