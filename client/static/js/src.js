@@ -1893,9 +1893,10 @@ var Amber = (function(debug) {
           var page = route.view.call(this, this.model, dict);
           if (!page) {
             if (this.url) {
-              history.pushState(null, null, this.url);
+              history.replaceState(null, null, this.url);
             } else {
-              this.url = '/';
+              history.replaceState(null, null, '/');
+              this.route();
             }
             return;
           }
@@ -1923,6 +1924,7 @@ var Amber = (function(debug) {
     },
 
     click: function(e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
       var t = e.target;
       while (t) {
         if (t.nodeName === 'A') {
