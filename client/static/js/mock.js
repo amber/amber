@@ -91,7 +91,7 @@ Amber.mock = (function() {
           promise.reject(RequestError.INCORRECT_CREDENTIALS);
         } else {
           promise.fulfill({
-            user: this.userInfo(this.makeUser(p.user)),
+            user: this.user = this.userInfo(this.makeUser(p.user)),
             token: this.makeToken()
           });
         }
