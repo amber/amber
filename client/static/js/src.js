@@ -1835,6 +1835,8 @@ var Amber = (function(debug) {
       title: { apply: 'applyTitle' }
     },
 
+    subscribe: ['userChanged'],
+
     render: function(model) {
       this.compiledRoutes = [];
       for (var url in this.routes) if (this.routes.hasOwnProperty(url)) {
@@ -1856,6 +1858,8 @@ var Amber = (function(debug) {
         });
         delete route.view;
       }
+
+      this.userChanged(model);
 
       this.route();
       window.addEventListener('popstate', this.route.bind(this));
@@ -1894,6 +1898,10 @@ var Amber = (function(debug) {
       this.page.use(function() {
         this.title = typeof this.page.title === 'function' ? this.page.title() : this.page.title;
       }.bind(this));
+    },
+
+    userChanged: function(model) {
+      this.user = model.user && view.Key(model.user, 'name');
     },
 
     click: function(e) {

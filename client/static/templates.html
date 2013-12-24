@@ -4,6 +4,10 @@
     <a href="/new">Create</a>
     <a href="/forums">Discuss</a>
     <a href="/wiki/help">Help</a>
+    <div class="right">
+      <a data-exclude="user" href="/login">Sign In</a>
+      <a data-require="user" class="dropdown">{{user}}</a>
+    </div>
   </header>
   <div class="amber-wrap">
     {{page}}
