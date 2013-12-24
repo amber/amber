@@ -68,6 +68,7 @@ html.amber-host > body {
 .amber-wrap h5,
 .amber-wrap h6,
 .amber-wrap section,
+.amber-wrap form,
 .amber-wrap p,
 .amber-wrap pre,
 .amber-wrap ul,
@@ -161,6 +162,7 @@ html.amber-host > body {
   line-height: 16px;
 }
 .amber-wrap section,
+.amber-wrap form,
 .amber-wrap p,
 .amber-wrap pre,
 .amber-wrap ul,
@@ -460,4 +462,20 @@ html.amber-host > body {
   text-align: center;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* Forms */
+
+.amber-wrap form input {
+  display: block;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  font: inherit;
+  padding: 3px 6px;
+  border: 1px solid #ccc;
+  box-shadow: none;
+  -webkit-border-radius: 0;
+  outline-offset: 0;
 }

@@ -1802,9 +1802,11 @@ var Amber = (function(debug) {
 
       '/': 'Homepage',
       '/join': '',
-      '/login': '',
-      '/logout': function(server) {
-        server.signOut();
+      '/login': function(model, args) {
+        return view.Login(model, extend(args, { returnURL: this.url }));
+      },
+      '/logout': function(model) {
+        model.signOut();
       },
       '/contact': '',
       '/settings': '',
@@ -1817,14 +1819,14 @@ var Amber = (function(debug) {
       '/wiki/:slug/edit': 'Wiki',
       '/wiki/:slug/history': 'Wiki',
       '/wiki': { view: 'Wiki', slug: 'main' },
-      '/forums': function(model) {
-        return view.ForumList(model.getForumCategories());
+      '/forums': function(model, args) {
+        return view.ForumList(model.getForumCategories(), args);
       },
       '/forum/:slug': '',
       '/topic/:id': '',
       '/post/:id': '',
       '/:slug': function(model, args) {
-        return view.Profile(model.getUser(args.slug));
+        return view.Profile(model.getUser(args.slug), args);
       }
     },
 
@@ -1835,7 +1837,8 @@ var Amber = (function(debug) {
 
     properties: {
 
-      title: { apply: 'applyTitle' }
+      title: { apply: 'applyTitle' },
+      url: { apply: 'applyURL' }
     },
 
     subscribe: ['userChanged'],
@@ -1889,9 +1892,10 @@ var Amber = (function(debug) {
 
           var page = route.view.call(this, this.model, dict);
           if (!page) {
-            history.pushState(null, null, this.url || '/');
-            if (!this.url) {
-              setTimeout(this.route.bind(this));
+            if (this.url) {
+              history.pushState(null, null, this.url);
+            } else {
+              this.url = '/';
             }
             return;
           }
@@ -1902,7 +1906,7 @@ var Amber = (function(debug) {
         }
       }
 
-      this.url = location.pathname;
+      this.$p_url = location.pathname;
 
       if (!success) {
         this.page = view.NotFound(this.model, { app: this });
@@ -1935,6 +1939,11 @@ var Amber = (function(debug) {
 
     applyTitle: function(title) {
       document.title = (title ? title + ' \xb7 ' : '') + this.name;
+    },
+
+    applyURL: function(url) {
+      history.pushState(null, null, url);
+      this.route();
     }
   });
 
@@ -2065,6 +2074,31 @@ var Amber = (function(debug) {
       this.name = view.Key(model, { key: 'name', format: T.maybe });
       this.description = view.Key(model, { key: 'description', format: T.maybe });
       this.el.href = '/forums/' + model.id;
+    }
+  });
+
+
+  view('Login', {
+
+    template: 'amber-login',
+
+    title: 'Sign In',
+
+    events: {
+      'click signIn': function() {
+        this.signIn.disabled = true;
+        this.model.signIn(this.username.value, this.password.value).then(function(data) {
+          this.app.url = this.returnURL;
+        }, this).on('complete', function() {
+          this.signIn.disabled = false;
+        }.bind(this));
+      }
+    },
+
+    render: function(model) {
+      setTimeout(function() {
+        this.username.focus();
+      }.bind(this));
     }
   });
 
