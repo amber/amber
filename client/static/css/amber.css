@@ -75,6 +75,8 @@ html.amber-host > body {
 .amber-wrap ol,
 .amber-wrap hr {
   max-width: 720px;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .amber-wrap a,
