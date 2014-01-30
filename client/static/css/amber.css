@@ -217,63 +217,6 @@ html.amber-host > body {
   background: #aaa;
 }
 
-.amber-wrap .md-image {
-  max-width: 100%;
-  vertical-align: text-bottom;
-}
-.amber-wrap .md-emoticon {
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-  color: transparent;
-  overflow: hidden;
-  font-size: 16px;
-  line-height: 16px;
-  vertical-align: text-bottom;
-}
-.amber-wrap .md-emoticon.smile {
-  background: url(/static/img/emoticon/smile.svg);
-}
-.amber-wrap .md-emoticon.wink {
-  background: url(/static/img/emoticon/wink.svg);
-}
-.amber-wrap .md-emoticon.wide-eyed {
-  background: url(/static/img/emoticon/wide-eyed.svg);
-}
-.amber-wrap .md-emoticon.big-smile {
-  background: url(/static/img/emoticon/big-smile.svg);
-}
-.amber-wrap .md-emoticon.slant {
-  background: url(/static/img/emoticon/slant.svg);
-}
-.amber-wrap .md-emoticon.tongue {
-  background: url(/static/img/emoticon/tongue.svg);
-}
-.amber-wrap .md-emoticon.neutral {
-  background: url(/static/img/emoticon/neutral.svg);
-}
-.amber-wrap .md-emoticon.frown {
-  background: url(/static/img/emoticon/frown.svg);
-}
-.amber-wrap .md-emoticon.cry {
-  background: url(/static/img/emoticon/cry.svg);
-}
-.amber-wrap .md-emoticon.confused {
-  background: url(/static/img/emoticon/confused.svg);
-}
-.amber-wrap .md-emoticon.big-frown {
-  background: url(/static/img/emoticon/big-frown.svg);
-}
-.amber-wrap .md-emoticon.heart {
-  background: url(/static/img/emoticon/heart.svg);
-}
-.amber-wrap .md-error {
-  color: #f00;
-}
-.amber-wrap .md-email {
-  display: none;
-}
-
 .amber footer {
   position: relative;
   margin: 0 0 -40px;

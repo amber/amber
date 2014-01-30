@@ -1,0 +1,3 @@
+[submodule "client/static/markup"]
+	path = client/static/markup
+	url = git@github.com:amber/markup
