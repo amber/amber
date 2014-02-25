@@ -1,6 +1,0 @@
-favicon.xcf
-*.map
-src/**/*.js
-**/private/*
-docs/*
-static/wiki/*

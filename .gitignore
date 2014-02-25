@@ -1,3 +1,7 @@
-mongod
-data
 **/node_modules
+favicon.xcf
+*.map
+src/**/*.js
+**/private/*
+docs/*
+static/wiki/*
