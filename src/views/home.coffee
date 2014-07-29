@@ -1,15 +1,16 @@
 {View, $} = require "space-pen"
+{Carousel} = require "am/views/carousel"
 
 class Home extends View
   @content: ->
     @article =>
       @h1 "Featured projects"
-      @p "Projects that we think are interesting go here."
-      @h1 "New projects"
-      @p "Projects that were shared recently go here."
+      @subview "featured", new Carousel
       @h1 "Projects by people you follow"
-      @p "Projects that people you follow shared recently go here."
+      @subview "follow", new Carousel
       @h1 "Starred by people you follow"
-      @p "Projects that people you follow starred recently go here."
+      @subview "starred", new Carousel
+      @h1 "New projects"
+      @subview "new", new Carousel
 
 module.exports = {Home}
