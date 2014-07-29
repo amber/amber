@@ -1,11 +1,39 @@
-@import "base"
+@import '_vars'
+@import '_util'
 
 .splash
-  @extend .container
-  @extend .clearfix
+  clearfix()
+  container()
 
   .left
     width 19rem
     margin 0
     float left
 
+  .right
+    margin-top 2rem
+    width $page-width - 19rem - 2rem
+    float right
+
+  input
+    -webkit-appearance none
+    border 0
+    width 100%
+    box-sizing border-box
+    padding 0 8px
+    margin 0 0 8px
+    height 48px
+    font 1.2rem / @height $base-font-family
+
+  button
+    -webkit-appearance none
+    cursor pointer
+    border 0
+    width 100%
+    box-sizing border-box
+    padding 0 8px
+    height 48px
+    font 200 1.2rem / @height $base-font-family
+    letter-spacing 0.05em
+    background $accent-background
+    color $accent-foreground

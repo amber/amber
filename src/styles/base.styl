@@ -1,63 +1,29 @@
-@import 'colors'
-
-$page-width = 40rem
+@import '_vars'
+@import '_util'
 
 html
   background $background
   color $foreground
-  font 20px/1.5 Helvetica Neue, Helvetica, Arial, sans-serif
+  font $base-font-size/$base-line-height $base-font-family
 
 html
 body
   margin 0
 
-.clearfix
-  &::after
-    content ''
-    display block
-    clear both
-
 .container
-  margin 0 auto
-  max-width $page-width
-
-header
-  height 40px
-  line-height 40px
-  font-size 0.8rem
-  font-weight 200
-  letter-spacing 0.03em
-
-  background $nav-background
-  color $nav-foreground
-
-  a
-    display block
-    float left
-    padding 0 12px
-    color $nav-foreground
-    text-decoration none
-
-    &:first-child
-      font-weight 500
-      letter-spacing 0
-
-    &:hover
-      // text-decoration underline
-      color $nav-foreground-hover
-
+  container()
+  padding 0 16px
 
 article
-  @extend .clearfix
-
+  clearfix()
   padding 0 16px
 
   p
-    @extend .container
+    container()
     margin-top 1rem
 
   h1
-    @extend .container
+    container()
     font-size 3rem
     line-height 1
     font-weight 200
@@ -67,31 +33,8 @@ article
       margin-top 2rem
 
   h2
-    @extend .container
+    container()
     font-size 2em
     line-height 1
     font-weight 200
     margin-top 3rem
-
-footer
-  @extend .container
-  margin-top 3rem
-  padding 0 16px 16px
-
-  font-size 0.7rem
-  font-weight 200
-  letter-spacing 0.05em
-  color $footer-foreground
-
-  p
-    margin 0
-
-  a
-    padding 0 12px
-    float right
-    color $footer-foreground
-    text-decoration none
-
-    &:hover
-      color #58d
-      text-decoration underline
