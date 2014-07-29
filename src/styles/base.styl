@@ -78,7 +78,20 @@ footer
   margin-top 3rem
   padding 0 16px 16px
 
-  font-size 0.8rem
+  font-size 0.7rem
   font-weight 200
   letter-spacing 0.05em
-  color rgba(0, 0, 0, .6)
+  color $footer-foreground
+
+  p
+    margin 0
+
+  a
+    padding 0 12px
+    float right
+    color $footer-foreground
+    text-decoration none
+
+    &:hover
+      color #58d
+      text-decoration underline
