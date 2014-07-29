@@ -8,5 +8,6 @@ class Header extends View
         @a "Create", href: "/create"
         @a "Explore", href: "/explore"
         @a "Discuss", href: "/discuss"
+        @input type: "search", placeholder: "Search…"
 
 module.exports = {Header}
