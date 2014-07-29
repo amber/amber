@@ -2,9 +2,25 @@
 {NotFound} = require "am/views/not-found"
 
 class Router
-  constructor: (@app) -> @route()
+  constructor: (@app) ->
+    @domain = "#{location.protocol}//#{location.host}"
+    @route()
+    addEventListener "popstate", @route
+    document.addEventListener "click", @navigate
 
-  route: ->
+  navigate: (e) =>
+    t = e.target
+    while t
+      if t.tagName is "A"
+        if @domain is t.href.slice 0, @domain.length
+          scrollTo 0, 0
+          history.pushState null, null, t.href
+          e.preventDefault()
+          @route()
+        return
+      t = t.parentNode
+
+  route: =>
     target = location.pathname
     targetSegments = target.split "/"
     for pattern, View of urls
