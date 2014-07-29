@@ -7,7 +7,7 @@ class Splash extends View
       @div class: "splash", =>
         @div class: "left", =>
           @h1 "Realtime collaborative programming."
-          @p "Create interactive stories, games, music, and art with others around the world."
+          @p "Create interactive stories, games, music, and art with people around the world."
         @div class: "right", =>
           @input placeholder: "Username"
           @input type: "email", placeholder: "Email address"
