@@ -1,4 +1,5 @@
 {urls} = require "am/urls"
+{NotFound} = require "am/views/not-found"
 
 class Router
   constructor: (@app) -> @route()
@@ -21,5 +22,6 @@ class Router
       if match
         @app.setView new View
         return
+    @app.setView new NotFound {url: target}
 
 module.exports = {Router}
