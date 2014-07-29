@@ -36,7 +36,7 @@ class Router
             match = no
             break
       if match
-        @app.setView new View
+        @app.setView new View slugs
         return
     @app.setView new NotFound {url: target}
 
