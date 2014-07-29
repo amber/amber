@@ -10,6 +10,5 @@ class Splash extends View
           @p "Create interactive stories, games, music, and art with others around the world."
       @h1 "Featured projects"
       @subview "featured", new Carousel
-      # @p "Projects that we think are interesting go here."
 
 module.exports = {Splash}
