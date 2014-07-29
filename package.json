@@ -1,0 +1,14 @@
+{
+  "name": "amber-client",
+  "version": "0.1.0",
+  "description": "Realtime collaborative programming.",
+  "bugs": "https://github.com/amber/client/issues",
+  "author": {"name" : "Nathan Dinsmore"},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amber/client.git"
+  },
+  "dependencies": {
+    "space-pen": "^3.3.0"
+  }
+}
