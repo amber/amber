@@ -6,7 +6,7 @@ class Header extends View
     @header =>
       @div outlet: "container", class: "container", =>
         @a T("Amber"), "data-key": "Amber", href: "/"
-        @a T("Create"), "data-key": "Create", href: "/create"
+        @a T("Create"), "data-key": "Create", href: "/new"
         @a T("Explore"), "data-key": "Explore", href: "/explore"
         @a T("Discuss"), "data-key": "Discuss", href: "/discuss"
         @a T("Sign In"), "data-key": "Sign In", class: "right", href: "/login"
