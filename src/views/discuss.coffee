@@ -2,12 +2,12 @@
 {T} = require "am/util"
 
 class Discuss extends View
-  @content: ->
+  @content: ({filter}) ->
     @article click: "navigate", =>
       @h1 T("Discuss Amber")
       @section class: "discuss-bar", =>
         @div class: "input-wrapper", =>
-          @input outlet: "filter", placeholder: T("Filter…")
+          @input outlet: "filter", placeholder: T("Filter…"), value: filter ? ""
         @a T("New Topic"), class: "button", href: "/discuss/new"
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
       for i in [1..50]
@@ -30,6 +30,8 @@ class Discuss extends View
   title: -> T("Discuss")
 
   afterAttach: ->
+    f = @filter[0]
+    f.selectionStart = f.selectionEnd = f.value.length
     @filter.focus()
 
   navigate: (e) ->
@@ -44,8 +46,12 @@ class Discuss extends View
     return unless -1 is tokens.indexOf token
     t = @filter.val()
     @filter.val t + (if /\S$/.test t then " " else "") + token + " "
+    @updateURL()
     scrollTo 0, 0
     @filter.focus()
+
+  updateURL: ->
+    history.pushState null, null, "/discuss/#{encodeURIComponent @filter.val()}"
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"

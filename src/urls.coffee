@@ -8,5 +8,6 @@ urls =
   "/home": Home
   "/login": Login
   "/discuss": Discuss
+  "/discuss/:filter": Discuss
 
 module.exports = {urls}

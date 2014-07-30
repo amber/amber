@@ -35,10 +35,11 @@ class Router
       match = yes
       slugs = {}
       for segment, i in segments
+        ts = decodeURIComponent targetSegments[i]
         if ":" is segment.charAt 0
-          slugs[segment.slice 1] = targetSegments[i]
+          slugs[segment.slice 1] = ts
         else
-          if targetSegments[i] isnt segment
+          if ts isnt segment
             match = no
             break
       if match
