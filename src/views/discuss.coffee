@@ -11,6 +11,7 @@ class Discuss extends View
           @button class: "star", click: "star", title: T("Star")
           @button class: "read", click: "read", title: T("Mark as read")
           @div class: "title", =>
+            @img src: "http://lorempixel.com/100/100/abstract/#{i % 7}"
             @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
             has = {}
             for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
