@@ -6,6 +6,7 @@
 {Explore} = require "am/views/explore"
 {Search} = require "am/views/search"
 {Project} = require "am/views/project"
+{Topic} = require "am/views/topic"
 
 urls =
   "/": Splash
@@ -15,6 +16,7 @@ urls =
   "/discuss": Discuss
   "/discuss/new": AddTopic
   "/discuss/:filter": Discuss
+  "/topic/:id": Topic
   "/search/:query": Search
   "/project/:id": Project
 
