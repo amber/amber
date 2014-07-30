@@ -11,7 +11,7 @@ class AddTopic extends View
         @subview "body", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
           @button class: "accent", T("Create")
-          @a click: "cancel", class: "button", T("Cancel")
+          @button click: "cancel", T("Cancel")
 
   afterAttach: ->
     @title.focus()
