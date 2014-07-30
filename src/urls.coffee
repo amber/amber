@@ -5,6 +5,7 @@
 {AddTopic} = require "am/views/add-topic"
 {Explore} = require "am/views/explore"
 {Search} = require "am/views/search"
+{Project} = require "am/views/project"
 
 urls =
   "/": Splash
@@ -15,5 +16,6 @@ urls =
   "/discuss/new": AddTopic
   "/discuss/:filter": Discuss
   "/search/:query": Search
+  "/project/:id": Project
 
 module.exports = {urls}
