@@ -10,7 +10,7 @@ class Header extends View
         @a T("Explore"), "data-key": "Explore", href: "/explore"
         @a T("Discuss"), "data-key": "Discuss", href: "/discuss"
         @a T("Sign In"), "data-key": "Sign In", class: "right", href: "/login"
-        @input type: "search", outlet: "search", placeholder: T("Search…")
+        @input type: "search", outlet: "search", keydown: "onKeyDown", placeholder: T("Search…")
 
   updateLanguage: ->
     for a in @container.children "a"
@@ -20,5 +20,9 @@ class Header extends View
   focusSearch: (content) ->
     @search.val content if content?
     @search.focus()
+
+  onKeyDown: (e) ->
+    if e.keyCode is 27
+      @search.blur()
 
 module.exports = {Header}
