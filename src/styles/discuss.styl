@@ -13,6 +13,10 @@
     line-height 1.2
     font-weight 500
 
+    strong
+      font-weight @font-weight
+      margin-right 8px
+
   .subtitle
     display block
     font-size 0.8rem
@@ -89,5 +93,28 @@
   a
     text-decoration none
 
-    &:hover
+    &:hover > strong
       text-decoration underline
+
+  .tag
+    display inline-block
+    vertical-align top
+    font-size 0.7rem
+    line-height 1.2
+    font-weight 200
+    letter-spacing 0.02em
+    padding 2px 8px
+    margin .1rem 0 .1rem 8px
+    color rgba(255, 255, 255, .9)
+    background #777
+
+  .tag-announcement
+    background #135
+  .tag-suggestion
+    background #381
+  .tag-bug
+    background #d12
+  .tag-request
+    background #27e
+  .tag-help
+    background #804
