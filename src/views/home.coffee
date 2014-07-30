@@ -1,4 +1,5 @@
 {View, $} = require "space-pen"
+{T} = require "am/util"
 {Carousel} = require "am/views/carousel"
 
 class Home extends View
