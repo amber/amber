@@ -12,8 +12,10 @@ class Discuss extends View
           @button class: "read", click: "read", title: T("Mark as read")
           @a class: "name", href: "/topic/#{i}", =>
             @strong "The name of topic ##{i}"
-            for x in [1..10] when t = tags[Math.random() * 100 | 0]
+            has = {}
+            for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
               @span class: "tag tag-#{t}", t
+              has[t] = yes
           @div class: "subtitle", =>
             name = "nathan"
             url = "/#{name}"
