@@ -9,8 +9,9 @@ class AddTopic extends View
       @div class: "inline-container", =>
         @input outlet: "title", placeholder: T("Title")
         @subview "body", new Editor placeholder: T("Message")
-        @button class: "accent", T("Create")
-        @a click: "cancel", class: "button", T("Cancel")
+        @section class: "two-buttons", =>
+          @button class: "accent", T("Create")
+          @a click: "cancel", class: "button", T("Cancel")
 
   afterAttach: ->
     @title.focus()

@@ -119,6 +119,7 @@ article
     color $button-foreground
     text-decoration none
     text-align center
+    vertical-align top
 
     &.large
       font-size 1.2rem
@@ -145,3 +146,23 @@ article
 
       &:active
         background $accent-background-active
+
+  .two-buttons
+    container()
+    box-sizing border-box
+    padding-right 16px
+    white-space nowrap
+
+    button
+    .button
+      width 50%
+      margin-right 16px
+
+    @media (max-width: 500px)
+      padding-right 0
+
+      button
+      .button
+        display block
+        width 100%
+
