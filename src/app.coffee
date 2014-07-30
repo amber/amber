@@ -10,8 +10,7 @@ class App extends View
       @subview "view", $("<div></div>")
       @subview "footer", new Footer
 
-  constructor: ->
-    super
+  initialize: ->
     $("body").keydown @onKeyDown
 
   setView: (view) ->
