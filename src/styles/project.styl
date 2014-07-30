@@ -19,17 +19,23 @@
 
   .left-controls
     right 50%
-    margin-right 240px
+    margin-right 256px
 
   .right-controls
     left 50%
-    margin-left 240px
+    margin-left 256px
 
   button
+  .stat
     width 48px
     height 48px
     padding 0
     margin 0
+    text-align center
+    position relative
+    line-height @height
+
+  button
     box-shadow none !important
     background url(/icons.svg) !important
     opacity .3
@@ -47,3 +53,16 @@
     left 0
     bottom 0
     background-position -96px 0 !important
+
+  .stat
+    color rgba(0, 0, 0, .6)
+
+    > strong
+      position absolute
+      left 0
+      right 0
+      bottom 0
+      display block
+      font-weight 200
+      font-size 0.6rem
+      line-height 1
