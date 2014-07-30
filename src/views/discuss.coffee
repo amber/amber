@@ -8,7 +8,7 @@ class Discuss extends View
       @section class: "discuss-bar", =>
         @div class: "input-wrapper", =>
           @input outlet: "filter", placeholder: T("Filter…"), value: filter ? ""
-        @a T("New topic"), class: "button", href: "/discuss/new"
+        @a T("New topic"), class: "button accent", href: "/discuss/new"
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
       for i in [1..50]
         @section class: "topic #{if i < 6 then "unread" else ""}", =>

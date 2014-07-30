@@ -13,7 +13,7 @@ class Splash extends View
           @input outlet: "username", placeholder: T("Username"), class: "large"
           @input type: "email", placeholder: T("Email address"), class: "large"
           @input type: "password", placeholder: T("Password"), class: "large"
-          @button class: "large", T("Sign up")
+          @button class: "large accent", T("Sign up")
       @h1 T("Featured projects")
       @subview "featured", new Carousel
 

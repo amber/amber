@@ -8,7 +8,7 @@ class Login extends View
         @h1 T("Sign in")
         @input outlet: "username", placeholder: T("Username"), class: "large"
         @input type: "password", placeholder: T("Password"), class: "large"
-        @button T("Sign in"), class: "large", click: "submit"
+        @button T("Sign in"), class: "large accent", click: "submit"
 
   title: -> T("Sign in")
 
