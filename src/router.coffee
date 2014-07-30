@@ -3,6 +3,7 @@
 
 class Router
   constructor: (@app) ->
+    app.router = @
     @domain = "#{location.protocol}//#{location.host}"
     @route()
     addEventListener "popstate", @route
