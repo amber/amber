@@ -11,6 +11,7 @@ output:
 
 alias:
   am: ./src
+  space-pen: ./vendors/space-pen/dist/space-pen.js
 
 minify:
   js: false

@@ -9,7 +9,6 @@
     "url": "https://github.com/amber/client.git"
   },
   "dependencies": {
-    "space-pen": "^3.3.0",
     "polvo": "^0.6.5",
     "coffee-script": "^1.7.1"
   }
