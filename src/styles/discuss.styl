@@ -9,15 +9,16 @@
 
   font-weight 200
 
-  .name
+  .title
     display block
     padding-left 24px
     line-height 1.2
     font-weight 500
 
-    strong
+    .name
       font-weight @font-weight
       margin-right 8px
+
 
   .subtitle
     display block
@@ -96,12 +97,13 @@
   a
     text-decoration none
 
-    &:hover > strong
+    &:hover
       text-decoration underline
 
   .tag
     display inline-block
     vertical-align top
+    cursor pointer
     font-size 0.7rem
     line-height 1.2
     font-weight 200

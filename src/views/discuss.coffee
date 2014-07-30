@@ -10,11 +10,11 @@ class Discuss extends View
         @section class: "topic #{if i < 6 then "unread" else ""}", =>
           @button class: "star", click: "star", title: T("Star")
           @button class: "read", click: "read", title: T("Mark as read")
-          @a class: "name", href: "/topic/#{i}", =>
-            @strong "The name of topic ##{i}"
+          @div class: "title", =>
+            @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
             has = {}
             for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
-              @span class: "tag tag-#{t}", t
+              @a class: "tag tag-#{t}", href: "/discuss/#{t}", t
               has[t] = yes
           @div class: "subtitle", =>
             name = "nathan"
