@@ -7,15 +7,25 @@
 
   .player
     -webkit-user-drag none
-    float right
+    margin 0 auto
     display block
     width 480px
     height 360px
 
   .controls
   .stats
-    float right
-    width 480px
+    position absolute
+    height 48px * 3
+    width 48px
+    top ((360px - @height) / 2)
+
+  .controls
+    right 50%
+    margin-right 256px
+
+  .stats
+    left 50%
+    margin-left 256px
 
   .stats
     text-align center
@@ -62,36 +72,7 @@
       line-height 1
 
   .notes
-    position absolute
-    left 0
-    top 0
-    right 480px
-    margin-right 1rem
-
-  @media (max-width: 830px)
-    .controls
-    .stats
-      position absolute
-      height 48px * 3
-      width 48px
-      top ((360px - @height) / 2)
-
-    .controls
-      right 50%
-      margin-right 256px
-
-    .stats
-      left 50%
-      margin-left 256px
-
-    .player
-      float none
-      margin 0 auto
-
-    .notes
-      position static
-      margin 1rem auto 0
-      width 480px
+    margin 1rem 0 0
 
   @media (max-width: 650px)
     .controls
