@@ -10,4 +10,6 @@ class Explore extends View
           @img src: "http://lorempixel.com/160/120/abstract/#{i % 7}"
           @div class: "label", "Project ##{i}"
 
+  title: -> T("Explore projects")
+
 module.exports = {Explore}
