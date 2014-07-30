@@ -7,7 +7,7 @@ class Discuss extends View
       @h1 T("Discuss Amber")
       @section class: "discuss-bar", =>
         @div class: "input-wrapper", =>
-          @input placeholder: T("Filter…")
+          @input outlet: "filter", placeholder: T("Filter…")
         @a T("New Topic"), class: "button", href: "/discuss/new"
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
       for i in [1..50]
@@ -28,6 +28,9 @@ class Discuss extends View
             @raw T("<a href=\"{url}\">{name}</a> created {time}", {url, name, time})
 
   title: -> T("Discuss")
+
+  afterAttach: ->
+    @filter.focus()
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
