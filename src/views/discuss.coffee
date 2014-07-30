@@ -18,7 +18,7 @@ class Discuss extends View
             @img src: "http://lorempixel.com/100/100/abstract/#{i % 7}"
             @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
             has = {}
-            for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
+            for x in [1..3] when (t = tags[(i + x * 35) % (11 * x)]) and not has[t]
               @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
               has[t] = yes
           @div class: "subtitle", =>
