@@ -3,7 +3,7 @@
 
 class Discuss extends View
   @content: ->
-    @article =>
+    @article click: "navigate", =>
       @h1 T("Discuss Amber")
       @section class: "discuss-bar", =>
         @div class: "input-wrapper", =>
@@ -19,7 +19,7 @@ class Discuss extends View
             @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
             has = {}
             for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
-              @a class: "tag tag-#{t}", href: "/discuss/label:#{t}", T(t)
+              @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
               has[t] = yes
           @div class: "subtitle", =>
             name = "nathan"
@@ -31,6 +31,19 @@ class Discuss extends View
 
   afterAttach: ->
     @filter.focus()
+
+  navigate: (e) ->
+    return if e.metaKey or e.shiftKey or e.altKey or e.ctrlKey
+    if t = $(e.target).closest(".tag")[0]
+      e.preventDefault()
+      e.stopPropagation()
+      @addToken "label:#{t.dataset.tag}"
+
+  addToken: (token) ->
+    tokens = @filter.val().trim().split /\s+/
+    return unless -1 is tokens.indexOf token
+    t = @filter.val()
+    @filter.val t + (if /\S$/.test t then " " else "") + token
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
