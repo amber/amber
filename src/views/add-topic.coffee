@@ -7,14 +7,16 @@ class AddTopic extends View
     @article =>
       @h1 T("New topic")
       @div class: "inline-container", =>
-        @input outlet: "title", placeholder: T("Title")
+        @input outlet: "titleInput", placeholder: T("Title")
         @subview "body", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
           @button class: "accent", T("Create")
           @button click: "cancel", T("Cancel")
 
+  title: -> T("New topic")
+
   afterAttach: ->
-    @title.focus()
+    @titleInput.focus()
 
   cancel: ->
     history.back()
