@@ -15,7 +15,10 @@ class App extends View
     $("body").keydown @onKeyDown
 
   setView: (view) ->
-    @view.replaceWith @view = view
+    @view.replaceWith view
+    @view.parentView = null
+    @view = view
+    @view.parentView = @
 
   onKeyDown: (e) =>
     return if $(e.target).closest("input").length
