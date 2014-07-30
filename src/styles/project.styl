@@ -1,0 +1,49 @@
+.project
+  container()
+  margin-top 1rem
+  position relative
+
+  .player
+    -webkit-user-drag none
+    display block
+    margin 0 auto
+    width 480px
+    height 360px
+
+  .left-controls
+  .right-controls
+    position absolute
+    top 0
+    width 48px
+    height 360px
+
+  .left-controls
+    right 50%
+    margin-right 240px
+
+  .right-controls
+    left 50%
+    margin-left 240px
+
+  button
+    width 48px
+    height 48px
+    padding 0
+    margin 0
+    box-shadow none !important
+    background url(/icons.svg) !important
+    opacity .3
+
+    &:hover
+      opacity .4
+    &:active
+      opacity .6
+
+  .stop
+    background-position -48px 0 !important
+
+  .full-screen
+    position absolute
+    left 0
+    bottom 0
+    background-position -96px 0 !important
