@@ -1,3 +1,4 @@
+@import '_vars'
 @import '_util'
 
 .topic
@@ -19,6 +20,72 @@
 
     a
       color $foreground
+
+  .read
+    float left
+    width 24px
+    height 2.4rem
+
+    background 0
+    box-shadow none
+    padding 0
+    margin 0
+    border-right 8px solid $background
+    border-left @border-right
+    background rgba(0, 0, 0, .1)
+    visibility hidden
+
+    &:hover
+      background rgba(0, 0, 0, .4)
+
+    &:active
+      background rgba(0, 0, 0, .5)
+
+  &.unread .read
+    visibility visible
+
+  .star
+    float left
+    width 2.4rem
+    height 2.4rem
+    line-height @height
+    text-align center
+    color rgba(0, 0, 0, .1)
+    cursor pointer
+
+    background 0
+    box-shadow none
+    padding 0
+    margin 0
+    opacity 0
+
+    &:hover
+      color rgba(0, 0, 0, .2)
+
+    &:active
+      color rgba(0, 0, 0, .3)
+
+    &::before
+      // content '☆'
+      content '★'
+      font-size 1.4rem
+
+  &:hover .star
+    opacity 1
+
+  &.starred
+    &:hover .star
+      color rgba(0, 0, 0, .3)
+
+    .star
+      opacity 1
+      color rgba(0, 0, 0, .1)
+
+      &:hover
+        color rgba(0, 0, 0, .7)
+
+      &:active
+        color rgba(0, 0, 0, .5)
 
   a
     text-decoration none
