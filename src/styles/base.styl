@@ -78,6 +78,7 @@ article
       border-color rgba(0, 0, 0, .2)
 
   button
+  .button
     -webkit-appearance none
     cursor pointer
     border 0
@@ -91,12 +92,15 @@ article
     letter-spacing 0.05em
     background $accent-background
     color $accent-foreground
+    text-decoration none
+    text-align center
 
     &:focus
       box-shadow inset 0 0 0 1px rgba(0, 0, 0, .2)
 
     &:hover
       box-shadow 0 2px 5px rgba(0, 0, 0, .2)
+      color $accent-foreground
 
     &:active
       background $accent-background-active
