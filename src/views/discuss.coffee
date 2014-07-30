@@ -10,6 +10,7 @@ class Discuss extends View
           @input outlet: "filter", placeholder: T("Filter…"), value: filter ? ""
         @a T("New topic"), class: "button accent", href: "/discuss/new"
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
+      users = "nathan MathWizz someone user userwithalongername".split " "
       for i in [1..50]
         @section class: "topic #{if i < 6 then "unread" else ""}", =>
           @button class: "star", click: "star", title: T("Star")
@@ -22,9 +23,9 @@ class Discuss extends View
               @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
               has[t] = yes
           @div class: "subtitle", =>
-            name = "nathan"
+            name = users[i % 7]
             url = "/#{name}"
-            time = "10 minutes ago"
+            time = "#{i * 32471 % 50 + 5} minutes ago"
             @raw T("<a href=\"{url}\">{name}</a> created {time}", {url, name, time})
 
   title: -> T("Discuss")
