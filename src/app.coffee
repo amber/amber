@@ -1,15 +1,18 @@
-{$} = require "space-pen"
+{View, $} = require "space-pen"
 {Header} = require "am/views/header"
 {Footer} = require "am/views/footer"
 {Splash} = require "am/views/splash"
 
-class App
-  constructor: (@base) ->
-    @base
-      .append(@header = new Header)
-      .append(@view = $("<div></div>"))
-      .append(@footer = new Footer)
-      .on "keydown", @onKeyDown
+class App extends View
+  @content: ->
+    @div class: "app", =>
+      @subview "header", new Header
+      @subview "view", $("<div></div>")
+      @subview "footer", new Footer
+
+  constructor: ->
+    super
+    $("body").keydown @onKeyDown
 
   setView: (view) ->
     @view.replaceWith @view = view
