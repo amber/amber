@@ -1,3 +1,5 @@
+@import '_util'
+
 .project
   container()
   margin-top 1rem
@@ -5,25 +7,18 @@
 
   .player
     -webkit-user-drag none
+    float right
     display block
-    margin 0 auto
     width 480px
     height 360px
 
   .controls
   .stats
-    position absolute
-    height 48px * 3
-    width 48px
-    top ((360px - @height) / 2)
-
-  .controls
-    right 50%
-    margin-right 256px
+    float right
+    width 480px
 
   .stats
-    left 50%
-    margin-left 256px
+    text-align center
 
   button
   .stat
@@ -34,6 +29,7 @@
     text-align center
     position relative
     line-height @height - 12
+    display inline-block
 
   button
     box-shadow none !important
@@ -49,6 +45,7 @@
     background-position -48px 0 !important
 
   .full-screen
+    float right
     background-position -96px 0 !important
 
   .stat
@@ -63,3 +60,44 @@
       font-weight 200
       font-size 0.6rem
       line-height 1
+
+  .notes
+    position absolute
+    left 0
+    top 0
+    right 480px
+    margin-right 1rem
+
+  @media (max-width: 830px)
+    .controls
+    .stats
+      position absolute
+      height 48px * 3
+      width 48px
+      top ((360px - @height) / 2)
+
+    .controls
+      right 50%
+      margin-right 256px
+
+    .stats
+      left 50%
+      margin-left 256px
+
+    .player
+      float none
+      margin 0 auto
+
+    .notes
+      position static
+      margin 1rem auto 0
+      width 480px
+
+  @media (max-width: 650px)
+    .controls
+    .stats
+      position static
+      width 480px
+      height 48px
+      float none
+      margin 0 auto
