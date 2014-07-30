@@ -13,6 +13,8 @@ class Discuss extends View
       users = "nathan MathWizz someone user userwithalongername".split " "
       for i in [1..50]
         @section class: "topic #{if i < 6 then "unread" else ""}", =>
+          @div class: "stat", "#{i * 5713 % 900}", => @strong T("views")
+          @div class: "stat", "#{i * 5713 % 20}", => @strong T("posts")
           @button class: "star", click: "star", title: T("Star")
           @button class: "read", click: "read", title: T("Mark as read")
           @div class: "title", =>
