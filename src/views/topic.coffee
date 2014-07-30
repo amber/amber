@@ -5,4 +5,7 @@ class Topic extends View
     @article =>
       @h1 "The name of topic ##{id}"
 
+  initialize: ({@id}) ->
+  title: -> "The name of topic ##{@id}"
+
 module.exports = {Topic}
