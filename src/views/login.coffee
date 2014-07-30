@@ -4,9 +4,11 @@ class Login extends View
   @content: ->
     @article =>
       @section class: "login", keydown: "onKeyDown", =>
-        @input placeholder: "Username"
+        @input outlet: "username", placeholder: "Username"
         @input type: "password", placeholder: "Password"
         @button "Sign in", click: "submit"
+
+  afterAttach: (onDom) -> @username.focus() if onDom
 
   onKeyDown: (e) ->
     if e.keyCode is 13
