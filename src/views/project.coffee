@@ -5,6 +5,12 @@ class Project extends View
   @content: ({id}) ->
     @article =>
       @h1 "Project ##{id}"
+      @section class: "project-subtitle", =>
+        users = "nathan MathWizz someone user userwithalongername".split " "
+        name = users[id % 7]
+        url = "/#{name}"
+        time = "#{id * 32471 % 50 + 5} minutes ago"
+        @raw T("<a href=\"{url}\">{name}</a> created {time}", {url, name, time})
       @section class: "project", =>
         @div class: "controls", =>
           @button class: "flag"
