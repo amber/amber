@@ -14,7 +14,7 @@ class Discuss extends View
             @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
             has = {}
             for x in [1..10] when (t = tags[Math.random() * 100 | 0]) and not has[t]
-              @a class: "tag tag-#{t}", href: "/discuss/#{t}", t
+              @a class: "tag tag-#{t}", href: "/discuss/label:#{t}", t
               has[t] = yes
           @div class: "subtitle", =>
             name = "nathan"
