@@ -44,6 +44,8 @@ class Discuss extends View
     return unless -1 is tokens.indexOf token
     t = @filter.val()
     @filter.val t + (if /\S$/.test t then " " else "") + token + " "
+    scrollTo 0, 0
+    @filter.focus()
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
