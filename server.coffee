@@ -2,7 +2,7 @@ fs = require "fs"
 http = require "http"
 polvo = require "polvo"
 
-polvo release: true
+polvo release: yes
 
 html = ["text/html", fs.readFileSync "public/index.html"]
 js = ["application/javascript", fs.readFileSync "public/app.js"]
