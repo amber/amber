@@ -11,6 +11,7 @@ class Router
     document.addEventListener "click", @navigate
 
   navigate: (e) =>
+    return if e.metaKey or e.shiftKey or e.ctrlKey or e.altKey
     t = e.target
     while t
       if t.tagName is "A"
