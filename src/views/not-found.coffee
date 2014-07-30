@@ -7,4 +7,6 @@ class NotFound extends View
       @h1 T("Not found")
       @p T("The page at \"{url}\" does not exist.", {url})
 
+  title: -> T("Not found")
+
 module.exports = {NotFound}

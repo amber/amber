@@ -1,4 +1,5 @@
 {View, $} = require "space-pen"
+{T} = require "am/util"
 {Header} = require "am/views/header"
 {Footer} = require "am/views/footer"
 
@@ -29,6 +30,9 @@ class App extends View
     @view.parentView = null
     @view = view
     @view.parentView = @
+    am = T("Amber")
+    title = view.title?()
+    document.title = (if title then "#{title} · #{am}" else am)
 
   onKeyDown: (e) =>
     return if $(e.target).closest("input").length

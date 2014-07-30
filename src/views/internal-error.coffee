@@ -8,4 +8,6 @@ class InternalError extends View
       @p message
       @pre => @code stack
 
+  title: -> T("Internal error")
+
 module.exports = {InternalError}

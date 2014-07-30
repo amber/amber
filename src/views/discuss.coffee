@@ -23,6 +23,8 @@ class Discuss extends View
             time = "10 minutes ago"
             @raw T("<a href=\"{url}\">{name}</a> created {time}", {url, name, time})
 
+  title: -> T("Discuss")
+
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
 

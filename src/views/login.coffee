@@ -10,6 +10,8 @@ class Login extends View
         @input type: "password", placeholder: T("Password")
         @button T("Sign in"), click: "submit"
 
+  title: -> T("Sign in")
+
   afterAttach: (onDom) -> @username.focus() if onDom
 
   onKeyDown: (e) ->
