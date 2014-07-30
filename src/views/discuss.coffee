@@ -43,7 +43,7 @@ class Discuss extends View
     tokens = @filter.val().trim().split /\s+/
     return unless -1 is tokens.indexOf token
     t = @filter.val()
-    @filter.val t + (if /\S$/.test t then " " else "") + token
+    @filter.val t + (if /\S$/.test t then " " else "") + token + " "
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
