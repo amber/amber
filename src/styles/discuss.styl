@@ -1,0 +1,27 @@
+@import '_util'
+
+.topic
+  container()
+  display block
+  margin-top 1rem
+
+  font-weight 200
+
+  .name
+    display block
+    line-height 1.2
+    font-weight 500
+
+  .subtitle
+    display block
+    font-size 0.8rem
+    color rgba(0, 0, 0, .5)
+
+    a
+      color $foreground
+
+  a
+    text-decoration none
+
+    &:hover
+      text-decoration underline
