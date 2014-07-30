@@ -5,6 +5,10 @@ class Discuss extends View
   @content: ->
     @article =>
       @h1 T("Discuss Amber")
+      @section class: "discuss-bar", =>
+        @div class: "input-wrapper", =>
+          @input placeholder: T("Filter…")
+        @button T("New Topic")
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
       for i in [1..50]
         @section class: "topic #{if i < 6 then "unread" else ""}", =>
