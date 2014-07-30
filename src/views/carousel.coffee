@@ -5,7 +5,7 @@ class Carousel extends View
     @section class: "carousel", =>
       for i in [1..10]
         @a href: "/project/#{i}", =>
-          @img src: """data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot;/>"""
+          @img src: "data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot;/>"
           @div class: "label", "Project ##{i}"
 
 module.exports = {Carousel}
