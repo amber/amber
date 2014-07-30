@@ -7,4 +7,10 @@ escape = (s) -> s.replace /[<>'"&]/, (c) -> switch c
   when "\"" then "&quot;"
   when "&" then "&amp;"
 
-module.exports = {format, escape}
+T = (args...) ->
+  if DEBUG_TRANSLATIONS?
+    "!" + format args...
+  else
+    format args...
+
+module.exports = {format, escape, T}

@@ -12,6 +12,18 @@ class App extends View
   initialize: ->
     $("body").keydown @onKeyDown
 
+  updateLanguage: ->
+    @header.updateLanguage()
+    @footer.updateLanguage()
+    @router.route()
+
+  dt: ->
+    if DEBUG_TRANSLATIONS?
+      delete window.DEBUG_TRANSLATIONS
+    else
+      window.DEBUG_TRANSLATIONS = yes
+    @updateLanguage()
+
   setView: (view) ->
     @view.replaceWith view
     @view.parentView = null

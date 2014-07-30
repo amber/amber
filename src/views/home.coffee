@@ -4,13 +4,13 @@
 class Home extends View
   @content: ->
     @article =>
-      @h1 "Featured projects"
+      @h1 T("Featured projects")
       @subview "featured", new Carousel
-      @h1 "Projects by people you follow"
+      @h1 T("Projects by people you follow")
       @subview "follow", new Carousel
-      @h1 "Starred by people you follow"
+      @h1 T("Starred by people you follow")
       @subview "starred", new Carousel
-      @h1 "New projects"
+      @h1 T("New projects")
       @subview "new", new Carousel
 
 module.exports = {Home}

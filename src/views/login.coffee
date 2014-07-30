@@ -1,13 +1,14 @@
 {View, $} = require "space-pen"
+{T} = require "am/util"
 
 class Login extends View
   @content: ->
     @article =>
       @section class: "login", keydown: "onKeyDown", =>
-        @h1 "Sign In"
-        @input outlet: "username", placeholder: "Username"
-        @input type: "password", placeholder: "Password"
-        @button "Sign in", click: "submit"
+        @h1 T("Sign in")
+        @input outlet: "username", placeholder: T("Username")
+        @input type: "password", placeholder: T("Password")
+        @button T("Sign in"), click: "submit"
 
   afterAttach: (onDom) -> @username.focus() if onDom
 
