@@ -9,11 +9,14 @@ class Splash extends View
           @h1 "Realtime collaborative programming."
           @p "Create interactive stories, games, music, and art with people around the world."
         @div class: "right", =>
-          @input placeholder: "Username"
+          @input outlet: "username", placeholder: "Username"
           @input type: "email", placeholder: "Email address"
           @input type: "password", placeholder: "Password"
           @button "Sign up"
       @h1 "Featured projects"
       @subview "featured", new Carousel
+
+  afterAttach: ->
+    @username.focus()
 
 module.exports = {Splash}
