@@ -1,7 +1,6 @@
 {View, $} = require "space-pen"
 {Header} = require "am/views/header"
 {Footer} = require "am/views/footer"
-{Splash} = require "am/views/splash"
 
 class App extends View
   @content: ->
