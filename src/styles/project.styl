@@ -13,9 +13,9 @@
   .left-controls
   .right-controls
     position absolute
-    top 0
+    height 48px * 3
     width 48px
-    height 360px
+    top ((360px - @height) / 2)
 
   .left-controls
     right 50%
@@ -33,7 +33,7 @@
     margin 0
     text-align center
     position relative
-    line-height @height
+    line-height @height - 12
 
   button
     box-shadow none !important
@@ -49,9 +49,6 @@
     background-position -48px 0 !important
 
   .full-screen
-    position absolute
-    left 0
-    bottom 0
     background-position -96px 0 !important
 
   .stat
@@ -61,7 +58,7 @@
       position absolute
       left 0
       right 0
-      bottom 0
+      bottom 8px
       display block
       font-weight 200
       font-size 0.6rem
