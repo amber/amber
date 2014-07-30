@@ -8,6 +8,6 @@ class AddTopic extends View
       @h1 T("New topic")
       @input placeholder: T("Title")
       @subview "body", new Editor placeholder: T("Message")
-      @button class: "large", T("Create")
+      @button T("Create")
 
 module.exports = {AddTopic}
