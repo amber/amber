@@ -6,8 +6,9 @@ class AddTopic extends View
   @content: ->
     @article =>
       @h1 T("New topic")
-      @input placeholder: T("Title")
-      @subview "body", new Editor placeholder: T("Message")
-      @button T("Create")
+      @div class: "inline-container", =>
+        @input placeholder: T("Title")
+        @subview "body", new Editor placeholder: T("Message")
+        @button T("Create")
 
 module.exports = {AddTopic}
