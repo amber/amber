@@ -6,7 +6,7 @@ class Discuss extends View
     @article =>
       @h1 T("Discuss Amber")
       for i in [1..50]
-        @section class: "topic #{["","unread"][+(Math.random() < .7)]}", =>
+        @section class: "topic #{if i < 6 then "unread" else ""}", =>
           @button class: "star", click: "star", title: T("Star")
           @button class: "read", click: "read", title: T("Mark as read")
           @a "The name of topic ##{i}", class: "name", href: "/topic/#{i}"
