@@ -27,19 +27,18 @@
     height 2.4rem
 
     background 0
-    box-shadow none
     padding 0
     margin 0
-    border-right 8px solid $background
+    border-right 8px solid transparent
     border-left @border-right
-    background rgba(0, 0, 0, .1)
+    box-shadow inset 8px 0 rgba(0, 0, 0, .1)
     visibility hidden
 
     &:hover
-      background rgba(0, 0, 0, .4)
+      box-shadow inset 8px 0 rgba(0, 0, 0, .4)
 
     &:active
-      background rgba(0, 0, 0, .5)
+      box-shadow inset 8px 0 rgba(0, 0, 0, .5)
 
   &.unread .read
     visibility visible
