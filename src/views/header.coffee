@@ -8,6 +8,7 @@ class Header extends View
         @a "Create", href: "/create"
         @a "Explore", href: "/explore"
         @a "Discuss", href: "/discuss"
+        @a "Sign In", class: "right", href: "/login"
         @input type: "search", outlet: "search", placeholder: "Search…"
 
   focusSearch: (content) ->
