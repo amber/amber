@@ -7,7 +7,7 @@ class Discuss extends View
       @h1 T("Discuss Amber")
       @section class: "discuss-bar", =>
         @div class: "input-wrapper", =>
-          @input outlet: "filter", placeholder: T("Filter…"), value: filter ? ""
+          @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
         @a T("New topic"), class: "button accent", href: "/discuss/new"
       tags = "announcement,suggestion,bug,request,question,help,extension".split ","
       users = "nathan MathWizz someone user userwithalongername".split " "
@@ -51,8 +51,18 @@ class Discuss extends View
     scrollTo 0, 0
     @filter.focus()
 
-  updateURL: ->
-    history.pushState null, null, "/discuss/#{encodeURIComponent @filter.val()}"
+  refilter: ->
+    clearInterval @interval
+    @interval = setTimeout @updateURL, 700
+
+  updateURL: =>
+    @parentView.router.go "/discuss/#{encodeURIComponent @filter.val()}"
+
+  onFilterKey: (e) ->
+    if e.keyCode is 13
+      e.preventDefault()
+      clearInterval @interval
+      @updateURL()
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
