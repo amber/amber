@@ -34,6 +34,7 @@ class App extends View
     return if $(e.target).closest("input").length
     switch e.keyCode
       when 191
+        e.preventDefault()
         @header.focusSearch ""
 
 module.exports = {App}
