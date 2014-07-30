@@ -4,6 +4,7 @@ class Login extends View
   @content: ->
     @article =>
       @section class: "login", keydown: "onKeyDown", =>
+        @h1 "Sign In"
         @input outlet: "username", placeholder: "Username"
         @input type: "password", placeholder: "Password"
         @button "Sign in", click: "submit"
