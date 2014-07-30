@@ -22,7 +22,11 @@ class Header extends View
     @search.focus()
 
   onKeyDown: (e) ->
-    if e.keyCode is 27
-      @search.blur()
+    switch e.keyCode
+      when 13
+        e.preventDefault()
+        @parentView.router.go "/search/#{encodeURIComponent @search.val()}"
+      when 27
+        @search.blur()
 
 module.exports = {Header}

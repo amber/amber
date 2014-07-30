@@ -6,9 +6,9 @@ class Login extends View
     @article =>
       @section class: "login", keydown: "onKeyDown", =>
         @h1 T("Sign in")
-        @input outlet: "username", placeholder: T("Username")
-        @input type: "password", placeholder: T("Password")
-        @button T("Sign in"), click: "submit"
+        @input outlet: "username", placeholder: T("Username"), class: "large"
+        @input type: "password", placeholder: T("Password"), class: "large"
+        @button T("Sign in"), class: "large", click: "submit"
 
   title: -> T("Sign in")
 
