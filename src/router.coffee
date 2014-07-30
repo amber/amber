@@ -1,5 +1,6 @@
 {urls} = require "am/urls"
 {NotFound} = require "am/views/not-found"
+{InternalError} = require "am/views/internal-error"
 
 class Router
   constructor: (@app) ->
@@ -40,7 +41,16 @@ class Router
             match = no
             break
       if match
-        @app.setView new View slugs
+        try
+          view = new View slugs
+        catch e
+          @app.setView new InternalError
+            name: e.constructor.name
+            message: e.message
+            stack: e.stack
+          setTimeout -> throw e
+          return
+        @app.setView view
         return
     @app.setView new NotFound {url: target}
 
