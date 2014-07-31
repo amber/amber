@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 
 class Carousel extends View
   @content: ->

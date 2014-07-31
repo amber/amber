@@ -15,7 +15,7 @@ class Splash extends View
           @input type: "password", placeholder: T("Password"), class: "large"
           @button class: "large accent", T("Sign up")
       @h1 T("Featured projects")
-      # @subview "featured", new Carousel
+      @subview "featured", new Carousel
 
   enter: -> @username.focus()
 
