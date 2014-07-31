@@ -8,7 +8,7 @@ class Topic extends View
   @content: ({id}) ->
     @article =>
       @h1 outlet: "title"
-      @section class: "inline-container", outlet: "form", =>
+      @section class: "inline-container", outlet: "form", keydown: "onKeyDown", =>
         @subview "editor", new Editor placeholder: "Say something…"
         @button "Post", class: "accent right", click: "submit"
 
@@ -22,5 +22,15 @@ class Topic extends View
       for p in d.posts
         @add (new Post p), @base, @form
 
+  submit: ->
+    @add (new Post
+      body: @editor.getValue()
+      author: "nathan"
+      created: new Date
+    ), @base, @form
+    @editor.setValue ""
+
+  onKeyDown: (e) ->
+    @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
 
 module.exports = {Topic}

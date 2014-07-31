@@ -7,6 +7,7 @@ class Editor extends View
       @div outlet: "metrics", class: "editor-metrics"
 
   getValue: -> @input.value
+  setValue: (v) -> @input.value = v
 
   onInput: ->
     @metrics.textContent = "#{@input.value}X"
