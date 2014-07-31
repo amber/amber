@@ -88,7 +88,7 @@ class DiscussItem extends View
     @title.text title
     @avatar.attr "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
     @toggleClass "unread", unread
-    @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/#{author}", author, created})
+    @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
     @views.text views
     @posts.text posts
 
