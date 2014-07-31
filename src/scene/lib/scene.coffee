@@ -140,5 +140,4 @@ class View
     @inDocument = no
     sv.tryExit() for sv in @subviews
 
-
 module.exports = {$$, View, Builder}
