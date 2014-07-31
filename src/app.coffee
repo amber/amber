@@ -34,7 +34,7 @@ class App extends View
   onKeyDown: (e) =>
     t = e.target
     while t
-      return if t.tagName is "INPUT"
+      return if t.tagName in ["INPUT", "TEXTAREA"]
       t = t.parentNode
     switch e.keyCode
       when 191
