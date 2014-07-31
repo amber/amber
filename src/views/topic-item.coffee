@@ -39,10 +39,8 @@ class TopicItem extends View
       for t in tags
         @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
 
-  star: (e, el) ->
-    el.closest(".topic").toggleClass "starred"
+  star: -> @toggleClass "starred"
 
-  read: (e, el) ->
-    el.closest(".topic").removeClass "unread"
+  read: -> @removeClass "unread"
 
 module.exports = {TopicItem}
