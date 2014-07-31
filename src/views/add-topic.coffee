@@ -11,8 +11,8 @@ class AddTopic extends View
         @input outlet: "titleInput", placeholder: T("Title")
         @subview "body", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
-          @button click: "submit", class: "accent", T("Create")
           @button click: "cancel", T("Cancel")
+          @button click: "submit", class: "accent", T("Create")
 
   title: -> T("New topic")
   enter: -> @titleInput.focus()
