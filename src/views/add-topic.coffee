@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T} = require "am/util"
 {Editor} = require "am/views/editor"
 
@@ -14,11 +14,8 @@ class AddTopic extends View
           @button click: "cancel", T("Cancel")
 
   title: -> T("New topic")
+  enter: -> @titleInput.focus()
 
-  afterAttach: ->
-    @titleInput.focus()
-
-  cancel: ->
-    history.back()
+  cancel: -> history.back()
 
 module.exports = {AddTopic}

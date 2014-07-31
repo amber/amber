@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 
 class Editor extends View
   @content: ({placeholder}) ->
