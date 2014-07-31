@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T, format, escape} = require "am/util"
 {TopicItem} = require "am/views/topic-item"
 
@@ -18,7 +18,7 @@ class Discuss extends View
       has = {}
       for x in [1..3] when t = tags[(i + x * 35) % (11 * x)]
         has[t] = yes
-      @append new TopicItem
+      @add new TopicItem
         id: i
         title: "The name of topic ##{i}"
         unread: i < 6
@@ -38,17 +38,21 @@ class Discuss extends View
 
   navigate: (e) ->
     return if e.metaKey or e.shiftKey or e.altKey or e.ctrlKey
-    if t = $(e.target).closest(".tag")[0]
-      e.preventDefault()
-      e.stopPropagation()
-      @addToken "label:#{t.dataset.tag}"
+    t = e.target
+    while t
+      if t.classList.contains "tag"
+        e.preventDefault()
+        e.stopPropagation()
+        @addToken "label:#{t.dataset.tag}"
+        return
+      t = t.parentNode
 
   addToken: (token) ->
-    tokens = @filter.val().trim().split /\s+/
+    tokens = @filter.value.trim().split /\s+/
     return unless -1 is tokens.indexOf token
-    t = @filter.val()
-    @filter.val t + (if /\S$/.test t then " " else "") + token + " "
-    @updateURL()
+    t = @filter.value
+    @filter.value = t + (if /\S$/.test t then " " else "") + token + " "
+    @updateURLue
     scrollTo 0, 0
     @filter.focus()
 
@@ -57,7 +61,7 @@ class Discuss extends View
     @interval = setTimeout @updateURL, 700
 
   updateURL: =>
-    @parentView.router.go "/discuss/#{encodeURIComponent @filter.val()}"
+    @parentView.router.go "/discuss/#{encodeURIComponent @filter.value}"
 
   onFilterKey: (e) ->
     if e.keyCode is 13

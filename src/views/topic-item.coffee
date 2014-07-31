@@ -1,4 +1,4 @@
-{View, $, $$} = require "space-pen"
+{View, $$} = require "scene"
 {T, extend} = require "am/util"
 
 class TopicItem extends View
@@ -27,20 +27,21 @@ class TopicItem extends View
   apply: ->
     {id, title, unread, starred, author, created, tags, views, posts} = @d
 
-    @title.attr "href", "/topic/#{id}"
-    @title.text title
-    @avatar.attr "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
-    @toggleClass "unread", unread
-    @toggleClass "starred", starred
-    @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
-    @views.text views
-    @posts.text posts
+    @title.setAttribute "href", "/topic/#{id}"
+    @title.textContent = title
+    @avatar.setAttribute "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
+    @base.classList.toggle "unread", unread
+    @base.classList.toggle "starred", starred
+    @subtitle.innerHTML = T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
+    @views.textContent = views
+    @posts.textContent = posts
 
-    @tags.append $$ ->
+    @tags.removeChild @tags.lastChild while @tags.firstChild
+    @tags.appendChild $$ ->
       for t in tags
         @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
 
-  star: -> @toggleClass "starred"
-  read: -> @removeClass "unread"
+  star: -> @base.classList.toggle "starred"
+  read: -> @base.classList.remove "unread"
 
 module.exports = {TopicItem}
