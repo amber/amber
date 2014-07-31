@@ -12,6 +12,8 @@ class Topic extends View
         @subview "editor", new Editor placeholder: "Say something…"
         @button "Post", class: "accent right", click: "submit"
 
+  enter: -> @editor.focus()
+
   initialize: ({@id, @app}) ->
     @app.server.getTopic {@id}, (err, d) =>
       if err
