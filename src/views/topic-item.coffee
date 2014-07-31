@@ -24,12 +24,13 @@ class TopicItem extends View
     @d[k] = v for k, v of map
 
   apply: ->
-    {id, title, unread, author, created, tags, views, posts} = @d
+    {id, title, unread, starred, author, created, tags, views, posts} = @d
 
     @title.attr "href", "/topic/#{id}"
     @title.text title
     @avatar.attr "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
     @toggleClass "unread", unread
+    @toggleClass "starred", starred
     @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
     @views.text views
     @posts.text posts

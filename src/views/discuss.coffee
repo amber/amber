@@ -22,6 +22,7 @@ class Discuss extends View
         id: i
         title: "The name of topic ##{i}"
         unread: i < 6
+        starred: i % 8 is 1
         views: i * 5713 % 900
         posts: i * 5713 % 20
         tags: Object.keys has
