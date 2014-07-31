@@ -56,6 +56,11 @@ $$ = (f) ->
 class ViewBuilder extends Builder
   constructor: (@view) -> super
 
+  key: (el, k, v) ->
+    if k is "outlet"
+      @view[v] = el
+    else super
+
   event: (el, k, v) ->
     v = @view[v] if typeof v is "string"
     super el, k, v?.bind @view
