@@ -12,6 +12,7 @@ output:
 alias:
   am: ./src
   space-pen: ./vendors/space-pen/dist/space-pen.js
+  scene: ./src/scene/lib/scene.coffee
 
 minify:
   js: false
