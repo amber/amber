@@ -35,7 +35,7 @@ class Router
       segments = pattern.split "/"
       continue if segments.length isnt targetSegments.length
       match = yes
-      slugs = {}
+      slugs = {@app}
       for segment, i in segments
         ts = decodeURIComponent targetSegments[i]
         if ":" is segment.charAt 0
