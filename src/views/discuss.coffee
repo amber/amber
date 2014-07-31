@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View, $, $$} = require "space-pen"
 {T, format, escape} = require "am/util"
 
 class Discuss extends View
@@ -92,12 +92,9 @@ class DiscussItem extends View
     @views.text views
     @posts.text posts
 
-    @tags.html (for t in tags
-      format "<a class=\"{class}\" data-tag=\"{tag}\" href=\"{url}\">{text}</a>",
-        class: "tag tag-#{t}"
-        tag: t
-        href: "/discuss/#{encodeURIComponent "label:#{t}"}"
-        text: T(t)).join ""
+    @tags.append $$ ->
+      for t in tags
+        @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
