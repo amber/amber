@@ -25,6 +25,7 @@ class Server
     t = @topics[id - 1]
     return @throw fn, {name: "notFound"} unless t
     t.unread = no
+    t.views++
     @return fn, t
 
   starTopic: ({id, starred}, fn) ->
