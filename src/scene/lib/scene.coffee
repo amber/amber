@@ -63,7 +63,10 @@ class ViewBuilder extends Builder
     super el, k, v?.bind @view
 
   subview: (name, sv) ->
-    @view[name] = sv
+    unless sv?
+      sv = name
+      name = null
+    @view[name] = sv if name?
     @view.subviews.push sv
     sv.parent = @view
     @add sv.base
