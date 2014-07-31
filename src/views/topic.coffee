@@ -33,6 +33,7 @@ class Topic extends View
     }
     @add view, @base, @form
     @editor.setValue ""
+    scrollTo 0, document.body.offsetHeight
     @app.server.addPost {@id, body}
 
   onKeyDown: (e) ->

@@ -20,7 +20,6 @@ class AddTopic extends View
   cancel: -> history.back()
   submit: ->
     @parent.server.addTopic {
-      author: "nathan"
       title: @titleInput.value
       body: @body.getValue()
     }, (err, data) =>

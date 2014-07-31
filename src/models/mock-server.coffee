@@ -55,15 +55,15 @@ class Server
 
   watchTopics: (fn) ->
 
-  addTopic: ({author, title, body, starred}, fn) ->
+  addTopic: ({title, body, starred}, fn) ->
     @topics.push topic = {
       id: @topics.length + 1
       unread: yes
       starred: !!starred
       views: 0
       title
-      author
-      posts: [{author, body, created: new Date}]
+      author: "nathan"
+      posts: [{author: "nathan", body, created: new Date}]
       tags: []
       created: new Date
     }
