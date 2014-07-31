@@ -1,4 +1,4 @@
-@LATENCY = 400
+@LATENCY = 200
 @REQUESTS_FAIL = no
 
 class Server
@@ -46,6 +46,7 @@ class Server
   addPost: ({id, body}, fn) ->
     t = @topics[id - 1]
     return @throw fn, {name: "notFound"} unless t
+    return @throw fn, {name: "invalid"} unless body.trim().length
     p = {author: "nathan", body, created: new Date}
     t.posts.push p
     @return fn, p
