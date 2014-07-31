@@ -30,11 +30,14 @@ class Topic extends View
       body
       author: "nathan"
       created: new Date
+      pending: yes
     }
     @add view, @base, @form
     @editor.setValue ""
     scrollTo 0, document.body.offsetHeight
-    @app.server.addPost {@id, body}
+    @app.server.addPost {@id, body}, (err, d) ->
+      return if err # TODO
+      view.setPending no
 
   onKeyDown: (e) ->
     @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)

@@ -12,4 +12,7 @@ class Post extends View
         @subview new RelativeDate created
       @html parse(body).result
 
+  initialize: ({pending}) -> @setPending pending
+  setPending: (pending) -> @base.classList.toggle "pending", pending
+
 module.exports = {Post}
