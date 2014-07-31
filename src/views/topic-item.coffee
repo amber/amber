@@ -22,6 +22,7 @@ class TopicItem extends View
   update: (map) ->
     extend @d, map
     @d[k] = v for k, v of map
+    @apply()
 
   apply: ->
     {id, title, unread, starred, author, created, tags, views, posts} = @d
