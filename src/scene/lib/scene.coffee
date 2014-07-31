@@ -96,13 +96,14 @@ class View
     sv.tryDocument()
     @
 
-  replace: (ex, sv) ->
+  replaceWith: (sv) ->
     sv.removeFromParent()
-    @subviews.push sv
-    sv.parent = @
-    ex.tryExit()
-    ex.base.parentNode.replaceChild sv.base, ex.base
-    ex.removeFromParent()
+    if @parent
+      @parent.subviews.push sv
+      sv.parent = @parent
+    @tryExit()
+    @base.parentNode.replaceChild sv.base, @base
+    @removeFromParent()
     sv.tryDocument()
 
   embed: (mount) ->
