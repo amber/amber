@@ -32,12 +32,17 @@ class Topic extends View
       created: new Date
       pending: yes
     }
+    @editor.setDisabled yes
     @add view, @base, @form
-    @editor.setValue ""
     scrollTo 0, document.body.offsetHeight
-    @app.server.addPost {@id, body}, (err, d) ->
-      return if err # TODO
+    @app.server.addPost {@id, body}, (err, d) =>
+      @editor.setDisabled no
+      @editor.focus()
+      if err
+        view.remove()
+        return
       view.setPending no
+      @editor.setValue ""
 
   onKeyDown: (e) ->
     @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)

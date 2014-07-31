@@ -6,7 +6,10 @@ class Editor extends View
       @textarea outlet: "input", placeholder: placeholder ? "", input: "onInput"
       @div outlet: "metrics", class: "editor-metrics"
 
+  initialize: ({disabled}) -> @setDisabled disabled
+
   focus: -> @input.focus()
+  setDisabled: (d) -> @input.disabled = d
   getValue: -> @input.value
   setValue: (v) -> @input.value = v
 
