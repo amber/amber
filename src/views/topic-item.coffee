@@ -29,7 +29,7 @@ class TopicItem extends View
 
     @title.setAttribute "href", "/topic/#{id}"
     @title.textContent = title
-    @avatar.setAttribute "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
+    @avatar.setAttribute "src", "http://lorempixel.com/100/100/abstract/1"
     @base.classList.toggle "unread", unread
     @base.classList.toggle "starred", starred
     @subtitle.innerHTML = T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
