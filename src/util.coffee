@@ -13,4 +13,8 @@ T = (args...) ->
   else
     format args...
 
+extend = (base, map) ->
+  base[k] = v for k, v of map
+  base
+
 module.exports = {format, escape, T}
