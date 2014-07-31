@@ -40,7 +40,6 @@ class TopicItem extends View
         @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
 
   star: -> @toggleClass "starred"
-
   read: -> @removeClass "unread"
 
 module.exports = {TopicItem}
