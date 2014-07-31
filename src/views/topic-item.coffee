@@ -1,5 +1,6 @@
 {View, $$} = require "scene"
 {T, extend} = require "am/util"
+{RelativeDate} = require "am/views/relative-date"
 
 class TopicItem extends View
   @content: ->
@@ -16,7 +17,10 @@ class TopicItem extends View
         @img outlet: "avatar"
         @a outlet: "title", class: "name"
         @span outlet: "tags"
-      @div class: "subtitle", outlet: "subtitle"
+      @div class: "subtitle", =>
+        @a outlet: "author"
+        @text " created "
+        @subview "created", new RelativeDate
 
   initialize: (@d) -> @apply()
   update: (map) ->
@@ -27,12 +31,14 @@ class TopicItem extends View
   apply: ->
     {id, title, unread, starred, author, created, tags, views, posts} = @d
 
-    @title.setAttribute "href", "/topic/#{id}"
+    @title.href = "/topic/#{id}"
     @title.textContent = title
-    @avatar.setAttribute "src", "http://lorempixel.com/100/100/abstract/1"
+    @avatar.src = "http://lorempixel.com/100/100/abstract/1"
     @base.classList.toggle "unread", unread
     @base.classList.toggle "starred", starred
-    @subtitle.innerHTML = T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
+    @author.href = "/user/#{author}"
+    @author.textContent = author
+    @created.setDate created
     @views.textContent = views
     @posts.textContent = posts
 
