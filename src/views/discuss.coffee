@@ -1,5 +1,6 @@
-{View, $, $$} = require "space-pen"
+{View, $} = require "space-pen"
 {T, format, escape} = require "am/util"
+{TopicItem} = require "am/views/topic-item"
 
 class Discuss extends View
   @content: ({filter}) ->
@@ -17,7 +18,7 @@ class Discuss extends View
       has = {}
       for x in [1..3] when t = tags[(i + x * 35) % (11 * x)]
         has[t] = yes
-      @append new DiscussItem
+      @append new TopicItem
         id: i
         title: "The name of topic ##{i}"
         unread: i < 6
@@ -62,44 +63,5 @@ class Discuss extends View
       e.preventDefault()
       clearInterval @interval
       @updateURL()
-
-class DiscussItem extends View
-  @content: ->
-    @section class: "topic", =>
-      @div class: "stat", =>
-        @span outlet: "views"
-        @strong T("views")
-      @div class: "stat", =>
-        @span outlet: "posts"
-        @strong T("posts")
-      @button class: "star", click: "star", title: T("Star")
-      @button class: "read", click: "read", title: T("Mark as read")
-      @div class: "title", =>
-        @img outlet: "avatar"
-        @a outlet: "title", class: "name"
-        @span outlet: "tags"
-      @div class: "subtitle", outlet: "subtitle"
-
-  initialize: (@d) -> @update()
-  update: ->
-    {id, title, unread, author, created, tags, views, posts} = @d
-
-    @title.attr "href", "/topic/#{id}"
-    @title.text title
-    @avatar.attr "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
-    @toggleClass "unread", unread
-    @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/user/#{author}", author, created})
-    @views.text views
-    @posts.text posts
-
-    @tags.append $$ ->
-      for t in tags
-        @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
-
-  star: (e, el) ->
-    el.closest(".topic").toggleClass "starred"
-
-  read: (e, el) ->
-    el.closest(".topic").removeClass "unread"
 
 module.exports = {Discuss}
