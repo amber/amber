@@ -4,6 +4,7 @@ server:
 
 input:
   - src
+  - vendors/markup
 
 output:
   js: ./public/app.js
