@@ -23,9 +23,10 @@ class AddTopic extends View
       author: "nathan"
       title: @titleInput.value
       body: @body.getValue()
-    }, ({id}) =>
-      history.pushState null, null, "/topic/#{id}"
-      @parent.setView new Topic {app: @parent, id}
+    }, (err, data) =>
+      return if err # TODO
+      history.replaceState null, null, "/topic/#{data.id}"
+      @parent.setView new Topic {app: @parent, id: data.id}
 
   onKeyDown: (e) ->
     if e.keyCode is 13 and (e.ctrlKey or e.metaKey)

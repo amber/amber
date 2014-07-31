@@ -39,9 +39,15 @@ class TopicItem extends View
     @tags.removeChild @tags.lastChild while @tags.firstChild
     @tags.appendChild $$ ->
       for t in tags
-        @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
+        @a class: "tag tag-#{t}", dataTag: t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
 
-  star: -> @base.classList.toggle "starred"
+  star: ->
+    @base.classList.toggle "starred"
+    @parent.parent.server.starTopic {
+      id: @d.id
+      starred: @base.classList.contains "starred"
+    }
+
   read: -> @base.classList.remove "unread"
 
 module.exports = {TopicItem}
