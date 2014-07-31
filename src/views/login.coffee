@@ -12,7 +12,7 @@ class Login extends View
 
   title: -> T("Sign in")
 
-  enter: (onDom) -> @username.focus() if onDom
+  enter: -> @username.focus()
 
   onKeyDown: (e) ->
     if e.keyCode is 13
