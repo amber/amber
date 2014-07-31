@@ -66,8 +66,8 @@ class ViewBuilder extends Builder
     super el, k, v?.bind @view
 
   subview: (sv) ->
-    @subviews.push sv
-    sv.parentView = @
+    @view.subviews.push sv
+    sv.parent = @view
     @add sv.base
 
 class View
@@ -77,5 +77,68 @@ class View
     @content.call b, args...
     @base = b.base
     @initialize? args...
+
+  inDocument: no
+
+  add: (sv, mount = @base, before = null) ->
+    sv.removeFromParent()
+    if before
+      mount.insertBefore sv.base, before
+    else
+      mount.appendChild sv.base
+    @subviews.push sv
+    sv.parent = @
+    sv.tryDocument()
+    @
+
+  replace: (ex, sv) ->
+    sv.removeFromParent()
+    @subviews.push sv
+    sv.parent = @
+    ex.tryExit()
+    ex.base.parentNode.replaceChild sv.base, ex.base
+    ex.removeFromParent()
+    sv.tryDocument()
+
+  embed: (mount) ->
+    mount.appendChild @base
+    @tryDocument()
+    @
+
+  remove: ->
+    @tryExit()
+    @removeFromParent()
+    if node = @base.parentNode
+      node.removeChild @base
+    @
+
+  removeFromParent: ->
+    return unless @parent
+    views = @parent.subviews
+    i = views.indexOf @
+    views.splice i, 1 if i isnt -1
+    @parent = null
+
+  tryDocument: ->
+    p = @base
+    while p
+      if p.tagName is "BODY"
+        @tryEnter()
+        return
+      p = p.parentNode
+    @tryExit()
+
+  tryEnter: ->
+    return if @inDocument
+    @inDocument = yes
+    @enter?()
+    sv.tryEnter() for sv in @subviews
+
+  tryExit: ->
+    return unless @inDocument
+    @exit?()
+    @inDocument = no
+    sv.tryExit() for sv in @subviews
+
 
 module.exports = {$$, View, Builder}
