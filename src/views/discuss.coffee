@@ -9,26 +9,23 @@ class Discuss extends View
         @div class: "input-wrapper", =>
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
         @a T("New topic"), class: "button accent", href: "/discuss/new"
-      tags = "announcement,suggestion,bug,request,question,help,extension".split ","
-      users = "nathan MathWizz someone user userwithalongername".split " "
-      for i in [1..50]
-        @section class: "topic #{if i < 6 then "unread" else ""}", =>
-          @div class: "stat", "#{i * 5713 % 900}", => @strong T("views")
-          @div class: "stat", "#{i * 5713 % 20}", => @strong T("posts")
-          @button class: "star", click: "star", title: T("Star")
-          @button class: "read", click: "read", title: T("Mark as read")
-          @div class: "title", =>
-            @img src: "http://lorempixel.com/100/100/abstract/#{i % 7}"
-            @a "The name of topic ##{i}", href: "/topic/#{i}", class: "name"
-            has = {}
-            for x in [1..3] when (t = tags[(i + x * 35) % (11 * x)]) and not has[t]
-              @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
-              has[t] = yes
-          @div class: "subtitle", =>
-            name = users[i % 7]
-            url = "/#{name}"
-            time = "#{i * 32471 % 50 + 5} minutes ago"
-            @raw T("<a href=\"{url}\">{name}</a> created {time}", {url, name, time})
+
+  initialize: ->
+    tags = "announcement,suggestion,bug,request,question,help,extension".split ","
+    users = "nathan MathWizz someone user userwithalongername person with_underscores".split " "
+    for i in [1..50]
+      has = {}
+      for x in [1..3] when t = tags[(i + x * 35) % (11 * x)]
+        has[t] = yes
+      @append new DiscussItem
+        id: i
+        title: "The name of topic ##{i}"
+        unread: i < 6
+        views: i * 5713 % 900
+        posts: i * 5713 % 20
+        tags: Object.keys has
+        author: users[i % 7]
+        created: "#{i * 32471 % 50 + 5} minutes ago"
 
   title: -> T("Discuss")
 
@@ -65,6 +62,21 @@ class Discuss extends View
       e.preventDefault()
       clearInterval @interval
       @updateURL()
+
+class DiscussItem extends View
+  @content: ({id, title, author, created, unread, tags, views, posts}) ->
+    @section class: "topic#{if unread then " unread" else ""}", =>
+      @div class: "stat", views, => @strong T("views")
+      @div class: "stat", posts, => @strong T("posts")
+      @button class: "star", click: "star", title: T("Star")
+      @button class: "read", click: "read", title: T("Mark as read")
+      @div class: "title", =>
+        @img src: "http://lorempixel.com/100/100/abstract/#{id % 7}"
+        @a title, href: "/topic/#{id}", class: "name"
+        for t in tags
+          @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
+      @div class: "subtitle", =>
+        @raw T("<a href=\"{url}\">{author}</a> created {created}", {url: "/#{author}", author, created})
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
