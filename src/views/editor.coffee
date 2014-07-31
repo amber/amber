@@ -8,7 +8,6 @@ class Editor extends View
 
   onInput: ->
     @metrics.text "#{@input.val()}X"
-    console.log @metrics.height()
     @input.css "height", "#{@metrics.height() + 10}px"
 
 module.exports = {Editor}
