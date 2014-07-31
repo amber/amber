@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T} = require "am/util"
 
 class Login extends View
@@ -12,7 +12,7 @@ class Login extends View
 
   title: -> T("Sign in")
 
-  afterAttach: (onDom) -> @username.focus() if onDom
+  enter: (onDom) -> @username.focus() if onDom
 
   onKeyDown: (e) ->
     if e.keyCode is 13
@@ -20,6 +20,6 @@ class Login extends View
       e.preventDefault()
 
   submit: ->
-    @parentView.router.go "/home"
+    @parent.router.go "/home"
 
 module.exports = {Login}
