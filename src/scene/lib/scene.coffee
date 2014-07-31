@@ -5,8 +5,7 @@ class Builder
   tags = "a abbr address area article aside audio b base bdi bdo blockquote br button canvas caption cite code col colgroup command datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hr i iframe img input ins kbd keygen label legend li link main map mark menu meta meter nav noscript object ol optgroup option output p param pre progress q rp rt ruby s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr".split " "
 
   constructor: ->
-    @context = []
-    @base = null
+    @context = [@base = document.createDocumentFragment()]
 
   tag: (name, contents...) ->
     el = document.createElement name
@@ -31,11 +30,7 @@ class Builder
     while child = el.firstChild
       @add child
 
-  add: (el) ->
-    if @context.length
-      @context[@context.length - 1].appendChild el
-    else
-      @base = el
+  add: (el) -> @context[@context.length - 1].appendChild el
 
   key: (el, k, v) ->
     if -1 is events.indexOf k
@@ -78,7 +73,7 @@ class View
     @subviews = []
     b = new ViewBuilder @
     @constructor.content.call b, args...
-    @base = b.base
+    @base = b.base.firstChild
     @initialize? args...
 
   @content: -> @div()
