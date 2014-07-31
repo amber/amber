@@ -18,14 +18,14 @@ class Header extends View
     @search.attr "placeholder", T("Search…")
 
   focusSearch: (content) ->
-    @search.val content if content?
+    @search.value = content if content?
     @search.focus()
 
   onKeyDown: (e) ->
     switch e.keyCode
       when 13
         e.preventDefault()
-        @parentView.router.go "/search/#{encodeURIComponent @search.val()}"
+        @parent.router.go "/search/#{encodeURIComponent @search.value}"
       when 27
         @search.blur()
 
