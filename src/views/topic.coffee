@@ -25,12 +25,15 @@ class Topic extends View
         @add (new Post p), @base, @form
 
   submit: ->
-    @add (new Post
-      body: @editor.getValue()
+    body = @editor.getValue()
+    view = new Post {
+      body
       author: "nathan"
       created: new Date
-    ), @base, @form
+    }
+    @add view, @base, @form
     @editor.setValue ""
+    @app.server.addPost {@id, body}
 
   onKeyDown: (e) ->
     @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)

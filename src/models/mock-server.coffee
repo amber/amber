@@ -42,6 +42,13 @@ class Server
     t.views++
     @return fn, t
 
+  addPost: ({id, body}, fn) ->
+    t = @topics[id - 1]
+    return @throw fn, {name: "notFound"} unless t
+    p = {author: "nathan", body, created: new Date}
+    t.posts.push p
+    @return fn, p
+
   starTopic: ({id, starred}, fn) ->
     @topics[id - 1].starred = starred
     @return fn
