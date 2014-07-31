@@ -31,9 +31,8 @@ class Discuss extends View
 
   title: -> T("Discuss")
 
-  afterAttach: ->
-    f = @filter[0]
-    f.selectionStart = f.selectionEnd = f.value.length
+  enter: ->
+    @filter.selectionStart = @filter.selectionEnd = @filter.value.length
     @filter.focus()
 
   navigate: (e) ->
