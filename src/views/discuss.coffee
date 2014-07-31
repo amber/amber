@@ -13,7 +13,6 @@ class Discuss extends View
 
   initialize: ({app}) ->
     tags = "announcement,suggestion,bug,request,question,help,extension".split ","
-    users = "nathan MathWizz someone user userwithalongername person with_underscores".split " "
     app.server.getTopics (err, topics) =>
       return if err # TODO
       for t in topics
