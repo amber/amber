@@ -3,7 +3,7 @@
 
 class RelativeDate extends View
   @content: -> @span()
-  initialize: -> @date = new Date
+  initialize: (@date = new Date) -> @update()
 
   enter: -> @interval = setInterval @update, 60 * 1000
   exit: -> clearInterval @interval

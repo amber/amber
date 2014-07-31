@@ -1,6 +1,7 @@
 {View, $$} = require "scene"
 {T} = require "am/util"
 {NotFound} = require "am/views/not-found"
+{Post} = require "am/views/post"
 
 class Topic extends View
   @content: ({id}) ->
@@ -13,14 +14,8 @@ class Topic extends View
         @app.setView new NotFound {url: location.pathname}
         return
       @title.textContent = d.title
-      @base.appendChild $$ ->
-        for {author, created, body} in d.posts
-          @section class: "post", =>
-            @img src: "http://lorempixel.com/100/100/abstract/1"
-            @div class: "author", =>
-              url = "/user/#{author}"
-              @html T("<a href=\"{url}\">{author}</a> posted {created}", {url, author, created})
-            @p body
+      for p in d.posts
+        @add new Post p
 
   title: -> "The name of topic ##{@id}"
 
