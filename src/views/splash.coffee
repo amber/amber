@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {Carousel} = require "am/views/carousel"
 {T} = require "am/util"
 
@@ -15,9 +15,8 @@ class Splash extends View
           @input type: "password", placeholder: T("Password"), class: "large"
           @button class: "large accent", T("Sign up")
       @h1 T("Featured projects")
-      @subview "featured", new Carousel
+      # @subview "featured", new Carousel
 
-  afterAttach: ->
-    @username.focus()
+  enter: -> @username.focus()
 
 module.exports = {Splash}

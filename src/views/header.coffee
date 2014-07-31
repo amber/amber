@@ -1,19 +1,19 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T} = require "am/util"
 
 class Header extends View
   @content: ->
     @header =>
       @div outlet: "container", class: "container", =>
-        @a T("Amber"), "data-key": "Amber", href: "/"
-        @a T("Create"), "data-key": "Create", href: "/new"
-        @a T("Explore"), "data-key": "Explore", href: "/explore"
-        @a T("Discuss"), "data-key": "Discuss", href: "/discuss"
-        @a T("Sign In"), "data-key": "Sign In", class: "right", href: "/login"
+        @a T("Amber"), dataKey: "Amber", href: "/"
+        @a T("Create"), dataKey: "Create", href: "/new"
+        @a T("Explore"), dataKey: "Explore", href: "/explore"
+        @a T("Discuss"), dataKey: "Discuss", href: "/discuss"
+        @a T("Sign In"), dataKey: "Sign In", class: "right", href: "/login"
         @input type: "search", outlet: "search", keydown: "onKeyDown", placeholder: T("Search…")
 
   updateLanguage: ->
-    for a in @container.children "a"
+    for a in @container.querySelectorAll "a"
       a.textContent = T(a.dataset.key)
     @search.attr "placeholder", T("Search…")
 

@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T} = require "am/util"
 
 class Footer extends View
@@ -10,7 +10,7 @@ class Footer extends View
       @p T("Made with ♡ by Nathan Dinsmore and Truman Kilen."), outlet: "love"
 
   updateLanguage: ->
-    for a in @children "a"
+    for a in @querySelectorAll "a"
       a.textContent = T(a.dataset.key)
     @love.text T("Made with ♡ by Nathan Dinsmore and Truman Kilen.")
 
