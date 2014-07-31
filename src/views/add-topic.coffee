@@ -7,7 +7,7 @@ class AddTopic extends View
   @content: ->
     @article =>
       @h1 T("New topic")
-      @div class: "inline-container", =>
+      @div class: "inline-container", keydown: "onKeyDown", =>
         @input outlet: "titleInput", placeholder: T("Title")
         @subview "body", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
@@ -26,5 +26,10 @@ class AddTopic extends View
     }, ({id}) =>
       history.pushState null, null, "/topic/#{id}"
       @parent.setView new Topic {app: @parent, id}
+
+  onKeyDown: (e) ->
+    if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
+      e.preventDefault()
+      @submit()
 
 module.exports = {AddTopic}
