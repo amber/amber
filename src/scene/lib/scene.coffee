@@ -77,11 +77,11 @@ class View
   constructor: (args...) ->
     @subviews = []
     b = new ViewBuilder @
-    @content.call b, args...
+    @constructor.content.call b, args...
     @base = b.base
     @initialize? args...
 
-  content: -> @div()
+  @content: -> @div()
 
   inDocument: no
 
