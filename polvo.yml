@@ -12,6 +12,7 @@ output:
 alias:
   am: ./src
   scene: ./vendors/scene/lib/scene.coffee
+  markup: ./vendors/markup/markup.js
 
 minify:
   js: false

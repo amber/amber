@@ -1,4 +1,5 @@
 {View} = require "scene"
+{parse} = require "markup"
 {RelativeDate} = require "am/views/relative-date"
 
 class Post extends View
@@ -9,6 +10,6 @@ class Post extends View
         @a href: "/user/#{author}", author
         @text " posted "
         @subview new RelativeDate created
-      @p body
+      @html parse(body).result
 
 module.exports = {Post}
