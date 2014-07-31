@@ -39,7 +39,7 @@ class Discuss extends View
   navigate: (e) ->
     return if e.metaKey or e.shiftKey or e.altKey or e.ctrlKey
     t = e.target
-    while t
+    while t?.nodeType is 1
       if t.classList.contains "tag"
         e.preventDefault()
         e.stopPropagation()
@@ -61,7 +61,7 @@ class Discuss extends View
     @interval = setTimeout @updateURL, 700
 
   updateURL: =>
-    @parentView.router.go "/discuss/#{encodeURIComponent @filter.value}"
+    @parent.router.go "/discuss/#{encodeURIComponent @filter.value}"
 
   onFilterKey: (e) ->
     if e.keyCode is 13
