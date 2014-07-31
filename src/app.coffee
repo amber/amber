@@ -27,8 +27,10 @@ class App extends View
 
   setView: (view) ->
     @view.replaceWith @view = view
+    @setTitle view.title?()
+
+  setTitle: (title) ->
     am = T("Amber")
-    title = view.title?()
     document.title = (if title then "#{title} · #{am}" else am)
 
   onKeyDown: (e) =>

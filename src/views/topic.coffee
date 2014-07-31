@@ -17,10 +17,10 @@ class Topic extends View
       if err
         @app.setView new NotFound {url: location.pathname}
         return
+      @app.setTitle d.title
       @title.textContent = d.title
       for p in d.posts
         @add (new Post p), @base, @form
 
-  title: -> "The name of topic ##{@id}"
 
 module.exports = {Topic}
