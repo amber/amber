@@ -11,7 +11,7 @@ class App extends View
       @subview "footer", new Footer
 
   initialize: ->
-    document.body.addEventListener @onKeyDown
+    document.body.addEventListener "keydown", @onKeyDown
 
   updateLanguage: ->
     @header.updateLanguage()
@@ -32,7 +32,10 @@ class App extends View
     document.title = (if title then "#{title} · #{am}" else am)
 
   onKeyDown: (e) =>
-    return if $(e.target).closest("input").length
+    t = e.target
+    while t
+      return if t.tagName is "INPUT"
+      t = t.parentNode
     switch e.keyCode
       when 191
         e.preventDefault()
