@@ -1,4 +1,4 @@
-{View, $} = require "space-pen"
+{View} = require "scene"
 {T} = require "am/util"
 {Carousel} = require "am/views/carousel"
 
