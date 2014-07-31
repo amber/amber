@@ -51,7 +51,7 @@ class Discuss extends View
     return unless -1 is tokens.indexOf token
     t = @filter.value
     @filter.value = t + (if /\S$/.test t then " " else "") + token + " "
-    @updateURLue
+    @updateURL()
     scrollTo 0, 0
     @filter.focus()
 
