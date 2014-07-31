@@ -1,5 +1,5 @@
 {View, $} = require "space-pen"
-{T} = require "am/util"
+{T, format, escape} = require "am/util"
 
 class Discuss extends View
   @content: ({filter}) ->
@@ -64,19 +64,40 @@ class Discuss extends View
       @updateURL()
 
 class DiscussItem extends View
-  @content: ({id, title, author, created, unread, tags, views, posts}) ->
-    @section class: "topic#{if unread then " unread" else ""}", =>
-      @div class: "stat", views, => @strong T("views")
-      @div class: "stat", posts, => @strong T("posts")
+  @content: ->
+    @section class: "topic", =>
+      @div class: "stat", =>
+        @span outlet: "views"
+        @strong T("views")
+      @div class: "stat", =>
+        @span outlet: "posts"
+        @strong T("posts")
       @button class: "star", click: "star", title: T("Star")
       @button class: "read", click: "read", title: T("Mark as read")
       @div class: "title", =>
-        @img src: "http://lorempixel.com/100/100/abstract/#{id % 7}"
-        @a title, href: "/topic/#{id}", class: "name"
-        for t in tags
-          @a class: "tag tag-#{t}", "data-tag": t, href: "/discuss/label:#{t}", T(t)
-      @div class: "subtitle", =>
-        @raw T("<a href=\"{url}\">{author}</a> created {created}", {url: "/#{author}", author, created})
+        @img outlet: "avatar"
+        @a outlet: "title", class: "name"
+        @span outlet: "tags"
+      @div class: "subtitle", outlet: "subtitle"
+
+  initialize: (@d) -> @update()
+  update: ->
+    {id, title, unread, author, created, tags, views, posts} = @d
+
+    @title.attr "href", "/topic/#{id}"
+    @title.text title
+    @avatar.attr "src", "http://lorempixel.com/100/100/abstract/#{id % 7}"
+    @toggleClass "unread", unread
+    @subtitle.html T("<a href=\"{url}\">{author}</a> created {created}", {url: "/#{author}", author, created})
+    @views.text views
+    @posts.text posts
+
+    @tags.html (for t in tags
+      format "<a class=\"{class}\" data-tag=\"{tag}\" href=\"{url}\">{text}</a>",
+        class: "tag tag-#{t}"
+        tag: t
+        href: "/discuss/#{encodeURIComponent "label:#{t}"}"
+        text: T(t)).join ""
 
   star: (e, el) ->
     el.closest(".topic").toggleClass "starred"
