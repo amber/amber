@@ -81,6 +81,8 @@ class View
     @base = b.base
     @initialize? args...
 
+  content: -> @div()
+
   inDocument: no
 
   add: (sv, mount = @base, before = null) ->
