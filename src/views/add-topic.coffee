@@ -1,6 +1,7 @@
 {View} = require "scene"
 {T} = require "am/util"
 {Editor} = require "am/views/editor"
+{Topic} = require "am/views/topic"
 
 class AddTopic extends View
   @content: ->
@@ -10,12 +11,20 @@ class AddTopic extends View
         @input outlet: "titleInput", placeholder: T("Title")
         @subview "body", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
-          @button class: "accent", T("Create")
+          @button click: "submit", class: "accent", T("Create")
           @button click: "cancel", T("Cancel")
 
   title: -> T("New topic")
   enter: -> @titleInput.focus()
 
   cancel: -> history.back()
+  submit: ->
+    @parent.server.addTopic {
+      author: "nathan"
+      title: @titleInput.value
+      body: @body.getValue()
+    }, ({id}) =>
+      history.pushState null, null, "/topic/#{id}"
+      @parent.setView new Topic {app: @parent, id}
 
 module.exports = {AddTopic}

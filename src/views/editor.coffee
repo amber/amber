@@ -6,8 +6,10 @@ class Editor extends View
       @textarea outlet: "input", placeholder: placeholder ? "", input: "onInput"
       @div outlet: "metrics", class: "editor-metrics"
 
+  getValue: -> @input.value
+
   onInput: ->
-    @metrics.text "#{@input.val()}X"
-    @input.css "height", "#{@metrics.height() + 10}px"
+    @metrics.textContent = "#{@input.value}X"
+    @input.style.height = "#{@metrics.offsetHeight + 10}px"
 
 module.exports = {Editor}

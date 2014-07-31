@@ -11,23 +11,12 @@ class Discuss extends View
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
         @a T("New topic"), class: "button accent", href: "/discuss/new"
 
-  initialize: ->
+  initialize: ({app}) ->
     tags = "announcement,suggestion,bug,request,question,help,extension".split ","
     users = "nathan MathWizz someone user userwithalongername person with_underscores".split " "
-    for i in [1..50]
-      has = {}
-      for x in [1..3] when t = tags[(i + x * 35) % (11 * x)]
-        has[t] = yes
-      @add new TopicItem
-        id: i
-        title: "The name of topic ##{i}"
-        unread: i < 6
-        starred: i % 8 is 1
-        views: i * 5713 % 900
-        posts: i * 5713 % 20
-        tags: Object.keys has
-        author: users[i % 7]
-        created: "#{i * 32471 % 50 + 5} minutes ago"
+    app.server.getTopics (topics) =>
+      for t in topics
+        @add new TopicItem t
 
   title: -> T("Discuss")
 
