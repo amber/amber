@@ -1,3 +1,6 @@
 [submodule "vendors/space-pen"]
 	path = vendors/space-pen
 	url = https://github.com/nathan/space-pen
+[submodule "src/scene"]
+	path = src/scene
+	url = https://github.com/amber/scene
