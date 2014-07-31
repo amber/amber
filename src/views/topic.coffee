@@ -7,9 +7,9 @@
 class Topic extends View
   @content: ({id}) ->
     @article =>
-      @h1 outlet: "title"
+      @h1 T("Loading…"), outlet: "title"
       @section class: "inline-container", outlet: "form", keydown: "onKeyDown", =>
-        @subview "editor", new Editor placeholder: "Say something…"
+        @subview "editor", new Editor placeholder: "Say something…", disabled: yes
         @button "Post", class: "accent right", click: "submit"
 
   enter: -> @editor.focus()
@@ -19,6 +19,8 @@ class Topic extends View
       if err
         @app.setView new NotFound {url: location.pathname}
         return
+      @editor.setDisabled no
+      @editor.focus()
       @app.setTitle d.title
       @title.textContent = d.title
       for p in d.posts
