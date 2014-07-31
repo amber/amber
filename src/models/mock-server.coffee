@@ -3,7 +3,21 @@
 class Server
   constructor: (@app) ->
     app.server = @
-    @topics = []
+    @topics = [
+      id: 1
+      unread: no
+      starred: no
+      views: 0
+      posts: [
+        author: "nathan"
+        body: "This is an **announcement**. :D"
+        created: new Date
+      ]
+      title: "Test topic"
+      author: "nathan"
+      tags: ["announcement"]
+      created: new Date
+    ]
 
   getTopics: (fn) -> @return fn, ({
     id: t.id
