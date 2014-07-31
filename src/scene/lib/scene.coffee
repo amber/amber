@@ -67,7 +67,8 @@ class ViewBuilder extends Builder
     v = @view[v] if typeof v is "string"
     super el, k, v?.bind @view
 
-  subview: (sv) ->
+  subview: (name, sv) ->
+    @view[name] = sv
     @view.subviews.push sv
     sv.parent = @view
     @add sv.base
