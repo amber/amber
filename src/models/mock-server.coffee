@@ -32,6 +32,8 @@ class Server
     @topics[id - 1].starred = starred
     @return fn
 
+  watchTopics: (fn) ->
+
   addTopic: ({author, title, body, starred}, fn) ->
     @topics.push topic = {
       id: @topics.length + 1
