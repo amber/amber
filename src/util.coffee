@@ -13,15 +13,21 @@ T = (args...) ->
   else
     format args...
 
+MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split " "
+
 relativeDate = (date) ->
   now = new Date
   delta = (now - date) / 1000 / 60
-  return T("a minute ago") if delta <= 1
-  return T("{n} minutes ago", {n: Math.ceil delta / 60}) if delta <= 59
+  return T("now") if delta < 1
+  return T("a minute ago") if delta < 2
+  return T("{n} minutes ago", {n: Math.floor delta}) if delta < 60
   delta /= 60
-  return T("an hour ago") if delta <= 1
-  return T("{n} hours ago", {n: Math.ceil delta / 60 / 60}) if delta <= 23
-  "#{date.getDay()} #{MONTH_NAMES[date.getMonth()]} #{if now.getFullYear() is date.getFullYear() then "" else date.getFullYear()}"
+  return T("an hour ago") if delta < 2
+  return T("{n} hours ago", {n: Math.floor delta}) if delta < 24
+  delta /= 24
+  return T("a day ago") if delta < 2
+  return T("{n} days ago", {n: Math.floor delta}) if delta < 31
+  "#{MONTH_NAMES[date.getMonth()]} #{date.getDate()} #{if now.getFullYear() is date.getFullYear() then "" else date.getFullYear()}"
 
 extend = (base, map) ->
   base[k] = v for k, v of map
