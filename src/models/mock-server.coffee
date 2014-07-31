@@ -1,4 +1,5 @@
-@LATENCY = 100
+@LATENCY = 400
+@REQUESTS_FAIL = no
 
 class Server
   constructor: (@app) ->
@@ -70,7 +71,11 @@ class Server
     @return fn, {id: topic.id}
 
   throw: (fn, err) -> @fire fn, err
-  return: (fn, value) -> @fire fn, null, value
+  return: (fn, value) ->
+    if REQUESTS_FAIL
+      @throw fn, {name: "fail"}
+    else
+      @fire fn, null, value
   fire: (fn, err, value) -> setTimeout (fn.bind null, err, value), LATENCY if fn
 
 module.exports = {Server}
