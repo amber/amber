@@ -19,6 +19,19 @@ class Server
       tags: ["announcement"]
       created: new Date 2014, 6, 32 - i, i * 2749 % 24, i * 467 % 60
 
+  signIn: ({username, password}, fn) ->
+    return @throw fn, {name: "invalid"} if @user
+    return @throw fn, {name: "incorrect"} if username is "nobody" or password is "wrong"
+    @user = {username, id: username.charCodeAt 0}
+    @app.setUser @user
+    @return fn, @user
+
+  signOut: (fn) ->
+    return @throw fn, {name: "invalid"} unless @user
+    @user = null
+    @app.setUser null
+    @return fn
+
   getTopics: ({offset, length}, fn) -> @return fn, ({
     id: t.id
     unread: t.unread

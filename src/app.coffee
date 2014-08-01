@@ -6,9 +6,9 @@
 class App extends View
   @content: ->
     @div class: "app", =>
-      @subview "header", new Header
+      @subview "header", new Header {app: @view}
       @subview "view", new View
-      @subview "footer", new Footer
+      @subview "footer", new Footer {app: @view}
 
   initialize: ->
     document.body.addEventListener "keydown", @onKeyDown
@@ -32,6 +32,8 @@ class App extends View
   setTitle: (title) ->
     am = T("Amber")
     document.title = (if title then "#{title} · #{am}" else am)
+
+  setUser: (user) -> @header.setUser user
 
   onKeyDown: (e) =>
     t = e.target

@@ -9,7 +9,7 @@
 {Topic} = require "am/views/topic"
 
 urls =
-  "/": Splash
+  "/": (d) -> new (if d.app.server.user then Home else Splash) d
   "/home": Home
   "/login": Login
   "/explore": Explore

@@ -1,6 +1,9 @@
 {View} = require "scene"
 {T} = require "am/util"
 
+visible = (el, force) ->
+  el.style.display = (if force then "inline-block" else "none")
+
 class Header extends View
   @content: ->
     @header =>
@@ -9,8 +12,11 @@ class Header extends View
         @a T("Create"), dataKey: "Create", href: "/new"
         @a T("Explore"), dataKey: "Explore", href: "/explore"
         @a T("Discuss"), dataKey: "Discuss", href: "/discuss"
-        @a T("Sign In"), dataKey: "Sign In", class: "right", href: "/login"
+        @a T("Sign In"), outlet: "login", dataKey: "Sign In", class: "right", href: "/login"
+        @a T("Sign Out"), style: "display: none", outlet: "logout", dataKey: "Sign Out", class: "right", click: "signOut"
         @input type: "search", outlet: "search", keydown: "onKeyDown", placeholder: T("Search…")
+
+  initialize: ({@app}) ->
 
   updateLanguage: ->
     for a in @container.querySelectorAll "a"
@@ -20,6 +26,14 @@ class Header extends View
   focusSearch: (content) ->
     @search.value = content if content?
     @search.focus()
+
+  setUser: (user) ->
+    visible @login, not user
+    visible @logout, user
+
+  signOut: ->
+    @app.server.signOut =>
+      @app.router.route()
 
   onKeyDown: (e) ->
     switch e.keyCode
