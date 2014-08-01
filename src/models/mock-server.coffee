@@ -4,11 +4,11 @@
 class Server
   constructor: (@app) ->
     app.server = @
-    @topics = [
-      id: 1
+    @topics = for i in [1..1000]
+      id: i
       unread: no
       starred: no
-      views: 0
+      views: i * 4563 % 300
       posts: [
         author: "nathan"
         body: "This is an **announcement**. :D"
@@ -18,7 +18,6 @@ class Server
       author: "nathan"
       tags: ["announcement"]
       created: new Date
-    ]
 
   getTopics: (fn) -> @return fn, ({
     id: t.id
