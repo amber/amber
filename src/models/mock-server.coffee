@@ -1,5 +1,5 @@
-@LATENCY = 200
-@REQUESTS_FAIL = no
+window.LATENCY = 200
+window.REQUESTS_FAIL = no
 
 class Server
   constructor: (@app) ->
