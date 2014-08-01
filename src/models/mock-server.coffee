@@ -17,7 +17,7 @@ class Server
       title: "Test topic"
       author: "nathan"
       tags: ["announcement"]
-      created: new Date
+      created: new Date 2014, 6, 32 - i, i * 2749 % 24, i * 467 % 60
 
   getTopics: ({offset, length}, fn) -> @return fn, ({
     id: t.id
