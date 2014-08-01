@@ -22,7 +22,7 @@ class Router
       t = t.parentNode
 
   go: (url) ->
-    if "/" is url.slice -1
+    if url isnt "/" and "/" is url.slice -1
       url = url.slice 0, -1
     scrollTo 0, 0
     history.pushState null, null, url
