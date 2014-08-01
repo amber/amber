@@ -28,6 +28,10 @@ class Topic extends View
 
   submit: ->
     body = @editor.getValue()
+    unless body.trim().length
+      @editor.setValue ""
+      @editor.focus()
+      return
     view = new Post {
       body
       author: "nathan"
