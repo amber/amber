@@ -35,7 +35,6 @@ class Discuss extends View
       @offset += topics.length
       @done = yes if topics.length < CHUNK_SIZE
       for t in topics
-        console.log t
         @add new TopicItem t
 
   title: -> T("Discuss")
