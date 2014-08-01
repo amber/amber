@@ -51,7 +51,9 @@ class Server
     @return fn, p
 
   starTopic: ({id, starred}, fn) ->
-    @topics[id - 1].starred = starred
+    t = @topics[id - 1]
+    return @throw fn, {name: "notFound"} unless t
+    t.starred = starred
     @return fn
 
   watchTopics: (fn) ->
