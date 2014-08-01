@@ -5,6 +5,7 @@ class Server
   constructor: (@app) ->
     app.server = @
     @topics = for i in [1..1000]
+      date = new Date 2014, 6, 32 - i, i * 2749 % 24, i * 467 % 60
       id: i
       unread: no
       starred: no
@@ -12,12 +13,12 @@ class Server
       posts: [
         author: "nathan"
         body: "This is an **announcement**. :D"
-        created: new Date
+        created: date
       ]
       title: "Test topic"
       author: "nathan"
       tags: ["announcement"]
-      created: new Date 2014, 6, 32 - i, i * 2749 % 24, i * 467 % 60
+      created: date
 
   signIn: ({username, password}, fn) ->
     return @throw fn, {name: "invalid"} if @user
