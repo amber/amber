@@ -22,7 +22,7 @@ class Server
   signIn: ({username, password}, fn) ->
     return @throw fn, {name: "invalid"} if @user
     return @throw fn, {name: "incorrect"} if username is "nobody" or password is "wrong"
-    @user = {username, id: username.charCodeAt 0}
+    @user = {name: username, id: username.charCodeAt 0}
     @app.setUser @user
     @return fn, @user
 
@@ -56,6 +56,7 @@ class Server
     @return fn, t
 
   addPost: ({id, body}, fn) ->
+    return @throw fn, {name: "unauthorized"} unless @user
     t = @topics[id - 1]
     return @throw fn, {name: "notFound"} unless t
     return @throw fn, {name: "invalid"} unless body.trim().length
@@ -64,6 +65,7 @@ class Server
     @return fn, p
 
   starTopic: ({id, starred}, fn) ->
+    return @throw fn, {name: "unauthorized"} unless @user
     t = @topics[id - 1]
     return @throw fn, {name: "notFound"} unless t
     t.starred = starred
@@ -72,14 +74,15 @@ class Server
   watchTopics: (fn) ->
 
   addTopic: ({title, body, starred}, fn) ->
+    return @throw fn, {name: "unauthorized"} unless @user
     @topics.push topic = {
       id: @topics.length + 1
       unread: yes
       starred: !!starred
       views: 0
       title
-      author: "nathan"
-      posts: [{author: "nathan", body, created: new Date}]
+      author: @user.id
+      posts: [{author: @user.id, body, created: new Date}]
       tags: []
       created: new Date
     }

@@ -15,6 +15,7 @@ class Topic extends View
   enter: -> @editor.focus()
 
   initialize: ({@id, @app}) ->
+    @form.style.display = "none" unless app.server.user
     @app.server.getTopic {@id}, (err, d) =>
       if err
         @app.setView new NotFound {url: location.pathname}
@@ -34,7 +35,7 @@ class Topic extends View
       return
     view = new Post {
       body
-      author: "nathan"
+      author: @app.server.user.name
       created: new Date
       pending: yes
     }

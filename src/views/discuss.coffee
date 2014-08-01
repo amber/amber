@@ -5,7 +5,7 @@
 CHUNK_SIZE = 20
 
 class Discuss extends View
-  @content: ({filter}) ->
+  @content: ({app, filter}) ->
     @article click: "navigate", =>
       @h1 T("Discuss Amber")
       @section class: "discuss-bar", =>
