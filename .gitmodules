@@ -1,6 +1,6 @@
-[submodule "vendors/scene"]
-	path = vendors/scene
+[submodule "lib/scene"]
+	path = lib/scene
 	url = https://github.com/amber/scene
-[submodule "vendors/markup"]
-	path = vendors/markup
+[submodule "lib/markup"]
+	path = lib/markup
 	url = https://github.com/amber/markup

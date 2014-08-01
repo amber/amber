@@ -4,7 +4,7 @@ server:
 
 input:
   - src
-  - vendors/markup
+  - lib/markup
 
 output:
   js: ./public/app.js
@@ -12,8 +12,8 @@ output:
 
 alias:
   am: ./src
-  scene: ./vendors/scene/lib/scene.coffee
-  markup: ./vendors/markup/markup.js
+  scene: ./lib/scene/lib/scene.coffee
+  markup: ./lib/markup/markup.js
 
 minify:
   js: false
