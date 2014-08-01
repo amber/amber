@@ -2,6 +2,8 @@
 {T, format, escape} = require "am/util"
 {TopicItem} = require "am/views/topic-item"
 
+CHUNK_SIZE = 20
+
 class Discuss extends View
   @content: ({filter}) ->
     @article click: "navigate", =>
@@ -11,18 +13,32 @@ class Discuss extends View
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
         @a T("New topic"), class: "button accent", href: "/discuss/new"
 
-  initialize: ({app}) ->
-    tags = "announcement,suggestion,bug,request,question,help,extension".split ","
-    app.server.getTopics (err, topics) =>
+  enter: ->
+    addEventListener "scroll", @update
+    @update()
+
+    @filter.selectionStart = @filter.selectionEnd = @filter.value.length
+    @filter.focus()
+
+  exit: -> removeEventListener "scroll", @update
+
+  initialize: ({@app}) ->
+
+  offset: 0
+  update: =>
+    return if @loading or @done
+    return unless scrollY > document.body.offsetHeight - 2000
+    @loading = yes
+    @app.server.getTopics {@offset, length: CHUNK_SIZE}, (err, topics) =>
+      @loading = no
       return if err # TODO
+      @offset += topics.length
+      @done = yes if topics.length < CHUNK_SIZE
       for t in topics
+        console.log t
         @add new TopicItem t
 
   title: -> T("Discuss")
-
-  enter: ->
-    @filter.selectionStart = @filter.selectionEnd = @filter.value.length
-    @filter.focus()
 
   navigate: (e) ->
     return if e.metaKey or e.shiftKey or e.altKey or e.ctrlKey

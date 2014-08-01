@@ -19,7 +19,7 @@ class Server
       tags: ["announcement"]
       created: new Date
 
-  getTopics: (fn) -> @return fn, ({
+  getTopics: ({offset, length}, fn) -> @return fn, ({
     id: t.id
     unread: t.unread
     starred: t.starred
@@ -29,7 +29,7 @@ class Server
     author: t.author
     tags: t.tags
     created: t.created
-  } for t in @topics)
+  } for t in @topics.slice offset, offset + length)
 
   readTopic: ({id}, fn) ->
     @topics[id - 1].unread = no
