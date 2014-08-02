@@ -17,6 +17,9 @@
     "coffeeify": "~0.7.0",
     "stylus": "~0.47.3",
     "glob": "~4.0.5",
-    "node-watch": "~0.3.4"
+    "node-watch": "~0.3.4",
+    "socket.io": "~1.0.6",
+    "socket.io-client": "~1.0.6",
+    "nib": "~1.0.3"
   }
 }

@@ -4,6 +4,7 @@ path = require "path"
 browserify = require "browserify"
 coffeeify = require "coffeeify"
 stylus = require "stylus"
+nib = require "nib"
 glob = require "glob"
 watch = require "node-watch"
 
@@ -50,12 +51,15 @@ do reloadCSS = ->
     app = ""
     left = matches.length
     for m in matches
-      stylus(""+fs.readFileSync(m), filename: m).render (err, css, js) ->
-        return console.log err if err
-        app += css + "\n"
-        return if --left
-        fs.writeFileSync "#{__dirname}/static/app.css", app
-        console.log "css: ok"
+      stylus ""+fs.readFileSync(m), filename: m
+        .use nib()
+        .import 'nib'
+        .render (err, css, js) ->
+          return console.log err if err
+          app += css + "\n"
+          return if --left
+          fs.writeFileSync "#{__dirname}/static/app.css", app
+          console.log "css: ok"
 
 MIME_TYPES =
   html: "text/html"
