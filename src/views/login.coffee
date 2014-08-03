@@ -14,7 +14,9 @@ class Login extends View
   title: -> T("Sign in")
 
   initialize: ({@app}) ->
-  enter: -> @username.focus()
+  enter: ->
+    return app.router.go "/" if app.server.user
+    @username.focus()
 
   onKeyDown: (e) ->
     if e.keyCode is 13
