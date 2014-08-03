@@ -18,6 +18,12 @@ class Server
     @socket.on "reload js", =>
       location.reload()
 
+  signUp: ({username, email, password}, cb) ->
+    @socket.emit "sign up", {username, email, password}, (err, user) =>
+      return cb err if err
+      @app.setUser @user = user
+      cb null, user
+
   signIn: ({username, password}, cb) ->
     @socket.emit "sign in", {username, password}, (err, user) =>
       return cb err if err
