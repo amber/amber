@@ -8,13 +8,15 @@ nib = require "nib"
 glob = require "glob"
 watch = require "node-watch"
 
+BASE_DIR = path.resolve __dirname, ".."
+
 aliasify = require('aliasify').configure
   aliases:
     main: "./src/main.coffee"
     am: "./src"
     scene: "./lib/scene/lib/scene.coffee"
     markup: "./lib/markup/markup.js"
-  configDir: __dirname
+  configDir: BASE_DIR
   verbose: no
 
 b = browserify
@@ -24,7 +26,7 @@ b = browserify
 b.transform coffeeify
 b.transform aliasify
 
-b.add "#{__dirname}/src/main.coffee"
+b.add "#{BASE_DIR}/src/main.coffee"
 
 reloading = no
 again = no
@@ -36,7 +38,7 @@ do reload = ->
   b.bundle (err, buf, map) ->
     return console.log err if err
 
-    fs.writeFileSync "#{__dirname}/static/app.js", buf
+    fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
 
     reloading = no
     console.log "js: ok"
@@ -45,7 +47,7 @@ do reload = ->
       reload()
 
 do reloadCSS = ->
-  glob.sync "#{__dirname}/src/**/*.styl", (err, matches) ->
+  glob.sync "#{BASE_DIR}/src/**/*.styl", (err, matches) ->
     return console.log err if err
     matches = (m for m in matches when "_" isnt path.basename(m)[0])
     app = ""
@@ -58,7 +60,7 @@ do reloadCSS = ->
           return console.log err if err
           app += css + "\n"
           return if --left
-          fs.writeFileSync "#{__dirname}/static/app.css", app
+          fs.writeFileSync "#{BASE_DIR}/static/app.css", app
           console.log "css: ok"
 
 MIME_TYPES =
@@ -70,9 +72,9 @@ MIME_TYPES =
 
 timeout = null
 cssTimeout = null
-watch "#{__dirname}/src", (file) ->
+watch "#{BASE_DIR}/src", (file) ->
   return if /\.tmp$/.test file # ignore rename from atomic save
-  console.log "~ #{path.relative __dirname, file}"
+  console.log "~ #{path.relative BASE_DIR, file}"
   if /\.styl$/.test file
     clearTimeout cssTimeout
     cssTimeout = setTimeout reloadCSS, 50
@@ -87,7 +89,7 @@ app = http.createServer (req, res) ->
 
   ext = resolved.split('.').pop()
 
-  rs = fs.createReadStream "#{__dirname}/static#{resolved}"
+  rs = fs.createReadStream "#{BASE_DIR}/static#{resolved}"
   rs.on "open", ->
     res.writeHead 200, "Content-Type": MIME_TYPES[ext] ? "text/plain"
     rs.pipe res
@@ -95,4 +97,5 @@ app = http.createServer (req, res) ->
     res.writeHead 404
     res.end "Not found."
 
+io = require("./base") app
 app.listen process.env.PORT || 8080
