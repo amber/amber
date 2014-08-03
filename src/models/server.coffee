@@ -24,4 +24,10 @@ class Server
       @app.setUser @user = user
       cb null, user
 
+  signOut: (cb) ->
+    @socket.emit "sign out", (err) =>
+      return cb err if err
+      @app.setUser @user = null
+      cb null
+
 module.exports = {Server}
