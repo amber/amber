@@ -2,6 +2,7 @@ fs = require "fs"
 http = require "http"
 path = require "path"
 cluster = require "cluster"
+url = require "url"
 
 browserify = require "browserify"
 coffeeify = require "coffeeify"
@@ -55,9 +56,11 @@ do reload = ->
     if again
       again = no
       reload()
+    else
+      io.sockets.emit "reload js"
 
 do reloadCSS = ->
-  glob.sync "#{BASE_DIR}/src/**/*.styl", (err, matches) ->
+  glob "#{BASE_DIR}/src/**/*.styl", (err, matches) ->
     return console.log err if err
     matches = (m for m in matches when "_" isnt path.basename(m)[0])
     app = ""
@@ -71,6 +74,7 @@ do reloadCSS = ->
           app += css + "\n"
           return if --left
           fs.writeFileSync "#{BASE_DIR}/static/app.css", app
+          io.sockets.emit "reload css"
           console.log "css: ok"
 
 MIME_TYPES =
@@ -98,15 +102,18 @@ watch __dirname, (file) ->
   cluster.worker.kill()
 
 app = http.createServer (req, res) ->
-  resolved = if "/static/" is req.url.slice 0, 8
-    path.resolve "/", req.url.slice 8
+  {pathname} = url.parse req.url
+  resolved = if "/static/" is pathname.slice 0, 8
+    path.resolve "/", pathname.slice 8
   else "/index.html"
 
   ext = resolved.split('.').pop()
 
   rs = fs.createReadStream "#{BASE_DIR}/static#{resolved}"
   rs.on "open", ->
-    res.writeHead 200, "Content-Type": MIME_TYPES[ext] ? "text/plain"
+    res.writeHead 200,
+      "Content-Type": MIME_TYPES[ext] ? "text/plain"
+      "Cache-Control": "no-cache"
     rs.pipe res
   rs.on "error", (err) ->
     res.writeHead 404
