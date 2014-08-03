@@ -16,8 +16,10 @@ check = (type, v) ->
     when String then return typeof v is "string"
     when Number then return typeof v is "number"
   if Array.isArray type
-    return no unless Array.isArray list
-    return checkList type, v
+    return no unless Array.isArray v
+    for i in v
+      return no unless check type[0], i
+    return yes
   if typeof type is "object"
     return no unless typeof v is "object"
     for name, t of type
