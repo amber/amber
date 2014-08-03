@@ -93,6 +93,7 @@ watch "#{BASE_DIR}/src", (file) ->
     timeout = setTimeout reload, 50
 
 watch __dirname, (file) ->
+  return if /\/data\//.test file # ignore mongodb changes
   console.log "~ #{path.relative BASE_DIR, file}"
   cluster.worker.kill()
 
