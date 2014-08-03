@@ -5,7 +5,7 @@ User = require "../models/user"
 socket.on "sign in", {username: String, password: String}, Function, ({username, password}, cb) ->
   return cb name: "invalid" if @user
   User.findByName username, (err, user) =>
-    return cb name: "incorrect" if err
+    return cb name: "incorrect" unless user
     bcrypt.compare password, user.hash, (err, res) =>
       return cb name: "error" if err
       return cb name: "incorrect" unless res
