@@ -12,13 +12,14 @@ socket.on "sign in", {username: String, password: String}, Function, ({username,
       @user = user
       cb null, user.toJSON()
 
-socket.on "sign up", {username: String, email: String, password: String}, Function, ({username, password}, cb) ->
+socket.on "sign up", {username: String, email: String, password: String}, Function, ({username, email, password}, cb) ->
   return cb name: "invalid" unless username and password and email and /.@./.test email
   User.findByName username, (err, user) =>
     return cb name: "in use" if user
     bcrypt.hash password, null, null, (err, hash) =>
       return cb name: "error" if err
       new User({name: username, email, hash}).save (err, user) =>
+        @user = user
         cb null, user.toJSON()
 
 socket.on "name in use?", String, Function, (username, cb) ->
