@@ -8,10 +8,11 @@ class Discuss extends View
   @content: ({app, filter}) ->
     @article click: "navigate", =>
       @h1 T("Discuss Amber")
-      @section class: "discuss-bar", =>
+      @section class: "discuss-bar#{if app.server.user then " signed-in" else ""}", =>
         @div class: "input-wrapper", =>
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
-        @a T("New topic"), class: "button accent", href: "/discuss/new"
+        if app.server.user
+          @a T("New topic"), class: "button accent", href: "/discuss/new"
 
   enter: ->
     addEventListener "scroll", @update
