@@ -4,7 +4,7 @@
 html
   background $background
   color $foreground
-  font $base-font-size/$base-line-height $base-font-family
+  font $base-font-size \/ $base-line-height $base-font-family
 
 html
 body
@@ -74,7 +74,7 @@ article
     box-sizing border-box
     padding 0 8px
     height 2rem
-    font 1rem / @height $base-font-family
+    font 1rem \/ @height $base-font-family
 
     &.large
       height 2.5rem
