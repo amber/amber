@@ -17,7 +17,7 @@ socket.on "sign up", {username: String, password: String}, Function, ({username,
     return cb name: "in use" if user
     bcrypt.hash password, null, null, (err, hash) =>
       return cb name: "error" if err
-      new User({name: username, hash}).save (err, user) =>
+      new User({name: username, email, hash}).save (err, user) =>
         cb null, user.toJSON()
 
 socket.on "name in use?", String, Function, (username, cb) ->

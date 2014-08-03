@@ -2,6 +2,7 @@ mongoose = require "mongoose"
 
 schema = mongoose.Schema
   name: String
+  email: String
   hash: String
 
 # TODO: case-insensitive
