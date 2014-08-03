@@ -2,6 +2,7 @@ Server = require "socket.io"
 socket = require "./socket"
 
 require "./events/auth"
+require "./events/user"
 require "./events/discuss"
 
 module.exports = (app) ->

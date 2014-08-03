@@ -22,7 +22,7 @@ class TopicItem extends View
         @text " created "
         @subview "created", new RelativeDate
 
-  initialize: (@d) -> @apply()
+  initialize: ({@d, @app}) -> @apply()
   update: (map) ->
     extend @d, map
     @d[k] = v for k, v of map
@@ -37,7 +37,8 @@ class TopicItem extends View
     @base.classList.toggle "unread", unread
     @base.classList.toggle "starred", starred
     @author.href = "/user/#{author}"
-    @author.textContent = author
+    @app.server.getUser author, (err, user) =>
+      @author.textContent = user.name if user
     @created.setDate created
     @views.textContent = views
     @posts.textContent = posts

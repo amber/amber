@@ -5,6 +5,8 @@ class Server
   constructor: (@app) ->
     app.server = @
 
+    @userCache = Object.create null
+
     @socket = io "#{location.protocol}//#{location.host}/"
     @socket.on "connect", => console.log "connected"
     @socket.on "disconnect", => console.log "disconnected"
@@ -18,6 +20,13 @@ class Server
 
     @socket.on "reload js", =>
       location.reload()
+
+  getUser: (id, cb) ->
+    cb null, user if user = @userCache[id]
+    @socket.emit "get user", id, (err, user) =>
+      return cb err if err
+      @userCache[id] = user
+      cb null, user
 
   signUp: ({username, email, password}, cb) ->
     @socket.emit "sign up", {username, email, password}, (err, user) =>
