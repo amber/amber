@@ -1,12 +1,22 @@
 fs = require "fs"
 http = require "http"
 path = require "path"
+cluster = require "cluster"
+
 browserify = require "browserify"
 coffeeify = require "coffeeify"
 stylus = require "stylus"
 nib = require "nib"
 glob = require "glob"
 watch = require "node-watch"
+
+if cluster.isMaster
+  worker = cluster.fork()
+
+  cluster.on "exit", ->
+    cluster.fork()
+
+  return
 
 BASE_DIR = path.resolve __dirname, ".."
 
@@ -81,6 +91,10 @@ watch "#{BASE_DIR}/src", (file) ->
   else
     clearTimeout timeout
     timeout = setTimeout reload, 50
+
+watch __dirname, (file) ->
+  console.log "~ #{path.relative BASE_DIR, file}"
+  cluster.worker.kill()
 
 app = http.createServer (req, res) ->
   resolved = if "/static/" is req.url.slice 0, 8
