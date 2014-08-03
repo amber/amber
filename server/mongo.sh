@@ -1,4 +1,4 @@
 #!/bin/sh
 
 mkdir -p private/data
-mongod --dbpath ./private/data
+exec mongod --dbpath ./private/data
