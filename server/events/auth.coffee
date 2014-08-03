@@ -10,15 +10,21 @@ socket.on "sign in", {username: String, password: String}, Function, ({username,
       return cb name: "error" if err
       return cb name: "incorrect" unless res
       @user = user
-      cb user.toJSON()
+      cb null, user.toJSON()
 
 socket.on "sign up", {username: String, password: String}, Function, ({username, password}, cb) ->
-  bcrypt.hash password, null, null, (err, hash) ->
-    return cb name: "error" if err
-    new User({name: username, hash}).save (err, user) ->
-      cb user.toJSON()
+  User.findByName username, (err, user) =>
+    return cb name: "in use" if user
+    bcrypt.hash password, null, null, (err, hash) =>
+      return cb name: "error" if err
+      new User({name: username, hash}).save (err, user) =>
+        cb null, user.toJSON()
+
+socket.on "name in use?", String, Function, (username, cb) ->
+  User.findByName username, (err, user) =>
+    cb null, user?
 
 socket.on "sign out", Function, (cb) ->
   return cb name: "invalid" unless @user
   @user = null
-  cb()
+  cb null, yes
