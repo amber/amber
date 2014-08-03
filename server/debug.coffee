@@ -41,6 +41,7 @@ b.add "#{BASE_DIR}/src/main.coffee"
 
 reloading = no
 again = no
+jsFirstTime = yes
 do reload = ->
   if reloading
     again = yes
@@ -57,8 +58,10 @@ do reload = ->
       again = no
       reload()
     else
-      io.sockets.emit "reload js"
+      io.sockets.emit "reload js" unless jsFirstTime
+    jsFirstTime = no
 
+cssFirstTime = yes
 do reloadCSS = ->
   glob "#{BASE_DIR}/src/**/*.styl", (err, matches) ->
     return console.log err if err
@@ -74,7 +77,8 @@ do reloadCSS = ->
           app += css + "\n"
           return if --left
           fs.writeFileSync "#{BASE_DIR}/static/app.css", app
-          io.sockets.emit "reload css"
+          io.sockets.emit "reload css" unless cssFirstTime
+          cssFirstTime = no
           console.log "css: ok"
 
 MIME_TYPES =
