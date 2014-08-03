@@ -6,9 +6,9 @@ class Login extends View
     @article =>
       @section class: "login", keydown: "onKeyDown", input: "onInput", =>
         @h1 T("Sign in")
-        @p outlet: "error", class: "error", style: "display: none", T("Invalid username or password.")
         @input outlet: "username", placeholder: T("Username"), class: "large"
         @input outlet: "password", type: "password", placeholder: T("Password"), class: "large"
+        @p outlet: "error", class: "error", style: "display: none", T("Invalid username or password.")
         @button T("Sign in"), class: "large accent", click: "submit"
 
   title: -> T("Sign in")
