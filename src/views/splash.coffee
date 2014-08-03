@@ -9,7 +9,7 @@ class Splash extends View
         @div class: "left", =>
           @h1 T("Realtime collaborative programming.")
           @p T("Create interactive stories, games, music, and art with people around the world.")
-        @div class: "right", =>
+        @div class: "right", keydown: "onKeyDown", =>
           @input outlet: "username", placeholder: T("Username"), class: "large"
           @input outlet: "email", type: "email", placeholder: T("Email address"), class: "large"
           @input outlet: "password", type: "password", placeholder: T("Password"), class: "large"
@@ -27,5 +27,10 @@ class Splash extends View
     }, (err) =>
       return if err # TODO
       @parent.router.go "/"
+
+  onKeyDown: (e) ->
+    if e.keyCode is 13
+      e.preventDefault()
+      @signUp()
 
 module.exports = {Splash}
