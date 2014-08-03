@@ -4,6 +4,7 @@ path = require "path"
 cluster = require "cluster"
 url = require "url"
 
+require "colors"
 browserify = require "browserify"
 coffeeify = require "coffeeify"
 stylus = require "stylus"
@@ -53,7 +54,7 @@ do reload = ->
     fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
 
     reloading = no
-    console.log "js: ok"
+    console.log "js: ok".grey
     if again
       again = no
       reload()
@@ -79,7 +80,7 @@ do reloadCSS = ->
           fs.writeFileSync "#{BASE_DIR}/static/app.css", app
           io.sockets.emit "reload css" unless cssFirstTime
           cssFirstTime = no
-          console.log "css: ok"
+          console.log "css: ok".grey
 
 MIME_TYPES =
   html: "text/html"
@@ -92,17 +93,18 @@ timeout = null
 cssTimeout = null
 watch "#{BASE_DIR}/src", (file) ->
   return if /\.tmp$/.test file # ignore rename from atomic save
-  console.log "~ #{path.relative BASE_DIR, file}"
   if /\.styl$/.test file
+    console.log "~ #{path.relative BASE_DIR, file}".yellow
     clearTimeout cssTimeout
     cssTimeout = setTimeout reloadCSS, 50
   else
     clearTimeout timeout
+    console.log "~ #{path.relative BASE_DIR, file}".green
     timeout = setTimeout reload, 50
 
 watch __dirname, (file) ->
   return if /\/data\//.test file # ignore mongodb changes
-  console.log "~ #{path.relative BASE_DIR, file}"
+  console.log "~ #{path.relative BASE_DIR, file}".cyan
   cluster.worker.kill()
 
 app = http.createServer (req, res) ->
