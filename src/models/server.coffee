@@ -1,4 +1,5 @@
 io = require "socket.io-client"
+TopicSummary = require "am/models/topic-summary"
 
 class Server
   constructor: (@app) ->
@@ -35,5 +36,14 @@ class Server
       return cb err if err
       @app.setUser @user = null
       cb null
+
+  addTopic: ({title, body, tags}, cb) ->
+    tags ?= []
+    @socket.emit "add topic", {title, body, tags}, cb
+
+  getTopics: ({offset, length}, cb) ->
+    @socket.emit "search topics", {query: "", offset, length}, (err, topics) =>
+      return cb err if err
+      cb null, (new TopicSummary t for t in topics)
 
 module.exports = {Server}

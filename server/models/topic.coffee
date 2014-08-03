@@ -17,7 +17,21 @@ schema = mongoose.Schema
     ]
   ]
 
-schema.methods.toSearchJSON = -> {id: @_id, title: @title, @author, @created, @tags}
+schema.methods.toSearchJSON = -> {id: @_id, @title, @author, @created, @tags}
+schema.methods.toJSON = -> {
+  id: @_id
+  @title
+  @author
+  @created
+  @tags
+  posts: {
+    author: p.author
+    body: p.body
+    created: p.created
+    updated: p.updated
+  } for p in @posts
+}
+
 schema.statics.search = (query, offset, length, cb) ->
   Topic.find {}, {title: 1, author: 1, created: 1, tags: 1}
   .skip offset
