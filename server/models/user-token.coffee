@@ -1,6 +1,6 @@
 mongoose = require "mongoose"
 
-schema =
+schema = mongoose.Schema
   username: String
   token: String
   created: type: Date, expires: '10d', default: Date.now
