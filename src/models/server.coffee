@@ -23,12 +23,22 @@ class Server
     @socket.on "reload js", =>
       location.reload()
 
+    @socket.on "update", (d) =>
+      @watcher d if @watcher
+
     if t = localStorage.getItem "amberToken"
       [username, token] = JSON.parse t
       @socket.emit "use auth token", {username, token}, (err, d) =>
         return if err
         @signedIn d
         @app.router.route()
+
+  watch: (name, id, cb) ->
+    @watcher = cb
+    @socket.emit "watch", {name, id}
+
+  unwatch: ->
+    @socket.emit "unwatch"
 
   signedIn: (d) ->
     @app.setUser @user = d.user

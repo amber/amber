@@ -1,5 +1,6 @@
 Server = require "socket.io"
 socket = require "./socket"
+watch = require "./watch"
 
 require "./events/auth"
 require "./events/user"

@@ -33,7 +33,7 @@ check = (type, v) ->
 exports.on = (name, types..., fn) ->
   events.push {
     name
-    fn: (args...) ->
+    fn: if name is "disconnect" then fn else (args...) ->
       unless checkList types, args
         return console.log "ignoring #{JSON.stringify name}", args...
       fn.apply @, args
