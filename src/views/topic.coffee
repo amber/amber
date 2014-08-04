@@ -16,7 +16,7 @@ class Topic extends View
 
   initialize: ({@id, @app}) ->
     @form.style.display = "none" unless app.server.user
-    @app.server.getTopic {@id}, (err, d) =>
+    @app.server.getTopic @id, (err, d) =>
       if err
         @app.setView new NotFound {url: location.pathname}
         return
@@ -25,7 +25,7 @@ class Topic extends View
       @app.setTitle d.title
       @title.textContent = d.title
       for p in d.posts
-        @add (new Post p), @base, @form
+        @add (new Post {@app, d: p}), @base, @form
 
   submit: ->
     body = @editor.getValue()
@@ -34,9 +34,11 @@ class Topic extends View
       @editor.focus()
       return
     view = new Post {
-      body
-      author: @app.server.user.name
-      created: new Date
+      d: {
+        body
+        author: @app.server.user.name
+        created: new Date
+      }
       pending: yes
     }
     @editor.setDisabled yes

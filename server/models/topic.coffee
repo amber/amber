@@ -31,6 +31,7 @@ schema.methods.toJSON = -> {
   @created
   @tags
   posts: {
+    id: p._id
     author: p.author
     body: p.body
     created: p.created

@@ -5,6 +5,12 @@ socket.on "search topics", {query: String, offset: Number, length: Number}, Func
   Topic.search "", offset, length, (err, topics) ->
     cb null, (t.toSearchJSON() for t in topics)
 
+socket.on "get topic", String, Function, (id, cb) ->
+  Topic.findById id, (err, topic) ->
+    cb name: "error" if err
+    cb name: "not found" unless topic
+    cb null, topic
+
 socket.on "add topic", {title: String, body: String, tags: [String]}, Function, ({title, body, tags}, cb) ->
   return cb name: "invalid" unless @user
   now = new Date
