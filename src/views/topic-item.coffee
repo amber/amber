@@ -29,7 +29,7 @@ class TopicItem extends View
     @apply()
 
   apply: ->
-    {id, title, unread, starred, author, created, tags, views, posts} = @d
+    {id, title, unread, starred, author, created, tags, viewCount, postCount} = @d
 
     @title.href = "/topic/#{id}"
     @title.textContent = title
@@ -40,8 +40,8 @@ class TopicItem extends View
     @app.server.getUser author, (err, user) =>
       @author.textContent = user.name if user
     @created.setDate created
-    @views.textContent = views
-    @posts.textContent = posts
+    @views.textContent = viewCount
+    @posts.textContent = postCount
 
     @tags.removeChild @tags.lastChild while @tags.firstChild
     @tags.appendChild $$ ->
