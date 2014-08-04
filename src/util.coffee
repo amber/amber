@@ -29,8 +29,15 @@ relativeDate = (date) ->
   return T("{n} days ago", {n: Math.floor delta}) if delta < 31
   "#{MONTH_NAMES[date.getMonth()]} #{date.getDate()} #{if now.getFullYear() is date.getFullYear() then "" else date.getFullYear()}"
 
+humanNumber = (n) ->
+  return n if n < 1000
+  n /= 1000
+  return "#{Math.floor n}k" if n < 1000
+  n /= 1000
+  "#{Math.floor n}M"
+
 extend = (base, map) ->
   base[k] = v for k, v of map
   base
 
-module.exports = {format, escape, T, relativeDate}
+module.exports = {format, escape, T, relativeDate, humanNumber}

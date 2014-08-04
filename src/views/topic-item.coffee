@@ -1,5 +1,5 @@
 {View, $$} = require "scene"
-{T, extend} = require "am/util"
+{T, extend, humanNumber} = require "am/util"
 {RelativeDate} = require "am/views/relative-date"
 
 class TopicItem extends View
@@ -40,8 +40,8 @@ class TopicItem extends View
     @app.server.getUser author, (err, user) =>
       @author.textContent = user.name if user
     @created.setDate created
-    @views.textContent = viewCount
-    @posts.textContent = postCount
+    @views.textContent = humanNumber viewCount
+    @posts.textContent = humanNumber postCount
 
     @tags.removeChild @tags.lastChild while @tags.firstChild
     @tags.appendChild $$ ->
