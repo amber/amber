@@ -1,6 +1,7 @@
 io = require "socket.io-client"
 TopicSummary = require "am/models/topic-summary"
 Topic = require "am/models/topic"
+Post = require "am/models/post"
 
 class Server
   constructor: (@app) ->
@@ -60,5 +61,10 @@ class Server
     @socket.emit "get topic", id, (err, topic) =>
       return cb err if err
       cb null, new Topic topic
+
+  addPost: ({id, body}, cb) ->
+    @socket.emit "add post", {topic: id, body}, (err, post) =>
+      return cb err if err
+      cb null, new Post post
 
 module.exports = {Server}

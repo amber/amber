@@ -36,7 +36,7 @@ class Topic extends View
     view = new Post {
       d: {
         body
-        author: @app.server.user.name
+        author: @app.server.user.id
         created: new Date
       }
       pending: yes

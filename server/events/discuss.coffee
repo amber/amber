@@ -29,3 +29,15 @@ socket.on "add topic", {title: String, body: String, tags: [String]}, Function, 
   }).save (err, topic) =>
     return cb name: "error" if err
     cb null, topic
+
+socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, cb) ->
+  return cb name: "invalid" unless @user
+  Topic.update {_id: topic}, {$push: posts: {
+    author: @user._id
+    body
+    versions: []
+  }}, (err, n) ->
+    return cb name: "error" if err
+    return cb name: "not found" unless n
+    cb null, yes
+
