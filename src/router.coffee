@@ -28,6 +28,9 @@ class Router
     history.pushState null, null, url
     @route()
 
+  goBack: (fallback) ->
+    history.go -1 # TODO use fallback if history is off-site
+
   route: =>
     target = location.pathname
     targetSegments = target.split "/"

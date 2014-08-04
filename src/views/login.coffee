@@ -38,6 +38,6 @@ class Login extends View
           @error.style.display = "block"
           @password.select()
         return
-      @app.router.go "/"
+      @app.router.goBack "/"
 
 module.exports = {Login}
