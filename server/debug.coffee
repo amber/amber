@@ -67,6 +67,7 @@ do reloadCSS = ->
   glob "#{BASE_DIR}/src/**/*.styl", (err, matches) ->
     return console.log err if err
     matches = (m for m in matches when "_" isnt path.basename(m)[0])
+    matches.push "#{BASE_DIR}/lib/markup/markup.css"
     app = ""
     left = matches.length
     for m in matches
