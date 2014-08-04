@@ -92,4 +92,7 @@ class Server
   editPost: ({topic, id, body}, cb) ->
     @socket.emit "edit post", {topic, id, body}, cb
 
+  starTopic: ({id, flag}, cb) ->
+    @socket.emit "star topic", {id, flag}, cb
+
 module.exports = {Server}

@@ -16,7 +16,7 @@ class Post extends View
         @button T("report"), class: "menu"
       @div outlet: "content", =>
         @html parse(body).result
-      @div outlet: "editForm", class: "post-editor", style: "display: none", =>
+      @div outlet: "editForm", keydown: "onKeyDown", class: "post-editor", style: "display: none", =>
         @subview "editor", new Editor
         @section class: "two-buttons", =>
           @button click: "cancel", T("Cancel")
@@ -54,5 +54,9 @@ class Post extends View
   showEditor: (flag) ->
     @content.style.display = (if flag then "none" else "block")
     @editForm.style.display = (if flag then "block" else "none")
+
+  onKeyDown: (e) ->
+    if e.keyCode is 13 and (e.metaKey or e.ctrlKey)
+      @save()
 
 module.exports = {Post}

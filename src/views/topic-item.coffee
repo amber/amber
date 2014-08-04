@@ -52,8 +52,8 @@ class TopicItem extends View
     @base.classList.toggle "starred"
     @parent.parent.server.starTopic {
       id: @d.id
-      starred: @base.classList.contains "starred"
-    }
+      flag: @base.classList.contains "starred"
+    }, (err) ->
 
   read: -> @base.classList.remove "unread"
 

@@ -18,6 +18,7 @@ check = (type, v) ->
     when Function then return typeof v is "function"
     when String then return typeof v is "string"
     when Number then return typeof v is "number"
+    when Boolean then return typeof v is "boolean"
   if Array.isArray type
     return no unless Array.isArray v
     for i in v

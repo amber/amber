@@ -3,7 +3,8 @@ watch = require "../watch"
 Topic = require "../models/topic"
 
 socket.on "search topics", {query: String, offset: Number, length: Number}, Function, ({query, offset, length}, cb) ->
-  Topic.search "", offset, length, (err, topics) ->
+  Topic.search "", offset, length, @user, (err, topics) ->
+    cb name: "error" if err
     cb null, (t.toSearchJSON() for t in topics)
 
 socket.on "get topic", String, Function, (id, cb) ->
@@ -66,3 +67,12 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
     t.save (err) =>
       return cb name: "error" if err
       cb null, yes
+
+socket.on "star topic", {id: String, flag: Boolean}, Function, ({id, flag}, cb) ->
+  return cb name: "invalid" unless @user
+  stars = {stars: @user._id}
+  update = if flag then {$push: stars} else {$pull: stars}
+  Topic.update {_id: id}, update, (err, n) ->
+    return cb name: "err" if err
+    return cb name: "not found" if err
+    cb null, yes
