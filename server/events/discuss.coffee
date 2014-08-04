@@ -17,13 +17,10 @@ socket.on "add topic", {title: String, body: String, tags: [String]}, Function, 
   Topic({
     title
     author: @user._id
-    created: now
     tags
     posts: [{
       author: @user._id
       body
-      created: now
-      updated: now
       versions: []
     }]
   }).save (err, topic) =>

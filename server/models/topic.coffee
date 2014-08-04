@@ -4,15 +4,15 @@ ObjectId = mongoose.Schema.ObjectId
 schema = mongoose.Schema
   title: String
   author: ObjectId
-  created: Date
+  created: type: Date, default: Date.now
   tags: [String]
   viewCount: type: Number, default: 0
   postCount: Number
   posts: [
     author: ObjectId
     body: String
-    created: Date
-    updated: Date
+    created: type: Date, default: Date.now
+    updated: type: Date, default: Date.now
     versions: [
       body: String
       created: Date
