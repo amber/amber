@@ -10,6 +10,7 @@ socket.on "get topic", String, Function, (id, cb) ->
     cb name: "error" if err
     cb name: "not found" unless topic
     cb null, topic
+  Topic.update {_id: id}, {$inc: viewCount: 1}, (err) ->
 
 socket.on "add topic", {title: String, body: String, tags: [String]}, Function, ({title, body, tags}, cb) ->
   return cb name: "invalid" unless @user
