@@ -16,7 +16,9 @@ class Editor extends View
     @input.selectionStart = @input.selectionEnd = @input.value.length
   setDisabled: (d) -> @input.disabled = d
   getValue: -> @input.value
-  setValue: (v) -> @input.value = v
+  setValue: (v) ->
+    @input.value = v
+    @onInput()
 
   onInput: ->
     @metrics.textContent = "#{@input.value}X"
