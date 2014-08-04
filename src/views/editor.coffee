@@ -11,6 +11,9 @@ class Editor extends View
     @setValue value if value?
 
   focus: -> @input.focus()
+  focusEnd: ->
+    @input.focus()
+    @input.selectionStart = @input.selectionEnd = @input.value.length
   setDisabled: (d) -> @input.disabled = d
   getValue: -> @input.value
   setValue: (v) -> @input.value = v

@@ -32,7 +32,7 @@ class Post extends View
   edit: ->
     @content.style.display = "none"
     @editForm.style.display = "block"
-    @editor.focus()
+    @editor.focusEnd()
 
   cancel: ->
     @content.style.display = "block"
