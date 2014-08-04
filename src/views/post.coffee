@@ -34,4 +34,8 @@ class Post extends View
     @editForm.style.display = "block"
     @editor.focus()
 
+  cancel: ->
+    @content.style.display = "block"
+    @editForm.style.display = "none"
+
 module.exports = {Post}
