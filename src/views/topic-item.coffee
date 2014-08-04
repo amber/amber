@@ -11,7 +11,7 @@ class TopicItem extends View
       @div class: "stat", =>
         @span outlet: "posts"
         @strong T("posts")
-      @button class: "star", click: "star", title: T("Star")
+      @button class: "star", outlet: "starButton", click: "star", title: T("Star")
       @button class: "read", click: "read", title: T("Mark as read")
       @div class: "title", =>
         @img outlet: "avatar"
@@ -42,6 +42,7 @@ class TopicItem extends View
     @created.setDate created
     @views.textContent = humanNumber viewCount
     @posts.textContent = humanNumber postCount
+    @starButton.style.display = if @app.server.user then "block" else "none"
 
     @tags.removeChild @tags.lastChild while @tags.firstChild
     @tags.appendChild $$ ->
