@@ -2,6 +2,7 @@
 {parse} = require "markup"
 {T} = require "am/util"
 {RelativeDate} = require "am/views/relative-date"
+{Editor} = require "am/views/editor"
 
 class Post extends View
   @content: ({app, d: {author, created, body}}) ->
@@ -11,9 +12,12 @@ class Post extends View
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        @button T("edit"), class: "menu" if author is app.server.user?.id
+        @button T("edit"), click: "edit", class: "menu" if author is app.server.user?.id
         @button T("report"), class: "menu"
-      @html parse(body).result
+      @div outlet: "content", =>
+        @html parse(body).result
+      @div outlet: "editForm", class: "post-editor", style: "display: none", =>
+        @subview "editor", new Editor {value: body}
 
   initialize: ({@app, @d, pending}) ->
     app.server.getUser @d.author, (err, user) =>
@@ -21,5 +25,10 @@ class Post extends View
     @setPending pending
 
   setPending: (pending) -> @base.classList.toggle "pending", pending
+
+  edit: ->
+    @content.style.display = "none"
+    @editForm.style.display = "block"
+    @editor.focus()
 
 module.exports = {Post}
