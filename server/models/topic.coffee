@@ -42,6 +42,7 @@ schema.methods.toJSON = -> {
 
 schema.statics.search = (query, offset, length, cb) ->
   Topic.find {}, {title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1}
+  .sort {updated: -1}
   .skip offset
   .limit length
   .exec cb
