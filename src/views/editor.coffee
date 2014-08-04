@@ -6,7 +6,7 @@ class Editor extends View
       @textarea outlet: "input", placeholder: placeholder ? "", input: "onInput"
       @div outlet: "metrics", class: "editor-metrics"
 
-  initialize: ({disabled, value}) ->
+  initialize: ({disabled, value} = {}) ->
     @setDisabled disabled
     @setValue value if value?
 
