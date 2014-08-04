@@ -18,6 +18,9 @@ class Post extends View
         @html parse(body).result
       @div outlet: "editForm", class: "post-editor", style: "display: none", =>
         @subview "editor", new Editor {value: body}
+        @section class: "two-buttons", =>
+          @button click: "cancel", T("Cancel")
+          @button click: "save", class: "accent", T("Save")
 
   initialize: ({@app, @d, pending}) ->
     app.server.getUser @d.author, (err, user) =>
