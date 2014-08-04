@@ -10,6 +10,7 @@ class Post extends View
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
+        @button class: "menu"
       @html parse(body).result
 
   initialize: ({@app, @d, pending}) ->

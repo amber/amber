@@ -11,6 +11,9 @@
   &.pending
     opacity .4
 
+  &:hover > .author > .menu
+    opacity .2
+
   > .author
     margin-bottom 8px
     font-size 0.8rem
@@ -22,6 +25,30 @@
 
       &:hover
         text-decoration underline
+
+    > .menu
+      background 0
+      padding 8px
+      margin 0
+      height 7px
+      box-sizing content-box
+      width auto
+      box-shadow none
+      display inline-block
+      vertical-align middle
+      opacity 0
+
+      &::before
+        content ''
+        border-top @height solid #000
+        border-left 6px solid transparent
+        border-right @border-left
+        height 0
+
+      &:hover
+        opacity .4
+      &:active
+        opacity .6
 
   > img
     width 48px
