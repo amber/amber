@@ -26,13 +26,13 @@ unwatch = (s) ->
 
 objEvent "topic"
 
-exports.emit = (name, id, d) ->
+exports.emit = (name, id, d, ignore) ->
   if list = (if events[name] then watchers[name][id] else watchers[name])
-    for s in list
+    for s in list when s isnt ignore
       s.emit "update", d
 
 socket.on "disconnect", -> unwatch @
 socket.on "unwatch", -> unwatch @
 
-socket.on "watch", {name: String}, Function, ({name, id}, cb) ->
+socket.on "watch", {name: String}, ({name, id}) ->
   watch @, name, id

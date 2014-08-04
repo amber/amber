@@ -16,6 +16,7 @@ class Topic extends View
 
   initialize: ({@id, @app}) ->
     @form.style.display = "none" unless app.server.user
+    @app.server.watch "topic", @id, @update
     @app.server.getTopic @id, (err, d) =>
       if err
         @app.setView new NotFound {url: location.pathname}
@@ -26,6 +27,21 @@ class Topic extends View
       @title.textContent = d.title
       for p in d.posts
         @add (new Post {@app, d: p}), @base, @form
+
+  update: (d) =>
+    switch d.type
+      when "add post"
+        scroll = scrollY is document.body.offsetHeight - innerHeight
+        @add (new Post {
+          @app
+          d: {
+            body: d.body
+            author: d.author
+            created: new Date
+          }
+        }), @base, @form
+        if scroll
+          scrollTo 0, document.body.offsetHeight
 
   submit: ->
     body = @editor.getValue()

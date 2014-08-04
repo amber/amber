@@ -1,4 +1,5 @@
 socket = require "../socket"
+watch = require "../watch"
 Topic = require "../models/topic"
 
 socket.on "search topics", {query: String, offset: Number, length: Number}, Function, ({query, offset, length}, cb) ->
@@ -39,8 +40,13 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
       body
       versions: []
     }
-  }, (err, n) ->
+  }, (err, n) =>
     return cb name: "error" if err
     return cb name: "not found" unless n
+    watch.emit "topic", topic, {
+      type: "add post"
+      author: @user._id
+      body
+    }, @
     cb null, yes
 
