@@ -5,6 +5,7 @@ schema = mongoose.Schema
   title: String
   author: ObjectId
   created: type: Date, default: Date.now
+  updated: type: Date, default: Date.now
   tags: [String]
   viewCount: type: Number, default: 0
   postCount: Number
