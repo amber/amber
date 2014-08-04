@@ -30,13 +30,29 @@ class Post extends View
   setPending: (pending) -> @base.classList.toggle "pending", pending
 
   edit: ->
-    @content.style.display = "none"
-    @editForm.style.display = "block"
+    @showEditor yes
     @editor.setValue @d.body
     @editor.focusEnd()
 
-  cancel: ->
-    @content.style.display = "block"
-    @editForm.style.display = "none"
+  save: ->
+    @editor.setDisabled yes
+    @app.server.editPost {
+      id: @d.id
+      topic: @parent.id
+      body: body = @editor.getValue()
+    }, (err) =>
+      @d.body = body
+      @editor.setDisabled no
+      @content.innerHTML = parse(body).result
+      if err
+        @editor.focus()
+        return
+      @showEditor no
+
+  cancel: -> @showEditor no
+
+  showEditor: (flag) ->
+    @content.style.display = (if flag then "none" else "block")
+    @editForm.style.display = (if flag then "block" else "none")
 
 module.exports = {Post}

@@ -33,7 +33,7 @@ socket.on "add topic", {title: String, body: String, tags: [String]}, Function, 
 socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, cb) ->
   return cb name: "invalid" unless @user
   Topic.update {_id: topic}, {
-    updated: Date.now(),
+    $set: updated: Date.now(),
     $inc: postCount: 1
     $push: posts: {
       author: @user._id
@@ -50,3 +50,19 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
     }, @
     cb null, yes
 
+socket.on "edit post", {topic: String, id: String, body: String}, Function, ({topic, id, body}, cb) ->
+  return cb name: "invalid" unless @user
+  Topic.findById topic, (err, t) =>
+    return cb name: "error" if err
+    return cb name: "not found" unless t
+    for p, i in t.posts when p._id+"" is id
+      p.versions.push {
+        created: p.updated
+        body: p.body
+      }
+      p.body = body
+      p.updated = Date.now()
+    t.updated = Date.now()
+    t.save (err) =>
+      return cb name: "error" if err
+      cb null, yes

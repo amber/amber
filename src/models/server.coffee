@@ -89,4 +89,7 @@ class Server
       return cb err if err
       cb null, new Post post
 
+  editPost: ({topic, id, body}, cb) ->
+    @socket.emit "edit post", {topic, id, body}, cb
+
 module.exports = {Server}
