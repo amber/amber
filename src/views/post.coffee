@@ -17,7 +17,7 @@ class Post extends View
       @div outlet: "content", =>
         @html parse(body).result
       @div outlet: "editForm", class: "post-editor", style: "display: none", =>
-        @subview "editor", new Editor {value: body}
+        @subview "editor", new Editor
         @section class: "two-buttons", =>
           @button click: "cancel", T("Cancel")
           @button click: "save", class: "accent", T("Save")
@@ -32,6 +32,7 @@ class Post extends View
   edit: ->
     @content.style.display = "none"
     @editForm.style.display = "block"
+    @editor.setValue @d.body
     @editor.focusEnd()
 
   cancel: ->
