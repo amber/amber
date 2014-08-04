@@ -14,8 +14,8 @@ class Login extends View
   title: -> T("Sign in")
 
   initialize: ({@app}) ->
+    app.router.goBack "/" if app.server.user
   enter: ->
-    return app.router.go "/" if app.server.user
     @username.focus()
 
   onKeyDown: (e) ->
