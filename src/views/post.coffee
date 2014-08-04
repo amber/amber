@@ -1,16 +1,18 @@
 {View} = require "scene"
 {parse} = require "markup"
+{T} = require "am/util"
 {RelativeDate} = require "am/views/relative-date"
 
 class Post extends View
-  @content: ({d: {author, created, body}}) ->
+  @content: ({app, d: {author, created, body}}) ->
     @section class: "post", =>
       @img src: "http://lorempixel.com/100/100/abstract/1"
       @div class: "author", =>
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        @button class: "menu"
+        @button T("edit"), class: "menu" if author is app.server.user?.id
+        @button T("report"), class: "menu"
       @html parse(body).result
 
   initialize: ({@app, @d, pending}) ->

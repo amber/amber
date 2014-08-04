@@ -34,6 +34,7 @@ class Topic extends View
       @editor.focus()
       return
     view = new Post {
+      @app
       d: {
         body
         author: @app.server.user.id

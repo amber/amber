@@ -12,7 +12,7 @@
     opacity .4
 
   &:hover > .author > .menu
-    opacity .2
+    opacity .4
 
   > .author
     margin-bottom 8px
@@ -29,26 +29,21 @@
     > .menu
       background 0
       padding 8px
-      margin 0
-      height 7px
-      box-sizing content-box
+      margin 0 -8px 0 8px
       width auto
+      height auto
       box-shadow none
       display inline-block
-      vertical-align middle
+      vertical-align baseline
       opacity 0
-
-      &::before
-        content ''
-        border-top @height solid #000
-        border-left 6px solid transparent
-        border-right @border-left
-        height 0
+      color #000
+      font-size .8rem
+      line-height 1
 
       &:hover
-        opacity .4
-      &:active
         opacity .6
+      &:active
+        opacity .8
 
   > img
     width 48px
