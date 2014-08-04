@@ -1,8 +1,11 @@
 events = []
+methods = []
 
 exports.listen = (socket) ->
   for {name, fn} in events
     socket.on name, fn.bind socket
+  for {name, fn} in methods
+    socket[name] = fn
 
 checkList = (types, list) ->
   return no unless types.length is list.length
@@ -35,3 +38,6 @@ exports.on = (name, types..., fn) ->
         return console.log "ignoring #{JSON.stringify name}", args...
       fn.apply @, args
   }
+
+exports.method = (name, fn) ->
+  methods.push {name, fn}

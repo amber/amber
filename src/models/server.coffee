@@ -23,6 +23,17 @@ class Server
     @socket.on "reload js", =>
       location.reload()
 
+    if t = localStorage.getItem "amberToken"
+      [username, token] = JSON.parse t
+      @socket.emit "use auth token", {username, token}, (err, d) =>
+        return if err
+        @signedIn d
+        @app.router.route()
+
+  signedIn: (d) ->
+    @app.setUser @user = d.user
+    localStorage.setItem "amberToken", JSON.stringify [d.user.name, d.token]
+
   getUser: (id, cb) ->
     cb null, user if user = @userCache[id]
     @socket.emit "get user", id, (err, user) =>
@@ -37,15 +48,16 @@ class Server
       cb null, user
 
   signIn: ({username, password}, cb) ->
-    @socket.emit "sign in", {username, password}, (err, user) =>
+    @socket.emit "sign in", {username, password}, (err, d) =>
       return cb err if err
-      @app.setUser @user = user
-      cb null, user
+      @signedIn d
+      cb null, d.user
 
   signOut: (cb) ->
     @socket.emit "sign out", (err) =>
       return cb err if err
       @app.setUser @user = null
+      localStorage.removeItem "amberToken"
       cb null
 
   addTopic: ({title, body, tags}, cb) ->
