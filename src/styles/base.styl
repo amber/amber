@@ -96,13 +96,21 @@ article
     line-height 1.5
     resize none
 
-  .editor-metrics
-    position absolute
-    top -9999px
-    left -9999px
-    visibility hidden
-    white-space pre
-    line-height 1.5
+  .text-editor
+    position relative
+
+    > .editor-metrics
+      position absolute
+      top -9999px
+      left -9999px
+      width 100%
+      box-sizing border-box
+      padding 4px 8px
+      border 1px solid transparent
+      visibility hidden
+      white-space pre-wrap
+      word-wrap break-word
+      line-height 1.5
 
   button
   .button

@@ -2,7 +2,7 @@
 
 class Editor extends View
   @content: ({placeholder} = {}) ->
-    @div =>
+    @div class: "text-editor", =>
       @textarea outlet: "input", placeholder: placeholder ? "", input: "onInput"
       @div outlet: "metrics", class: "editor-metrics"
 
@@ -22,6 +22,6 @@ class Editor extends View
 
   onInput: ->
     @metrics.textContent = "#{@input.value}X"
-    @input.style.height = "#{@metrics.offsetHeight + 10}px"
+    @input.style.height = "#{@metrics.offsetHeight}px"
 
 module.exports = {Editor}
