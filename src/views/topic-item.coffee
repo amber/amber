@@ -7,9 +7,12 @@ class TopicItem extends View
     @section class: "topic", =>
       @div class: "stat", =>
         @span outlet: "views"
+        @text " "
         @strong T("views")
+        @text " "
       @div class: "stat", =>
         @span outlet: "posts"
+        @text " "
         @strong T("posts")
       @button class: "star", outlet: "starButton", click: "star", title: T("Star")
       @button class: "read", click: "read", title: T("Mark as read")
