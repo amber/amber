@@ -43,6 +43,7 @@ class Post extends View
       id: @d.id
       topic: @parent.id
     }, (err) =>
+      return if err # TODO
       @base.style.display = "none"
   confirmDelete: ->
     @deleteButton.classList.add "confirm"
