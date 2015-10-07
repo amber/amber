@@ -73,7 +73,7 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p in t.posts when p._id+"" is id and p.author.equals(@user._id)
+    for p in t.posts when p._id+"" is id and p.author.equals @user._id
       p.versions.push {
         created: p.updated
         body: p.body
@@ -91,7 +91,7 @@ socket.on "hide post", {topic: String, id: String}, Function, ({topic, id}, cb) 
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p, i in t.posts when p._id+"" is id and p.author.equals(@user._id)
+    for p, i in t.posts when p._id+"" is id and p.author.equals @user._id
       p.hidden = yes
       p.updated = Date.now()
       return t.save (err) =>
