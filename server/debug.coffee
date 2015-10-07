@@ -49,16 +49,18 @@ do reload = ->
     return
   reloading = yes
   b.bundle (err, buf, map) ->
-    return console.log err if err
-
-    fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
+    if err
+      console.log "js: err".red
+      console.log "#{err}"
+    else
+      fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
+      console.log "js: ok".grey
 
     reloading = no
-    console.log "js: ok".grey
     if again
       again = no
       reload()
-    else
+    else unless err
       io.sockets.emit "reload js" unless jsFirstTime
     jsFirstTime = no
 
@@ -75,13 +77,16 @@ do reloadCSS = ->
         .use nib()
         .import 'nib'
         .render (err, css, js) ->
-          return console.log err if err
-          app += css + "\n"
-          return if --left
-          fs.writeFileSync "#{BASE_DIR}/static/app.css", app
-          io.sockets.emit "reload css" unless cssFirstTime
-          cssFirstTime = no
-          console.log "css: ok".grey
+          if err
+            console.log "css: err".red
+            console.log "#{err}"
+          else
+            app += css + "\n"
+            return if --left
+            fs.writeFileSync "#{BASE_DIR}/static/app.css", app
+            io.sockets.emit "reload css" unless cssFirstTime
+            cssFirstTime = no
+            console.log "css: ok".grey
 
 MIME_TYPES =
   html: "text/html"
