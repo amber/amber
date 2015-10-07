@@ -100,6 +100,9 @@ class Server
   editPost: ({topic, id, body}, cb) ->
     @socket.emit "edit post", {topic, id, body}, cb
 
+  hideTopic: ({id}, cb) ->
+    @socket.emit "hide topic", {id}, cb
+
   hidePost: ({topic, id}, cb) ->
     @socket.emit "hide post", {topic, id}, cb
 

@@ -86,6 +86,12 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
         cb null, yes
     cb name: "not found"
 
+socket.on "hide topic", {id: String}, Function, ({id}, cb) ->
+  return cb name: "invalid" unless @user
+  Topic.update {_id: id, author: @user._id}, {hidden: yes}, (err) =>
+    return cb name: "error" if err
+    cb null, yes
+
 socket.on "hide post", {topic: String, id: String}, Function, ({topic, id}, cb) ->
   return cb name: "invalid" unless @user
   Topic.findById topic, (err, t) =>

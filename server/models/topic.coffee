@@ -4,6 +4,7 @@ ObjectId = mongoose.Schema.ObjectId
 schema = mongoose.Schema
   title: String
   author: ObjectId
+  hidden: type: Boolean, default: no
   created: type: Date, default: Date.now
   updated: type: Date, default: Date.now
   tags: [String]
@@ -13,7 +14,7 @@ schema = mongoose.Schema
   posts: [
     author: ObjectId
     body: String
-    hidden: Boolean
+    hidden: type: Boolean, default: no
     created: type: Date, default: Date.now
     updated: type: Date, default: Date.now
     versions: [

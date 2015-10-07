@@ -39,6 +39,12 @@ class Post extends View
   delete: ->
     unless @deleteButton.classList.contains "confirm"
       return @confirmDelete()
+    if @top
+      return @app.server.hideTopic {
+        id: @parent.id
+      }, (err) =>
+        return if err # TODO
+        @parent.app.router.go "/discuss"
     @app.server.hidePost {
       id: @d.id
       topic: @parent.id
