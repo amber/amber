@@ -44,8 +44,8 @@ class Topic extends View
           scrollTo 0, document.body.offsetHeight
 
   submit: ->
-    body = @editor.getValue()
-    unless body.trim().length
+    body = @editor.getValue().trim()
+    unless body.length
       @editor.setValue ""
       @editor.focus()
       return
