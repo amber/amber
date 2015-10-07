@@ -3,14 +3,14 @@ watch = require "../watch"
 Topic = require "../models/topic"
 
 socket.on "search topics", {query: String, offset: Number, length: Number}, Function, ({query, offset, length}, cb) ->
-  Topic.search "", offset, length, @user, (err, topics) ->
-    cb name: "error" if err
+  Topic.search query, offset, length, @user, (err, topics) ->
+    return cb name: "error" if err
     cb null, (t.toSearchJSON() for t in topics)
 
 socket.on "get topic", String, Function, (id, cb) ->
   Topic.findById id, (err, topic) ->
-    cb name: "error" if err
-    cb name: "not found" unless topic
+    return cb name: "error" if err
+    return cb name: "not found" unless topic
     topic.posts = topic.posts.filter (x) -> not x.hidden
     cb null, topic
   Topic.update {_id: id}, {$inc: viewCount: 1}
