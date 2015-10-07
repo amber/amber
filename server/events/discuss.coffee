@@ -58,17 +58,18 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p, i in t.posts when p._id+"" is id
+    for p, i in t.posts when p._id+"" is id and p.author.equals(@user._id)
       p.versions.push {
         created: p.updated
         body: p.body
       }
       p.body = body
       p.updated = Date.now()
-    t.updated = Date.now()
-    t.save (err) =>
-      return cb name: "error" if err
-      cb null, yes
+      t.updated = Date.now()
+      return t.save (err) =>
+        return cb name: "error" if err
+        cb null, yes
+    cb name: "not found"
 
 socket.on "star topic", {id: String, flag: Boolean}, Function, ({id, flag}, cb) ->
   return cb name: "invalid" unless @user
