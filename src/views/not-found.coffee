@@ -5,7 +5,7 @@ class NotFound extends View
   @content: ({url}) ->
     @article =>
       @h1 T("Not found")
-      @p T("The page at \"{url}\" does not exist.", {url})
+      @p T("The page at “{url}” does not exist.", {url})
 
   title: -> T("Not found")
 
