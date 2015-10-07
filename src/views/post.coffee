@@ -15,9 +15,9 @@ class Post extends View
         @button T("edit"), click: "edit", class: "menu" if author is app.server.user?.id
         @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu" if author is app.server.user?.id
         @button T("report"), class: "menu"
-      @div outlet: "content", =>
+      @div outlet: "content", class: "content", =>
         @html parse(body).result
-      @div outlet: "editForm", keydown: "onKeyDown", class: "post-editor", style: "display: none", =>
+      @div outlet: "editForm", keydown: "onKeyDown", class: "post-editor", =>
         @subview "editor", new Editor
         @section class: "two-buttons", =>
           @button click: "cancel", T("Cancel")
@@ -66,8 +66,7 @@ class Post extends View
   cancel: -> @showEditor no
 
   showEditor: (flag) ->
-    @content.style.display = (if flag then "none" else "block")
-    @editForm.style.display = (if flag then "block" else "none")
+    @base.classList.toggle "editing", flag
 
   onKeyDown: (e) ->
     if e.keyCode is 13 and (e.metaKey or e.ctrlKey)

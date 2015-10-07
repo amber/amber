@@ -14,6 +14,9 @@
   &:hover > .author > .menu
     opacity .4
 
+  > .post-editor
+    display none
+
   > .post-editor textarea
     margin 0
 
@@ -66,3 +69,11 @@
   p
     margin-top 0
     margin-bottom 1rem
+
+  &.editing
+    > .post-editor
+      display block
+    > .content
+      display none
+    .menu
+      visibility hidden
