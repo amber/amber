@@ -35,7 +35,8 @@ socket.on "add topic", {title: String, body: String, tags: [String]}, Function, 
     cb null, topic
 
 socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, cb) ->
-  return cb name: "invalid" unless @user
+  body = body.trim()
+  return cb name: "invalid" unless @user and body
   Topic.update {_id: topic}, {
     updated: Date.now(),
     $inc: postCount: 1
