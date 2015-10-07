@@ -1,3 +1,4 @@
+@import '_vars'
 @import '_util'
 
 .topic-title-editor
@@ -49,18 +50,30 @@
       display inline-block
       vertical-align baseline
       opacity 0
-      color #000
+      color alpha(#000, .8)
       font-size .8rem
       line-height 1
 
       &:hover
-        opacity .6
+        opacity .75
       &:active
-        opacity .8
+        opacity 1
 
       &.confirm
-        background #f00
+        opacity 1
+        background #f82222
         color #fff
+
+        &:hover
+          box-shadow $button-hover-shadow
+
+        &:active
+          box-shadow $button-press-shadow
+          padding-top 8px + 2px
+          padding-bottom 8px - 2px
+          margin-top -2px
+          position relative
+          top 2px
 
   > img
     width 48px
