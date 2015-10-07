@@ -13,6 +13,7 @@ class Post extends View
         @text " posted "
         @subview new RelativeDate created
         @button T("edit"), click: "edit", class: "menu" if author is app.server.user?.id
+        @button T("delete"), click: "delete", class: "menu" if author is app.server.user?.id
         @button T("report"), class: "menu"
       @div outlet: "content", =>
         @html parse(body).result
@@ -33,6 +34,13 @@ class Post extends View
     @showEditor yes
     @editor.setValue @d.body
     @editor.focusEnd()
+
+  delete: ->
+    @app.server.hidePost {
+      id: @d.id
+      topic: @parent.id
+    }, (err) =>
+      @base.style.display = "none"
 
   save: ->
     @editor.setDisabled yes

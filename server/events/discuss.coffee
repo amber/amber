@@ -71,6 +71,19 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
         cb null, yes
     cb name: "not found"
 
+socket.on "hide post", {topic: String, id: String}, Function, ({topic, id}, cb) ->
+  return cb name: "invalid" unless @user
+  Topic.findById topic, (err, t) =>
+    return cb name: "error" if err
+    return cb name: "not found" unless t
+    for p, i in t.posts when p._id+"" is id and p.author.equals(@user._id)
+      p.hidden = yes
+      p.updated = Date.now()
+      return t.save (err) =>
+        return cb name: "error" if err
+        cb null, yes
+    cb name: "not found"
+
 socket.on "star topic", {id: String, flag: Boolean}, Function, ({id, flag}, cb) ->
   return cb name: "invalid" unless @user
   stars = {stars: @user._id}

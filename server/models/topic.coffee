@@ -13,6 +13,7 @@ schema = mongoose.Schema
   posts: [
     author: ObjectId
     body: String
+    hidden: Boolean
     created: type: Date, default: Date.now
     updated: type: Date, default: Date.now
     versions: [
