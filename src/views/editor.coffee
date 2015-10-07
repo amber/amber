@@ -1,6 +1,9 @@
 {View} = require "scene"
+{emitter} = require "am/util"
 
 class Editor extends View
+  emitter @::
+
   @content: ({placeholder} = {}) ->
     @div class: "text-editor", =>
       @textarea outlet: "input", placeholder: placeholder ? "", input: "onInput"
@@ -23,5 +26,6 @@ class Editor extends View
   onInput: ->
     @metrics.textContent = "#{@input.value}X"
     @input.style.height = "#{@metrics.offsetHeight}px"
+    @emit "input"
 
 module.exports = {Editor}
