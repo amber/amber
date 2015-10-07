@@ -10,7 +10,9 @@ class Server
     @userCache = Object.create null
 
     @socket = io "#{location.protocol}//#{location.host}/"
-    @socket.on "connect", => console.log "connected"
+    @socket.on "connect", =>
+      console.log "connected"
+      @resignIn no
     @socket.on "disconnect", => console.log "disconnected"
 
     @socket.on "reload css", =>
@@ -26,12 +28,15 @@ class Server
     @socket.on "update", (d) =>
       @watcher d if @watcher
 
+    @resignIn yes
+
+  resignIn: (thenRoute) ->
     if t = localStorage.getItem "amberToken"
       [username, token] = JSON.parse t
       @socket.emit "use auth token", {username, token}, (err, d) =>
         return if err
         @signedIn d
-        @app.router.route()
+        @app.router.route() if thenRoute
 
   watch: (name, id, cb) ->
     @watcher = cb
