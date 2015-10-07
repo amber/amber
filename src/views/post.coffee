@@ -20,10 +20,10 @@ class Post extends View
       @div outlet: "editForm", keydown: "onKeyDown", class: "post-editor", =>
         @subview "editor", new Editor
         @section class: "two-buttons", =>
-          @button click: "cancel", T("Cancel")
-          @button click: "save", class: "accent", T("Save")
+          @button click: "cancelEdit", T("Cancel")
+          @button click: "saveEdit", class: "accent", T("Save")
 
-  initialize: ({@app, @d, pending}) ->
+  initialize: ({@app, @top, @d, pending}) ->
     app.server.getUser @d.author, (err, user) =>
       @author.textContent = user.name if user
     @setPending pending
@@ -31,6 +31,7 @@ class Post extends View
   setPending: (pending) -> @base.classList.toggle "pending", pending
 
   edit: ->
+    @parent.editTitle() if @top
     @showEditor yes
     @editor.setValue @d.body
     @editor.focusEnd()
@@ -48,12 +49,15 @@ class Post extends View
   unconfirmDelete: ->
     @deleteButton.classList.remove "confirm"
 
-  save: ->
+  saveEdit: ->
+    body = @editor.getValue().trim()
+    return unless body
+    @parent.saveEditTitle() if @top
     @editor.setDisabled yes
     @app.server.editPost {
       id: @d.id
       topic: @parent.id
-      body: body = @editor.getValue()
+      body
     }, (err) =>
       @d.body = body
       @editor.setDisabled no
@@ -63,13 +67,15 @@ class Post extends View
         return
       @showEditor no
 
-  cancel: -> @showEditor no
+  cancelEdit: ->
+    @showEditor no
+    @parent.cancelEditTitle() if @top
 
   showEditor: (flag) ->
     @base.classList.toggle "editing", flag
 
   onKeyDown: (e) ->
     if e.keyCode is 13 and (e.metaKey or e.ctrlKey)
-      @save()
+      @saveEdit()
 
 module.exports = {Post}

@@ -7,39 +7,67 @@
 class Topic extends View
   @content: ({id}) ->
     @article =>
-      @h1 T("Loading…"), outlet: "title"
+      @h1 =>
+        @span T("Loading…"), outlet: "title"
+        @input outlet: "titleInput", class: "topic-title-editor", style: "display: none", keydown: "onKeyDownTitle"
       @section class: "inline-container", outlet: "form", keydown: "onKeyDown", =>
         @subview "editor", new Editor placeholder: "Say something…", disabled: yes
         @button "Post", class: "accent right", click: "submit"
+
+  editTitle: ->
+    @titleInput.value = @d.title
+    @title.style.display = "none"
+    @titleInput.style.display = ""
+  cancelEditTitle: ->
+    @title.style.display = ""
+    @titleInput.style.display = "none"
+  saveEditTitle: ->
+    title = @titleInput.value.trim()
+    return unless title
+    @titleInput.disabled = yes
+    @app.server.editTopicTitle {
+      @id
+      title
+    }, (err) =>
+      @d.title = title
+      @titleInput.disabled = no
+      if err
+        @editor.focus()
+        return
+      @title.textContent = title
+      @cancelEditTitle()
 
   enter: -> @editor.focus()
 
   initialize: ({@id, @app}) ->
     @form.style.display = "none" unless app.server.user
     @app.server.watch "topic", @id, @update
-    @app.server.getTopic @id, (err, d) =>
+    @posts = []
+    @app.server.getTopic @id, (err, @d) =>
       if err
         @app.setView new NotFound {url: location.pathname}
         return
       @editor.setDisabled no
       @editor.focus()
-      @app.setTitle d.title
-      @title.textContent = d.title
-      for p in d.posts
-        @add (new Post {@app, d: p}), @base, @form
+      @app.setTitle @d.title
+      @title.textContent = @d.title
+      @posts = for p, i in @d.posts
+        @add (post = new Post {@app, top: i is 0, d: p}), @base, @form
+        post
 
   update: (d) =>
     switch d.type
       when "add post"
         scroll = scrollY is document.body.offsetHeight - innerHeight
-        @add (new Post {
+        @posts.push post = new Post {
           @app
           d: {
             body: d.body
             author: d.author
             created: new Date
           }
-        }), @base, @form
+        }
+        @add post, @base, @form
         if scroll
           scrollTo 0, document.body.offsetHeight
 
@@ -72,5 +100,7 @@ class Topic extends View
 
   onKeyDown: (e) ->
     @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
+  onKeyDownTitle: (e) ->
+    @posts[0].saveEdit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
 
 module.exports = {Topic}
