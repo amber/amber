@@ -13,7 +13,7 @@ class Post extends View
         @text " posted "
         @subview new RelativeDate created
         @button T("edit"), click: "edit", class: "menu" if author is app.server.user?.id
-        @button T("delete"), click: "delete", class: "menu" if author is app.server.user?.id
+        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu" if author is app.server.user?.id
         @button T("report"), class: "menu"
       @div outlet: "content", =>
         @html parse(body).result
@@ -36,11 +36,17 @@ class Post extends View
     @editor.focusEnd()
 
   delete: ->
+    unless @deleteButton.classList.contains "confirm"
+      return @confirmDelete()
     @app.server.hidePost {
       id: @d.id
       topic: @parent.id
     }, (err) =>
       @base.style.display = "none"
+  confirmDelete: ->
+    @deleteButton.classList.add "confirm"
+  unconfirmDelete: ->
+    @deleteButton.classList.remove "confirm"
 
   save: ->
     @editor.setDisabled yes
