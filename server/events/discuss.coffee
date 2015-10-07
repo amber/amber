@@ -55,12 +55,13 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
     }, @
     cb null, yes
 
-socket.on "edit title", {topic: String, title: String}, Function, ({topic, title}, cb) ->
+socket.on "edit topic title", {id: String, title: String}, Function, ({id, title}, cb) ->
   title = title.trim()
   return cb name: "invalid" unless @user and title
-  Topic.findById topic, (err, t) =>
+  Topic.findById id, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
+    return cb name: "forbidden" unless @user._id.equals(t.posts[0].author)
     t.title = title
     t.updated = Date.now()
     t.save (err) =>
