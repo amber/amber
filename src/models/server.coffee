@@ -16,7 +16,7 @@ class Server
     @socket.on "disconnect", => console.log "disconnected"
 
     @socket.on "reload css", =>
-      return unless link = document.querySelector "link[href='/static/app.css']"
+      return unless link = document.querySelector "link[href*='/static/app.css']"
       newLink = document.createElement "link"
       newLink.rel = "stylesheet"
       newLink.href = link.href.split("?")[0] + "?" + Math.random()
