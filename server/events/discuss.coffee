@@ -11,6 +11,7 @@ socket.on "get topic", String, Function, (id, cb) ->
   Topic.findById id, (err, topic) ->
     cb name: "error" if err
     cb name: "not found" unless topic
+    topic.posts = topic.posts.filter (x) -> not x.hidden
     cb null, topic
   Topic.update {_id: id}, {$inc: viewCount: 1}
   .exec()
