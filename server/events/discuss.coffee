@@ -16,7 +16,9 @@ socket.on "get topic", String, Function, (id, cb) ->
   .exec()
 
 socket.on "add topic", {title: String, body: String, tags: [String]}, Function, ({title, body, tags}, cb) ->
-  return cb name: "invalid" unless @user
+  title = title.trim()
+  body = body.trim()
+  return cb name: "invalid" unless @user and title and body
   now = new Date
   Topic({
     title
