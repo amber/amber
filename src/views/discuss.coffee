@@ -30,7 +30,7 @@ class Discuss extends View
     return if @loading or @done
     return unless scrollY > document.body.offsetHeight - 2000
     @loading = yes
-    @app.server.getTopics {@offset, length: CHUNK_SIZE}, (err, topics) =>
+    @app.server.searchTopics {query: @filter.value, @offset, length: CHUNK_SIZE}, (err, topics) =>
       @loading = no
       return if err # TODO
       @offset += topics.length

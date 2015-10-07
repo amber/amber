@@ -23,6 +23,8 @@ schema = mongoose.Schema
     ]
   ]
 
+schema.index {title: "text", "posts.body": "text"}
+
 schema.pre "save", (next) ->
   @postCount = @posts.length
   next()
@@ -53,7 +55,9 @@ schema.methods.toJSON = -> {
 }
 
 schema.statics.search = (query, offset, length, user, cb) ->
-  Topic.find {}, {title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, stars: {$elemMatch: {$in: [user?._id]}}}
+  q = {hidden: {$not: {$eq: yes}}}
+  q.$text = $search: query, $language: "en" if query
+  Topic.find q, {title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, stars: {$elemMatch: {$in: [user?._id]}}}
   .sort {updated: -1}
   .skip offset
   .limit length

@@ -79,8 +79,8 @@ class Server
     tags ?= []
     @socket.emit "add topic", {title, body, tags}, cb
 
-  getTopics: ({offset, length}, cb) ->
-    @socket.emit "search topics", {query: "", offset, length}, (err, topics) =>
+  searchTopics: ({query, offset, length}, cb) ->
+    @socket.emit "search topics", {query, offset, length}, (err, topics) =>
       return cb err if err
       cb null, (new TopicSummary t for t in topics)
 
