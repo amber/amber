@@ -40,4 +40,15 @@ extend = (base, map) ->
   base[k] = v for k, v of map
   base
 
-module.exports = {format, escape, T, relativeDate, humanNumber}
+emitter = (o) ->
+  o.on = (event, fn) ->
+    ((@listeners ?= Object.create null)[event] ?= []).push fn
+  o.unlisten = (event, fn) ->
+    return unless list = @listeners?[event]
+    i = list.indexOf fn
+    list.splice i, 1 if i isnt -1
+  o.emit = (event, args...) ->
+    return unless list = @listeners?[event]
+    fn args... for fn in list
+
+module.exports = {format, escape, emitter, T, relativeDate, humanNumber}
