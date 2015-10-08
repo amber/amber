@@ -20,6 +20,7 @@ socket.on "use auth token", {username: String, token: String}, Function, ({usern
 
 socket.on "sign in", {username: String, password: String}, Function, ({username, password}, cb) ->
   return cb name: "invalid" if @user
+  username = username.trim()
   User.findByName username, (err, user) =>
     return cb name: "incorrect" unless user
     bcrypt.compare password, user.hash, (err, res) =>
@@ -28,6 +29,8 @@ socket.on "sign in", {username: String, password: String}, Function, ({username,
       @createToken user, cb
 
 socket.on "sign up", {username: String, email: String, password: String}, Function, ({username, email, password}, cb) ->
+  username = username.trim()
+  email = email.trim()
   return cb name: "invalid" unless username and password and email and /.@./.test email
   User.findByName username, (err, user) =>
     return cb name: "in use" if user
