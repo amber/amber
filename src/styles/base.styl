@@ -64,6 +64,7 @@ article
 
   input
   textarea
+  .text-field
     -webkit-appearance none
     position relative
     border 0
@@ -83,10 +84,12 @@ article
       line-height @height
 
     &:focus
+    &.focused
       z-index 1
       border-color rgba(0, 0, 0, .2)
 
     &:disabled
+    &.disabled
       color rgba(0, 0, 0, .4)
 
   textarea
@@ -111,6 +114,46 @@ article
       white-space pre-wrap
       word-wrap break-word
       line-height 1.5
+
+  .tags-editor
+    cursor text
+    height auto
+    min-height 1.4rem
+    font-size 0.7rem
+    line-height 1.4
+    overflow hidden
+
+    > .tags
+      display inline
+      pointer-events none
+
+      > .tag
+        vertical-align: middle
+        margin 0.28rem 8px 0.28rem 0
+
+    > input
+    > .metrics
+      invisible-input()
+      display inline-block
+      vertical-align: middle
+
+      height 1.5em
+      margin 0.28rem 8px 0.28rem 0
+      padding 2px 8px
+
+      line-height 1
+      font inherit
+      font-weight 200
+      letter-spacing: 0.02em;
+
+      &.nonempty
+        background #f5f5f5
+
+    > .metrics
+      position absolute
+      top -9999px
+      left -9999px
+      visibility hidden
 
   button
   .button
