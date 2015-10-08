@@ -47,6 +47,9 @@ class TagEditor extends View
       e.preventDefault()
 
   onKeyDown: (e) ->
+    if e.keyCode is 13
+      @commit()
+      e.preventDefault()
     if e.keyCode is 8 and @input.selectionStart is @input.selectionEnd and @input.selectionStart is 0 and @tags.length
       if e.metaKey
         @clearTags()
