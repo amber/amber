@@ -78,7 +78,7 @@ class Discuss extends View
 
   refilter: ->
     clearInterval @interval
-    @interval = setTimeout @updateURL, 700
+    @interval = setTimeout @updateURL, 1000
 
   updateURL: =>
     filter = @filter.value
