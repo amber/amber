@@ -125,6 +125,6 @@ class Topic extends View
   onKeyDown: (e) ->
     @submit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
   onKeyDownTitle: (e) ->
-    @posts[0].saveEdit() if e.keyCode is 13 and (e.ctrlKey or e.metaKey)
+    @posts[0].saveEdit() if e.keyCode is 13
 
 module.exports = {Topic}
