@@ -89,13 +89,13 @@ class Topic extends View
     @editor.setDisabled yes
     @add view, @base, @form
     scrollTo 0, document.body.offsetHeight
-    @app.server.addPost {@id, body}, (err, d) =>
+    @app.server.addPost {@id, body}, (err, id) =>
       @editor.setDisabled no
       @editor.focus()
       if err
         view.remove()
         return
-      view.setPending no
+      view.setPending no, id
       @editor.setValue ""
 
   onKeyDown: (e) ->

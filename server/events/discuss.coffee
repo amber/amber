@@ -1,5 +1,6 @@
 socket = require "../socket"
 watch = require "../watch"
+{Types: {ObjectId}} = require "mongoose"
 Topic = require "../models/topic"
 
 socket.on "search topics", {query: String, offset: Number, length: Number}, Function, ({query, offset, length}, cb) ->
@@ -38,9 +39,10 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
   body = body.trim()
   return cb name: "invalid" unless @user and body
   Topic.update {_id: topic}, {
-    updated: Date.now(),
+    updated: Date.now()
     $inc: postCount: 1
     $push: posts: {
+      _id: id = new ObjectId()
       author: @user._id
       body
       versions: []
@@ -53,7 +55,7 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
       author: @user._id
       body
     }, @
-    cb null, yes
+    cb null, id
 
 socket.on "edit topic title", {id: String, title: String}, Function, ({id, title}, cb) ->
   title = title.trim()

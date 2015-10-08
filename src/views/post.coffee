@@ -28,7 +28,9 @@ class Post extends View
       @author.textContent = user.name if user
     @setPending pending
 
-  setPending: (pending) -> @base.classList.toggle "pending", pending
+  setPending: (pending, id) ->
+    @d.id = id if id?
+    @base.classList.toggle "pending", pending
 
   edit: ->
     @parent.editTitle() if @top
