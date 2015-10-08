@@ -21,12 +21,22 @@ class Router
         return
       t = t.parentNode
 
-  go: (url) ->
-    if url isnt "/" and "/" is url.slice -1
-      url = url.slice 0, -1
+  go: (url, replace) ->
     scrollTo 0, 0
-    history.pushState null, null, url
+    @goSilent url, replace
     @route()
+
+  goSilent: (url, replace) ->
+    if replace
+      history.replaceState null, null, @normalize url
+    else
+      history.pushState null, null, @normalize url
+
+  normalize: (url) ->
+    if url isnt "/" and "/" is url.slice -1 then url.slice 0, -1 else url
+
+  replace: (url) -> @go url, yes
+  replaceSilent: (url) -> @goSilent url, yes
 
   goBack: (fallback) ->
     history.go -1 # TODO use fallback if history is off-site

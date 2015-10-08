@@ -50,7 +50,7 @@ class TopicItem extends View
     @tags.removeChild @tags.lastChild while @tags.firstChild
     @tags.appendChild $$ ->
       for t in tags
-        @a class: "tag tag-#{t}", dataTag: t, href: "/discuss/#{encodeURIComponent "label:#{t}"}", T(t)
+        @a class: "tag tag-#{t}", dataTag: t, href: "/discuss/t/#{encodeURIComponent t}", T(t)
 
   star: ->
     @base.classList.toggle "starred"

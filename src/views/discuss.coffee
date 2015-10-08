@@ -3,6 +3,7 @@
 {TopicItem} = require "am/views/topic-item"
 
 CHUNK_SIZE = 20
+TAG_RE = /^\s*\[([^\]]+)\]\s*$/
 
 class Discuss extends View
   @content: ({app, filter}) ->
@@ -13,6 +14,7 @@ class Discuss extends View
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
         if app.server.user
           @a T("New topic"), class: "button accent", href: "/discuss/new"
+      @div outlet: "content"
 
   enter: ->
     addEventListener "scroll", @update
@@ -24,6 +26,15 @@ class Discuss extends View
   exit: -> removeEventListener "scroll", @update
 
   initialize: ({@app}) ->
+    @topics = []
+
+  reset: ->
+    @loading = no
+    @done = no
+    @offset = 0
+    for t in @topics then t.remove()
+    @topics = []
+    @update()
 
   offset: 0
   update: =>
@@ -36,9 +47,14 @@ class Discuss extends View
       @offset += topics.length
       @done = yes if topics.length < CHUNK_SIZE
       for t in topics
-        @add new TopicItem {d: t, @app}
+        @topics.push topic = new TopicItem {d: t, @app}
+        @add topic, @content
 
-  title: -> T("Discuss")
+  title: ->
+    filter = @filter.value
+    if filter
+      T("Discuss “{filter}”", {filter})
+    else T("Discuss")
 
   navigate: (e) ->
     return if e.metaKey or e.shiftKey or e.altKey or e.ctrlKey
@@ -47,7 +63,7 @@ class Discuss extends View
       if t.classList.contains "tag"
         e.preventDefault()
         e.stopPropagation()
-        @addToken "label:#{t.dataset.tag}"
+        @addToken "[#{t.dataset.tag}]"
         return
       t = t.parentNode
 
@@ -65,7 +81,16 @@ class Discuss extends View
     @interval = setTimeout @updateURL, 700
 
   updateURL: =>
-    @parent.router.go "/discuss/#{encodeURIComponent @filter.value}"
+    filter = @filter.value
+    url = if x = TAG_RE.exec filter
+      "/discuss/t/#{encodeURIComponent x[1]}"
+    else if filter
+      "/discuss/s/#{encodeURIComponent filter}"
+    else
+      "/discuss"
+    @parent.router.replaceSilent url
+    @app.setTitle @title()
+    @reset()
 
   onFilterKey: (e) ->
     if e.keyCode is 13
