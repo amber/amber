@@ -6,7 +6,7 @@ CHUNK_SIZE = 20
 
 class Discuss extends View
   @content: ({app, filter}) ->
-    @article click: "navigate", =>
+    @article class: "discuss", click: "navigate", =>
       @h1 T("Discuss Amber")
       @section class: "discuss-bar#{if app.server.user then " signed-in" else ""}", =>
         @div class: "input-wrapper", =>
