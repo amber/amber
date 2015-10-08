@@ -25,7 +25,8 @@ class Editor extends View
     @onInput()
 
   onInput: ->
-    @metrics.textContent = "#{@input.value}X"
+    text = @input.value
+    @metrics.textContent = text + (if text[text.length-1] in ["\n", "\x0b", "\x0c", "\r", "\x85", "\u2028", "\u2029"] then "X" else "")
     @input.style.height = "#{@metrics.offsetHeight}px"
     @emit "input"
 
