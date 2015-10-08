@@ -3,39 +3,56 @@
 {NotFound} = require "am/views/not-found"
 {Post} = require "am/views/post"
 {Editor} = require "am/views/editor"
+{TagEditor} = require "am/views/tag-editor"
 
 class Topic extends View
   @content: ({id}) ->
-    @article =>
-      @h1 =>
-        @span T("Loading…"), outlet: "title"
-        @input outlet: "titleInput", class: "topic-title-editor", style: "display: none", keydown: "onKeyDownTitle"
+    @article class: "discuss", =>
+      @div keydown: "onKeyDownTitle", =>
+        @h1 =>
+          @span T("Loading…"), outlet: "title"
+          @input outlet: "titleInput", class: "topic-title-editor", style: "display: none"
+        @p outlet: "tags"
+        @p outlet: "tagEditorWrap", style: "display: none", =>
+          @subview "tagEditor", new TagEditor
       @section class: "inline-container", outlet: "form", keydown: "onKeyDown", =>
         @subview "editor", new Editor placeholder: "Say something…", disabled: yes
         @button "Post", class: "accent right", click: "submit"
 
-  editTitle: ->
+  edit: ->
     @titleInput.value = @d.title
     @title.style.display = "none"
     @titleInput.style.display = ""
-  cancelEditTitle: ->
+
+    @tags.style.display = "none"
+    @tagEditorWrap.style.display = ""
+    @tagEditor.setTags @d.tags
+
+  cancelEdit: ->
     @title.style.display = ""
     @titleInput.style.display = "none"
-  saveEditTitle: ->
+    @tags.style.display = ""
+    @tagEditorWrap.style.display = "none"
+
+  saveEdit: ->
     title = @titleInput.value.trim()
+    tags = @tagEditor.getTags()
     return unless title
     @titleInput.disabled = yes
-    @app.server.editTopicTitle {
+    @app.server.editTopic {
       @id
       title
+      tags
     }, (err) =>
       @d.title = title
+      @d.tags = tags
       @titleInput.disabled = no
       if err
         @editor.focus()
         return
       @title.textContent = title
-      @cancelEditTitle()
+      @updateTags tags
+      @cancelEdit()
 
   enter: -> @editor.focus()
 
@@ -51,9 +68,16 @@ class Topic extends View
       @editor.focus()
       @app.setTitle @d.title
       @title.textContent = @d.title
+      @updateTags @d.tags
       @posts = for p, i in @d.posts
         @add (post = new Post {@app, top: i is 0, d: p}), @base, @form
         post
+
+  updateTags: (tags) ->
+    @tags.removeChild @tags.lastChild while @tags.firstChild
+    @tags.appendChild $$ ->
+      for t in tags
+        @a T(t), class: "tag tag-#{t}", href: "/discuss/t/#{encodeURIComponent t}"
 
   update: (d) =>
     switch d.type

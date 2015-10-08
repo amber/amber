@@ -94,8 +94,8 @@ class Server
       return cb err if err
       cb null, id
 
-  editTopicTitle: ({id, title}, cb) ->
-    @socket.emit "edit topic title", {id, title}, cb
+  editTopic: ({id, title, tags}, cb) ->
+    @socket.emit "edit topic", {id, title, tags}, cb
 
   editPost: ({topic, id, body}, cb) ->
     @socket.emit "edit post", {topic, id, body}, cb

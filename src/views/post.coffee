@@ -33,7 +33,7 @@ class Post extends View
     @base.classList.toggle "pending", pending
 
   edit: ->
-    @parent.editTitle() if @top
+    @parent.edit() if @top
     @showEditor yes
     @editor.setValue @d.body
     @editor.focusEnd()
@@ -61,7 +61,7 @@ class Post extends View
   saveEdit: ->
     body = @editor.getValue().trim()
     return unless body
-    @parent.saveEditTitle() if @top
+    @parent.saveEdit() if @top
     @editor.setDisabled yes
     @app.server.editPost {
       id: @d.id
@@ -78,7 +78,7 @@ class Post extends View
 
   cancelEdit: ->
     @showEditor no
-    @parent.cancelEditTitle() if @top
+    @parent.cancelEdit() if @top
 
   showEditor: (flag) ->
     @base.classList.toggle "editing", flag
