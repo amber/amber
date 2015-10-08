@@ -20,11 +20,13 @@ class Splash extends View
   enter: -> @username.focus()
 
   signUp: ->
+    @username.disabled = @email.disabled = @password.disabled = yes
     @parent.server.signUp {
       username: @username.value
       email: @email.value
       password: @password.value
     }, (err) =>
+      @username.disabled = @email.disabled = @password.disabled = no
       return if err # TODO
       @parent.router.go "/"
 
