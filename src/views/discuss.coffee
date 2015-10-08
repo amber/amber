@@ -88,7 +88,8 @@ class Discuss extends View
       "/discuss/s/#{encodeURIComponent filter}"
     else
       "/discuss"
-    @parent.router.replaceSilent url
+    if url isnt location.pathname
+      @parent.router.goSilent url
     @app.setTitle @title()
     @reset()
 
