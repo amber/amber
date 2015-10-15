@@ -6,6 +6,7 @@ class Footer extends View
     @footer =>
       @a T("Contact"), "data-key": "Contact", href: "/contact"
       @a T("About"), "data-key": "About", href: "/about"
+      @a T("Privacy"), "data-key": "Privacy", href: "/privacy"
       @a T("Terms"), "data-key": "Terms", href: "/terms"
       @p T("Made with ♡ by Nathan Dinsmore and Truman Kilen."), outlet: "love"
 
