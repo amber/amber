@@ -91,7 +91,7 @@ socket.on "edit topic", {id: String, title: String, tags: [String]}, Function, (
   Topic.findById id, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    return cb name: "forbidden" unless @user._id.equals t.posts[0].author
+    return cb name: "forbidden" unless @user._id.equals(t.posts[0].author) or "wiki" in t.tags
     t.title = title
     t.tags = tags
     t.updated = Date.now()
@@ -104,7 +104,7 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p in t.posts when p._id+"" is id and p.author.equals @user._id
+    for p, i in t.posts when p._id+"" is id and (p.author.equals(@user._id) or i is 0 and "wiki" in t.tags)
       p.versions.push {
         created: p.updated
         body: p.body
