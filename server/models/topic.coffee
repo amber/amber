@@ -60,7 +60,7 @@ schema.methods.toJSON = -> {
 schema.statics.search = (query, offset, length, user, cb) ->
   q = parseQuery query
   # console.log require('util').inspect q, null, depth: -1
-  Topic.find q, {title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, stars: {$elemMatch: {$in: [user?._id]}}}
+  Topic.find q, {url: 1, title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, stars: {$elemMatch: {$in: [user?._id]}}}
   .sort {updated: -1}
   .skip offset
   .limit length
