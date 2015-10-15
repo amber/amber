@@ -62,12 +62,12 @@ class Topic extends View
     @posts = []
 
     cb = (err, @d) =>
-      @id ?= @d.id
-      @isWiki = @d.url and "wiki" in @d.tags
-      @app.server.watch "topic", @id, @update
       if err
         @app.setView new NotFound {url: location.pathname}
         return
+      @id ?= @d.id
+      @isWiki = @d.url and "wiki" in @d.tags
+      @app.server.watch "topic", @id, @update
       @editor.setDisabled no
       @editor.focus()
       @app.setTitle @d.title
