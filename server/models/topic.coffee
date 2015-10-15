@@ -32,6 +32,7 @@ schema.pre "save", (next) ->
 
 schema.methods.toSearchJSON = -> {
   id: @_id
+  @url
   starred: !!@stars?.length
   @title
   @author
@@ -42,6 +43,7 @@ schema.methods.toSearchJSON = -> {
 }
 schema.methods.toJSON = -> {
   id: @_id
+  @url
   @title
   @author
   @created

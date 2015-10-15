@@ -10,8 +10,10 @@ class TagEditor extends View
       @div outlet: "metrics", class: "metrics"
       @input outlet: "input", input: "onInput", keypress: "onKeyPress", keydown: "onKeyDown", focus: "onFocus", blur: "onBlur", placeholder: placeholder ? ""
 
-  initialize: ->
+  initialize: ({permanent}) ->
+    @permanent = permanent ? []
     @tags = []
+    @addTag t for t in @permanent
 
   addTag: (tag) ->
     return unless tag = tag.trim()
@@ -19,17 +21,18 @@ class TagEditor extends View
     @tagContainer.appendChild $$ -> @span tag, class: "tag tag-#{tag}"
 
   popTag: ->
+    return if @tags.length <= @permanent.length
     @tagContainer.removeChild @tagContainer.lastElementChild
     @tags.pop()
 
   clearTags: ->
-    @tagContainer.removeChild @tagContainer.lastChild while @tagContainer.firstChild
-    @tags = []
+    @tagContainer.removeChild @tagContainer.lastChild while @tagContainer.children.length > @permanent.length
+    @tags = @permanent.slice()
 
   getTags: -> @tags
   setTags: (tags) ->
     @clearTags()
-    for t in tags then @addTag t
+    for t in @permanent.concat tags then @addTag t
     @input.value = ""
     @onInput()
 
@@ -50,7 +53,7 @@ class TagEditor extends View
     if e.keyCode is 13
       @commit()
       e.preventDefault()
-    if e.keyCode is 8 and @input.selectionStart is @input.selectionEnd and @input.selectionStart is 0 and @tags.length
+    if e.keyCode is 8 and @input.selectionStart is @input.selectionEnd and @input.selectionStart is 0 and @tags.length > @permanent.length
       if e.metaKey
         @clearTags()
       else

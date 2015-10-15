@@ -47,6 +47,8 @@ socket.on "add wiki page", {title: String, url: String, body: String, tags: [Str
   body = body.trim()
   url = url.trim()
   return cb name: "invalid" unless @user and title and body and (url is "/wiki/#{slugify title}" or @user.isAdmin)
+  if "wiki" not in tags
+    tags.unshift "wiki"
   Topic({
     title
     url

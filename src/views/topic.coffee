@@ -2,6 +2,7 @@
 {T} = require "am/util"
 {NotFound} = require "am/views/not-found"
 {Post} = require "am/views/post"
+{ArticlePost} = require "am/views/article-post"
 {Editor} = require "am/views/editor"
 {TagEditor} = require "am/views/tag-editor"
 
@@ -31,7 +32,7 @@ class Topic extends View
   cancelEdit: ->
     @title.style.display = ""
     @titleInput.style.display = "none"
-    @tags.style.display = ""
+    @tags.style.display = if @isWiki then "none" else ""
     @tagEditorWrap.style.display = "none"
 
   saveEdit: ->
@@ -56,11 +57,14 @@ class Topic extends View
 
   enter: -> @editor.focus()
 
-  initialize: ({@id, @app}) ->
+  initialize: ({@id, url, @app}) ->
     @form.style.display = "none" unless app.server.user
-    @app.server.watch "topic", @id, @update
     @posts = []
-    @app.server.getTopic @id, (err, @d) =>
+
+    cb = (err, @d) =>
+      @id ?= @d.id
+      @isWiki = @d.url and "wiki" in @d.tags
+      @app.server.watch "topic", @id, @update
       if err
         @app.setView new NotFound {url: location.pathname}
         return
@@ -70,8 +74,17 @@ class Topic extends View
       @title.textContent = @d.title
       @updateTags @d.tags
       @posts = for p, i in @d.posts
-        @add (post = new Post {@app, top: i is 0, d: p}), @base, @form
+        @add (post = new (if i is 0 and @isWiki then ArticlePost else Post) {@app, top: i is 0, d: p}), @base, @form
         post
+      @tags.style.display = "none" if @isWiki
+
+      if @d.url and not url
+        history.replaceState null, null, @d.url
+
+    if url
+      @app.server.getTopicByURL url, cb
+    else
+      @app.server.getTopic @id, cb
 
   updateTags: (tags) ->
     @tags.removeChild @tags.lastChild while @tags.firstChild

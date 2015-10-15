@@ -2,7 +2,6 @@
 {T, slugify} = require "am/util"
 {Editor} = require "am/views/editor"
 {TagEditor} = require "am/views/tag-editor"
-{Wiki} = require "am/views/wiki"
 
 class AddPage extends View
   @content: ->
@@ -12,7 +11,7 @@ class AddPage extends View
         @input outlet: "titleInput", placeholder: T("Title"), input: "updateURL"
         @input outlet: "urlInput", placeholder: T("URL"), input: "hideError", class: "url-input"
         @subview "body", new Editor placeholder: T("Page")
-        @subview "tags", new TagEditor placeholder: T("Add tags…")
+        @subview "tags", new TagEditor placeholder: T("Add tags…"), permanent: ["wiki"]
         @p outlet: "error", class: "error", style: "display: none", =>
         @section class: "two-buttons", =>
           @button click: "cancel", T("Cancel")
@@ -43,7 +42,7 @@ class AddPage extends View
     @parent.server.addWikiPage {title, url, body, tags}, (err, data) =>
       return if err # TODO
       history.replaceState null, null, url
-      @parent.setView new Wiki {app: @parent}
+      @parent.setView new Topic {app: @parent, url}
 
   updateURL: ->
     title = @titleInput.value
