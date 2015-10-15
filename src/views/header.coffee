@@ -13,12 +13,12 @@ class Header extends View
         @a T("Explore"), dataKey: "Explore", href: "/explore"
         @a T("Discuss"), dataKey: "Discuss", href: "/discuss"
         @a T("Sign In"), outlet: "login", dataKey: "Sign In", class: "right", href: "/login"
-        @span class: "right drop-down", style: "display: none", outlet: "userButton", click: "toggleUserMenu", =>
-          @a =>
+        @span class: "right drop-down", style: "display: none", outlet: "userButton", =>
+          @a click: "toggleUserMenu", =>
             @span outlet: "userName"
             @span class: "arrow"
           @div class: "menu", =>
-            @a T("Preferences"), dataKey: "Preferences", click: "goPreferences"
+            @a T("Preferences"), dataKey: "Preferences", href: "/preferences"
             @a T("Sign Out"), dataKey: "Sign Out", click: "signOut"
         @input type: "search", outlet: "search", keydown: "onKeyDown", placeholder: T("Search…")
 
@@ -47,10 +47,6 @@ class Header extends View
   toggleUserMenu: (e) ->
     e.preventDefault()
     @userButton.classList.toggle "active"
-
-  goPreferences: (e) ->
-    e.preventDefault()
-    @parent.router.go "/preferences"
 
   onKeyDown: (e) ->
     switch e.keyCode
