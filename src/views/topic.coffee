@@ -11,12 +11,12 @@ class Topic extends View
       @div keydown: "onKeyDownTitle", =>
         @h1 =>
           @span T("Loading…"), outlet: "title"
-          @input outlet: "titleInput", class: "topic-title-editor", style: "display: none"
+          @input outlet: "titleInput", placeholder: T("Title"), class: "topic-title-editor", style: "display: none"
         @p outlet: "tags"
         @p outlet: "tagEditorWrap", style: "display: none", =>
-          @subview "tagEditor", new TagEditor
+          @subview "tagEditor", new TagEditor placeholder: T("Add tags…")
       @section class: "inline-container", outlet: "form", keydown: "onKeyDown", =>
-        @subview "editor", new Editor placeholder: "Say something…", disabled: yes
+        @subview "editor", new Editor placeholder: T("Say something…"), disabled: yes
         @button "Post", class: "accent right", click: "submit"
 
   edit: ->

@@ -18,7 +18,7 @@ class Post extends View
       @div outlet: "content", class: "content", =>
         @html parse(body).result
       @div outlet: "editForm", keydown: "onKeyDown", class: "post-editor", =>
-        @subview "editor", new Editor
+        @subview "editor", new Editor placeholder: T("Message")
         @section class: "two-buttons", =>
           @button click: "cancelEdit", T("Cancel")
           @button click: "saveEdit", class: "accent", T("Save")
