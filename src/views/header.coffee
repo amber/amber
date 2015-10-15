@@ -12,6 +12,7 @@ class Header extends View
         @a T("Create"), dataKey: "Create", href: "/new"
         @a T("Explore"), dataKey: "Explore", href: "/explore"
         @a T("Discuss"), dataKey: "Discuss", href: "/discuss"
+        @a T("Wiki"), dataKey: "Wiki", href: "/wiki"
         @a T("Sign In"), outlet: "login", dataKey: "Sign In", class: "right", href: "/login"
         @span class: "right drop-down", style: "display: none", outlet: "userButton", =>
           @a click: "toggleUserMenu", =>
