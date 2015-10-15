@@ -80,6 +80,7 @@ socket.on "add post", {topic: String, body: String}, Function, ({topic, body}, c
     return cb name: "not found" unless n
     watch.emit "topic", topic, {
       type: "add post"
+      id
       author: @user._id
       body
     }, @

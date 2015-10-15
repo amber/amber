@@ -99,6 +99,7 @@ class Topic extends View
         @posts.push post = new Post {
           @app
           d: {
+            id: d.id
             body: d.body
             author: d.author
             created: new Date
@@ -121,7 +122,7 @@ class Topic extends View
       @editor.setValue ""
       @editor.focus()
       return
-    view = new Post {
+    @posts.push view = new Post {
       @app
       d: {
         body
@@ -137,6 +138,8 @@ class Topic extends View
       @editor.setDisabled no
       @editor.focus()
       if err
+        if -1 isnt i = @posts.indexOf view
+          @posts.splice i, 1
         view.remove()
         return
       view.setPending no, id
