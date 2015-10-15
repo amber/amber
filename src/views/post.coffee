@@ -6,14 +6,16 @@
 
 class Post extends View
   @content: ({app, d: {author, created, body}}) ->
+    user = app.server.user
     @section class: "post", =>
       @img src: "http://lorempixel.com/100/100/abstract/1"
       @div class: "author", =>
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        @button T("edit"), click: "edit", class: "menu edit" if author is app.server.user?.id
-        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete" if author is app.server.user?.id
+        if author is user?.id or user?.isAdmin
+          @button T("edit"), click: "edit", class: "menu edit"
+          @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete"
         @button T("report"), class: "menu"
       @div outlet: "content", class: "content", =>
         @html parse(body).result
