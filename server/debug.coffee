@@ -133,5 +133,8 @@ app = http.createServer (req, res) ->
     res.writeHead 404
     res.end "Not found."
 
-io = require("./base") app
-app.listen process.env.PORT || 8080
+try
+  io = require("./base") app
+  app.listen process.env.PORT || 8080
+catch err
+  console.log "#{err}"
