@@ -31,12 +31,12 @@ socket.on "sign in", {username: String, password: String}, Function, ({username,
 socket.on "sign up", {username: String, email: String, password: String}, Function, ({username, email, password}, cb) ->
   username = username.trim()
   email = email.trim()
-  return cb name: "invalid" unless username and password and email and /.@./.test email
+  return cb name: "invalid" unless username and password and (not email or /.@./.test email)
   User.findByName username, (err, user) =>
     return cb name: "in use" if user
     bcrypt.hash password, null, null, (err, hash) =>
       return cb name: "error" if err
-      User({name: username, email, hash}).save (err, user) =>
+      User({name: username, email: email or undefined, hash}).save (err, user) =>
         @createToken user, cb
 
 socket.method "createToken", (user, cb) ->
