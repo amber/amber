@@ -51,6 +51,7 @@ do reload = ->
   b.bundle (err, buf, map) ->
     if err
       console.log "js: err".red
+      io.sockets.emit "js error", "#{err}"
       console.log "#{err}"
     else
       fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
@@ -79,6 +80,7 @@ do reloadCSS = ->
         .render (err, css, js) ->
           if err
             console.log "css: err".red
+            io.sockets.emit "css error", "#{err}"
             console.log "#{err}"
           else
             app += css + "\n"

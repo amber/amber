@@ -2,10 +2,12 @@
 {T} = require "am/util"
 {Header} = require "am/views/header"
 {Footer} = require "am/views/footer"
+{ErrorOverlay} = require "am/views/error-overlay"
 
 class App extends View
   @content: ->
     @div class: "app", =>
+      @subview "errors", new ErrorOverlay {app: @view}
       @subview "header", new Header {app: @view}
       @subview "view", new View
       @subview "footer", new Footer {app: @view}

@@ -21,9 +21,16 @@ class Server
       newLink.rel = "stylesheet"
       newLink.href = link.href.split("?")[0] + "?" + Math.random()
       document.head.replaceChild newLink, link
+      app.errors.hide()
 
     @socket.on "reload js", =>
       location.reload()
+
+    @socket.on "css error", (err) =>
+      app.errors.showError err
+
+    @socket.on "js error", (err) =>
+      app.errors.showError err
 
     @socket.on "update", (d) =>
       @watcher d if @watcher
