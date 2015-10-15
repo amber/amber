@@ -39,7 +39,7 @@ class Header extends View
     if user
       @userName.textContent = user.name
     else
-      @userButton.classList.remove "active"
+      closeUserMenu()
 
   signOut: ->
     @app.server.signOut =>
@@ -48,6 +48,17 @@ class Header extends View
   toggleUserMenu: (e) ->
     e.preventDefault()
     @userButton.classList.toggle "active"
+    setTimeout => @updateListener()
+
+  updateListener: ->
+    if @userButton.classList.contains "active"
+      document.addEventListener "click", @closeUserMenu
+    else
+      document.removeEventListener "click", @closeUserMenu
+
+  closeUserMenu: =>
+    @userButton.classList.remove "active"
+    @updateListener()
 
   onKeyDown: (e) ->
     switch e.keyCode
