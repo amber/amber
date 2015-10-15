@@ -20,8 +20,8 @@ class ArticlePost extends Post
         @a outlet: "author", author
         @text " "
         @subview new RelativeDate created
-        @button T("edit"), click: "edit", class: "menu"
-        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu"
+        @button T("edit"), click: "edit", class: "menu" if app.server.user
+        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu" if app.server.user
         @button T("report"), class: "menu"
 
 module.exports = {ArticlePost}
