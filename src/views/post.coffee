@@ -12,8 +12,8 @@ class Post extends View
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        @button T("edit"), click: "edit", class: "menu" if author is app.server.user?.id
-        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu" if author is app.server.user?.id
+        @button T("edit"), click: "edit", class: "menu edit" if author is app.server.user?.id
+        @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete" if author is app.server.user?.id
         @button T("report"), class: "menu"
       @div outlet: "content", class: "content", =>
         @html parse(body).result
@@ -75,6 +75,10 @@ class Post extends View
         @editor.focus()
         return
       @showEditor no
+
+  markDeleted: ->
+    @content.textContent = T("[Deleted]")
+    @base.classList.add "deleted"
 
   cancelEdit: ->
     @showEditor no

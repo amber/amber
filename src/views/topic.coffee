@@ -107,6 +107,13 @@ class Topic extends View
         @add post, @base, @form
         if scroll
           scrollTo 0, document.body.offsetHeight
+      when "hide post"
+        for p in @posts when p.d.id is d.id
+          if scrollUp = p.base.getBoundingClientRect().bottom <= 40
+            oldY = scrollY - p.base.offsetHeight
+          p.markDeleted()
+          if scrollUp
+            scrollTo 0, p.base.offsetHeight + oldY
 
   submit: ->
     body = @editor.getValue().trim()

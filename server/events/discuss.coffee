@@ -134,6 +134,10 @@ socket.on "hide post", {topic: String, id: String}, Function, ({topic, id}, cb) 
       p.updated = Date.now()
       return t.save (err) =>
         return cb name: "error" if err
+        watch.emit "topic", topic, {
+          type: "hide post"
+          id
+        }, @
         cb null, yes
     cb name: "not found"
 
