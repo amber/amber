@@ -39,7 +39,7 @@ class Header extends View
     if user
       @userName.textContent = user.name
     else
-      closeUserMenu()
+      @closeUserMenu()
 
   signOut: ->
     @app.server.signOut =>
