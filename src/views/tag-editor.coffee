@@ -10,6 +10,8 @@ class TagEditor extends View
       @div outlet: "metrics", class: "metrics"
       @input outlet: "input", input: "onInput", keypress: "onKeyPress", keydown: "onKeyDown", focus: "onFocus", blur: "onBlur", placeholder: placeholder ? ""
 
+  enter: -> @onInput()
+
   initialize: ({permanent}) ->
     @permanent = permanent ? []
     @tags = []
