@@ -37,8 +37,9 @@ class Header extends View
     visible @login, not user
     visible @userButton, user
     if user
-      console.log user
       @userName.textContent = user.name
+    else
+      @userButton.classList.remove "active"
 
   signOut: ->
     @app.server.signOut =>
