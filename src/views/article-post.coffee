@@ -5,7 +5,7 @@
 {RelativeDate} = require "am/views/relative-date"
 
 class ArticlePost extends Post
-  @content: ({app, d: {body, created, author}}) ->
+  @content: ({app, d: {body, modified, author}}) ->
     @section class: "post article", =>
       @img src: "http://lorempixel.com/100/100/abstract/1", style: "display: none"
       @div outlet: "content", class: "content", =>
@@ -17,9 +17,9 @@ class ArticlePost extends Post
           @button click: "saveEdit", class: "accent", T("Save")
       @div class: "author", =>
         @text "Last edited by "
-        @a outlet: "author", author
+        @a outlet: "author", href: "/user/#{author}"
         @text " "
-        @subview new RelativeDate created
+        @subview new RelativeDate modified
         @button T("edit"), click: "edit", class: "menu" if app.server.user
         @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu" if app.server.user
         @button T("report"), class: "menu"
