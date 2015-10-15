@@ -1,5 +1,5 @@
 {View} = require "scene"
-{parse} = require "markup"
+{parse} = require "am/markup"
 {T} = require "am/util"
 {RelativeDate} = require "am/views/relative-date"
 {Editor} = require "am/views/editor"
