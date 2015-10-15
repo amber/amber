@@ -13,6 +13,66 @@ header
   .right
     float right
 
+  .drop-down
+    position relative
+
+    .arrow
+      display inline-block
+      border .24748737rem solid transparent
+      border-top .35rem solid currentColor
+      border-bottom 0
+      vertical-align middle
+      margin-left .3rem
+
+      position relative
+      z-index 10001
+      transition transform .3s ease
+
+    .menu
+      z-index -1
+      position absolute
+      top 100%
+      border-top 1px solid currentColor
+      right 0
+      width 10rem
+      background $nav-background
+
+      opacity 0
+      transition opacity .3s ease, transform .3s ease, z-index .3s step-start
+      transform translate(0,-17px) rotate(60deg)
+      transform-origin right top
+      pointer-events none
+
+      // &:before
+      //   content ''
+      //   position absolute
+      //   top -.5rem
+      //   right 2rem
+      //   border .5rem solid  transparent
+      //   border-bottom .5rem solid $nav-background
+      //   border-top 0
+
+      a
+        float none
+        line-height 1.8
+
+        &:first-child
+          padding-top 6px
+
+        &:last-child
+          padding-bottom 6px
+
+    &.active
+      .arrow
+        transform translate(0,17px) rotate(-60deg)
+
+      .menu
+        transition opacity .3s ease, transform .3s ease, z-index .3s step-end
+        z-index 10000
+        transform none
+        opacity 1
+        pointer-events auto
+
   input[type=search]
     -webkit-appearance none
     float right
@@ -40,10 +100,10 @@ header
     color $nav-foreground
     text-decoration none
 
-    &:first-child
-      font-weight 500
-      letter-spacing 0
-      margin-left -12px
-
     &:hover
       color $nav-foreground-hover
+
+  > .container > a:first-child
+    font-weight 500
+    letter-spacing 0
+    margin-left -12px
