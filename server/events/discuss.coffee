@@ -105,7 +105,7 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p, i in t.posts when p._id+"" is id and (not p.hidden or @user.isAdmin) and (p.author.equals(@user._id) or i is 0 and "wiki" in t.tags)
+    for p, i in t.posts when p._id+"" is id and (not p.hidden or @user.isAdmin) and (p.author.equals(@user._id) or @user.isAdmin or i is 0 and "wiki" in t.tags)
       p.versions.push {
         created: p.updated
         body: p.body
