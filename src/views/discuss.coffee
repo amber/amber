@@ -11,7 +11,7 @@ class Discuss extends View
       @h1 T("Discuss Amber")
       @section class: "discuss-bar#{if app.server.user then " signed-in" else ""}", =>
         @div class: "input-wrapper", =>
-          @input outlet: "filter", input: "refilter", keydown: "onFilterKey", placeholder: T("Filter…"), value: filter ? ""
+          @input outlet: "filter", input: "refilter", keydown: "onFilterKey", type: "search", placeholder: T("Filter…"), value: filter ? ""
         if app.server.user
           @a T("New topic"), class: "button accent", href: "/discuss/new"
       @div outlet: "content"
