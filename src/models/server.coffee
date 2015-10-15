@@ -64,16 +64,16 @@ class Server
       cb null, user
 
   signUp: ({username, email, password}, cb) ->
-    @socket.emit "sign up", {username, email, password}, (err, user) =>
+    @socket.emit "sign up", {username, email, password}, (err, d) =>
       return cb err if err
-      @app.setUser @user = user
-      cb null, user
+      @signedIn d
+      cb null, @user
 
   signIn: ({username, password}, cb) ->
     @socket.emit "sign in", {username, password}, (err, d) =>
       return cb err if err
       @signedIn d
-      cb null, d.user
+      cb null, @user
 
   signOut: (cb) ->
     @socket.emit "sign out", (err) =>
