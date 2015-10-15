@@ -1,14 +1,15 @@
 {View} = require "scene"
-{T, slugify} = require "am/util"
+{T, slugify, deslugify} = require "am/util"
+{Topic} = require "am/views/topic"
 {Editor} = require "am/views/editor"
 {TagEditor} = require "am/views/tag-editor"
 
 class AddPage extends View
-  @content: ->
+  @content: ({page}) ->
     @article class: "wiki", =>
       @h1 T("New wiki page")
       @div class: "inline-container", keydown: "onKeyDown", =>
-        @input outlet: "titleInput", placeholder: T("Title"), input: "updateURL"
+        @input outlet: "titleInput", placeholder: T("Title"), input: "updateURL", value: if page then deslugify page else ""
         @input outlet: "urlInput", placeholder: T("URL"), input: "hideError", class: "url-input"
         @subview "body", new Editor placeholder: T("Page")
         @subview "tags", new TagEditor placeholder: T("Add tags…"), permanent: ["wiki"]
@@ -20,9 +21,10 @@ class AddPage extends View
   initialize: ({@app}) ->
     @body.on "input", @hideError
     @urlInput.disabled = not @app.server.user?.isAdmin
+    @updateURL()
 
   title: -> T("New wiki page")
-  enter: -> @titleInput.focus()
+  enter: -> (if @titleInput.value then @body else @titleInput).focus()
 
   cancel: -> history.back()
   submit: ->

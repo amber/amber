@@ -27,6 +27,7 @@ urls =
   "/project/:id": Project
   "/wiki": wiki
   "/wiki/new": AddPage
+  "/wiki/new/:page": AddPage
   "/wiki/:page": wiki
   "/terms": wiki
   "/privacy": wiki
