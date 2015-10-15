@@ -1,3 +1,5 @@
+{slugify} = require "am/util-shared"
+
 format = (s, v) -> s.replace /\{(\w+)\}/g, (_, name) -> v[name]
 
 escape = (s) -> s.replace /[<>'"&]/, (c) -> switch c
@@ -51,4 +53,4 @@ emitter = (o) ->
     return unless list = @listeners?[event]
     fn args... for fn in list
 
-module.exports = {format, escape, emitter, T, relativeDate, humanNumber}
+module.exports = {format, escape, emitter, T, relativeDate, humanNumber, slugify}

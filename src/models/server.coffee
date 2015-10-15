@@ -86,6 +86,10 @@ class Server
     tags ?= []
     @socket.emit "add topic", {title, body, tags}, cb
 
+  addWikiPage: ({title, url, body, tags}, cb) ->
+    tags ?= []
+    @socket.emit "add wiki page", {title, url, body, tags}, cb
+
   searchTopics: ({query, offset, length}, cb) ->
     @socket.emit "search topics", {query, offset, length}, (err, topics) =>
       return cb err if err
@@ -93,6 +97,11 @@ class Server
 
   getTopic: (id, cb) ->
     @socket.emit "get topic", id, (err, topic) =>
+      return cb err if err
+      cb null, new Topic topic
+
+  getTopicByURL: (url, cb) ->
+    @socket.emit "get topic by url", url, (err, topic) =>
       return cb err if err
       cb null, new Topic topic
 

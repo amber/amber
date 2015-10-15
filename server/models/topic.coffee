@@ -4,6 +4,7 @@ ObjectId = mongoose.Schema.ObjectId
 schema = mongoose.Schema
   title: String
   author: ObjectId
+  url: type: String, index: true
   hidden: type: Boolean, default: no
   created: type: Date, default: Date.now
   updated: type: Date, default: Date.now
@@ -51,7 +52,7 @@ schema.methods.toJSON = -> {
     body: p.body
     created: p.created
     updated: p.updated
-  } for p in @posts
+  } for p in @posts when not p.hidden
 }
 
 schema.statics.search = (query, offset, length, user, cb) ->

@@ -2,6 +2,7 @@ socket = require "../socket"
 watch = require "../watch"
 {Types: {ObjectId}} = require "mongoose"
 Topic = require "../models/topic"
+{slugify} = require "../../src/util-shared"
 
 socket.on "search topics", {query: String, offset: Number, length: Number}, Function, ({query, offset, length}, cb) ->
   Topic.search query, offset, length, @user, (err, topics) ->
@@ -12,18 +13,43 @@ socket.on "get topic", String, Function, (id, cb) ->
   Topic.findById id, (err, topic) ->
     return cb name: "error" if err
     return cb name: "not found" unless topic
-    topic.posts = topic.posts.filter (x) -> not x.hidden
     cb null, topic
   Topic.update {_id: id}, {$inc: viewCount: 1}
+  .exec()
+
+socket.on "get topic by url", String, Function, (url, cb) ->
+  Topic.findOne {url}, (err, topic) ->
+    return cb name: "error" if err
+    return cb name: "not found" unless topic
+    cb null, topic
+  Topic.update {url}, {$inc: viewCount: 1}
   .exec()
 
 socket.on "add topic", {title: String, body: String, tags: [String]}, Function, ({title, body, tags}, cb) ->
   title = title.trim()
   body = body.trim()
   return cb name: "invalid" unless @user and title and body
-  now = new Date
   Topic({
     title
+    author: @user._id
+    tags
+    posts: [{
+      author: @user._id
+      body
+      versions: []
+    }]
+  }).save (err, topic) =>
+    return cb name: "error" if err
+    cb null, topic
+
+socket.on "add wiki page", {title: String, url: String, body: String, tags: [String]}, Function, ({title, url, body, tags}, cb) ->
+  title = title.trim()
+  body = body.trim()
+  url = url.trim()
+  return cb name: "invalid" unless @user and title and body and (url is "/wiki/#{slugify title}" or @user.isAdmin)
+  Topic({
+    title
+    url
     author: @user._id
     tags
     posts: [{
