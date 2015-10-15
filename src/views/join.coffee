@@ -9,6 +9,7 @@ class Join extends View
         @input outlet: "username", placeholder: T("Username"), class: "large"
         @input outlet: "email", type: "email", placeholder: T("Email"), class: "large"
         @input outlet: "password", type: "password", placeholder: T("Password"), class: "large"
+        @p outlet: "error", class: "error", style: "display: none"
         @button T("Sign up"), class: "large accent", click: "submit"
 
   title: -> T("Sign up")
@@ -26,15 +27,28 @@ class Join extends View
   onInput: ->
     @error.style.display = "none"
 
+  showError: (message) ->
+    @error.textContent = message
+    @error.style.display = ""
+
   submit: ->
+    username = @username.value.trim()
+    email = @email.value.trim()
+    password = @password.value
+    unless username
+      @username.focus()
+      return @showError T("You need a username.")
+    unless password
+      @password.focus()
+      return @showError T("You need a password.")
     @username.disabled = @email.disabled = @password.disabled = yes
-    @app.server.signUp {
-      username: @username.value
-      email: @email.value
-      password: @password.value
-    }, (err) =>
+    @app.server.signUp {username, email, password}, (err) =>
       @username.disabled = @email.disabled = @password.disabled = no
-      return if err # TODO
+      if err
+        if err.name is "in use"
+          @username.select()
+          @showError T("The name “{username}” is taken.", {username})
+        return # TODO
       @app.router.goBack "/"
 
 module.exports = {Join}
