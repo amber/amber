@@ -27,7 +27,9 @@ schema = mongoose.Schema
 schema.index {title: "text", "posts.body": "text"}
 
 schema.pre "save", (next) ->
-  @postCount = @posts.length
+  pc = 0
+  pc++ for p in @posts when not p.hidden
+  @postCount = pc
   next()
 
 schema.methods.toSearchJSON = -> {
