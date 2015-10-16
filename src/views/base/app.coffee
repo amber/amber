@@ -1,8 +1,8 @@
 {View} = require "scene"
 {T} = require "am/util"
-{Header} = require "am/views/header"
-{Footer} = require "am/views/footer"
-{ErrorOverlay} = require "am/views/error-overlay"
+{Header} = require "am/views/base/header"
+{Footer} = require "am/views/base/footer"
+{ErrorOverlay} = require "am/views/base/error-overlay"
 
 class App extends View
   @content: ->

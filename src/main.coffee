@@ -1,4 +1,4 @@
-{App} = require "am/app"
+{App} = require "am/views/base/app"
 {Router} = require "am/router"
 {Server} = require "am/models/server"
 

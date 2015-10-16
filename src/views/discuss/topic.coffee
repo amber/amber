@@ -1,10 +1,10 @@
 {View, $$} = require "scene"
 {T} = require "am/util"
 {NotFound} = require "am/views/not-found"
-{Post} = require "am/views/post"
-{ArticlePost} = require "am/views/article-post"
-{Editor} = require "am/views/editor"
-{TagEditor} = require "am/views/tag-editor"
+{Post} = require "am/views/discuss/post"
+{ArticlePost} = require "am/views/wiki/article-post"
+{Editor} = require "am/views/components/editor"
+{TagEditor} = require "am/views/components/tag-editor"
 
 class Topic extends View
   @content: ({id}) ->

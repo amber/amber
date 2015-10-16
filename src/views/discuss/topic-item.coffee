@@ -1,6 +1,6 @@
 {View, $$} = require "scene"
 {T, extend, humanNumber} = require "am/util"
-{RelativeDate} = require "am/views/relative-date"
+{RelativeDate} = require "am/views/components/relative-date"
 
 class TopicItem extends View
   @content: ->

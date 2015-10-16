@@ -1,8 +1,8 @@
 {T} = require "am/util"
 {parse} = require "am/markup"
-{Post} = require "am/views/post"
-{Editor} = require "am/views/editor"
-{RelativeDate} = require "am/views/relative-date"
+{Post} = require "am/views/discuss/post"
+{Editor} = require "am/views/components/editor"
+{RelativeDate} = require "am/views/components/relative-date"
 
 class ArticlePost extends Post
   @content: ({app, d: {body, modified, author}}) ->

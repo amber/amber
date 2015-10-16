@@ -2,13 +2,13 @@
 {Home} = require "am/views/home"
 {Login} = require "am/views/login"
 {Join} = require "am/views/join"
-{Discuss} = require "am/views/discuss"
-{AddTopic} = require "am/views/add-topic"
+{Discuss} = require "am/views/discuss/discuss"
+{AddTopic} = require "am/views/discuss/add-topic"
+{Topic} = require "am/views/discuss/topic"
 {Explore} = require "am/views/explore"
 {Search} = require "am/views/search"
 {Project} = require "am/views/project"
-{Topic} = require "am/views/topic"
-{AddPage} = require "am/views/add-page"
+{AddPage} = require "am/views/wiki/add-page"
 
 wiki = ({app}) -> new Topic {app, url: location.pathname}
 

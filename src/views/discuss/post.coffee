@@ -1,8 +1,8 @@
 {View} = require "scene"
 {parse} = require "am/markup"
 {T} = require "am/util"
-{RelativeDate} = require "am/views/relative-date"
-{Editor} = require "am/views/editor"
+{RelativeDate} = require "am/views/components/relative-date"
+{Editor} = require "am/views/components/editor"
 
 class Post extends View
   @content: ({app, d: {author, created, body}}) ->

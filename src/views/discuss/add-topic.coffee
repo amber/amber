@@ -1,8 +1,8 @@
 {View} = require "scene"
 {T} = require "am/util"
-{Editor} = require "am/views/editor"
-{TagEditor} = require "am/views/tag-editor"
-{Topic} = require "am/views/topic"
+{Editor} = require "am/views/components/editor"
+{TagEditor} = require "am/views/components/tag-editor"
+{Topic} = require "am/views/discuss/topic"
 
 class AddTopic extends View
   @content: ->

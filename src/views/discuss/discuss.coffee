@@ -1,6 +1,6 @@
 {View} = require "scene"
 {T, format, escape} = require "am/util"
-{TopicItem} = require "am/views/topic-item"
+{TopicItem} = require "am/views/discuss/topic-item"
 
 CHUNK_SIZE = 20
 TAG_RE = /^\s*\[([^\]]+)\]\s*$/

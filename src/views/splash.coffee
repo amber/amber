@@ -1,5 +1,5 @@
 {View} = require "scene"
-{Carousel} = require "am/views/carousel"
+{Carousel} = require "am/views/components/carousel"
 {T} = require "am/util"
 
 class Splash extends View

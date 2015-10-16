@@ -1,6 +1,6 @@
 {View} = require "scene"
 {T} = require "am/util"
-{Carousel} = require "am/views/carousel"
+{Carousel} = require "am/views/components/carousel"
 
 class Home extends View
   @content: ->

@@ -1,8 +1,8 @@
 {View} = require "scene"
 {T, slugify, deslugify} = require "am/util"
-{Topic} = require "am/views/topic"
-{Editor} = require "am/views/editor"
-{TagEditor} = require "am/views/tag-editor"
+{Topic} = require "am/views/discuss/topic"
+{Editor} = require "am/views/components/editor"
+{TagEditor} = require "am/views/components/tag-editor"
 
 class AddPage extends View
   @content: ({page}) ->
