@@ -16,7 +16,7 @@
     "browserify": "^5.9.3",
     "chalk": "^1.1.1",
     "coffeeify": "^1.1.0",
-    "glob": "~4.0.5",
+    "glob": "^5.0.15",
     "mongoose": "^4.1.11",
     "nib": "~1.0.3",
     "node-watch": "~0.3.4",
