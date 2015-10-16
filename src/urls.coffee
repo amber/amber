@@ -28,6 +28,7 @@ urls =
   "/wiki": wiki
   "/wiki/new": AddPage
   "/wiki/new/:page": AddPage
+  "/wiki/t/:tag": ({app, tag}) -> new Discuss {app, filter: "[wiki] [#{tag}]"}
   "/wiki/:page": wiki
   "/terms": wiki
   "/privacy": wiki
