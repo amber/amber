@@ -115,6 +115,11 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
       t.updated = Date.now()
       return t.save (err) =>
         return cb name: "error" if err
+        watch.emit "topic", topic, {
+          type: "edit post"
+          id
+          body
+        }, @
         cb null, yes
     cb name: "not found"
 

@@ -70,13 +70,16 @@ class Post extends View
       topic: @parent.id
       body
     }, (err) =>
-      @d.body = body
       @editor.setDisabled no
       if err
         @editor.focus()
         return
-      @content.innerHTML = parse(body).result
+      @setBody body
       @showEditor no
+
+  setBody: (body) ->
+    @d.body = body
+    @content.innerHTML = parse(body).result
 
   markDeleted: ->
     @content.textContent = T("[Deleted]")
