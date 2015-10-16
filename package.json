@@ -18,7 +18,7 @@
     "coffeeify": "^1.1.0",
     "glob": "^5.0.15",
     "mongoose": "^4.1.11",
-    "nib": "~1.0.3",
+    "nib": "^1.1.0",
     "node-watch": "~0.3.4",
     "socket.io": "~1.0.6",
     "socket.io-client": "~1.0.6",
