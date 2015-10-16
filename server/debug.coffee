@@ -4,7 +4,7 @@ path = require "path"
 cluster = require "cluster"
 url = require "url"
 
-require "colors"
+{red, yellow, green, cyan, grey} = require "chalk"
 browserify = require "browserify"
 coffeeify = require "coffeeify"
 stylus = require "stylus"
@@ -50,12 +50,12 @@ do reload = ->
   reloading = yes
   b.bundle (err, buf, map) ->
     if err
-      console.log "js: err".red
+      console.log red "js: err"
       io.sockets.emit "js error", "#{err}"
       console.log "#{err}"
     else
       fs.writeFileSync "#{BASE_DIR}/static/app.js", buf
-      console.log "js: ok".grey
+      console.log grey "js: ok"
 
     reloading = no
     if again
@@ -79,7 +79,7 @@ do reloadCSS = ->
         .import 'nib'
         .render (err, css, js) ->
           if err
-            console.log "css: err".red
+            console.log red "css: err"
             io.sockets.emit "css error", "#{err}"
             console.log "#{err}"
           else
@@ -88,7 +88,7 @@ do reloadCSS = ->
             fs.writeFileSync "#{BASE_DIR}/static/app.css", app
             io.sockets.emit "reload css" unless cssFirstTime
             cssFirstTime = no
-            console.log "css: ok".grey
+            console.log grey "css: ok"
 
 MIME_TYPES =
   html: "text/html"
@@ -102,17 +102,17 @@ cssTimeout = null
 watch "#{BASE_DIR}/src", (file) ->
   return if /\.tmp$/.test file # ignore rename from atomic save
   if /\.styl$/.test file
-    console.log "~ #{path.relative BASE_DIR, file}".yellow
+    console.log yellow "~ #{path.relative BASE_DIR, file}"
     clearTimeout cssTimeout
     cssTimeout = setTimeout reloadCSS, 50
   else
     clearTimeout timeout
-    console.log "~ #{path.relative BASE_DIR, file}".green
+    console.log green "~ #{path.relative BASE_DIR, file}"
     timeout = setTimeout reload, 50
 
 watch __dirname, (file) ->
   return if /\/data\//.test file # ignore mongodb changes
-  console.log "~ #{path.relative BASE_DIR, file}".cyan
+  console.log cyan "~ #{path.relative BASE_DIR, file}"
   cluster.worker.kill()
 
 app = http.createServer (req, res) ->
