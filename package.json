@@ -11,18 +11,18 @@
     "url": "https://github.com/amber/client.git"
   },
   "dependencies": {
-    "browserify": "~5.9.1",
-    "through": "~2.3.4",
-    "aliasify": "~1.4.0",
-    "coffeeify": "~0.7.0",
-    "stylus": "~0.47.3",
+    "aliasify": "^1.4.0",
+    "bcrypt-nodejs": "0.0.3",
+    "browserify": "^5.9.3",
+    "coffeeify": "^1.1.0",
+    "colors": "~0.6.2",
     "glob": "~4.0.5",
+    "mongoose": "^4.1.11",
+    "nib": "~1.0.3",
     "node-watch": "~0.3.4",
     "socket.io": "~1.0.6",
     "socket.io-client": "~1.0.6",
-    "nib": "~1.0.3",
-    "bcrypt-nodejs": "0.0.3",
-    "mongoose": "~3.8.14",
-    "colors": "~0.6.2"
+    "stylus": "~0.47.3",
+    "through": "~2.3.4"
   }
 }
