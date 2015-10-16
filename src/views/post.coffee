@@ -72,10 +72,10 @@ class Post extends View
     }, (err) =>
       @d.body = body
       @editor.setDisabled no
-      @content.innerHTML = parse(body).result
       if err
         @editor.focus()
         return
+      @content.innerHTML = parse(body).result
       @showEditor no
 
   markDeleted: ->
