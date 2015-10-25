@@ -16,7 +16,6 @@ class Script extends Base
     y = 0
     w = 0
     for b in @subviews
-      y += 1 if y
       b.moveTo 0, y
       w = Math.max w, b.w
       y += b.h

@@ -79,6 +79,11 @@ class Block extends Base
     @pathOn @cx, out.left, out.top, @w, @h
     @cx.fill()
 
+    @cx.strokeStyle = "rgba(0,0,0,.35)"
+    @cx.beginPath()
+    @pathOutlineOn @cx, out.left, out.top, @w, @h
+    @cx.stroke()
+
   hitTest: (x, y) -> 0 <= x < @w and 0 <= y < @h
 
   objectAt: (x, y) ->
