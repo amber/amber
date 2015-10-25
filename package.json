@@ -14,6 +14,7 @@
     "aliasify": "^1.4.0",
     "bcrypt-nodejs": "0.0.3",
     "browserify": "^5.9.3",
+    "caching-coffeeify": "^0.5.1",
     "chalk": "^1.1.1",
     "coffeeify": "^1.1.0",
     "glob": "^5.0.15",

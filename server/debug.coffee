@@ -6,7 +6,7 @@ url = require "url"
 
 {red, yellow, green, cyan, grey} = require "chalk"
 browserify = require "browserify"
-coffeeify = require "coffeeify"
+coffeeify = require "caching-coffeeify"
 stylus = require "stylus"
 nib = require "nib"
 glob = require "glob"
