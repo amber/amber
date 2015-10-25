@@ -5,6 +5,7 @@ class ScriptEditor extends View
 
   @content: ->
     @div class: "scripts", mousedown: "onMouseDown", scroll: "onScroll", =>
+      @div outlet: "fill", class: "fill"
       @subview new Script([
         Block.for "c", "#06c", "go to x: %n y: %n"
         Block.for "c", "#06c", "point in direction %n"
@@ -17,24 +18,30 @@ class ScriptEditor extends View
 
   enter: ->
     @bb = @base.getBoundingClientRect()
+  afterEnter: ->
+    @updateBounds()
 
   onScroll: (e) ->
     @scrollX = @base.scrollLeft
     @scrollY = @base.scrollTop
+    @updateFill()
     @onGestureMove @mouseTouch if @mouseTouch
 
   onMouseDown: (e) ->
+    e.preventDefault()
     document.addEventListener "mousemove", @onMouseMove
     document.addEventListener "mouseup", @onMouseUp
     @onGestureStart @mouseTouch = x: e.clientX, y: e.clientY
 
   onMouseMove: (e) =>
+    e.preventDefault()
     @mouseTouch.x = e.clientX
     @mouseTouch.y = e.clientY
     @onGestureMove @mouseTouch
 
   onMouseUp: (e) =>
     return if e.metaKey and e.ctrlKey
+    e.preventDefault()
     @mouseTouch.x = e.clientX
     @mouseTouch.y = e.clientY
     @onGestureEnd @mouseTouch
@@ -69,6 +76,40 @@ class ScriptEditor extends View
       @add d.script.moveTo d.ox + d.x, d.oy + d.y
     else if d.target
       d.target.click()
+
+  add: (script) ->
+    super script
+    @updateBounds()
+
+  padding: -> 8
+  extraSpace: -> 200
+
+  updateBounds: ->
+    minX = minY = pad = @padding()
+    maxX = maxY = 0
+    for s in @subviews
+      minX = l if minX > l = s.x
+      minY = l if minY > l = s.y
+      maxX = l if maxX < l = s.x + s.w
+      maxY = l if maxY < l = s.y + s.h
+
+    if minX < pad || minY < pad
+      deltaX = Math.max 0, pad - minX
+      deltaY = Math.max 0, pad - minY
+      for s in @subviews
+        s.moveTo s.x + deltaX, s.y + deltaY
+      minX += deltaX
+      minY += deltaY
+      maxX += deltaX
+      maxY += deltaY
+
+    [@minX, @minY, @maxX, @maxY] = [minX, minY, maxX, maxY]
+    @updateFill()
+  updateFill: ->
+    es = @extraSpace()
+    maxX = es + Math.max @scrollX + @bb.width, @maxX
+    maxY = es + Math.max @scrollY + @bb.height, @maxY
+    @fill.style.transform = "translate(#{maxX}px, #{maxY}px)"
 
   objectAt: (x, y) ->
     return o for s in @subviews by -1 when o = s.objectAt x - s.x, y - s.y
