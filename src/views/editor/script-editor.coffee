@@ -36,6 +36,7 @@ class ScriptEditor extends View
     @onGestureMove @mouseTouch if @mouseTouch
 
   onMouseDown: (e) ->
+    return if e.target.tagName in ["INPUT"]
     e.preventDefault()
     document.addEventListener "mousemove", @onMouseMove
     document.addEventListener "mouseup", @onMouseUp
@@ -61,6 +62,7 @@ class ScriptEditor extends View
     d.sx = d.x
     d.sy = d.y
     d.target = @objectAt d.x - @bb.left + @scrollX, d.y - @bb.top + @scrollY
+    document.activeElement.blur()
 
   onGestureMove: (d) ->
     return unless d.target
