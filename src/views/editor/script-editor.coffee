@@ -4,17 +4,24 @@ class ScriptEditor extends View
   isScriptEditor: yes
 
   @content: ->
-    @div class: "scripts", mousedown: "onMouseDown", =>
+    @div class: "scripts", mousedown: "onMouseDown", scroll: "onScroll", =>
       @subview new Script([
         Block.for "c", "#06c", "go to x: %n y: %n"
         Block.for "c", "#06c", "point in direction %n"
       ].concat (Block.for "c", "#06c", "move %n steps" for i in [1..50])).moveTo 8, 8
 
   initialize: ->
+    @scrollX = @scrollY = 0
+    @mouseTouch = null
     @touches = new Map
 
   enter: ->
     @bb = @base.getBoundingClientRect()
+
+  onScroll: (e) ->
+    @scrollX = @base.scrollLeft
+    @scrollY = @base.scrollTop
+    @onGestureMove @mouseTouch if @mouseTouch
 
   onMouseDown: (e) ->
     document.addEventListener "mousemove", @onMouseMove
@@ -31,13 +38,14 @@ class ScriptEditor extends View
     @mouseTouch.x = e.clientX
     @mouseTouch.y = e.clientY
     @onGestureEnd @mouseTouch
+    @mouseTouch = null
     document.removeEventListener "mousemove", @onMouseMove
     document.removeEventListener "mouseup", @onMouseUp
 
   onGestureStart: (d) ->
     d.sx = d.x
     d.sy = d.y
-    d.target = @objectAt d.x - @bb.left, d.y - @bb.top
+    d.target = @objectAt d.x - @bb.left + @scrollX, d.y - @bb.top + @scrollY
 
   onGestureMove: (d) ->
     return unless d.target
@@ -52,7 +60,7 @@ class ScriptEditor extends View
       d.script.embed document.body
       d.script.addShadow 3, 3, 12, "rgba(0,0,0,.35)"
     if d.dragging
-      d.script.moveTo d.ox + d.x + @bb.left, d.oy + d.y + @bb.top
+      d.script.moveTo d.ox + d.x + @bb.left - @scrollX, d.oy + d.y + @bb.top - @scrollY
     else
 
   onGestureEnd: (d) ->
