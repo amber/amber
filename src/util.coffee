@@ -53,4 +53,11 @@ emitter = (o) ->
     return unless list = @listeners?[event]
     fn args... for fn in list
 
-module.exports = {format, escape, emitter, T, relativeDate, humanNumber, slugify, deslugify, capitalize}
+roundRect = (cx, x, y, w, h, r) ->
+  cx.arc x + r, y + r, r, Math.PI, Math.PI*3/2
+  cx.arc x + w - r, y + r, r, Math.PI*3/2, 0
+  cx.arc x + w - r, y + h - r, r, 0, Math.PI/2
+  cx.arc x + r, y + h - r, r, Math.PI/2, Math.PI
+  cx.closePath()
+
+module.exports = {format, escape, emitter, T, relativeDate, humanNumber, slugify, deslugify, capitalize, roundRect}

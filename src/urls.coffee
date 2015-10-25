@@ -9,11 +9,13 @@
 {Search} = require "am/views/search"
 {Project} = require "am/views/project"
 {AddPage} = require "am/views/wiki/add-page"
+{Editor} = require "am/views/editor/editor"
 
 wiki = ({app}) -> new Topic {app, url: location.pathname}
 
 urls =
   "/": (d) -> new (if d.app.server.user then Home else Splash) d
+  "/new": Editor
   "/home": Home
   "/login": Login
   "/join": Join
