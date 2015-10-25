@@ -62,18 +62,18 @@ class ScriptEditor extends View
         d.target = d.target.parent
       p = d.target.basePosition()
       d.script = d.target.detach()
-      d.ox = p.x - d.sx
-      d.oy = p.y - d.sy
+      d.ox = p.x - d.sx - @scrollX
+      d.oy = p.y - d.sy - @scrollY
       d.script.embed document.body
       d.script.addShadow 3, 3, 12, "rgba(0,0,0,.35)"
     if d.dragging
-      d.script.moveTo d.ox + d.x + @bb.left - @scrollX, d.oy + d.y + @bb.top - @scrollY
+      d.script.moveTo d.ox + d.x + @bb.left, d.oy + d.y + @bb.top
     else
 
   onGestureEnd: (d) ->
     if d.dragging
       d.script.removeShadow()
-      @add d.script.moveTo d.ox + d.x, d.oy + d.y
+      @add d.script.moveTo d.ox + d.x + @scrollX, d.oy + d.y + @scrollY
     else if d.target
       d.target.click()
 
