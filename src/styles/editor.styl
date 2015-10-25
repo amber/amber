@@ -14,7 +14,7 @@
     position absolute
     top 0
     left 0
-    width 640px
+    width 480px
     height 100%
 
     .stage
@@ -24,6 +24,7 @@
       width 480px
       height 360px
       background #fff
+      transform-origin 0 0
 
     .sprite-list
       position absolute
@@ -96,6 +97,18 @@
       overflow auto
       // border-right 4px solid #ddd
       // border-right 4px solid $nav-background
+
+  @media (max-width 1000px)
+    .left-panel
+      width 240px
+
+      .stage
+        transform scale(.5)
+      .sprite-list
+        top 180px
+
+    .tab-panel
+      left 240px
 
 .abs
   position: absolute
