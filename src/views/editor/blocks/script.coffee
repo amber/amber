@@ -28,7 +28,13 @@ class Script extends Base
 
   splitFrom: (b) ->
     i = @subviews.indexOf b
-    if i is 0 then @ else new Script (if -1 is i then [b] else @subviews.slice i)
+    switch i
+      when 0 then @
+      when -1 then new Script[b]
+      else
+        script = new Script @subviews.slice i
+        @dirty()
+        script
 
   addShadow: (ox, oy, blur, color) ->
     return if @shadow
