@@ -20,7 +20,6 @@ class Block extends Base
     super
     @cx = @cv.getContext "2d"
     out = @outset()
-    @cv.style.transform = "translate(#{-out.left}px,#{-out.right}px)"
 
     @setSpec spec, args
 
@@ -55,16 +54,15 @@ class Block extends Base
 
     @setSize x + pad.right, pad.top + h + pad.bottom
 
+  pixelRatioChanged: -> @sizeChanged @w, @h
+
   sizeChanged: (w, h) ->
     out = @outset()
     pr = devicePixelRatio ? 1
-    fw = w + out.left + out.right
-    fh = h + out.top + out.bottom
 
-    @cv.width = fw * pr
-    @cv.height = fh * pr
-    @cv.style.width = "#{fw}px"
-    @cv.style.height = "#{fh}px"
+    @cv.width = (w + out.left + out.right) * pr
+    @cv.height = (h + out.top + out.bottom) * pr
+    @cv.style.transform = "translate(#{-out.left}px,#{-out.right}px) scale(#{1/pr}"
 
     @cx.scale pr, pr
     @draw()

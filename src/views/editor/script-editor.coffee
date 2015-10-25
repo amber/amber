@@ -17,9 +17,17 @@ class ScriptEditor extends View
     @touches = new Map
 
   enter: ->
-    @bb = @base.getBoundingClientRect()
+    @onResize()
+    addEventListener "resize", @onResize
   afterEnter: ->
     @updateBounds()
+  exit: ->
+    removeEventListener "resize", @onResize
+
+  onResize: (e) =>
+    @bb = @base.getBoundingClientRect()
+    if e
+      s.updatePixelRatio() for s in @subviews
 
   onScroll: (e) ->
     @scrollX = @base.scrollLeft

@@ -48,6 +48,11 @@ class Base extends View
     @sizeChanged w, h
     @dirtyUp()
 
+  updatePixelRatio: ->
+    @pixelRatioChanged()
+    s.updatePixelRatio() for s in @subviews
+  pixelRatioChanged: ->
+
   sizeChanged: ->
 
   hitTest: -> no
