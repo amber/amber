@@ -2,7 +2,7 @@
 {Block} = require "./block"
 {Arg} = require "./block"
 {Label} = require "./label"
-require "./command-block"
-require "./string-arg"
+{CommandBlock} = require "./command-block"
+{StringArg} = require "./string-arg"
 
-module.exports = {Script, Block, Arg, Label}
+module.exports = {Script, Block, CommandBlock, Arg, StringArg, Label}

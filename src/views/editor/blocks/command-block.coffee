@@ -1,7 +1,11 @@
 {Block} = require "./block"
 
 class CommandBlock extends Block
+  isCommand: true
   @type "c"
+
+  insert: (script) ->
+    @parent.insertBefore script, this
 
   outset: -> left: 0, right: 0, top: 0, bottom: 3
   padding: -> left: 7, right: 7, top: 3, bottom: 3
@@ -68,3 +72,5 @@ class CommandBlock extends Block
   #   cx.lineTo px, @h
   #   cx.arc r, @h - r, r, Math.PI/2, Math.PI
   #   cx.fill()
+
+module.exports = {CommandBlock}

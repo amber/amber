@@ -12,6 +12,9 @@ class ScriptEditor extends View
       ].concat (Block.for "c", "#06c", "move %n steps" for i in [1..50])).moveTo 8, 8
 
   initialize: ->
+    @overlay = (@build -> @div class: "scripts-overlay").firstChild
+    @feedbackPool = []
+
     @scrollX = @scrollY = 0
     @mouseTouch = null
     @touches = new Map
@@ -19,10 +22,12 @@ class ScriptEditor extends View
   enter: ->
     @onResize()
     addEventListener "resize", @onResize
+    document.body.appendChild @overlay
   afterEnter: ->
     @updateBounds()
   exit: ->
     removeEventListener "resize", @onResize
+    document.body.removeChild @overlay
 
   onResize: (e) =>
     @bb = @base.getBoundingClientRect()
@@ -74,18 +79,113 @@ class ScriptEditor extends View
       d.script = d.target.detach()
       d.ox = p.x - d.sx - @scrollX
       d.oy = p.y - d.sy - @scrollY
-      d.script.embed document.body
+      d.script.embed @overlay
       d.script.addShadow 3, 3, 12, "rgba(0,0,0,.35)"
+      d.cx = @feedback()
     if d.dragging
       d.script.moveTo d.ox + d.x + @bb.left, d.oy + d.y + @bb.top
+      d.feedback = @getFeedback d.script, d.ox + d.x + @scrollX, d.oy + d.y + @scrollY
+      @renderFeedback d.feedback, d.cx
     else
 
   onGestureEnd: (d) ->
     if d.dragging
       d.script.removeShadow()
-      @add d.script.moveTo d.ox + d.x + @scrollX, d.oy + d.y + @scrollY
+      @releaseFeedback d.cx
+      @applyFeedback d.feedback, d
     else if d.target
       d.target.click()
+
+  getFeedback: (script, x, y) ->
+    if script.subviews[0].isCommand
+      @getCommandFeedback script, x, y
+    else
+      null
+
+  commandThreshold: -> x: 20, y: 10
+
+  getCommandFeedback: (script, sx, sy) ->
+    th = @commandThreshold()
+    result = null
+
+    @enumerateScripts (s, x, y) ->
+      return unless sx >= x - th.x && sx < x + th.x
+      for b, i in s.subviews
+        if sy >= y - th.y && sy < y + th.y || i == 0 && sy + script.h >= y - th.y && sy + script.h < y + th.y
+          result = {kind: "insert", target: b}
+        y += b.h
+      if sy >= y - th.y && sy < y + th.y
+        result = {kind: "append", target: s}
+
+    result
+
+  applyFeedback: (f, d) ->
+    unless f
+      @add d.script.moveTo d.ox + d.x + @scrollX, d.oy + d.y + @scrollY
+      return
+    switch f.kind
+      when "insert"
+        f.target.insert d.script
+      when "append"
+        f.target.append d.script
+
+  renderFeedback: (f, cx) ->
+    cv = cx.canvas
+    unless f
+      cv.style.display = "none"
+      return
+    cv.style.display = "block"
+
+    switch f.kind
+      when "insert"
+        {x,y} = f.target.basePosition()
+        @renderCommandFeedback cx, x, y, f.target.w
+      when "append"
+        {x,y} = f.target.basePosition()
+        @renderCommandFeedback cx, x, y + f.target.h, f.target.subviews[f.target.subviews.length-1].w
+
+  renderCommandFeedback: (cx, x, y, w) ->
+    ps = d: 4, blur: 8, ox: 2, oy: 2, color: "rgba(0,0,0,.4)"
+    {px, pw} = CommandBlock::params()
+    b = CommandBlock::outset().bottom
+    r = ps.d / 2 + ps.blur
+    x += @bb.left - @scrollX
+    y += @bb.top - @scrollY
+    pr = devicePixelRatio ? 1
+
+    cx.canvas.width = pr * (w + r*2 + ps.ox)
+    cx.canvas.height = pr * (r*2 + b + ps.oy)
+    cx.canvas.style.transform = "translate(#{x-r}px, #{y-r}px) scale(#{1/pr})"
+    cx.scale pr, pr
+
+    cx.strokeStyle = "#fff"
+    cx.lineWidth = ps.d
+    cx.lineCap = "round"
+    cx.shadowOffsetX = ps.ox
+    cx.shadowOffsetY = ps.oy
+    cx.shadowBlur = ps.blur
+    cx.shadowColor = ps.color
+    cx.moveTo r + b, r
+    cx.lineTo r + px - b, r
+    cx.lineTo r + px, r + b
+    cx.lineTo r + px + pw, r + b
+    cx.lineTo r + px + pw + b, r
+    cx.lineTo r + w - b, r
+    cx.stroke()
+
+  feedback: ->
+    if @feedbackPool.length
+      cx = @feedbackPool.pop()
+      cx.canvas.style.display = "block"
+    else
+      cv = (@build -> @canvas class: "abs").firstChild
+      @overlay.appendChild cv
+      cx = cv.getContext "2d"
+      @feedbackPool.push cx
+    cx
+  releaseFeedback: (cx) ->
+    @feedbackPool.push cx
+    cx.canvas.style.display = "none"
 
   add: (script) ->
     super script
@@ -121,8 +221,13 @@ class ScriptEditor extends View
     maxY = es + Math.max @scrollY + @bb.height, @maxY
     @fill.style.transform = "translate(#{maxX}px, #{maxY}px)"
 
+  layoutUp: -> @updateBounds()
+
   objectAt: (x, y) ->
     return o for s in @subviews by -1 when o = s.objectAt x - s.x, y - s.y
 
+  enumerateScripts: (fn) ->
+    s.enumerateScripts fn, 0, 0 for s in @subviews
+
 module.exports = {ScriptEditor}
-{Script, Block} = require "./blocks"
+{Script, Block, CommandBlock} = require "./blocks"

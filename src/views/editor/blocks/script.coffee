@@ -25,6 +25,20 @@ class Script extends Base
   objectAt: (x, y) ->
     return o for b in @subviews when o = b.objectAt x-b.x, y-b.y
 
+  insertBefore: (script, b) ->
+    i = @subviews.indexOf b
+    if i is -1 then return @append script
+    {h} = script
+    sv = (@subviews.slice 0, i).concat script.subviews, @subviews.slice i
+    @add s for s in script.subviews by -1
+    @subviews = sv
+    if i is 0 && @parent?.isScriptEditor then @moveTo @x, @y - h
+    @dirtyUp()
+
+  append: (script) ->
+    @add s for s in script.subviews.slice()
+    @dirtyUp()
+
   splitFrom: (b) ->
     i = @subviews.indexOf b
     switch i
@@ -34,6 +48,11 @@ class Script extends Base
         script = new Script @subviews.slice i
         @dirty()
         script
+
+  enumerateScripts: (fn, x, y) ->
+    x += @x; y += @y
+    fn this, x, y
+    b.enumerateScripts fn, x, y for b in @subviews
 
   addShadow: (ox, oy, blur, color) ->
     return if @shadow

@@ -98,6 +98,8 @@ class Block extends Base
     else if @parent.isScript
       @parent.splitFrom @
 
+  enumerateScripts: (fn, x, y) ->
+
 module.exports = {Block}
 {Label} = require "./label"
 {Arg} = require "./arg"
