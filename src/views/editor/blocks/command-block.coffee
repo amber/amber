@@ -11,9 +11,8 @@ class CommandBlock extends Block
   padding: -> left: 7, right: 7, top: 3, bottom: 3
   params: -> pw: 10, px: 16, r: @outset().bottom
 
-  pathOn: (cx, x, y, w, h) ->
+  pathOn: (cx, w, h) ->
     {pw, px, r} = @params()
-    cx.translate x, y
     cx.moveTo 0, r
     cx.lineTo r, 0
     cx.lineTo px - r + .25, 0
@@ -35,11 +34,10 @@ class CommandBlock extends Block
     cx.lineTo r, h
     cx.lineTo 0, h - r
     cx.closePath()
-    cx.translate -x, -y
 
-  pathOutlineOn: (cx, x, y, w, h) ->
+  pathOutlineOn: (cx, w, h) ->
     {pw, px, r} = @params()
-    cx.translate x, y - .5
+    cx.translate 0, -.5
     cx.lineTo w, h - r
     cx.lineTo w - r, h
     cx.lineTo px + pw + r, h
@@ -52,7 +50,7 @@ class CommandBlock extends Block
     # cx.lineTo px - r, h
     cx.lineTo r, h
     cx.lineTo 0, h - r
-    cx.translate -x, -y
+    cx.translate 0, .5
 
   # pathOn: (cx) ->
   #   r = 3

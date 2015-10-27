@@ -10,6 +10,9 @@ class ScriptEditor extends View
         Block.for "c", "#06c", "go to x: %n y: %n"
         Block.for "c", "#06c", "point in direction %n"
         Block.for "c", "#d95", "forever %t"
+        Block.for "c", "#d95", "forever %t"
+        Block.for "c", "#d95", "forever %t"
+        Block.for "c", "#d95", "wait %n secs"
       ].concat (Block.for "c", "#06c", "move %n steps", [Math.random() * 1000 | 0] for i in [1..50])).moveTo 8, 8
 
   initialize: ->

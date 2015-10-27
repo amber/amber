@@ -80,8 +80,10 @@ class Script extends Base
 
     cx.translate -ox + blur, -oy + blur
     cx.beginPath()
-    for b in @subviews
-      b.pathOn cx, b.x, b.y, b.w, b.h
+    @enumerateScripts (s, x, y) ->
+      for b in s.subviews
+        b.pathFullOn cx, x + b.x, y + b.y, b.w, b.h
+    , -@x, -@y
 
     cx.fillStyle = "#000"
     cx.fill()

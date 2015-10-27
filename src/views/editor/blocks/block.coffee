@@ -79,7 +79,7 @@ class Block extends Base
       wrap() if view.wrapAfter
     wrap true
 
-    @setSize Math.max(w, x) + pad.right, y + h + pad.bottom
+    @setSize Math.max(w, x) + pad.right, y + (Math.max 3, h) + pad.bottom
 
   pixelRatioChanged: -> @sizeChanged @w, @h
 
@@ -103,37 +103,58 @@ class Block extends Base
 
     @cx.fillStyle = @color
     @cx.beginPath()
-    @pathOn @cx, out.left, out.top, @w, @h
+    @pathFullOn @cx, out.left, out.top, @w, @h
     @cx.fill()
 
     @cx.strokeStyle = "rgba(0,0,0,.35)"
     @cx.beginPath()
-    @pathOutlineOn @cx, out.left, out.top, @w, @h
+    @pathFullOutlineOn @cx, out.left, out.top, @w, @h
     @cx.stroke()
 
+  pathFullOn: (cx, x, y, w, h) ->
+    cx.translate x, y
+    @pathOn cx, w, h
+
     {pw, px, r} = CommandBlock::params()
-    @cx.globalCompositeOperation = "destination-out"
-    # @cx.fillStyle = "#fff"
-    @cx.beginPath()
     for t in @subviews when t.isScriptArg
-      @cx.moveTo t.x, t.y + r
-      @cx.lineTo t.x + r, t.y
-      @cx.lineTo t.x + px - r + .25, t.y
-      @cx.lineTo t.x + px + .25, t.y + r
-      @cx.lineTo t.x + px + pw - .25, t.y + r
-      @cx.lineTo t.x + px + pw + r - .25, t.y
-      @cx.lineTo t.x + r, t.y
-      @cx.lineTo @w - r, t.y
-      @cx.lineTo @w, t.y - r
-      @cx.lineTo @w, t.y + t.h + r
-      @cx.lineTo @w - r, t.y + t.h
-      @cx.lineTo t.x + r, t.y + t.h
-      @cx.lineTo t.x, t.y + t.h - r
-      # @cx.arc t.x + r, t.y + r, r, Math.PI, Math.PI * 3/2
-      # @cx.arc @w - r, t.y - r, r, Math.PI/2, 0, true
-      # @cx.arc @w - r, t.y + t.h + r, r, 0, Math.PI * 3/2, true
-      # @cx.arc t.x + r, t.y + t.h - r, r, Math.PI/2, Math.PI
-    @cx.fill()
+      cx.moveTo t.x, t.y + r
+      cx.lineTo t.x, t.y + t.h - r
+      cx.lineTo t.x + r, t.y + t.h
+      cx.lineTo w - r, t.y + t.h
+      cx.lineTo w, t.y + t.h + r
+      cx.lineTo w, t.y - r
+      cx.lineTo w - r, t.y
+      cx.lineTo t.x + r, t.y
+      cx.lineTo t.x + px + pw + r - .25, t.y
+      cx.lineTo t.x + px + pw - .25, t.y + r
+      cx.lineTo t.x + px + .25, t.y + r
+      cx.lineTo t.x + px - r + .25, t.y
+      cx.lineTo t.x + r, t.y
+      cx.closePath()
+      # cx.arc t.x + r, t.y + r, r, Math.PI, Math.PI * 3/2
+      # cx.arc @w - r, t.y - r, r, Math.PI/2, 0, true
+      # cx.arc @w - r, t.y + t.h + r, r, 0, Math.PI * 3/2, true
+      # cx.arc t.x + r, t.y + t.h - r, r, Math.PI/2, Math.PI
+    cx.translate -x, -y
+
+  pathFullOutlineOn: (cx, x, y, w, h) ->
+    cx.translate x, y
+    @pathOutlineOn cx, w, h
+
+    {pw, px, r} = CommandBlock::params()
+    for t in @subviews when t.isScriptArg
+      cx.translate 0, -.5
+      cx.moveTo t.x - .5, t.y + t.h - r
+      cx.lineTo t.x - .5, t.y + r + .5
+      cx.lineTo t.x + r, t.y
+      cx.lineTo t.x + px - r, t.y
+      cx.lineTo t.x + px, t.y + r
+      cx.lineTo t.x + px + pw, t.y + r
+      cx.lineTo t.x + px + pw + r, t.y
+      cx.lineTo w - r, t.y
+      cx.lineTo w, t.y - r
+      cx.translate 0, .5
+    cx.translate -x, -y
 
   hitTest: (x, y) -> 0 <= x < @w and 0 <= y < @h
 
