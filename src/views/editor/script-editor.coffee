@@ -9,7 +9,8 @@ class ScriptEditor extends View
       @subview new Script([
         Block.for "c", "#06c", "go to x: %n y: %n"
         Block.for "c", "#06c", "point in direction %n"
-      ].concat (Block.for "c", "#06c", "move %n steps" for i in [1..50])).moveTo 8, 8
+        Block.for "c", "#d95", "forever %t"
+      ].concat (Block.for "c", "#06c", "move %n steps", [Math.random() * 1000 | 0] for i in [1..50])).moveTo 8, 8
 
   initialize: ->
     @overlay = (@build -> @div class: "scripts-overlay").firstChild
@@ -111,7 +112,7 @@ class ScriptEditor extends View
     @enumerateScripts (s, x, y) ->
       return unless sx >= x - th.x && sx < x + th.x
       for b, i in s.subviews
-        if sy >= y - th.y && sy < y + th.y || i == 0 && sy + script.h >= y - th.y && sy + script.h < y + th.y
+        if sy >= y - th.y && sy < y + th.y || i == 0 && s.parent.isScriptEditor && sy + script.h >= y - th.y && sy + script.h < y + th.y
           result = {kind: "insert", target: b}
         y += b.h
       if sy >= y - th.y && sy < y + th.y
@@ -142,7 +143,7 @@ class ScriptEditor extends View
         @renderCommandFeedback cx, x, y, f.target.w
       when "append"
         {x,y} = f.target.basePosition()
-        @renderCommandFeedback cx, x, y + f.target.h, f.target.subviews[f.target.subviews.length-1].w
+        @renderCommandFeedback cx, x, y + f.target.h, f.target.subviews[f.target.subviews.length-1]?.w ? f.target.parent.parent.w
 
   renderCommandFeedback: (cx, x, y, w) ->
     ps = d: 4, blur: 8, ox: 2, oy: 2, color: "rgba(0,0,0,.4)"
@@ -179,7 +180,7 @@ class ScriptEditor extends View
       cx.canvas.style.display = "block"
     else
       cv = (@build -> @canvas class: "abs").firstChild
-      @overlay.appendChild cv
+      @overlay.insertBefore cv, @overlay.firstChild
       cx = cv.getContext "2d"
       @feedbackPool.push cx
     cx

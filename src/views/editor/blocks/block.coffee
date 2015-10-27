@@ -40,19 +40,46 @@ class Block extends Base
         @args.push arg
     @dirty()
 
+  wrapWidth: -> 400
+
   layout: ->
     pad = @padding()
     sp = @spacing()
+    ww = @wrapWidth()
 
     x = pad.left
+    w = 0
+    y = pad.top
     h = 0
-    for view, i in @subviews
-      x += sp.x if i
-      view.moveTo x, pad.top
+    i = 0
+    li = false
+    line = 0
+
+    wrap = (last) =>
+      for k in [line...i]
+        view = @subviews[k]
+        view.moveTo view.x, y + (h - view.h) / 2
+      unless last
+        y += sp.y + h
+        w = Math.max w, x
+        h = 0
+        x = pad.left
+        li = false
+        line = i
+
+    while i < @subviews.length
+      view = @subviews[i]
+      x += sp.x if li
+      li = true
+      wrap() if view.wrapBefore || x + view.w > ww
+      i++
+      view.moveTo x, 0
       x += view.w
       h = Math.max h, view.h
+      wrap() if view.wrapAfter
+    wrap true
 
-    @setSize x + pad.right, pad.top + h + pad.bottom
+    @setSize Math.max(w, x) + pad.right, y + h + pad.bottom
 
   pixelRatioChanged: -> @sizeChanged @w, @h
 
@@ -84,6 +111,30 @@ class Block extends Base
     @pathOutlineOn @cx, out.left, out.top, @w, @h
     @cx.stroke()
 
+    {pw, px, r} = CommandBlock::params()
+    @cx.globalCompositeOperation = "destination-out"
+    # @cx.fillStyle = "#fff"
+    @cx.beginPath()
+    for t in @subviews when t.isScriptArg
+      @cx.moveTo t.x, t.y + r
+      @cx.lineTo t.x + r, t.y
+      @cx.lineTo t.x + px - r + .25, t.y
+      @cx.lineTo t.x + px + .25, t.y + r
+      @cx.lineTo t.x + px + pw - .25, t.y + r
+      @cx.lineTo t.x + px + pw + r - .25, t.y
+      @cx.lineTo t.x + r, t.y
+      @cx.lineTo @w - r, t.y
+      @cx.lineTo @w, t.y - r
+      @cx.lineTo @w, t.y + t.h + r
+      @cx.lineTo @w - r, t.y + t.h
+      @cx.lineTo t.x + r, t.y + t.h
+      @cx.lineTo t.x, t.y + t.h - r
+      # @cx.arc t.x + r, t.y + r, r, Math.PI, Math.PI * 3/2
+      # @cx.arc @w - r, t.y - r, r, Math.PI/2, 0, true
+      # @cx.arc @w - r, t.y + t.h + r, r, 0, Math.PI * 3/2, true
+      # @cx.arc t.x + r, t.y + t.h - r, r, Math.PI/2, Math.PI
+    @cx.fill()
+
   hitTest: (x, y) -> 0 <= x < @w and 0 <= y < @h
 
   objectAt: (x, y) ->
@@ -99,8 +150,13 @@ class Block extends Base
       @parent.splitFrom @
 
   enumerateScripts: (fn, x, y) ->
+    x += @x
+    y += @y
+    for t in @subviews when t.isScriptArg
+      t.enumerateScripts fn, x, y
 
 module.exports = {Block}
+{CommandBlock} = require "./command-block"
 {Label} = require "./label"
 {Arg} = require "./arg"
 {Script} = require "./script"

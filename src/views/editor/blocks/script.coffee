@@ -7,7 +7,7 @@ class Script extends Base
   @content: ->
     @div class: "abs", =>
 
-  initialize: (blocks) ->
+  initialize: (blocks = []) ->
     super
     @add b for b in blocks
     @dirty()
@@ -42,12 +42,16 @@ class Script extends Base
   splitFrom: (b) ->
     i = @subviews.indexOf b
     switch i
-      when 0 then @
-      when -1 then new Script[b]
+      when 0
+        if @parent.isScriptArg
+          result = new Script @subviews.slice()
+        else
+          return @
+      when -1 then return new Script [b]
       else
-        script = new Script @subviews.slice i
-        @dirty()
-        script
+        result = new Script @subviews.slice i
+    @dirtyUp()
+    result
 
   enumerateScripts: (fn, x, y) ->
     x += @x; y += @y

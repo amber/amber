@@ -4,5 +4,6 @@
 {Label} = require "./label"
 {CommandBlock} = require "./command-block"
 {StringArg} = require "./string-arg"
+{ScriptArg} = require "./script-arg"
 
-module.exports = {Script, Block, CommandBlock, Arg, StringArg, Label}
+module.exports = {Script, Block, CommandBlock, Arg, StringArg, ScriptArg, Label}
