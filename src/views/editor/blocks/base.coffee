@@ -9,6 +9,8 @@ class Base extends View
     @base.style.transform = "translate(#{@x|0}px, #{@y|0}px)"
     this
 
+  scriptEditor: -> @parent.scriptEditor()
+
   basePosition: ->
     o = @
     x = 0; y = 0

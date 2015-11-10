@@ -35,10 +35,30 @@ class Block extends Base
       else
         [type, menu] = p.slice(1).split "."
         given = args[j]
-        @add arg = if given?.isBlock then given else @defaultArgs[j] = Arg.for type, menu, given
+        @defaultArgs[j] = df = if given?.isArg then given else Arg.for type, menu, if given?.isBlock then null else given
+        @add arg = if given?.isBlock then given else df
         j++
         @args.push arg
     @dirty()
+
+  firstScriptArg: ->
+    return a for a in @args when a.isScriptArg
+
+  replaceOffset: -> x: 10, y: 10
+
+  replaceArg: (old, arg) ->
+    throw new Error "argument not found" if -1 is i = @args.indexOf old
+    @args[i] = arg
+    old.replaceWith arg
+    @dirtyUp()
+    if old.isBlock
+      {x,y} = arg.basePosition()
+      ro = @replaceOffset()
+      @scriptEditor().add (new Script [old]).moveTo x + arg.w + ro.x, y + ro.y
+
+  resetArg: (arg) ->
+    throw new Error "argument not found" if -1 is i = @args.indexOf arg
+    @replaceArg arg, @defaultArgs[i]
 
   wrapWidth: -> 400
 
@@ -163,18 +183,22 @@ class Block extends Base
     return @ if @hitTest x, y
 
   detach: ->
+    if @parent.isBlock
+      @parent.resetArg @
     if not @parent
       new Script [@]
-    else if @parent.isBlock
-      @parent.resetArg @
     else if @parent.isScript
       @parent.splitFrom @
 
   enumerateScripts: (fn, x, y) ->
     x += @x
     y += @y
-    for t in @subviews when t.isScriptArg
+    for t in @args when t.isScriptArg
       t.enumerateScripts fn, x, y
+
+  enumerateArgs: (fn, x, y) ->
+    x += @x; y += @y
+    a.enumerateArgs fn, x, y for a in @args
 
 module.exports = {Block}
 {CommandBlock} = require "./command-block"

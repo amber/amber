@@ -7,7 +7,7 @@ class ScriptEditor extends View
     @div class: "scripts", mousedown: "onMouseDown", scroll: "onScroll", =>
       @div outlet: "fill", class: "fill"
       @subview new Script([
-        Block.for "c", "#06c", "go to x: %n y: %n"
+        Block.for "c", "#06c", "go to x: %n y: %n", [Block.for "r", "#4a0", "%n + %n", [(Block.for "r", "#06c", "x position"), (Block.for "r", "#06c", "y position")]]
         Block.for "c", "#06c", "point in direction %n"
         Block.for "c", "#d95", "forever %t"
         Block.for "c", "#d95", "forever %t"
@@ -75,7 +75,7 @@ class ScriptEditor extends View
 
   onGestureMove: (d) ->
     return unless d.target
-    if not d.dragging and (d.x - d.sx)**2 + (d.y - d.sy)**2 >= 4**2
+    if not d.dragging and (d.x - d.sx)**2 + (d.y - d.sy)**2 >= @dragThreshold()**2
       d.dragging = yes
       if d.target.isArg
         d.target = d.target.parent
@@ -101,18 +101,25 @@ class ScriptEditor extends View
       d.target.click()
 
   getFeedback: (script, x, y) ->
-    if script.subviews[0].isCommand
+    if (block = script.subviews[0]).isCommand
       @getCommandFeedback script, x, y
     else
-      null
+      @getReporterFeedback block, x, y
 
+  dragThreshold: -> 3
   commandThreshold: -> x: 20, y: 10
+  reporterThreshold: -> x: 8, y: 8
 
   getCommandFeedback: (script, sx, sy) ->
     th = @commandThreshold()
-    result = null
+    if wrap = script.subviews[0]?.firstScriptArg()
+      wx = sx + wrap.x
+      wy = sy + wrap.y
 
+    result = null
     @enumerateScripts (s, x, y) ->
+      return unless s.subviews.length == 0 || s.subviews[0].isCommand
+      # if s.subviews.length && wrap && wx >= x - th.x && wx < x.th.x
       return unless sx >= x - th.x && sx < x + th.x
       for b, i in s.subviews
         if sy >= y - th.y && sy < y + th.y || i == 0 && s.parent.isScriptEditor && sy + script.h >= y - th.y && sy + script.h < y + th.y
@@ -120,7 +127,17 @@ class ScriptEditor extends View
         y += b.h
       if sy >= y - th.y && sy < y + th.y
         result = {kind: "append", target: s}
+    result
 
+  getReporterFeedback: (block, bx, yb) ->
+    th = @reporterThreshold()
+    result = null
+    distance = Infinity
+    @enumerateArgs (a, x, y) ->
+      return if bx > x + a.w + th.x || bx + block.w <= x - th.x || yb > y + a.h + th.y || yb + block.h <= y - th.y
+      if distance > dst = (x-bx)*(x-bx) + (y-yb)*(y-yb)
+        distance = dst
+        result = {kind: "replace", target: a}
     result
 
   applyFeedback: (f, d) ->
@@ -132,6 +149,8 @@ class ScriptEditor extends View
         f.target.insert d.script
       when "append"
         f.target.append d.script
+      when "replace"
+        f.target.parent.replaceArg f.target, d.script.subviews[0]
 
   renderFeedback: (f, cx) ->
     cv = cx.canvas
@@ -147,34 +166,67 @@ class ScriptEditor extends View
       when "append"
         {x,y} = f.target.basePosition()
         @renderCommandFeedback cx, x, y + f.target.h, f.target.subviews[f.target.subviews.length-1]?.w ? f.target.parent.parent.w
+      when "replace"
+        {x,y} = f.target.basePosition()
+        @renderReporterFeedback cx, x, y, f.target.w, f.target.h
+
+  feedbackParams: -> d: 4, r: 4, blur: 8, ox: 2, oy: 2, color: "rgba(0,0,0,.4)"
 
   renderCommandFeedback: (cx, x, y, w) ->
-    ps = d: 4, blur: 8, ox: 2, oy: 2, color: "rgba(0,0,0,.4)"
+    {d, ox, oy, blur, color} = @feedbackParams()
     {px, pw} = CommandBlock::params()
     b = CommandBlock::outset().bottom
-    r = ps.d / 2 + ps.blur
+    r = d / 2 + blur
     x += @bb.left - @scrollX
     y += @bb.top - @scrollY
     pr = devicePixelRatio ? 1
 
-    cx.canvas.width = pr * (w + r*2 + ps.ox)
-    cx.canvas.height = pr * (r*2 + b + ps.oy)
+    cx.canvas.width = pr * (w + r*2 + ox)
+    cx.canvas.height = pr * (r*2 + b + oy)
     cx.canvas.style.transform = "translate(#{x-r}px, #{y-r}px) scale(#{1/pr})"
     cx.scale pr, pr
 
     cx.strokeStyle = "#fff"
-    cx.lineWidth = ps.d
+    cx.lineWidth = d
     cx.lineCap = "round"
-    cx.shadowOffsetX = ps.ox
-    cx.shadowOffsetY = ps.oy
-    cx.shadowBlur = ps.blur
-    cx.shadowColor = ps.color
+    cx.shadowOffsetX = ox
+    cx.shadowOffsetY = oy
+    cx.shadowBlur = blur
+    cx.shadowColor = color
     cx.moveTo r + b, r
     cx.lineTo r + px - b, r
     cx.lineTo r + px, r + b
     cx.lineTo r + px + pw, r + b
     cx.lineTo r + px + pw + b, r
     cx.lineTo r + w - b, r
+    cx.stroke()
+
+  renderReporterFeedback: (cx, x, y, w, h) ->
+    {d, r, blur, ox, oy, color} = @feedbackParams()
+    pr = devicePixelRatio ? 1
+    x += @bb.left - @scrollX
+    y += @bb.top - @scrollY
+
+    cx.canvas.width = pr * (w + d + ox + r*2 + blur*2)
+    cx.canvas.height = pr * (h + d + oy + r*2 + blur*2)
+    os = r + blur + d/2
+    cx.canvas.style.transform = "translate(#{x-os}px, #{y-os}px) scale(#{1/pr})"
+    cx.scale pr, pr
+
+    cx.translate os, os
+    cx.strokeStyle = "#fff"
+    cx.fillStyle = "rgba(255,255,255,.7)"
+    cx.lineWidth = d / 2
+    cx.arc 0, 0, r, Math.PI, Math.PI*3/2
+    cx.arc w, 0, r, Math.PI*3/2, 0
+    cx.arc w, h, r, 0, Math.PI/2
+    cx.arc 0, h, r, Math.PI/2, Math.PI
+    cx.closePath()
+    cx.fill()
+    cx.shadowOffsetX = ox
+    cx.shadowOffsetY = oy
+    cx.shadowBlur = blur
+    cx.shadowColor = color
     cx.stroke()
 
   feedback: ->
@@ -197,6 +249,7 @@ class ScriptEditor extends View
 
   padding: -> 8
   extraSpace: -> 200
+  scriptEditor: -> @
 
   updateBounds: ->
     minX = minY = pad = @padding()
@@ -232,6 +285,8 @@ class ScriptEditor extends View
 
   enumerateScripts: (fn) ->
     s.enumerateScripts fn, 0, 0 for s in @subviews
+  enumerateArgs: (fn) ->
+    s.enumerateArgs fn, 0, 0 for s in @subviews
 
 module.exports = {ScriptEditor}
 {Script, Block, CommandBlock} = require "./blocks"

@@ -58,6 +58,10 @@ class Script extends Base
     fn this, x, y
     b.enumerateScripts fn, x, y for b in @subviews
 
+  enumerateArgs: (fn, x, y) ->
+    x += @x; y += @y
+    b.enumerateArgs fn, x, y for b in @subviews
+
   addShadow: (ox, oy, blur, color) ->
     return if @shadow
     @base.insertBefore (@shadow = ($$ -> @canvas class: "abs").firstChild), @base.firstChild

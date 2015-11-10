@@ -18,4 +18,8 @@ class Arg extends Base
   objectAt: (x, y) ->
     @ if @hitTest x, y
 
+  enumerateArgs: (fn, x, y) ->
+    x += @x; y += @y
+    fn this, x, y
+
 module.exports = {Arg}

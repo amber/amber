@@ -18,6 +18,11 @@ class ScriptArg extends Arg
     y += @y
     @script.enumerateScripts fn, x, y
 
+  enumerateArgs: (fn, x, y) ->
+    x += @x; y += @y
+    fn this, x, y
+    @script.enumerateArgs fn, x, y
+
   objectAt: (x, y) -> @script.objectAt x, y
 
 {Script} = require "./script"
