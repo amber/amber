@@ -5,15 +5,15 @@
 {Editor} = require "am/views/components/editor"
 
 class Post extends View
-  @content: ({app, d: {author, created, body}}) ->
-    user = app.server.user
+  @content: ({app, d}) ->
+    {author, created, body} = d
     @section class: "post", =>
       @img src: "http://lorempixel.com/100/100/abstract/1"
       @div class: "author", =>
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        if author is user?.id or user?.isAdmin
+        if app.server.user?.canEditPost d
           @button T("edit"), click: "edit", class: "menu edit"
           @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete"
         @button T("report"), class: "menu"
