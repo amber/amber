@@ -32,7 +32,7 @@ class Post extends View
 
   setPending: (pending, id) ->
     @d.id = id if id?
-    @base.classList.toggle "pending", pending
+    @base.classList.toggle "pending", !!pending
 
   edit: ->
     @parent.edit() if @top
