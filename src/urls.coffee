@@ -31,7 +31,7 @@ urls =
   "/wiki/new": AddPage
   "/wiki/new/:page": AddPage
   "/wiki/all": ({app}) -> new Discuss {app, filter: "[wiki] "}
-  "/wiki/t/:tag": ({app, tag}) -> new Discuss {app, filter: "[wiki] [#{tag}]"}
+  "/wiki/t/:tag": ({app, tag}) -> new Discuss {app, filter: "[wiki] [#{tag}] "}
   "/wiki/:page": wiki
   "/terms": wiki
   "/privacy": wiki
