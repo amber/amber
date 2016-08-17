@@ -2,6 +2,7 @@ io = require "socket.io-client"
 TopicSummary = require "am/models/topic-summary"
 Topic = require "am/models/topic"
 Post = require "am/models/post"
+User = require "am/models/user"
 storage = require "am/models/storage"
 
 class Server
@@ -56,14 +57,14 @@ class Server
     @socket.emit "unwatch"
 
   signedIn: (d) ->
-    @app.setUser @user = d.user
+    @app.setUser @user = new User d.user
     storage.set "amberToken", JSON.stringify [d.user.name, d.token]
 
   getUser: (id, cb) ->
     cb null, user if user = @userCache[id]
-    @socket.emit "get user", id, (err, user) =>
+    @socket.emit "get user", id, (err, d) =>
       return cb err if err
-      @userCache[id] = user
+      @userCache[id] = user = new User d
       cb null, user
 
   signUp: ({username, email, password}, cb) ->
