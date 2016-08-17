@@ -2,6 +2,7 @@ io = require "socket.io-client"
 TopicSummary = require "am/models/topic-summary"
 Topic = require "am/models/topic"
 Post = require "am/models/post"
+storage = require "am/models/storage"
 
 class Server
   constructor: (@app) ->
@@ -38,7 +39,9 @@ class Server
     @resignIn yes
 
   resignIn: (thenRoute) ->
-    if t = localStorage.getItem "amberToken"
+    storage.get "amberToken"
+    .then (t) =>
+      return unless t
       [username, token] = JSON.parse t
       @socket.emit "use auth token", {username, token}, (err, d) =>
         return if err
@@ -54,7 +57,7 @@ class Server
 
   signedIn: (d) ->
     @app.setUser @user = d.user
-    localStorage.setItem "amberToken", JSON.stringify [d.user.name, d.token]
+    storage.set "amberToken", JSON.stringify [d.user.name, d.token]
 
   getUser: (id, cb) ->
     cb null, user if user = @userCache[id]
@@ -79,7 +82,7 @@ class Server
     @socket.emit "sign out", (err) =>
       return cb err if err
       @app.setUser @user = null
-      localStorage.removeItem "amberToken"
+      storage.remove "amberToken"
       cb null
 
   addTopic: ({title, body, tags}, cb) ->
