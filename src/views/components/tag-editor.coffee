@@ -47,7 +47,7 @@ class TagEditor extends View
     setTimeout => @input.focus()
 
   onKeyPress: (e) ->
-    if e.keyIdentifier in ["U+0020", "U+002C"]
+    if e.keyCode in [32, 44] # space or comma
       @commit()
       e.preventDefault()
 
