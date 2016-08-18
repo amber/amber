@@ -1,6 +1,7 @@
 {View} = require "scene"
 {T, format, escape} = require "am/util"
 {TopicItem} = require "am/views/discuss/topic-item"
+data = require "am/data"
 
 CHUNK_SIZE = 20
 TAG_RE = /^\s*\[([^\]]+)\]\s*$/
@@ -9,6 +10,12 @@ class Discuss extends View
   @content: ({app, filter}) ->
     @article class: "discuss", click: "navigate", =>
       @h1 T("Discuss Amber")
+      @section class: "tag-bar", =>
+        for t in data.staticTags
+          if t is "open_issues"
+            @a class: "tag tag-open_issues", dataFilter: data.filter.openIssues, href: "/discuss/issues", "open issues"
+          else
+            @a class: "tag tag-#{t}", dataFilter: "[#{t}] ", href: "/discuss/t/#{t}", t
       @section class: "discuss-bar#{if app.server.user then " signed-in" else ""}", =>
         @div class: "input-wrapper", =>
           @input outlet: "filter", input: "refilter", keydown: "onFilterKey", type: "search", placeholder: T("Filter…"), value: filter ? ""
@@ -63,18 +70,24 @@ class Discuss extends View
       if t.classList.contains "tag"
         e.preventDefault()
         e.stopPropagation()
-        @addToken "[#{t.dataset.tag}]"
+        if t.dataset.filter
+          @setFilter t.dataset.filter
+        else
+          @addToken "[#{t.dataset.tag}]"
         return
       t = t.parentNode
+
+  setFilter: (t) ->
+    @filter.value = t
+    @updateURL()
+    scrollTo 0, 0
+    @filter.focus()
 
   addToken: (token) ->
     tokens = @filter.value.trim().split /\s+/
     return unless -1 is tokens.indexOf token
     t = @filter.value
-    @filter.value = t + (if /\S$/.test t then " " else "") + token + " "
-    @updateURL()
-    scrollTo 0, 0
-    @filter.focus()
+    @setFilter t + (if /\S$/.test t then " " else "") + token + " "
 
   refilter: ->
     clearInterval @interval
@@ -84,6 +97,8 @@ class Discuss extends View
     filter = @filter.value
     url = if x = TAG_RE.exec filter
       "/discuss/t/#{encodeURIComponent x[1]}"
+    else if filter is data.filter.openIssues
+      "/discuss/issues"
     else if filter
       "/discuss/s/#{encodeURIComponent filter}"
     else

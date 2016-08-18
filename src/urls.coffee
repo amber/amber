@@ -10,6 +10,7 @@
 {Project} = require "am/views/project"
 {AddPage} = require "am/views/wiki/add-page"
 {Editor} = require "am/views/editor/editor"
+data = require "am/data"
 
 wiki = ({app}) -> new Topic {app, url: location.pathname}
 
@@ -22,7 +23,7 @@ urls =
   "/explore": Explore
   "/discuss": Discuss
   "/discuss/new": AddTopic
-  "/discuss/issues": ({app}) -> new Discuss {app, filter: "([bug] OR [suggestion]) -[fixed] -[duplicate] -[closed] "}
+  "/discuss/issues": ({app}) -> new Discuss {app, filter: data.filter.openIssues}
   "/discuss/s/:filter": Discuss
   "/discuss/t/:tag": ({app, tag}) -> new Discuss {app, filter: "[#{tag}] "}
   "/topic/:id": Topic
