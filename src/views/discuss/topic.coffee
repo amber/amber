@@ -96,15 +96,13 @@ class Topic extends View
     switch d.type
       when "add post"
         scroll = scrollY is document.body.offsetHeight - innerHeight
-        @posts.push post = new Post {
-          @app
-          d: {
-            id: d.id
-            body: d.body
-            author: d.author
-            created: new Date
-          }
+        post = @d.addPost {
+          id: d.id
+          body: d.body
+          author: d.author
+          created: new Date
         }
+        @posts.push post = new Post {@app, d: post}
         @add post, @base, @form
         if scroll
           scrollTo 0, document.body.offsetHeight
