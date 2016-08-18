@@ -134,7 +134,7 @@ socket.on "hide post", {topic: String, id: String}, Function, ({topic, id}, cb) 
   Topic.findById topic, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    for p, i in t.posts when p._id+"" is id and p.author.equals @user._id
+    for p, i in t.posts when p._id+"" is id and (@user.isAdmin or p.author.equals @user._id
       return cb name: "invalid" if i is 0
       p.hidden = yes
       p.updated = Date.now()
