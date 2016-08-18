@@ -125,7 +125,8 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
 
 socket.on "hide topic", {id: String}, Function, ({id}, cb) ->
   return cb name: "invalid" unless @user
-  Topic.update {_id: id, author: @user._id}, {hidden: yes}, (err) =>
+  q = if @user.isAdmin then {_id: id} else {_id: id, author: @user._id}
+  Topic.update q, {hidden: yes}, (err) =>
     return cb name: "error" if err
     cb null, yes
 
