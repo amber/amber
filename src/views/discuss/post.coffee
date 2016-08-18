@@ -6,13 +6,14 @@
 
 class Post extends View
   @content: ({app, d}) ->
-    {author, created, body} = d
+    {author, created, updated, body} = d
     @section class: "post", =>
       @img src: "http://lorempixel.com/100/100/abstract/1"
       @div class: "author", =>
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
+        @span class: "edited", outlet: "edited"
         if app.server.user?.canEditPost d
           @button T("edit"), click: "edit", class: "menu edit"
           @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete"
@@ -28,6 +29,7 @@ class Post extends View
   initialize: ({@app, @top, @d, pending}) ->
     app.server.getUser @d.author, (err, user) =>
       @author.textContent = user.name if user
+    @setEdited @d.updated > @d.created
     @setPending pending
 
   setPending: (pending, id) ->
@@ -77,8 +79,13 @@ class Post extends View
       @setBody body
       @showEditor no
 
+  setEdited: (e) ->
+    @edited.style.display = if e then "" else "none"
+
   setBody: (body) ->
     @d.body = body
+    @d.updated = new Date
+    @setEdited yes
     @content.innerHTML = parse(body).result
 
   markDeleted: ->
