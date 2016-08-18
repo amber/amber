@@ -100,10 +100,9 @@ class Topic extends View
           id: d.id
           body: d.body
           author: d.author
-          created: new Date
         }
-        @posts.push post = new Post {@app, d: post}
-        @add post, @base, @form
+        @posts.push view = new Post {@app, d: post}
+        @add view, @base, @form
         if scroll
           scrollTo 0, document.body.offsetHeight
       when "hide post", "edit post"
@@ -123,15 +122,11 @@ class Topic extends View
       @editor.setValue ""
       @editor.focus()
       return
-    @posts.push view = new Post {
-      @app
-      d: {
-        body
-        author: @app.server.user.id
-        created: new Date
-      }
-      pending: yes
+    post = @d.addPost {
+      body
+      author: @app.server.user.id
     }
+    @posts.push view = new Post {@app, d: post, pending: yes}
     @editor.setDisabled yes
     @add view, @base, @form
     scrollTo 0, document.body.offsetHeight
