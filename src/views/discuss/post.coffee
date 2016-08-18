@@ -80,6 +80,7 @@ class Post extends View
       @showEditor no
 
   setEdited: (e) ->
+    return unless @edited
     @edited.style.display = if e then "" else "none"
     @edited.setAttribute "datetime", @d.updated.toISOString()
   updateEdited: ->
