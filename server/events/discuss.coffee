@@ -92,7 +92,7 @@ socket.on "edit topic", {id: String, title: String, tags: [String]}, Function, (
   Topic.findById id, (err, t) =>
     return cb name: "error" if err
     return cb name: "not found" unless t
-    return cb name: "forbidden" unless @user._id.equals(t.posts[0].author) or "wiki" in t.tags
+    return cb name: "forbidden" unless @user._id.equals(t.posts[0].author) or @user.isAdmin or "wiki" in t.tags
     t.title = title
     t.tags = tags
     t.updated = Date.now()
