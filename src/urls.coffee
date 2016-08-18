@@ -22,6 +22,7 @@ urls =
   "/explore": Explore
   "/discuss": Discuss
   "/discuss/new": AddTopic
+  "/discuss/issues": ({app}) -> new Discuss {app, filter: "([bug] OR [suggestion]) -[fixed] -[duplicate] -[closed] "}
   "/discuss/s/:filter": Discuss
   "/discuss/t/:tag": ({app, tag}) -> new Discuss {app, filter: "[#{tag}] "}
   "/topic/:id": Topic
