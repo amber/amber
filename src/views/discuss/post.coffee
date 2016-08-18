@@ -66,6 +66,9 @@ class Post extends View
     body = @editor.getValue().trim()
     return unless body
     @parent.saveEdit() if @top
+    if body is @d.body
+      @showEditor no
+      return
     @editor.setDisabled yes
     @app.server.editPost {
       id: @d.id
