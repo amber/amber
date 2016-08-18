@@ -13,7 +13,7 @@ class Post extends View
         @a outlet: "author", href: "/user/#{author}"
         @text " posted "
         @subview new RelativeDate created
-        @span class: "edited", outlet: "edited", mouseenter: "updateEdited"
+        @time class: "edited", outlet: "edited", mouseenter: "updateEdited"
         if app.server.user?.canEditPost d
           @button T("edit"), click: "edit", class: "menu edit"
           @button T("delete"), outlet: "deleteButton", mouseleave: "unconfirmDelete", click: "delete", class: "menu delete"
@@ -81,6 +81,7 @@ class Post extends View
 
   setEdited: (e) ->
     @edited.style.display = if e then "" else "none"
+    @edited.setAttribute "datetime", @d.updated.toISOString()
   updateEdited: ->
     @edited.title = T("Last edited {when}", when: relativeDate @d.updated)
 
