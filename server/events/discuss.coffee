@@ -106,12 +106,15 @@ socket.on "edit post", {topic: String, id: String, body: String}, Function, ({to
     return cb name: "error" if err
     return cb name: "not found" unless t
     for p, i in t.posts when p._id+"" is id and (not p.hidden or @user.isAdmin) and (p.author.equals(@user._id) or @user.isAdmin or i is 0 and "wiki" in t.tags)
-      p.versions.push {
+      v =
         created: p.updated
         body: p.body
-      }
+      v.author = p.editor if p.editor and not p.editor.equals p.author
+      p.versions.push v
+
       p.body = body
       p.updated = Date.now()
+      p.editor = @user._id
       t.updated = Date.now()
       return t.save (err) =>
         return cb name: "error" if err

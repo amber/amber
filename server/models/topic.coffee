@@ -14,6 +14,7 @@ schema = mongoose.Schema
   postCount: Number
   posts: [
     author: ObjectId
+    editor: ObjectId
     body: String
     hidden: type: Boolean, default: no
     created: type: Date, default: Date.now
@@ -21,6 +22,7 @@ schema = mongoose.Schema
     versions: [
       body: String
       created: Date
+      author: ObjectId
     ]
   ]
 
