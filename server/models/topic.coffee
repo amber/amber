@@ -44,6 +44,7 @@ schema.methods.toSearchJSON = -> {
   @tags
   @viewCount
   @postCount
+  hidden: @hidden or undefined
 }
 schema.methods.toJSON = -> {
   id: @_id
@@ -51,6 +52,7 @@ schema.methods.toJSON = -> {
   @title
   @author
   @created
+  hidden: @hidden or undefined
   @tags
   posts: {
     id: p._id
