@@ -140,5 +140,7 @@ class Discuss extends View
       e.preventDefault()
       clearInterval @interval
       @updateURL()
+      if e.shiftKey
+        @filter.blur()
 
 module.exports = {Discuss}
