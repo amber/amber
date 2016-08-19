@@ -43,6 +43,7 @@ class Discuss extends View
     @loading = no
     @done = no
     @offset = 0
+    @selectedIndex = -1
     for t in @topics then t.remove()
     @topics = []
     @update()
