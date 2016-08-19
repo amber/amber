@@ -10,10 +10,10 @@ socket.on "search topics", {query: String, offset: Number, length: Number}, Func
     cb null, (t.toSearchJSON() for t in topics)
 
 socket.on "get topic", String, Function, (id, cb) ->
-  Topic.findById id, (err, topic) ->
+  Topic.findById id, (err, topic) =>
     return cb name: "error" if err
-    return cb name: "not found" unless topic
-    cb null, topic
+    return cb name: "not found" unless topic and (@user?.isAdmin or not topic.hidden)
+    cb null, topic.toJSON @user
   Topic.update {_id: id}, {$inc: viewCount: 1}
   .exec()
 
