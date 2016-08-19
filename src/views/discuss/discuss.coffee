@@ -61,6 +61,8 @@ class Discuss extends View
       for t in topics
         @topics.push topic = new TopicItem {d: t, @app}
         @add topic, @content
+      if @offset is topics.length and not @done and document.activeElement is document.body
+        @select 0
 
   keyDown: (e) =>
     unfocused = document.activeElement is document.body
