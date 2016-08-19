@@ -1,5 +1,5 @@
 {View} = require "scene"
-{T, format, escape} = require "am/util"
+{T, format, escape, scrollIntoViewVBody} = require "am/util"
 {TopicItem} = require "am/views/discuss/topic-item"
 data = require "am/data"
 
@@ -64,12 +64,16 @@ class Discuss extends View
   keyDown: (e) =>
     if e.keyCode is 40
       @select Math.min @topics.length - 1, @selectedIndex + 1
+      e.preventDefault()
     if e.keyCode is 38
       @select Math.max 0, @selectedIndex - 1
+      e.preventDefault()
 
   select: (i) ->
     @topics[@selectedIndex]?.setSelected no
-    @topics[@selectedIndex = i]?.setSelected yes
+    if t = @topics[@selectedIndex = i]
+      t.setSelected yes
+      scrollIntoViewVBody t.base
 
   title: ->
     filter = @filter.value
