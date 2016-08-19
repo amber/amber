@@ -46,7 +46,7 @@ schema.methods.toSearchJSON = -> {
   @postCount
   hidden: @hidden or undefined
 }
-schema.methods.toJSON = -> {
+schema.methods.toJSON = (user) -> {
   id: @_id
   @url
   @title
@@ -60,7 +60,8 @@ schema.methods.toJSON = -> {
     body: p.body
     created: p.created
     updated: p.updated
-  } for p in @posts when not p.hidden
+    hidden: p.hidden or undefined
+  } for p in @posts when not p.hidden or user?.isAdmin
 }
 
 schema.statics.search = (query, offset, length, user, cb) ->
