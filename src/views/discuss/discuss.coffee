@@ -70,6 +70,7 @@ class Discuss extends View
       e.preventDefault()
 
   select: (i) ->
+    @filter.blur()
     @topics[@selectedIndex]?.setSelected no
     if t = @topics[@selectedIndex = i]
       t.setSelected yes
