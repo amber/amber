@@ -29,6 +29,7 @@ class Post extends View
   initialize: ({@app, @top, @d, pending}) ->
     app.server.getUser @d.author, (err, user) =>
       @author.textContent = user.name if user
+    @base.classList.add "hidden" if @d.hidden
     @setEdited @d.updated > @d.created
     @setPending pending
 
