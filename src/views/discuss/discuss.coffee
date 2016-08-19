@@ -72,6 +72,8 @@ class Discuss extends View
       if e.keyCode is 70
         @filter.focus()
         e.preventDefault()
+      if e.keyCode is 13 and t = @topics[@selectedIndex]
+        t.navigate()
 
   select: (i) ->
     @filter.blur()
