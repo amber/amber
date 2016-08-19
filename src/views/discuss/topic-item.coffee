@@ -32,8 +32,9 @@ class TopicItem extends View
     @apply()
 
   apply: ->
-    {id, url, title, unread, starred, author, created, tags, viewCount, postCount} = @d
+    {id, url, title, unread, starred, author, created, tags, viewCount, postCount, hidden} = @d
 
+    @base.classList.toggle "hidden", !!hidden
     @title.href = url ? "/topic/#{id}"
     @title.textContent = title
     @avatar.src = "http://lorempixel.com/100/100/abstract/1"
