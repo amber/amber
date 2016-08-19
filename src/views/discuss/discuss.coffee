@@ -73,7 +73,7 @@ class Discuss extends View
     @topics[@selectedIndex]?.setSelected no
     if t = @topics[@selectedIndex = i]
       t.setSelected yes
-      scrollIntoViewVBody t.base
+      scrollIntoViewVBody t.base, 50
 
   title: ->
     filter = @filter.value

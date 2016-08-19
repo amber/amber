@@ -60,11 +60,11 @@ roundRect = (cx, x, y, w, h, r) ->
   cx.arc x + r, y + h - r, r, Math.PI/2, Math.PI
   cx.closePath()
 
-scrollIntoViewVBody = (e) ->
+scrollIntoViewVBody = (e, padding = 0) ->
   bbe = e.getBoundingClientRect()
-  if bbe.top < 0
-    scrollBy 0, bbe.top
-  else if bbe.bottom > innerHeight
-    scrollBy 0, bbe.bottom - innerHeight
+  if bbe.top < padding
+    scrollBy 0, bbe.top - padding
+  else if bbe.bottom > innerHeight - padding
+    scrollBy 0, bbe.bottom + padding - innerHeight
 
 module.exports = {format, escape, emitter, T, relativeDate, humanNumber, slugify, deslugify, capitalize, roundRect, scrollIntoViewVBody}
