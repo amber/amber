@@ -63,13 +63,14 @@ class Discuss extends View
         @add topic, @content
 
   keyDown: (e) =>
-    if e.keyCode is 40
+    unfocused = document.activeElement is document.body
+    if e.keyCode is 40 or unfocused and e.keyCode is 74
       @select Math.min @topics.length - 1, @selectedIndex + 1
       e.preventDefault()
-    if e.keyCode is 38
+    if e.keyCode is 38 or unfocused and e.keyCode is 75
       @select Math.max 0, @selectedIndex - 1
       e.preventDefault()
-    if document.activeElement is document.body
+    if unfocused
       if e.keyCode is 70
         @filter.focus()
         e.preventDefault()
