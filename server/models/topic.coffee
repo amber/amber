@@ -65,9 +65,9 @@ schema.methods.toJSON = (user) -> {
 }
 
 schema.statics.search = (query, offset, length, user, cb) ->
-  q = parseQuery query
+  q = parseQuery query, user
   # console.log require('util').inspect q, null, depth: -1
-  Topic.find q, {url: 1, title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, stars: {$elemMatch: {$in: [user?._id]}}}
+  Topic.find q, {url: 1, title: 1, author: 1, created: 1, tags: 1, viewCount: 1, postCount: 1, hidden: 1, stars: {$elemMatch: {$in: [user?._id]}}}
   .sort {updated: -1}
   .skip offset
   .limit length
@@ -75,7 +75,7 @@ schema.statics.search = (query, offset, length, user, cb) ->
 
 RE_WORD = /[\w'_]+/g
 
-parseQuery = (query) ->
+parseQuery = (query, user) ->
   i = 0
 
   skipSpace = ->
@@ -145,7 +145,7 @@ parseQuery = (query) ->
       criteria.push result
     skipSpace()
 
-  criteria.push {hidden: {$not: {$eq: yes}}}
-  $and: criteria
+  criteria.push {hidden: {$not: {$eq: yes}}} unless user?.isAdmin
+  if criteria.length then $and: criteria else {}
 
 module.exports = Topic = mongoose.model "Topic", schema
