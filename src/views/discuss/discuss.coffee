@@ -68,6 +68,10 @@ class Discuss extends View
     if e.keyCode is 38
       @select Math.max 0, @selectedIndex - 1
       e.preventDefault()
+    if document.activeElement is document.body
+      if e.keyCode is 70
+        @filter.focus()
+        e.preventDefault()
 
   select: (i) ->
     @filter.blur()
