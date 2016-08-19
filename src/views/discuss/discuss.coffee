@@ -74,7 +74,7 @@ class Discuss extends View
       if e.keyCode is 70
         @filter.focus()
         e.preventDefault()
-      if e.keyCode is 13 and t = @topics[@selectedIndex]
+      if e.keyCode in [13, 79] and t = @topics[@selectedIndex]
         t.navigate()
 
   select: (i) ->
