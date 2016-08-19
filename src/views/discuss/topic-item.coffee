@@ -62,4 +62,6 @@ class TopicItem extends View
 
   read: -> @base.classList.remove "unread"
 
+  setSelected: (s) -> @base.classList.toggle "selected", !!s
+
 module.exports = {TopicItem}

@@ -26,14 +26,18 @@ class Discuss extends View
   enter: ->
     addEventListener "scroll", @update
     @update()
+    document.addEventListener "keydown", @keyDown
 
     @filter.selectionStart = @filter.selectionEnd = @filter.value.length
     @filter.focus()
 
-  exit: -> removeEventListener "scroll", @update
+  exit: ->
+    removeEventListener "scroll", @update
+    document.removeEventListener "keydown", @keyDown
 
   initialize: ({@app}) ->
     @topics = []
+    @selectedIndex = -1
 
   reset: ->
     @loading = no
@@ -56,6 +60,16 @@ class Discuss extends View
       for t in topics
         @topics.push topic = new TopicItem {d: t, @app}
         @add topic, @content
+
+  keyDown: (e) =>
+    if e.keyCode is 40
+      @select Math.min @topics.length - 1, @selectedIndex + 1
+    if e.keyCode is 38
+      @select Math.max 0, @selectedIndex - 1
+
+  select: (i) ->
+    @topics[@selectedIndex]?.setSelected no
+    @topics[@selectedIndex = i]?.setSelected yes
 
   title: ->
     filter = @filter.value
